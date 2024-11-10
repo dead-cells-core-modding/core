@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DeadCellsModding": {
+      "commandName": "Project",
+      "commandLineArgs": "\"E:\\SteamLibrary\\steamapps\\common\\Dead Cells\\deadcells.exe\" \"F:\\HKLab\\DeadCellsCoreModding\\sources\\Debug\""
+    }
+  }
+}

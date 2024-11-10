@@ -1,0 +1,13 @@
+﻿
+CreateProcess
+WaitForSingleObject
+ResumeThread
+
+VirtualAllocEx
+
+
+WriteProcessMemory
+CreateRemoteThreadEx
+TerminateProcess
+
+
