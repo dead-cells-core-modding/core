@@ -2,6 +2,7 @@
 CreateProcess
 WaitForSingleObject
 ResumeThread
+GetExitCodeThread 
 
 VirtualAllocEx
 

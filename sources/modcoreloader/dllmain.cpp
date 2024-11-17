@@ -42,7 +42,7 @@ load_assembly_and_get_function_pointer_fn load_coreclr()
         fail_to_load();
     }
 
-    load_assembly_and_get_function_pointer_fn load_assembly_and_get_function_pointer;
+    load_assembly_and_get_function_pointer_fn load_assembly_and_get_function_pointer{};
     result = get_delegate_fptr(cxt, hdt_load_assembly_and_get_function_pointer, (void**) & load_assembly_and_get_function_pointer);
     if (result != 0) {
         printf_s("Failed to get_delegate_fptr: %x\n", result);
@@ -58,9 +58,8 @@ void load_modcore()
 {
     printf_s("Loading Modding Core\n");
     auto load_assembly_and_get_function_pointer = load_coreclr();
-
     
-    component_entry_point_fn inject_main_ptr;
+    component_entry_point_fn inject_main_ptr{};
     int32_t result = load_assembly_and_get_function_pointer(MODCORE_FILE("ModCore.dll"),
         L"ModCore.Program, ModCore", L"InjectMain", nullptr, nullptr, (void**) & inject_main_ptr);
     if (result != 0) {

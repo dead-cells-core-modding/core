@@ -44,6 +44,14 @@ namespace DeadCellsModding
                 HANDLE hThread = CreateRemoteThreadEx(hProc, null, 0, (void*)pLoadLibrary, prDllpath, 0, default, &threadId);
 
                 WaitForSingleObject(hThread, uint.MaxValue);
+
+                uint exitCode = 0;
+                if(GetExitCodeThread(hThread, &exitCode) && exitCode == 0)
+                {
+                    Console.Error.WriteLine("Failed to inject deadcells.exe");
+                    TerminateProcess(hProc, uint.MaxValue);
+                    Environment.Exit(-1);
+                }
             }
         }
         static void Main(string[] args)
