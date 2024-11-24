@@ -32,7 +32,14 @@ namespace ModCore.Modules
 
             LibhlHandle = NativeLibrary.Load("libhl.dll");
 
-            Logger.Information("Hooking Hashlink function");
+            Logger.Information("Hooking functions");
+
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var kernel32 = NativeLibrary.Load("kernel32.dll");
+                var freeconsole = NativeLibrary.GetExport(kernel32, "FreeConsole");
+                NativeLibrary.Free(kernel32);
+            }
 
             orig_hl_dyn_call_safe = NativeHookModule.Instance.CreateHook<hl_dyn_call_safe_handler>(
                 NativeLibrary.GetExport(LibhlHandle, "hl_dyn_call_safe"), Hook_hl_dyn_call_safe);

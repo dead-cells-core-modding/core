@@ -2,7 +2,10 @@
   "profiles": {
     "DeadCellsModding": {
       "commandName": "Project",
-      "commandLineArgs": "\"E:\\SteamLibrary\\steamapps\\common\\Dead Cells\\deadcells.exe\" \"F:\\HKLab\\DeadCellsCoreModding\\sources\\Debug\""
+      "environmentVariables": {
+        "DEAD_CELLS_GAME_PATH": "E:\\SteamLibrary\\steamapps\\common\\Dead Cells\\deadcells.exe",
+        "MODCORE_NATIVE_PATH": "F:\\HKLab\\DeadCellsCoreModding\\sources\\native\\bin"
+      }
     }
   }
 }

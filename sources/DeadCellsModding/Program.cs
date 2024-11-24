@@ -43,7 +43,12 @@ namespace DeadCellsModding
                 uint threadId = 0;
                 HANDLE hThread = CreateRemoteThreadEx(hProc, null, 0, (void*)pLoadLibrary, prDllpath, 0, default, &threadId);
 
-                WaitForSingleObject(hThread, uint.MaxValue);
+                if(WaitForSingleObject(hThread, 5000) == WAIT_EVENT.WAIT_TIMEOUT)
+                {
+                    Console.Error.WriteLine("Failed to inject deadcells.exe");
+                    TerminateProcess(hProc, uint.MaxValue);
+                    Environment.Exit(-1);
+                }
 
                 uint exitCode = 0;
                 if(GetExitCodeThread(hThread, &exitCode) && exitCode == 0)
@@ -56,14 +61,8 @@ namespace DeadCellsModding
         }
         static void Main(string[] args)
         {
-            string dc_exe = "deadcells.exe";
-            string loader_dll_dir = "";
-
-            if (args.Length == 2)
-            {
-                dc_exe = args[0];
-                loader_dll_dir = args[1];
-            }
+            string dc_exe = Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH") ?? "deadcells.exe";
+            string loader_dll_dir = Environment.GetEnvironmentVariable("MODCORE_NATIVE_PATH") ?? "";
 
             dc_exe = Path.GetFullPath(dc_exe);
 
@@ -102,8 +101,7 @@ namespace DeadCellsModding
             {
                 InjectGame(procInfo.hProcess,
                     loader_dll_dir,
-                    "nethost.dll",
-                    "modcoreloader.dll");
+                    "modcorenative.dll");
             }
             catch(Exception ex)
             {

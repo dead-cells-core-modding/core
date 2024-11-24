@@ -34,12 +34,11 @@ namespace ModCore
             try
             {
                 Initalize();
-                throw null;
             }
             catch (Exception ex)
             {
                 Log.Logger.Fatal(ex, "An excpetion was occured on Initalizing");
-                Environment.Exit(-1);
+                Utils.ExitGame();
             }
             return 0;
         }
