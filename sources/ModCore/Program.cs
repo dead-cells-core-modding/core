@@ -1,8 +1,10 @@
 ﻿
+using ModCore.Events;
 using ModCore.Modules;
 using ModCore.Modules.Events;
 using Serilog;
 using Serilog.Core;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace ModCore
@@ -21,11 +23,39 @@ namespace ModCore
 
             Log.Logger.Information("Initalizing");
 
-            Module.AddModule(new NativeHookModule());
-            Module.AddModule(new HashlinkModule());
+            Log.Logger.Information("Loading core modules");
 
+            foreach (var type in typeof(Program).Assembly.GetTypes())
+            {
+                if (!type.IsSubclassOf(typeof(Module)) || type.IsAbstract)
+                {
+                    continue;
+                }
+                var attr = type.GetCustomAttribute<CoreModuleAttribute>();
+                if (attr == null)
+                {
+                    continue;
+                }
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                    !attr.supportOS.HasFlag(CoreModuleAttribute.SupportOS.Windows))
+                {
+                    continue;
+                }
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
+                    !attr.supportOS.HasFlag(CoreModuleAttribute.SupportOS.Linux))
+                {
+                    continue;
+                }
+                Log.Logger.Information("Loading core module: {type}", type.FullName);
+                var module = (Module?)Activator.CreateInstance(type);
+                if(module == null)
+                {
+                    continue;
+                }
+                Module.AddModule(module);
+            }
 
-            Module.BroadcastEvent<IOnModCoreInjected>();
+            EventSystem.BroadcastEvent<IOnModCoreInjected>();
 
             Log.Logger.Information("Loaded modding core");
         }

@@ -8,10 +8,10 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore
+namespace ModCore.Events
 {
     internal delegate void ModuleEventCall(object self, nint refArg);
-    internal static class ModuleEventCaller<TEvent>
+    internal static class EventCaller<TEvent>
     {
         private readonly static ModuleEventCall call;
 
@@ -45,7 +45,7 @@ namespace ModCore
                 .First();
         }
 
-        static ModuleEventCaller()
+        static EventCaller()
         {
             call = GenerateCall(FindEventMethod(typeof(TEvent)));
         }
@@ -56,7 +56,7 @@ namespace ModCore
         }
         public static unsafe void Invoke<TArg>(TEvent self, ref TArg argOnStack)
         {
-            Invoke(self!, (nint) Unsafe.AsPointer(ref argOnStack));
+            Invoke(self!, (nint)Unsafe.AsPointer(ref argOnStack));
         }
         public static void Invoke(TEvent self)
         {

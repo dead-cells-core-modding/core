@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using ModCore.Events;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ModCore
 {
-    public class Module<TModule> : Module where TModule : Module<TModule>
+    public abstract class Module<TModule> : Module where TModule : Module<TModule>
     {
         public new static ILogger Logger { get; } = Log.ForContext<TModule>();
         internal Module()
@@ -23,12 +24,12 @@ namespace ModCore
         {
             get
             {
-                instance ??= FindModule<TModule>();
+                instance ??= EventSystem.FindReceiver<TModule>();
                 return instance ?? throw new NullReferenceException();
             }
         }
     }
-    public class Module
+    public abstract class Module : IEventReceiver
     {
         private static readonly List<Module> modules = [];
 
@@ -40,40 +41,10 @@ namespace ModCore
             Logger = Log.ForContext("SourceContext", GetType().FullName);
         }
 
-        public static TModule? FindModule<TModule>() where TModule : Module
-        {
-            return modules.OfType<TModule>().FirstOrDefault();
-        }
-        public static IEnumerable<TModule> FindModules<TModule>() where TModule : Module
-        {
-            return modules.OfType<TModule>();
-        }
-
-
-
-        public static void BroadcastEvent<TEvent>()
-        {
-            foreach (var module in modules)
-            {
-                if (module is TEvent ev)
-                {
-                    ModuleEventCaller<TEvent>.Invoke(ev);
-                }
-            }
-        }
-        public static void BroadcastEvent<TEvent, TArg>(TArg arg)
-        {
-            foreach (var module in modules)
-            {
-                if (module is TEvent ev)
-                {
-                    ModuleEventCaller<TEvent>.Invoke(ev, ref arg);
-                }
-            }
-        }
-
+        
         internal static void AddModule(Module module)
         {
+            EventSystem.AddReceiver(module);
             modules.Add(module);
         }
     }

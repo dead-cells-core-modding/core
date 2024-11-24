@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace ModCore.Modules
 {
-    public unsafe class NativeHookModule : Module<NativeHookModule>
+    [CoreModule]
+    public unsafe class NativeHookModule : CoreModule<NativeHookModule>
     {
         public override int Priority => ModulePriorities.NativeHookModule;
 

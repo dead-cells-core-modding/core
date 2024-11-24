@@ -1,4 +1,5 @@
-﻿using ModCore.Modules.Events;
+﻿using ModCore.Events;
+using ModCore.Modules.Events;
 using MonoMod.RuntimeDetour;
 using Serilog.Core;
 using System;
@@ -10,7 +11,8 @@ using System.Threading.Tasks;
 
 namespace ModCore.Modules
 {
-    public unsafe class HashlinkModule : Module<HashlinkModule>, IOnModCoreInjected
+    [CoreModule]
+    public unsafe class HashlinkModule : CoreModule<HashlinkModule>, IOnModCoreInjected
     {
         public override int Priority => ModulePriorities.HashlinkModule;
         public nint LibhlHandle { get; private set; }
@@ -23,7 +25,7 @@ namespace ModCore.Modules
         private static void* Hook_hl_dyn_call_safe(void* c, void** args, int nargs, bool* isException)
         {
             Logger.Information("Game will be started");
-            BroadcastEvent<IOnBeforeGameStartup>();
+            EventSystem.BroadcastEvent<IOnBeforeGameStartup>();
             return orig_hl_dyn_call_safe(c, args, nargs, isException);
         }
         void IOnModCoreInjected.OnModCoreInjected()
@@ -34,12 +36,6 @@ namespace ModCore.Modules
 
             Logger.Information("Hooking functions");
 
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                var kernel32 = NativeLibrary.Load("kernel32.dll");
-                var freeconsole = NativeLibrary.GetExport(kernel32, "FreeConsole");
-                NativeLibrary.Free(kernel32);
-            }
 
             orig_hl_dyn_call_safe = NativeHookModule.Instance.CreateHook<hl_dyn_call_safe_handler>(
                 NativeLibrary.GetExport(LibhlHandle, "hl_dyn_call_safe"), Hook_hl_dyn_call_safe);
