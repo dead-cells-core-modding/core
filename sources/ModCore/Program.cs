@@ -15,13 +15,16 @@ namespace ModCore
         static void Initalize()
         {
             Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console(Serilog.Events.LogEventLevel.Information)
+                .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose,
+                    outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}")
                 .CreateLogger();
 
             Log.Logger.Information("Runtime: {FrameworkDescription} {RuntimeIdentifier}",
                    RuntimeInformation.FrameworkDescription, RuntimeInformation.RuntimeIdentifier);
 
             Log.Logger.Information("Initalizing");
+
+            Directory.CreateDirectory(GameConstants.ModCoreRoot);
 
             Log.Logger.Information("Loading core modules");
 

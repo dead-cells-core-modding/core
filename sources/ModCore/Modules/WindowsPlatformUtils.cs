@@ -26,7 +26,7 @@ namespace ModCore.Modules
             var kernel32 = NativeLibrary.Load("kernel32.dll");
             var freeconsole = NativeLibrary.GetExport(kernel32, "FreeConsole");
 
-            NativeHookModule.Instance.CreateHook(freeconsole, (FreeConsole_handler)FreeConsole);
+            NativeHook.Instance.CreateHook(freeconsole, (FreeConsole_handler)FreeConsole);
 
             NativeLibrary.Free(kernel32);
         }

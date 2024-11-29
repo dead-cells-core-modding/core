@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 namespace ModCore.Modules
 {
     [CoreModule]
-    public unsafe class NativeHookModule : CoreModule<NativeHookModule>
+    public unsafe class NativeHook : CoreModule<NativeHook>
     {
         public override int Priority => ModulePriorities.NativeHookModule;
 
         [SupportedOSPlatform("windows")]
         private readonly HookEngine? hookEngine;
 
-        public NativeHookModule()
+        public NativeHook()
         {
             if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
