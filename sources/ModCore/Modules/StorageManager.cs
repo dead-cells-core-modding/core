@@ -120,7 +120,7 @@ namespace ModCore.Modules
                 CacheChecksum = SHA256.HashData(data),
                 LastModified = lastModified,
             };
-            using var fs = File.OpenWrite(filename);
+            using var fs = File.OpenWrite(GetCachePath(filename));
             fs.Write(data);
 
             SaveCacheMetadata();
@@ -132,7 +132,7 @@ namespace ModCore.Modules
                 CacheChecksum = SHA256.HashData(data),
                 Checksum = checksum,
             };
-            using var fs = File.OpenWrite(filename);
+            using var fs = File.OpenWrite(GetCachePath(filename));
             fs.Write(data);
 
             SaveCacheMetadata();

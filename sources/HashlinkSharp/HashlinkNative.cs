@@ -51,5 +51,7 @@ namespace Hashlink
         public static partial string hl_to_string(HL_vdynamic* v);
         [LibraryImport("libhl")]
         public static partial void hl_throw(HL_vdynamic* v);
+        [LibraryImport("libhl", StringMarshalling = StringMarshalling.Utf16)]
+        public static partial string hl_type_str(HL_type* type);
     }
 }

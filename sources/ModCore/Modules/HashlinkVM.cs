@@ -1,9 +1,11 @@
 ﻿using Hashlink;
 using Iced.Intel;
 using ModCore.Events;
+using ModCore.Generator;
 using ModCore.Hashlink;
 using ModCore.Modules.Events;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 using MonoMod.RuntimeDetour;
 using Serilog.Core;
 using System;
@@ -134,13 +136,7 @@ namespace ModCore.Modules
                     );
             }
 
-            for(int i = 0; i < Context->code->ndebugfiles; i++)
-            {
-                var n = Context->code->debugfiles[i];
-                Logger.Verbose("VM Debug file: {name}",
-                    Marshal.PtrToStringUTF8((nint)n));
-            }
-
+            
             var gamehash = SHA256.HashData(File.ReadAllBytes(GameConstants.GamePath));
             if(StorageManager.Instance.IsCacheOutdateOrMissing(HLASSEMBLY_NAME, gamehash))
             {
@@ -188,12 +184,37 @@ namespace ModCore.Modules
 
         private void GenerateHLAssembly(byte[] checksum)
         {
+            var assemblyResolver = new DefaultAssemblyResolver();
+
+            assemblyResolver.AddSearchDirectory(GameConstants.GameRoot);
+            assemblyResolver.AddSearchDirectory(GameConstants.ModCoreHostRoot);
+
             using var asm = AssemblyDefinition.CreateAssembly(new("DeadCellsGame", new(1, 0, 0, 0)),
-                "DeadCellsGame", ModuleKind.Dll);
+                "DeadCellsGame", new ModuleParameters()
+                {
+                    Kind = ModuleKind.Dll,
+                    AssemblyResolver = assemblyResolver
+                });
 
-            asm.Write(StorageManager.Instance.GetCachePath(HLASSEMBLY_NAME));
 
-            StorageManager.Instance.UpdateCacheMetadata(HLASSEMBLY_NAME, [..checksum, 1]);
+            using var asmStream = new MemoryStream();
+            using var pdbStream = File.OpenWrite(
+                Path.ChangeExtension(
+                    StorageManager.Instance.GetCachePath(HLASSEMBLY_NAME), "pdb"
+                    ));
+
+            new HLAGenerator(asm, Logger, Context->code).Emit();
+
+            asm.Write(asmStream, new()
+            {
+                SymbolStream = pdbStream,
+                SymbolWriterProvider = new PortablePdbWriterProvider(),
+                WriteSymbols = true,
+                
+            });
+
+            //FIXME: 
+            StorageManager.Instance.UpdateCache(HLASSEMBLY_NAME, [..checksum, 1], asmStream.ToArray());
         }
     }
 }

@@ -49,12 +49,151 @@ namespace Hashlink
         {
             [FieldOffset(0)]
             public char* abs_name;
-
+            [FieldOffset(0)]
+            public HL_type_func* func;
+            [FieldOffset(0)]
+            public HL_type_obj* obj;
+            [FieldOffset(0)]
+            public HL_type_enum* tenum;
+            [FieldOffset(0)]
+            public HL_type_virtual* virt;
+            [FieldOffset(0)]
+            public HL_type* tparam;
         }
 
         public TypeData data;
         public void** vobj_proto;
-        public uint* mark_bits;
+        public int mark_bits;
+        readonly int padding;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_type_virtual
+    {
+        public HL_obj_field* fields;
+        public int nfields;
+        // runtime
+        public int dataSize;
+        public int* indexes;
+        public HL_field_lookup* lookup;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_enum_construct
+    {
+        public char* name;
+        public int nparams;
+        public HL_type** @params;
+	    public int size;
+        public bool hasptr;
+        public int* offsets;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_type_enum
+    {
+        public char* name;
+        public int nconstructs;
+        public HL_enum_construct* constructs;
+        public void** global_value;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_obj_field
+    {
+        public char* name;
+        public HL_type* t;
+        public int hashed_name;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_obj_proto
+    {
+        public char* name;
+        public int findex;
+        public int pindex;
+        public int hashed_name;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_module_context
+    {
+        public HL_alloc_block* alloc;
+        public void** functions_ptrs;
+        public HL_type** functions_types;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_field_lookup
+    {
+        public HL_type* t;
+        public int hashed_name;
+        public int field_index; // negative or zero : index in methods
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_runtime_binding
+    {
+        public void* ptr;
+        public HL_type* closure;
+        public int fid;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_runtime_obj
+    {
+        public HL_type* t;
+        // absolute
+        public int nfields;
+        public int nproto;
+        public int size;
+        public int nmethods;
+        public int nbindings;
+        public bool hasPtr;
+        public void** methods;
+        public int* fields_indexes;
+        public HL_runtime_binding* bindings;
+        public HL_runtime_obj* parent;
+
+        public delegate* unmanaged<HL_vdynamic*, char*> toStringFun;
+        public delegate* unmanaged<HL_vdynamic*, HL_vdynamic*, int> compareFun;
+        public delegate* unmanaged<HL_vdynamic*, HL_type*, HL_vdynamic*> castFun;
+        public delegate* unmanaged<HL_vdynamic*, int, HL_vdynamic*> getFieldFun;
+
+	    // relative
+	    public int nlookup;
+        public HL_field_lookup* lookup;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_type_obj
+    {
+        public int nfields;
+        public int nproto;
+        public int nbindings;
+        public char* name;
+        public HL_type* super;
+        public HL_obj_field* fields;
+        public HL_obj_proto* proto;
+        public int* bindings;
+        public void** global_value;
+        public HL_module_context* m;
+        public HL_runtime_obj* rt;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_type_func
+    {
+        public HL_type** args;
+        public HL_type* ret;
+        public int nargs;
+        // storage for closure
+        public HL_type* parent;
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ClosureType
+        {
+            public HL_type.TypeKind kind;
+            public void* p;
+        }
+        public ClosureType closure_type;
+        [StructLayout(LayoutKind.Sequential)]
+	    public struct Closure
+        {
+            public HL_type** args;
+            public HL_type* ret;
+            public int nargs;
+            public HL_type* parent;
+        }
+        Closure closure;
     }
     [StructLayout(LayoutKind.Explicit)]
     public unsafe struct HL_vdynamic
@@ -149,12 +288,14 @@ namespace Hashlink
         public int findex;
         public int nregs;
         public int nops;
+        public int @ref;
         public HL_type* type;
         public HL_type** regs;
         public HL_opcode* ops;
         public int* debug;
-        public void* obj;
+        public HL_type_obj* obj;
         public char* field;
+        //public HL_function* @refPtr;
     }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_constant
