@@ -12,7 +12,7 @@ namespace ModCore.Modules
     [CoreModule]
     public unsafe class NativeHook : CoreModule<NativeHook>
     {
-        public override int Priority => ModulePriorities.NativeHookModule;
+        public override int Priority => ModulePriorities.NativeHook;
 
         [SupportedOSPlatform("windows")]
         private readonly HookEngine? hookEngine;

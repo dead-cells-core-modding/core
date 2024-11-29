@@ -1,4 +1,5 @@
-﻿using ModCore.Modules;
+﻿using Hashlink;
+using ModCore.Modules;
 using System;
 using System.Collections.Generic;
 using System.Linq;

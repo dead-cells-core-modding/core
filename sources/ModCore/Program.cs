@@ -14,9 +14,16 @@ namespace ModCore
 
         static void Initalize()
         {
+            Directory.CreateDirectory(GameConstants.LogsRoot);
+
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose,
                     outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}")
+                .WriteTo.File(
+                    Path.Combine(GameConstants.LogsRoot, "log_.log"),
+                    outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}",
+                    rollingInterval: RollingInterval.Minute
+                )
                 .CreateLogger();
 
             Log.Logger.Information("Runtime: {FrameworkDescription} {RuntimeIdentifier}",
@@ -24,7 +31,7 @@ namespace ModCore
 
             Log.Logger.Information("Initalizing");
 
-            Directory.CreateDirectory(GameConstants.ModCoreRoot);
+            
 
             Log.Logger.Information("Loading core modules");
 

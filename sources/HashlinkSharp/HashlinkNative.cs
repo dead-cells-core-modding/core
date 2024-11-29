@@ -1,4 +1,4 @@
-﻿using SharpDisasm.Udis86;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
-namespace ModCore.Hashlink
+namespace Hashlink
 {
     public static unsafe partial class HashlinkNative
     {
@@ -43,5 +43,13 @@ namespace ModCore.Hashlink
 
         [LibraryImport("libhl")]
         public static partial HL_array* hl_alloc_array(HL_type* at, int size);
+
+        [LibraryImport("libhl")]
+        public static partial HL_vdynamic* hl_dyn_call_safe(HL_vclosure* c, HL_vdynamic** args, int nargs, bool* isException);
+
+        [LibraryImport("libhl", StringMarshalling = StringMarshalling.Utf16)]
+        public static partial string hl_to_string(HL_vdynamic* v);
+        [LibraryImport("libhl")]
+        public static partial void hl_throw(HL_vdynamic* v);
     }
 }

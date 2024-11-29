@@ -1,24 +1,30 @@
-﻿using Iced.Intel;
+﻿using Hashlink;
+using Iced.Intel;
 using ModCore.Events;
 using ModCore.Hashlink;
 using ModCore.Modules.Events;
+using Mono.Cecil;
 using MonoMod.RuntimeDetour;
 using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using static ModCore.Hashlink.HL_module;
+
 
 namespace ModCore.Modules
 {
     [CoreModule]
     public unsafe class HashlinkVM : CoreModule<HashlinkVM>, IOnModCoreInjected
     {
-        public override int Priority => ModulePriorities.HashlinkModule;
+        public override int Priority => ModulePriorities.HashlinkVM;
+        public const string HLASSEMBLY_NAME = "DeadCellsGame.dll";
         public nint LibhlHandle { get; private set; }
         public Thread MainThread { get; private set; } = null!;
 
@@ -38,18 +44,41 @@ namespace ModCore.Modules
         private delegate HL_vdynamic* hl_dyn_call_safe_handler(HL_vclosure* c, HL_vdynamic** args, int nargs, bool* isException);
         private static hl_dyn_call_safe_handler orig_hl_dyn_call_safe = null!;
 
+        private static bool isFristCall_DynCallSafe = true;
+
+        [StackTraceHidden]
         private static HL_vdynamic* Hook_hl_dyn_call_safe(HL_vclosure* c, HL_vdynamic** args, int nargs, bool* isException)
         {
-            using (VMTrace.CallFromHL())
+            try
             {
-                NativeHook.Instance.DisableHook(orig_hl_dyn_call_safe);
+                if (isFristCall_DynCallSafe)
+                {
+                    isFristCall_DynCallSafe = false;
+                    Logger.Information("Initializing Hashlink VM");
+                    Instance.InitializeModule();
 
-                Logger.Information("Initializing Hashlink VM");
-                Instance.InitializeModule();
+                    EventSystem.BroadcastEvent<IOnBeforeGameStartup>();
+                }
 
-                EventSystem.BroadcastEvent<IOnBeforeGameStartup>();
                 return orig_hl_dyn_call_safe(c, args, nargs, isException);
             }
+            catch (Exception ex)
+            {
+                Logger.Fatal(ex, "Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.");
+                Utils.ExitGame();
+                return null;
+            }
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void hl_throw_handler(HL_vdynamic* val);
+        private static hl_throw_handler orig_hl_throw = null!;
+
+        [StackTraceHidden]
+        private static void Hook_hl_throw(HL_vdynamic* val)
+        {
+            Logger.Information("Hashlink throw an error");
+            orig_hl_throw(val);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -57,29 +86,28 @@ namespace ModCore.Modules
         private delegate HL_array* hl_exception_stack_handler();
         private static hl_exception_stack_handler orig_hl_exception_stack = null!;
 
-        private static readonly byte* exception_stack_msg_split0 = (byte*)Marshal.StringToHGlobalUni("==Below is the .Net Stack==\n");
-        private static readonly byte* exception_stack_msg_split1 = (byte*) Marshal.StringToHGlobalUni("==Below is the Hashlink Stack==\n");
+        private static readonly byte* exception_stack_msg_split0 = (byte*)Marshal.StringToHGlobalUni("\n==Below is the .Net Stack==\n");
+        private static readonly byte* exception_stack_msg_split1 = (byte*) Marshal.StringToHGlobalUni("\n==Below is the Hashlink Stack==\n");
+
+        [StackTraceHidden]
         private static HL_array* Hook_hl_exception_stack()
         {
             HL_array* stack = orig_hl_exception_stack();
             byte** stack_val = (byte**)(stack + 1);
-            var net_stack = new StackTrace(1, true);
+            var net_stack = new StackTrace(0, true).ToString()
+                .Trim()
+                .Split('\n');
 
             var new_stack = HashlinkNative.hl_alloc_array(HashlinkNative.InternalTypes.hlt_bytes,
-                stack->size + 1 +net_stack.FrameCount
+                stack->size + 1 +net_stack.Length
                 );
             byte** new_stack_val = (byte**)(new_stack + 1);
 
             int index = 0;
             new_stack_val[index++] = exception_stack_msg_split0;
-            for (int i = 0; i < net_stack.FrameCount; i++)
+            for (int i = 0; i < net_stack.Length; i++)
             {
-                var frame = net_stack.GetFrame(i);
-                if (frame == null)
-                {
-                    continue;
-                }
-
+                var frame = net_stack[i];
                 new_stack_val[index++] = (byte*) Marshal.StringToHGlobalUni(frame.ToString());
             }
             new_stack_val[index++] = exception_stack_msg_split1;
@@ -106,6 +134,21 @@ namespace ModCore.Modules
                     );
             }
 
+            for(int i = 0; i < Context->code->ndebugfiles; i++)
+            {
+                var n = Context->code->debugfiles[i];
+                Logger.Verbose("VM Debug file: {name}",
+                    Marshal.PtrToStringUTF8((nint)n));
+            }
+
+            var gamehash = SHA256.HashData(File.ReadAllBytes(GameConstants.GamePath));
+            if(StorageManager.Instance.IsCacheOutdateOrMissing(HLASSEMBLY_NAME, gamehash))
+            {
+                Logger.Information("Generating HL Assembly");
+                GenerateHLAssembly(gamehash);
+            }
+            Logger.Information("Loading HL Assembly");
+            Assembly.LoadFrom(StorageManager.Instance.GetCachePath(HLASSEMBLY_NAME));
         }
 
         void IOnModCoreInjected.OnModCoreInjected()
@@ -124,6 +167,33 @@ namespace ModCore.Modules
 
             orig_hl_exception_stack = NativeHook.Instance.CreateHook<hl_exception_stack_handler>(
                  NativeLibrary.GetExport(LibhlHandle, "hl_exception_stack"), Hook_hl_exception_stack);
+
+            orig_hl_throw = NativeHook.Instance.CreateHook<hl_throw_handler>(
+                NativeLibrary.GetExport(LibhlHandle, "hl_throw"), Hook_hl_throw);
+        }
+
+
+        public HL_vdynamic* CallMethod(HL_vclosure* c, Span<nint> args)
+        {
+            bool isException = false;
+            var result = HashlinkNative.hl_dyn_call_safe(c, 
+                (HL_vdynamic**) Unsafe.AsPointer(ref args.GetPinnableReference()), args.Length, &isException);
+
+            if (isException)
+            {
+                throw new HashlinkException(result);
+            }
+            return result;
+        }
+
+        private void GenerateHLAssembly(byte[] checksum)
+        {
+            using var asm = AssemblyDefinition.CreateAssembly(new("DeadCellsGame", new(1, 0, 0, 0)),
+                "DeadCellsGame", ModuleKind.Dll);
+
+            asm.Write(StorageManager.Instance.GetCachePath(HLASSEMBLY_NAME));
+
+            StorageManager.Instance.UpdateCacheMetadata(HLASSEMBLY_NAME, [..checksum, 1]);
         }
     }
 }

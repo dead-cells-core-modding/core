@@ -1,4 +1,4 @@
-﻿using SharpDisasm.Udis86;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 //From https://github.com/motion-twin/hashlink/blob/master/src/hl.h
-namespace ModCore.Hashlink
+namespace Hashlink
 {
 
     [StructLayout(LayoutKind.Sequential)]
@@ -142,15 +142,7 @@ namespace ModCore.Hashlink
         public HL_type* type;
         public int findex;
     }
-    [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct HL_opcode
-    {
-        public int op;
-        public int p1;
-        public int p2;
-        public int p3;
-        public int* extra;
-    }
+    
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_function
     {

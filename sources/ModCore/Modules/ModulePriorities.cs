@@ -8,10 +8,11 @@ namespace ModCore.Modules
 {
     public static class ModulePriorities
     {
-        public const int HashlinkModule = -1000;
+        public const int HashlinkVM = -1000;
 
         public const int PlatformUtils = -990;
 
-        public const int NativeHookModule = -1100;
+        public const int NativeHook = -1100;
+        public const int Storage = -1200;
     }
 }
