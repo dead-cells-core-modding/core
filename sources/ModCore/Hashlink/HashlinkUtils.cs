@@ -62,10 +62,9 @@ namespace ModCore.Hashlink
             }
             for(int i = 0; i < code->nfunctions; i++)
             {
+                var f = code->functions + i;
+                var fp = m->functions_ptrs[f->findex];
                 
-                var fi = m->functions_indexes[i];
-                var fp = m->functions_ptrs[i];
-                var f = code->functions + fi;
 
                 if(!name2func.TryGetValue((nint)f->type->data.obj, out var funcTable))
                 {
@@ -74,7 +73,7 @@ namespace ModCore.Hashlink
                 }
 
                 var name = GetString(f->field);
-                Log.Logger.Information("Func: {name} {ptr:x} {index}", name, (nint)fp, fi);
+                Log.Logger.Verbose("Func: {name} {ptr:x} {index}", name, (nint)fp, f->findex);
 
                 funcTable[name] = (nint)f;
                 funcNativePtr[(nint)f] = (nint) fp;
@@ -107,6 +106,24 @@ namespace ModCore.Hashlink
             return (HL_type*) name2hltype[name];
         }
         
+        public static HL_function* FindFunction(HL_type* type, string name)
+        {
+            if(!name2func.TryGetValue((nint)type->data.obj, out var table) ||
+                !table.TryGetValue(name, out var result))
+            {
+                return null;
+            }
+            return (HL_function*)result;
+        }
+        public static void* GetFunctionNativePtr(HL_function* func)
+        {
+            if(!funcNativePtr.TryGetValue((nint)func, out var result))
+            {
+                return null;
+            }
+            return (void*)result;
+        }
+
         public static int HLHash(string str)
         {
             int h = 0;

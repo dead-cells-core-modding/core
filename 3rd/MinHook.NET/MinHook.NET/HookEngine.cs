@@ -8,70 +8,53 @@ namespace MinHook {
     public sealed class HookEngine : IDisposable {
 
         MemoryAllocator memoryAllocator = new MemoryAllocator();
-        Dictionary<Delegate, Hook> originalHookMapping = new Dictionary<Delegate, Hook>();
-        Dictionary<Delegate, Hook> detourHookMapping = new Dictionary<Delegate, Hook>();
         List<IntPtr> suspendedThreads = new List<IntPtr>();
-
-        public Func CreateHook<Func>(string dll, string function, Func detour) where Func : Delegate {
-
-            IntPtr target = GetProcAddress(GetModuleHandle(dll), function);
-
-            if (target == IntPtr.Zero)
-                throw new EntryPointNotFoundException($"Function {function} could not be found in DLL {dll}");
-
-            return CreateHook<Func>(target, detour); 
-        }
-
-        public Func CreateHook<Func>(IntPtr target, Func detour) where Func : Delegate {
-
-            if(target == IntPtr.Zero || detour == null) {
+        List<Hook> hooks = new List<Hook>();
+        public Hook CreateHook(nint target, nint detour)
+        {
+            if (target == nint.Zero || detour == nint.Zero)
+            {
                 throw new ArgumentException($"target or detour cannot be null");
             }
 
-            lock (this) {
-                var hook = new Hook(target, Marshal.GetFunctionPointerForDelegate(detour), memoryAllocator.AllocateBuffer(target));
-                Func original = (Func)Marshal.GetDelegateForFunctionPointer(hook.Original, typeof(Func));
-                originalHookMapping.Add(original, hook);
-
-                //Main purpose of this is to make sure the detour delegate
-                //does not get garbage collected for the lifetime of the hook
-                detourHookMapping.Add(detour, hook);
-                return original;
+            lock (this)
+            {
+                var hook = new Hook(target, detour, memoryAllocator.AllocateBuffer(target));
+                hooks.Add(hook);
+                return hook;
             }
         }
 
+
+
         public void EnableHooks() {
-            foreach(var hook in originalHookMapping) {
-                EnableHook(hook.Key);
+            foreach(var hook in hooks) {
+                EnableHook(hook);
             }
         }
 
         public void DisableHooks() {
-            foreach (var hook in originalHookMapping) {
-                DisableHook(hook.Key);
+            foreach (var hook in hooks) {
+                DisableHook(hook);
             }
         }
 
-        public void EnableHook(Delegate original) {
-            lock (this) {
-                if (!originalHookMapping.ContainsKey(original)) {
-                    throw new KeyNotFoundException("Hook not found, was this delegate create with CreateHook?");
-                }
-
+        public void EnableHook(Hook hook)
+        {
+            lock (this)
+            {
                 SuspendThreads();
-                originalHookMapping[original].Enable(true);
+                hook.Enable(true);
                 ResumeThreads();
             }
         }
 
-        public void DisableHook(Delegate original) {
-            lock (this) {
-                if (!originalHookMapping.ContainsKey(original)) {
-                    throw new KeyNotFoundException("Hook not found, was this delegate create with CreateHook?");
-                }
-
+        public void DisableHook(Hook hook)
+        {
+            lock (this)
+            {
                 SuspendThreads();
-                originalHookMapping[original].Enable(false);
+                hook.Enable(false);
                 ResumeThreads();
             }
         }

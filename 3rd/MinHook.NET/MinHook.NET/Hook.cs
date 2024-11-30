@@ -4,7 +4,7 @@ using static MinHook.Trampoline;
 using static MinHook.Utils;
 
 namespace MinHook {
-    internal sealed class Hook
+    public sealed class Hook
     {
         public bool Enabled { get; private set; } = false;
         public bool QueueEnabled { get; private set; } = false;
@@ -12,7 +12,7 @@ namespace MinHook {
 
         Trampoline trampoline;
         
-        public Hook(IntPtr target, IntPtr detour, MemorySlot memorySlot) {
+        internal Hook(IntPtr target, IntPtr detour, MemorySlot memorySlot) {
             trampoline = new Trampoline(target, detour, memorySlot);
             Original = trampoline.Tramp;
         }

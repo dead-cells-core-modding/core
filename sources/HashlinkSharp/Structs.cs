@@ -37,8 +37,10 @@ namespace Hashlink
             HENUM = 18,
             HNULL = 19,
             HMETHOD = 20,
+            HSTRUCT = 21,
+            HPACKED = 22,
             // ---------
-            HLAST = 21,
+            HLAST = 23,
             _H_FORCE_INT = 0x7FFFFFFF
         }
 

@@ -140,6 +140,8 @@ namespace ModCore.Modules
             }
             //Logger.Information("Loading HL Assembly");
             //Assembly.LoadFrom(StorageManager.Instance.GetCachePath(HLASSEMBLY_NAME));
+
+            
         }
 
         void IOnModCoreInjected.OnModCoreInjected()

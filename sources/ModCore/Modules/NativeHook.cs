@@ -14,51 +14,87 @@ namespace ModCore.Modules
     {
         public override int Priority => ModulePriorities.NativeHook;
 
-        [SupportedOSPlatform("windows")]
-        private readonly HookEngine? hookEngine;
+        private readonly HookEngine? dskHookEngine;
+        private readonly Dictionary<Delegate, HookHandle> delegate2handle = [];
+
+        public class HookHandle(object hook, NativeHook manager)
+        {
+            internal object hook = hook;
+
+            public nint Original => manager.GetOriginalPtr(this);
+            public void Enable() => manager.EnableHook(this);
+            public void Disable() => manager.DisableHook(this);
+        }
 
         public NativeHook()
         {
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            dskHookEngine = new HookEngine();
+        }
+
+        public HookHandle CreateHook(nint target, nint detour)
+        {
+            HookHandle result;
+            if(dskHookEngine != null)
             {
-                hookEngine = new HookEngine();
+                result = new HookHandle(dskHookEngine.CreateHook(target, detour), this);
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+            result.Enable();
+            return result;
+        }
+
+        public nint GetOriginalPtr(HookHandle hook)
+        {
+            if (dskHookEngine != null)
+            {
+                return ((Hook)hook.hook).Original;
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        public void EnableHook(HookHandle hook)
+        {
+            if (dskHookEngine != null)
+            {
+                dskHookEngine.EnableHook((Hook)hook.hook);
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+        }
+        public void DisableHook(HookHandle hook)
+        {
+            if (dskHookEngine != null)
+            {
+                dskHookEngine.DisableHook((Hook)hook.hook);
+            }
+            else
+            {
+                throw new NotSupportedException();
             }
         }
 
         public TTarget CreateHook<TTarget>(nint nativeFunc, TTarget target) where TTarget : Delegate
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                var result = hookEngine!.CreateHook(nativeFunc, target);
-                hookEngine!.EnableHook(result);
-                return result;
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
+            var handle = CreateHook(nativeFunc, Marshal.GetFunctionPointerForDelegate(target));
+            var orig = Marshal.GetDelegateForFunctionPointer<TTarget>(handle.Original);
+            delegate2handle[orig] = handle;
+            return orig;
         }
         public void DisableHook(Delegate original)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                hookEngine!.DisableHook(original);
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
+            DisableHook(delegate2handle[original]);
         }
         public void EnableHook(Delegate original)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                hookEngine!.EnableHook(original);
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
+            EnableHook(delegate2handle[original]);
         }
     }
 }

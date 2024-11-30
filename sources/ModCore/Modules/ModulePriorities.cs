@@ -13,6 +13,9 @@ namespace ModCore.Modules
         public const int PlatformUtils = -990;
 
         public const int NativeHook = -1100;
+
+        public const int HashlinkHook = -980;
+
         public const int Storage = -1200;
     }
 }
