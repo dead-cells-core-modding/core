@@ -1,6 +1,8 @@
 ﻿using Hashlink;
 using ModCore.Hashlink;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
+using MonoMod.Utils;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -37,8 +39,9 @@ namespace ModCore.Generator
             [TK.HBOOL] = typeof(bool),
             [TK.HVOID] = typeof(void),
             [TK.HBYTES] = typeof(byte[]),
-            [TK.HARRAY] = typeof(object[]),
-            [TK.HOBJ] = typeof(object),
+            [TK.HARRAY] = typeof(HashlinkObject[]),
+            [TK.HOBJ] = typeof(HashlinkObject),
+
         };
         private unsafe class FuncItem
         {
@@ -65,38 +68,31 @@ namespace ModCore.Generator
             public ObjTypeItem? parent;
 
             public TypeDefinition type = null!;
+            public readonly Dictionary<string, FieldItem> fields = [];
+
+            public class FieldItem
+            {
+                public PropertyDefinition property = null!;
+                public string name = "";
+            }
         }
-        private readonly Dictionary<nint, string> stringsLookup = [];
+        
         private readonly List<string> debugFileNames = [];
         private readonly Dictionary<nint, FuncItem> functions = [];
         private readonly Dictionary<nint, ObjTypeItem> objTypes = [];
         private readonly Dictionary<nint, TypeReference> missingTypes = [];
-        
 
-        private string GetString(char* ch)
-        {
-            if(stringsLookup.TryGetValue((nint)ch, out var s))
-            {
-                return s;
-            }
-            return stringsLookup[(nint)ch] = new string(ch);
-        }
-        private string GetString(byte* ch, int num, Encoding encoding)
-        {
-            if (stringsLookup.TryGetValue((nint)ch, out var s))
-            {
-                return s;
-            }
-            return stringsLookup[(nint)ch] = encoding.GetString(ch, num);
-        }
-        private void AddMetadataAttribute(ICustomAttributeProvider provider, string name, HashlinkMetadataRef.HLMType type)
+       
+        private void AddMetadataAttribute(ICustomAttributeProvider provider, string name, HashlinkMetadataRef.HLMType type,
+            long data = 0)
         {
             provider.CustomAttributes.Add(new(mr_hashlinkMetadataRef)
             {
                 ConstructorArguments =
                         {
                             new(module.TypeSystem.String, name),
-                            new(module.ImportReference(typeof(HashlinkMetadataRef.HLMType)), type)
+                            new(module.ImportReference(typeof(HashlinkMetadataRef.HLMType)), type),
+                            new(module.ImportReference(typeof(long)), data)
                         }
             });
         }
@@ -109,7 +105,7 @@ namespace ModCore.Generator
             var item = new ObjTypeItem()
             {
                 obj = type,
-                objName = GetString(type->name),
+                objName = HashlinkUtils.GetString(type->name),
             };
 
             if(type->super != null)
@@ -121,8 +117,14 @@ namespace ModCore.Generator
             item.type = new(lastDot == -1 ? "" : item.objName[..lastDot],
                 lastDot == -1 ? item.objName : item.objName[(lastDot + 1)..],
                 TypeAttributes.Public);
-            AddMetadataAttribute(item.type, item.objName, HashlinkMetadataRef.HLMType.ObjType);
-            item.isStatic = item.type.Name.StartsWith('$');
+            if(item.isStatic = item.type.Name.StartsWith('$'))
+            {
+                item.type.Name = item.type.Name.Replace('$', '_');
+            }
+            AddMetadataAttribute(item.type, item.objName, HashlinkMetadataRef.HLMType.ObjType,
+                item.isStatic ? 1 : 2
+            );
+            
 
             if(item.parent != null)
             {
@@ -130,19 +132,56 @@ namespace ModCore.Generator
             }
             else
             {
-                item.type.BaseType = module.TypeSystem.Object;
+                item.type.BaseType = module.ImportReference(typeof(HashlinkObject));
             }
 
             //Fields
             for(int i = 0; i < type->nfields; i++)
             {
                 var f = type->fields + i;
-                var fd = new FieldDefinition(GetString(f->name), FieldAttributes.Public, GetTypeRef(f->t));
+                var name = HashlinkUtils.GetString(f->name);
+                var ft = GetTypeRef(f->t);
+
+                var setter = new MethodDefinition("set_" + name, MethodAttributes.Public, module.TypeSystem.Void)
+                {
+                    IsSetter = true,
+                    Parameters =
+                    {
+                        new(ft)
+                    }
+                };
+                AddMetadataAttribute(setter, name, HashlinkMetadataRef.HLMType.Field);
+
+
+                var getter = new MethodDefinition("get_" + name, MethodAttributes.Public, ft)
+                {
+                    IsGetter = true,
+                };
+                AddMetadataAttribute(getter, name, HashlinkMetadataRef.HLMType.Field);
+
+                var prop = new PropertyDefinition("p_" + name, PropertyAttributes.None, ft)
+                {
+                    GetMethod = getter,
+                    SetMethod = setter,
+                    Parameters =
+                    {
+                        new(ft)
+                    }
+                };
                 if(item.isStatic)
                 {
-                    fd.IsStatic  = true;
+                    setter.IsStatic  = true;
+                    getter.IsStatic = true;
                 }
-                item.type.Fields.Add(fd);
+                item.type.Methods.Add(setter);
+                item.type.Methods.Add(getter);
+                item.type.Properties.Add(prop);
+
+                item.fields[name] = new()
+                {
+                    name = name,
+                    property = prop,
+                };
             }
 
             module.Types.Add(item.type);
@@ -158,7 +197,7 @@ namespace ModCore.Generator
             }
             if(objTypes.TryGetValue((nint)type->data.obj, out var objType))
             {
-                logger.Information("Type: {t:x}->{ot}", (nint)type->data.obj, objType.type);
+                logger.Verbose("Type: {t:x}->{ot}", (nint)type->data.obj, objType.type);
                 return objType.type;
             }
             if (allowMissing)
@@ -167,12 +206,12 @@ namespace ModCore.Generator
                 {
                     missingType = new TypeReference("", "missingType", module, selfRef);
                     missingTypes[(nint)type] = missingType;
-                    logger.Information("Missing type: {type:x}", (nint)type);
+                    logger.Verbose("Missing type: {type:x}", (nint)type);
                 }
                 return missingType;
             }
 
-            return module.TypeSystem.Object;
+            return module.ImportReference(typeof(HashlinkObject));
         }
         private FuncItem LoadFunc(HL_function* f)
         {
@@ -184,11 +223,11 @@ namespace ModCore.Generator
             func = new FuncItem()
             {
                 func = f,
-                funcName = GetString(f->field),
+                funcName = HashlinkUtils.GetString(f->field),
                 obj = f->obj,
                 objType = LoadObjType(f->obj),
                 startline = f->debug[1],
-                filename = GetString(
+                filename = HashlinkUtils.GetString(
                     code->debugfiles[f->debug[0]],
                     code->debugfiles_lens[f->debug[0]],
                     Encoding.UTF8
@@ -197,17 +236,23 @@ namespace ModCore.Generator
             };
             func.objName = func.objType.objName;
 
-            func.method = new(func.funcName, MethodAttributes.Public | MethodAttributes.HideBySig, module.TypeSystem.Void);
-            AddMetadataAttribute(func.method, func.funcName, HashlinkMetadataRef.HLMType.Function);
+            func.method = new(func.funcName, MethodAttributes.Public | MethodAttributes.HideBySig |
+                MethodAttributes.SpecialName, module.TypeSystem.Void);
 
-            if(func.objType.isStatic)
+            if (func.objType.isStatic)
             {
                 func.method.IsStatic = true;
+                func.method.HasThis = false;
             }
             else
             {
                 func.method.IsVirtual = true;
             }
+
+            func.method.Body = new(func.method);
+            AddMetadataAttribute(func.method, func.funcName, HashlinkMetadataRef.HLMType.Function);
+
+            
 
             for(int i = 0; i < func.tfunc->nargs; i++)
             {
@@ -239,13 +284,59 @@ namespace ModCore.Generator
                 tr.Scope = selfRef;
             }
 
-            logger.Information("Fixed missing type: {src}->{dst}", (nint)type, tr);
+            logger.Verbose("Fixed missing type: {src}->{dst}", (nint)type, tr);
+        }
+        private void FixupObjectCtor(ObjTypeItem obj)
+        {
+            if(obj.isStatic)
+            {
+                return;
+            }
+            var stNsp = obj.type.Namespace;
+            var stName = "_" + obj.type.Name;
+            var stType = module.Types.FirstOrDefault(x => x.Namespace == stNsp && x.Name == stName);
+            if(stType == null)
+            {
+                return;
+            }
+            var stCtor = stType.FindMethod("__constructor__");
+            if(stCtor == null)
+            {
+                return;
+            }
+            var ctor = new MethodDefinition(".ctor", MethodAttributes.Public | 
+                MethodAttributes.SpecialName |
+                MethodAttributes.RTSpecialName, module.TypeSystem.Void);
+            obj.type.Methods.Add(ctor);
+            ctor.Body = new(ctor);
+            var il = ctor.Body.GetILProcessor();
+            il.Emit(OpCodes.Ldarg_0);
+            for(int i = 1; i < stCtor.Parameters.Count; i++)
+            {
+                var p = stCtor.Parameters[i];
+                var cp = new ParameterDefinition(p.Name, p.Attributes, p.ParameterType);
+                ctor.Parameters.Add(cp);
+                il.Emit(OpCodes.Ldarg, cp);
+            }
+            il.Emit(OpCodes.Call, stCtor);
+            il.Emit(OpCodes.Ret);
+
         }
         public void Emit()
         {
-            logger.Information("Collecting functions");
 
-            for(int i = 0; i < code->nfunctions; i++)
+            foreach(var t in HashlinkUtils.GetHashlinkTypes())
+            {
+                var g = (HL_type*) t.Value;
+                logger.Verbose("Type: {type}", g->kind);
+                if (g->kind == TK.HOBJ)
+                {
+                    LoadObjType(g->data.obj);
+                }
+            }
+
+            logger.Information("Collecting functions");
+            for (int i = 0; i < code->nfunctions; i++)
             {
                 var f = code->functions + i;
                 if(f->field == null || f->obj == null)
@@ -267,6 +358,10 @@ namespace ModCore.Generator
             foreach((nint ptr, var tr) in missingTypes)
             {
                 FixupMissingTypeRef((HL_type*)ptr, tr);
+            }
+            foreach((nint _, var obj) in objTypes)
+            {
+                FixupObjectCtor(obj);
             }
         }
     }

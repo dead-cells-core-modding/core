@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <NoWarn>$(NoWarn);SYSLIB1054</NoWarn>
   </PropertyGroup>
 
@@ -24,8 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="ModCore.runtimeconfig.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Update="runtimeconfig.template.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

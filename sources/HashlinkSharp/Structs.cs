@@ -63,8 +63,7 @@ namespace Hashlink
 
         public TypeData data;
         public void** vobj_proto;
-        public int mark_bits;
-        readonly int padding;
+        public int* mark_bits;
     }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_type_virtual

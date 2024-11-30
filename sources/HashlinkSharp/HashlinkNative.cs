@@ -53,5 +53,30 @@ namespace Hashlink
         public static partial void hl_throw(HL_vdynamic* v);
         [LibraryImport("libhl", StringMarshalling = StringMarshalling.Utf16)]
         public static partial string hl_type_str(HL_type* type);
+
+        [LibraryImport("libhl")]
+        public static partial void hl_add_root(void* ptr);
+        [LibraryImport("libhl")]
+        public static partial void hl_remove_root(void* ptr);
+        [LibraryImport("libhl")]
+        public static partial HL_vdynamic* hl_alloc_obj(HL_type* type);
+        [LibraryImport("libhl")]
+        public static partial HL_vdynamic* hl_alloc_enum(HL_type* type);
+        [LibraryImport("libhl")]
+        public static partial HL_field_lookup* hl_lookup_find(HL_field_lookup* l, int size, int hash);
+        [LibraryImport("libhl")]
+        public static partial void* hl_dyn_getp(HL_vdynamic* d, int hfield, HL_type* t);
+
+        public static HL_field_lookup* obj_resolve_field(HL_type_obj* o, int hfield)
+        {
+            HL_runtime_obj* rt = o->rt;
+            do
+            {
+                HL_field_lookup* f = hl_lookup_find(rt->lookup, rt->nlookup, hfield);
+                if (f != null) return f;
+                rt = rt->parent;
+            } while (rt != null);
+            return null;
+        }
     }
 }

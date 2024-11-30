@@ -10,6 +10,7 @@ using MonoMod.RuntimeDetour;
 using Serilog.Core;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -27,6 +28,7 @@ namespace ModCore.Modules
     {
         public override int Priority => ModulePriorities.HashlinkVM;
         public const string HLASSEMBLY_NAME = "DeadCellsGame.dll";
+
         public nint LibhlHandle { get; private set; }
         public Thread MainThread { get; private set; } = null!;
 
@@ -127,15 +129,8 @@ namespace ModCore.Modules
             Logger.Information("VM Context ptr: {ctxptr:x}h", (nint)Context);
             Logger.Information("VM Code Version: {version}", Context->code->version);
 
-            for(int i = 0; i < Context->code->nnatives; i++)
-            {
-                var n = Context->code->natives[i];
-                Logger.Verbose("VM Native: {name} from {lib}", 
-                    Marshal.PtrToStringAnsi((nint)n.name),
-                    Marshal.PtrToStringAnsi((nint)n.lib)
-                    );
-            }
-
+            Logger.Information("Initializing HashlinkVM Utils");
+            HashlinkUtils.Initialize(Context->code, Context->m);
             
             var gamehash = SHA256.HashData(File.ReadAllBytes(GameConstants.GamePath));
             if(StorageManager.Instance.IsCacheOutdateOrMissing(HLASSEMBLY_NAME, gamehash))
@@ -143,8 +138,8 @@ namespace ModCore.Modules
                 Logger.Information("Generating HL Assembly");
                 GenerateHLAssembly(gamehash);
             }
-            Logger.Information("Loading HL Assembly");
-            Assembly.LoadFrom(StorageManager.Instance.GetCachePath(HLASSEMBLY_NAME));
+            //Logger.Information("Loading HL Assembly");
+            //Assembly.LoadFrom(StorageManager.Instance.GetCachePath(HLASSEMBLY_NAME));
         }
 
         void IOnModCoreInjected.OnModCoreInjected()

@@ -6,16 +6,18 @@ using System.Threading.Tasks;
 
 namespace ModCore.Hashlink
 {
-    [AttributeUsage(AttributeTargets.All)]
-    public class HashlinkMetadataRef(string name, HashlinkMetadataRef.HLMType type) : Attribute
+    [AttributeUsage(AttributeTargets.All, Inherited = false)]
+    public class HashlinkMetadataRef(string name, HashlinkMetadataRef.HLMType type, long data) : Attribute
     {
         public string Name => name;
         public HLMType Type => type;
+        public long Data => data;
         public enum HLMType
         {
             None,
             ObjType,
-            Function
+            Function,
+            Field
         }
     }
 }
