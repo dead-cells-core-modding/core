@@ -15,7 +15,6 @@ namespace ModCore.Modules
         {
             Windows = 1,
             Linux = 2,
-            Android = 4
         }
     }
     public abstract class CoreModule<TModule> : Module<TModule> where TModule : CoreModule<TModule>

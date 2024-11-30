@@ -81,7 +81,7 @@ namespace ModCore.Modules
         [StackTraceHidden]
         private static void Hook_hl_throw(HL_vdynamic* val)
         {
-            Logger.Information("Hashlink throw an error");
+            Logger.Verbose("Hashlink throw an error");
             orig_hl_throw(val);
         }
 

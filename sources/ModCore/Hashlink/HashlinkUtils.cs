@@ -17,7 +17,7 @@ namespace ModCore.Hashlink
         private readonly static Dictionary<string, nint> name2hltype = [];
 
         private readonly static Dictionary<nint, nint> funcNativePtr = [];
-        private readonly static Dictionary<nint, Dictionary<string, nint>> name2func = [];
+        private readonly static Dictionary<string, Dictionary<string, nint>> name2func = [];
         
         public static IReadOnlyDictionary<string, nint> GetHashlinkTypes()
         {
@@ -64,15 +64,21 @@ namespace ModCore.Hashlink
             {
                 var f = code->functions + i;
                 var fp = m->functions_ptrs[f->findex];
-                
 
-                if(!name2func.TryGetValue((nint)f->type->data.obj, out var funcTable))
+                if(f->obj == null || f->field == null)
+                {
+                    continue;
+                }
+                var tname = GetString(f->obj->name);
+                if(!name2func.TryGetValue(tname, out var funcTable))
                 {
                     funcTable = [];
-                    name2func.Add((nint)f->type->data.obj, funcTable);
+                    name2func.Add(tname, funcTable);
                 }
+                
 
                 var name = GetString(f->field);
+
                 Log.Logger.Verbose("Func: {name} {ptr:x} {index}", name, (nint)fp, f->findex);
 
                 funcTable[name] = (nint)f;
@@ -85,7 +91,7 @@ namespace ModCore.Hashlink
             //It is too bad, but I dont know how to do
             if ((nint)ch < 0x1ffff)
             {
-                return "(null)";
+                return "";
             }
             if (stringsLookup.TryGetValue((nint)ch, out var s))
             {
@@ -108,21 +114,21 @@ namespace ModCore.Hashlink
         
         public static HL_function* FindFunction(HL_type* type, string name)
         {
-            if(!name2func.TryGetValue((nint)type->data.obj, out var table) ||
+            var tname = GetString(type->data.obj->name);
+            if (!name2func.TryGetValue(tname, out var table) ||
                 !table.TryGetValue(name, out var result))
             {
+                Log.Logger.Information("AA: {a} {b} {c}", table, name, tname);
                 return null;
             }
             return (HL_function*)result;
         }
         public static void* GetFunctionNativePtr(HL_function* func)
         {
-            if(!funcNativePtr.TryGetValue((nint)func, out var result))
-            {
-                return null;
-            }
-            return (void*)result;
+            return (void*) funcNativePtr[(nint)func];
         }
+
+        
 
         public static int HLHash(string str)
         {

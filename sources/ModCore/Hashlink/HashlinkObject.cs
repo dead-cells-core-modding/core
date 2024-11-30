@@ -18,6 +18,9 @@ namespace ModCore.Hashlink
         private void* hl_obj;
         private HL_type* hl_type = null;
 
+        public void* HashlinkValue => hl_obj;
+        public HL_type* HashlinkType => GetHashlinkType();
+
         private static nint GetHashlinkFromType(Type type)
         {
             if(type2hltype.TryGetValue(type, out var result))
@@ -57,6 +60,31 @@ namespace ModCore.Hashlink
         {
             
         }
+        internal void BindHashlinkObject(HL_vdynamic* v)
+        {
+            if(hl_obj != null)
+            {
+                return;
+            }
+            hl_obj = v;
+            hl_type = v->type;
+            HashlinkNative.hl_add_root(hl_obj);
+        }
+        public static nint ToHashlink(HashlinkObject obj)
+        {
+            return (nint)obj.HashlinkValue;
+        }
+        public static HashlinkObject FromHashlink(HL_vdynamic* v)
+        {
+            if(!hlobj2obj.TryGetValue((nint)v, out var obj))
+            {
+                obj = new HashlinkObject();
+                obj.BindHashlinkObject(v);
+                hlobj2obj[(nint)v] = obj;
+            }
+            
+            return obj;
+        }
         protected void Create()
         {
             if(hl_obj == null)
@@ -73,8 +101,16 @@ namespace ModCore.Hashlink
                 HashlinkNative.hl_add_root(hl_obj);
             }
         }
+
+        
+        ~HashlinkObject()
+        {
+            Dispose();
+        }
+
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             if(hl_obj != null)
             {
                 if(hlobj2obj.TryRemove((nint)hl_obj, out _))

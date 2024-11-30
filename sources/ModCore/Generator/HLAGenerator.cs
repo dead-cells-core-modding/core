@@ -27,6 +27,8 @@ namespace ModCore.Generator
 
         private readonly MethodReference mr_hashlinkMetadataRef = assembly.MainModule
             .ImportReference(typeof(HashlinkMetadataRef).GetConstructors()[0]);
+        private readonly MethodReference mr_hashlinkFunctionInfoRef = assembly.MainModule
+            .ImportReference(typeof(HashlinkFunctionInfo).GetConstructors()[0]);
 
         private static readonly Dictionary<TK, Type> hltype2net = new()
         {
@@ -252,6 +254,28 @@ namespace ModCore.Generator
             func.method.Body = new(func.method);
             AddMetadataAttribute(func.method, func.funcName, HashlinkMetadataRef.HLMType.Function);
 
+            {
+                string fileName = HashlinkUtils.GetString(code->debugfiles[f->debug[0]],
+                    code->debugfiles_lens[f->debug[0]], Encoding.UTF8);
+                int startLine = f->debug[1];
+
+                int endLine = f->debug[f->nops * 2 + 1];
+
+                func.method.CustomAttributes.Add(
+                new(mr_hashlinkFunctionInfoRef)
+                {
+                    ConstructorArguments =
+                    {
+                        new(module.TypeSystem.String, fileName),
+                        new(module.TypeSystem.Int32, startLine),
+                        new(module.TypeSystem.String, null),
+                        new(module.TypeSystem.Int32, endLine),
+                    }
+                }
+                );
+            }
+
+            
             
 
             for(int i = 0; i < func.tfunc->nargs; i++)
