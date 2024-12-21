@@ -1,4 +1,5 @@
 ﻿using Hashlink;
+using ModCore.Modules;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -18,6 +19,7 @@ namespace ModCore.Hashlink
 
         private readonly static Dictionary<nint, nint> funcNativePtr = [];
         private readonly static Dictionary<string, Dictionary<string, nint>> name2func = [];
+        private readonly static Dictionary<string, int> hltype2globalIdx = [];
         
         public static IReadOnlyDictionary<string, nint> GetHashlinkTypes()
         {
@@ -32,19 +34,19 @@ namespace ModCore.Hashlink
                 var g = code->types + i;
                 string name;
 
-                
-                if(g->data.obj == null)
+
+                if (g->data.obj == null)
                 {
                     continue;
                 }
 
-                if(g->kind == HL_type.TypeKind.HOBJ)
+                if (g->kind == HL_type.TypeKind.HOBJ)
                 {
                     var n = g->data.obj->name;
                     name = GetString(n);
 
                 }
-                else if(g->kind == HL_type.TypeKind.HENUM)
+                else if (g->kind == HL_type.TypeKind.HENUM)
                 {
                     name = GetString(g->data.tenum->name);
                 }
@@ -52,38 +54,58 @@ namespace ModCore.Hashlink
                 {
                     continue;
                 }
-                
-                if(string.IsNullOrWhiteSpace(name))
+
+                if (string.IsNullOrWhiteSpace(name))
                 {
                     continue;
                 }
-                Log.Logger.Verbose("Type: {name}", name);
                 name2hltype[name] = (nint)g;
             }
-            for(int i = 0; i < code->nfunctions; i++)
+            for (int i = 0; i < code->nfunctions; i++)
             {
                 var f = code->functions + i;
                 var fp = m->functions_ptrs[f->findex];
 
-                if(f->obj == null || f->field == null)
+                if (f->obj == null || f->field == null)
                 {
                     continue;
                 }
                 var tname = GetString(f->obj->name);
-                if(!name2func.TryGetValue(tname, out var funcTable))
+                if (!name2func.TryGetValue(tname, out var funcTable))
                 {
                     funcTable = [];
                     name2func.Add(tname, funcTable);
                 }
-                
+
 
                 var name = GetString(f->field);
 
-                Log.Logger.Verbose("Func: {name} {ptr:x} {index}", name, (nint)fp, f->findex);
-
                 funcTable[name] = (nint)f;
-                funcNativePtr[(nint)f] = (nint) fp;
+                funcNativePtr[(nint)f] = (nint)fp;
             }
+            for (int i = 0; i < code->nglobals; i++)
+            {
+                var g = code->globals[i];
+                if(g->kind != HL_type.TypeKind.HOBJ)
+                {
+                    continue;
+                }
+                var name = GetString(g->data.obj->name);
+                hltype2globalIdx[name] = i;
+            }
+        }
+
+        public static void* GetGlobalData(HL_type* type)
+        {
+            if(type->kind != HL_type.TypeKind.HOBJ)
+            {
+                return null;
+            }
+            if(!hltype2globalIdx.TryGetValue(GetString(type->data.obj->name), out var idx))
+            {
+                return null;
+            }
+            return (void*) HashlinkVM.Instance.Context->m->globals_data[idx];
         }
 
         public static string GetString(char* ch)
@@ -112,6 +134,7 @@ namespace ModCore.Hashlink
             return (HL_type*) name2hltype[name];
         }
         
+
         public static HL_function* FindFunction(HL_type* type, string name)
         {
             var tname = GetString(type->data.obj->name);

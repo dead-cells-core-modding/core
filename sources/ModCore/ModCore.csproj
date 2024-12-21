@@ -8,6 +8,8 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <NoWarn>$(NoWarn);SYSLIB1054</NoWarn>
+    
+    <OutputPath>../../bin/core/host/</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

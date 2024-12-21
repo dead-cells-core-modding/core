@@ -39,6 +39,8 @@ namespace Hashlink
             }
         }
         [LibraryImport("libhl")]
+        public static partial void hl_global_init();
+        [LibraryImport("libhl")]
         public static partial HL_thread_info* hl_get_thread();
 
         [LibraryImport("libhl")]
@@ -64,8 +66,34 @@ namespace Hashlink
         public static partial HL_vdynamic* hl_alloc_enum(HL_type* type);
         [LibraryImport("libhl")]
         public static partial HL_field_lookup* hl_lookup_find(HL_field_lookup* l, int size, int hash);
+
+        [LibraryImport("libhl")]
+        public static partial long hl_dyn_geti64(HL_vdynamic* d, int hfield, HL_type* t);
+        [LibraryImport("libhl")]
+        public static partial void hl_dyn_seti64(HL_vdynamic* d, int hfield, HL_type* t, long val);
+
+        [LibraryImport("libhl")]
+        public static partial int hl_dyn_geti(HL_vdynamic* d, int hfield, HL_type* t);
+        [LibraryImport("libhl")]
+        public static partial void hl_dyn_seti(HL_vdynamic* d, int hfield, HL_type* t, int val);
+
         [LibraryImport("libhl")]
         public static partial void* hl_dyn_getp(HL_vdynamic* d, int hfield, HL_type* t);
+        [LibraryImport("libhl")]
+        public static partial void hl_dyn_setp(HL_vdynamic* d, int hfield, HL_type* t, void* val);
+
+        [LibraryImport("libhl")]
+        public static partial float hl_dyn_getf(HL_vdynamic* d, int hfield, HL_type* t);
+        [LibraryImport("libhl")]
+        public static partial void hl_dyn_setf(HL_vdynamic* d, int hfield, HL_type* t, float val);
+
+        [LibraryImport("libhl")]
+        public static partial double hl_dyn_getd(HL_vdynamic* d, int hfield, HL_type* t);
+        [LibraryImport("libhl")]
+        public static partial void hl_dyn_setd(HL_vdynamic* d, int hfield, HL_type* t, double val);
+
+        [LibraryImport("libhl")]
+        public static partial char* hl_resolve_symbol(void* addr, char* @out, int* outSize);
 
         public static HL_field_lookup* obj_resolve_field(HL_type_obj* o, int hfield)
         {

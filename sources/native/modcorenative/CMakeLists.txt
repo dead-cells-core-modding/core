@@ -1,20 +1,35 @@
 ﻿
-SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin/core/native/)
 
 include_directories (../include)
 
-add_library (modcorenative SHARED "modcorenative.cpp" "modcorenative.h")
+file(GLOB_RECURSE SOURCES ./*.c ./*.cpp)
 
-if (MSVC)
-get_filename_component(pnethost ../lib/libnethost.lib ABSOLUTE)
+add_library (modcorenative SHARED ${SOURCES})
+
+if (WIN32)
+set(LIB_ROOT ../lib/win-x86/)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}win-x86)
+
+file(GLOB_RECURSE LIBS ${LIB_ROOT}*.lib)
+if(MSVC)
+
+add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MT")
+endif()
+
 else()
-get_filename_component(pnethost ../lib/libnethost.a ABSOLUTE)
+
+set(LIB_ROOT ../lib/linux-x64/)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}linux-x64)
+
+file(GLOB_RECURSE LIBS ${LIB_ROOT}*.a)
 endif()
 
 
 
-target_link_libraries(modcorenative ${pnethost})
+target_link_libraries(modcorenative ${LIBS})
 
 set(CMAKE_GENERATOR_PLATFORM x86)
 install(TARGETS modcorenative)

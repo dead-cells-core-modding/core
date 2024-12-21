@@ -1,4 +1,5 @@
 ﻿using ModCore.Modules.Events;
+using ModCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,18 +30,14 @@ namespace ModCore.Modules
         }
         public override int Priority => ModulePriorities.Storage;
 
-        private readonly string cacheMetadataPath = Path.Combine(GameConstants.CacheRoot, "cache.json");
+        private readonly string cacheMetadataPath = FolderInfo.Cache.GetFilePath("cache.json");
         private CacheMetadata cache = new();
 
         void IOnModCoreInjected.OnModCoreInjected()
         {
-            Directory.CreateDirectory(GameConstants.ModCoreRoot);
-            Directory.CreateDirectory(GameConstants.ConfigRoot);
-            Directory.CreateDirectory(GameConstants.CacheRoot);
-            Directory.CreateDirectory(GameConstants.DataRoot);
 
-            Logger.Information("Game Root: {root}", GameConstants.GameRoot);
-            Logger.Information("Mod Core Root: {root}", GameConstants.ModCoreRoot);
+            Logger.Information("Game Root: {root}", FolderInfo.GameRoot.FullPath);
+            Logger.Information("Mod Core Root: {root}", FolderInfo.CoreRoot);
 
             Logger.Information("Loading cache metadata");
             if(File.Exists(cacheMetadataPath))
@@ -62,7 +59,7 @@ namespace ModCore.Modules
 
         public string GetCachePath(string filename)
         {
-            return Path.Combine(GameConstants.CacheRoot, filename);
+            return FolderInfo.Cache.GetFilePath(filename);
         }
         public bool IsCacheOutdateOrMissing(string filename, long lastModified)
         {

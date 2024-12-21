@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +12,7 @@ namespace ModCore
 {
     internal static class Utils
     {
+        
         public static void ExitGame()
         {
             Process.GetCurrentProcess().Kill(true);
@@ -29,6 +32,20 @@ namespace ModCore
                 }
             }
             return true;
+        }
+
+        public static nint GetFrameIP(this StackFrame frame)
+        {
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_nativeOffset")]
+            static extern ref int GetNativeOffset(StackFrame frame);
+
+            var offset = GetNativeOffset(frame);
+            return offset + (frame.GetMethod()?.MethodHandle.GetFunctionPointer() ?? 0);
+        }
+
+        public static string GetDisplay(this StackFrame frame)
+        {
+            return frame.ToString();
         }
 
         public static byte[] HashFile(string path)

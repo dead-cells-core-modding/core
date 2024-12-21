@@ -2,25 +2,56 @@
 using ModCore.Events;
 using ModCore.Modules;
 using ModCore.Modules.Events;
+using ModCore.Storage;
 using Serilog;
 using Serilog.Core;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace ModCore
 {
-    class Program
+    static class Core
     {
+        private static bool init = false;
+        public static Config<CoreConfig> Config { get; } = new("modcore");
 
-        static void Initalize()
+        static void AddPath()
         {
-            Directory.CreateDirectory(GameConstants.LogsRoot);
+            string envName;
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                envName = "Path";
+            }
+            else
+            {
+                envName = "LD_LIBRARY_PATH";
+            }
+            var val = Environment.GetEnvironmentVariable(envName);
+            val = 
+                FolderInfo.CoreNativeRoot.FullPath + ";" +
+                FolderInfo.GameRoot.FullPath + ";" +
+                val;
+            Environment.SetEnvironmentVariable(envName, val);
+        }
+
+        internal static void Initialize()
+        {
+            if(init)
+            {
+                return;
+            }
+            init = true;
+
+            Environment.SetEnvironmentVariable("DCCM_CoreLoaded", "true");
+
+            AddPath();
 
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose,
                     outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}")
                 .WriteTo.File(
-                    Path.Combine(GameConstants.LogsRoot, "log_.log"),
+                    Path.Combine(FolderInfo.Logs.FullPath, "log_.log"),
                     outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}",
                     rollingInterval: RollingInterval.Minute
                 )
@@ -35,7 +66,17 @@ namespace ModCore
 
             Log.Logger.Information("Loading core modules");
 
-            foreach (var type in typeof(Program).Assembly.GetTypes())
+            CoreModuleAttribute.SupportOS os;
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                os = CoreModuleAttribute.SupportOS.Windows;
+            }
+            else
+            {
+                os = CoreModuleAttribute.SupportOS.Linux;
+            }
+
+            foreach (var type in typeof(Core).Assembly.GetTypes())
             {
                 if (!type.IsSubclassOf(typeof(Module)) || type.IsAbstract)
                 {
@@ -46,13 +87,7 @@ namespace ModCore
                 {
                     continue;
                 }
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
-                    !attr.supportOS.HasFlag(CoreModuleAttribute.SupportOS.Windows))
-                {
-                    continue;
-                }
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
-                    !attr.supportOS.HasFlag(CoreModuleAttribute.SupportOS.Linux))
+                if((attr.supportOS & os) != os)
                 {
                     continue;
                 }
@@ -73,11 +108,13 @@ namespace ModCore
         {
             try
             {
-                Initalize();
+                
+                Initialize();
             }
             catch (Exception ex)
             {
                 Log.Logger.Fatal(ex, "An excpetion was occured on Initalizing");
+                Console.Error.WriteLine(ex.ToString());
                 Utils.ExitGame();
             }
             return 0;

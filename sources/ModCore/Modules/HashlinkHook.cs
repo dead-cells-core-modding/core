@@ -1,4 +1,5 @@
-﻿using ModCore.Hashlink;
+﻿using Hashlink;
+using ModCore.Hashlink;
 using ModCore.Modules.Events;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -93,7 +94,13 @@ namespace ModCore.Modules
 
         private nint Hook_mt_logClientInfos()
         {
-            Logger.Information("HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEELLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOO!!!!!");
+            var stMain = HashlinkUtils.FindTypeFromName("$Main");
+            var gData = (HL_vdynamic*)HashlinkUtils.GetGlobalData(stMain);
+            Logger.Information("GD: {ptr:x}", (nint)gData);
+            var gameVerF = HashlinkNative.hl_dyn_geti(
+                gData, HashlinkUtils.HLHash("GAME_VERSION"), HashlinkNative.InternalTypes.hlt_i32
+                );
+            Logger.Information("AA{a} {b:x}", gameVerF, (nint)gData);
             return orig_logClientInfos();
         }
 
@@ -109,7 +116,7 @@ namespace ModCore.Modules
                     HashlinkUtils.FindTypeFromName("$Boot"), "logClientInfos"
                     )
                 );
-            orig_logClientInfos = nhook.CreateHook<mt_logClientInfosHandler>((nint)plogClientInfos, Hook_mt_logClientInfos);
+            //orig_logClientInfos = nhook.CreateHook<mt_logClientInfosHandler>((nint)plogClientInfos, Hook_mt_logClientInfos);
         }
 
 

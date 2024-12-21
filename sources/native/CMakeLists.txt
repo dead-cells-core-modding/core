@@ -11,5 +11,9 @@ endif()
 
 project ("native")
 
+#SET(CMAKE_ASM_NASM_SOURCE_FILE_EXTENSIONS asm)  # 设置NASM的文件扩展名为asm
+#ENABLE_LANGUAGE(ASM_NASM)  # 让CMacke启用NASM的汇编
+#SET(CMAKE_ASM_NASM_FLAGS "-g") # 让NASM生成调试信息
+
 # 包含子项目。
 add_subdirectory ("modcorenative")

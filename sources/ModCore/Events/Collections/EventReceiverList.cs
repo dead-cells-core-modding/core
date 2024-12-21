@@ -25,10 +25,13 @@ namespace ModCore.Events.Collections
             public Node? Left { get; set; }
             public Node? Right { get; set; }
             public required int Priority { get; init; }
+            public int Version { get; set; }
             public Node LowestNode { get; set; }
             public NodeDataBlock Data { get; } = new(2);
             
         }
+
+        public int Version { get; private set; } = 0;
 
         private readonly Node root = new()
         {
@@ -85,7 +88,8 @@ namespace ModCore.Events.Collections
                     newNode = new()
                     {
                         Priority = priority,
-                        Parent = curNode
+                        Parent = curNode,
+                        Version = ++Version
                     };
                     curNode.Left = newNode;
                     break;
@@ -101,7 +105,8 @@ namespace ModCore.Events.Collections
                     newNode = new()
                     {
                         Priority = priority,
-                        Parent = curNode
+                        Parent = curNode,
+                        Version = ++Version
                     };
                     curNode.Right = newNode;
                     break;
@@ -125,9 +130,14 @@ namespace ModCore.Events.Collections
         public IEnumerator<IEventReceiver> GetEnumerator()
         {
             var en = ForeachAllNode(root);
+            var curVer = Version;
             while(en.MoveNext())
             {
                 var node = en.Current;
+                if(en.Current.Version > curVer)
+                {
+                    continue;
+                }
                 var curBlock = node.Data;
                 while(curBlock != null)
                 {

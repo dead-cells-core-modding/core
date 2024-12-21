@@ -9,6 +9,7 @@ using Mono.Cecil.Cil;
 using MonoMod.RuntimeDetour;
 using Serilog.Core;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -78,7 +79,6 @@ namespace ModCore.Modules
         private delegate void hl_throw_handler(HL_vdynamic* val);
         private static hl_throw_handler orig_hl_throw = null!;
 
-        [StackTraceHidden]
         private static void Hook_hl_throw(HL_vdynamic* val)
         {
             Logger.Verbose("Hashlink throw an error");
@@ -93,31 +93,109 @@ namespace ModCore.Modules
         private static readonly byte* exception_stack_msg_split0 = (byte*)Marshal.StringToHGlobalUni("\n==Below is the .Net Stack==\n");
         private static readonly byte* exception_stack_msg_split1 = (byte*) Marshal.StringToHGlobalUni("\n==Below is the Hashlink Stack==\n");
 
-        [StackTraceHidden]
-        private static HL_array* Hook_hl_exception_stack()
+        private static HL_array* GetExceptionStackFallback(HL_array* hlstack, StackTrace trace)
         {
-            HL_array* stack = orig_hl_exception_stack();
-            byte** stack_val = (byte**)(stack + 1);
-            var net_stack = new StackTrace(0, true).ToString()
-                .Trim()
-                .Split('\n');
-
+            
+            byte** stack_val = (byte**)(hlstack + 1);
+    
             var new_stack = HashlinkNative.hl_alloc_array(HashlinkNative.InternalTypes.hlt_bytes,
-                stack->size + 1 +net_stack.Length
+                hlstack->size + 1 + trace.FrameCount
                 );
             byte** new_stack_val = (byte**)(new_stack + 1);
 
             int index = 0;
             new_stack_val[index++] = exception_stack_msg_split0;
-            for (int i = 0; i < net_stack.Length; i++)
+            for (int i = 0; i < trace.FrameCount; i++)
             {
-                var frame = net_stack[i];
-                new_stack_val[index++] = (byte*) Marshal.StringToHGlobalUni(frame.ToString());
+                var frame = trace.GetFrame(i);
+                if (frame != null)
+                {
+                    new_stack_val[index++] = (byte*)Marshal.StringToHGlobalUni(frame.GetDisplay());
+                }
             }
             new_stack_val[index++] = exception_stack_msg_split1;
-            Buffer.MemoryCopy(stack_val, new_stack_val + index, stack->size * sizeof(byte*), stack->size * sizeof(byte*));
+            Buffer.MemoryCopy(stack_val, new_stack_val + index, hlstack->size * sizeof(byte*), hlstack->size * sizeof(byte*));
 
             return new_stack;
+        }
+
+        private static HL_array* GetExceptionStackX86(StackTrace trace)
+        {
+            var ti = HashlinkNative.hl_get_thread();
+            void** buf = stackalloc void*[512];
+            char* strbuf = stackalloc char[512];
+            int strSize = 0;
+
+            var count = Native.modcore_x86_load_stacktrace(buf, 512, ti->stack_top);
+
+            var str = new List<string>(count);
+
+            var curFrameId = 0;
+            var curFrame = trace.GetFrame(curFrameId++);
+
+            foreach(var v in trace.GetFrames())
+            {
+                Logger.Information("IP: {ip:x} {str}", v.GetFrameIP(), v);
+            }
+
+            for(int i = 0; i < count; i++)
+            {
+                var eip = buf[i];
+                if(eip == null)
+                {
+                    break;
+                }
+                var hlstr = HashlinkNative.hl_resolve_symbol(eip, strbuf, &strSize);
+                if(hlstr != null)
+                {
+                    str.Add(new(hlstr));
+                }
+                else
+                {
+                    if (curFrame != null)
+                    {
+                        var fip = curFrame.GetFrameIP();
+                        var ofs = fip - (nint)eip;
+                        Logger.Information("Eip {eip:x} Fip {fip:x} {ofs}", (nint)eip, fip, ofs);
+
+                        if(ofs < 8 && ofs > -8)
+                        {
+                            str.Add(curFrame.GetDisplay());
+                            curFrame = trace.GetFrame(curFrameId++);
+                        }
+                    }
+                }
+            }
+
+            var stack = HashlinkNative.hl_alloc_array(HashlinkNative.InternalTypes.hlt_bytes, str.Count);
+            byte** stack_val = (byte**)(stack + 1);
+
+            for(int i = 0; i < str.Count; i++)
+            {
+                stack_val[i] = (byte*)Marshal.StringToHGlobalUni(str[i]);
+            }
+            return stack;
+        }
+
+        private static HL_array* Hook_hl_exception_stack()
+        {
+            try
+            {
+                var trace = new StackTrace(0, true);
+                if (Environment.Is64BitProcess)
+                {
+                    HL_array* stack = orig_hl_exception_stack();
+                    return GetExceptionStackFallback(stack, trace);
+                }
+                else
+                {
+                    return GetExceptionStackX86(trace);
+                }
+            }catch(Exception ex)
+            {
+                Logger.Error(ex, "Failed to invoke Hook_hl_exception_stack");
+                throw;
+            }
         }
 
         private void InitializeModule()
@@ -131,17 +209,8 @@ namespace ModCore.Modules
 
             Logger.Information("Initializing HashlinkVM Utils");
             HashlinkUtils.Initialize(Context->code, Context->m);
-            
-            var gamehash = SHA256.HashData(File.ReadAllBytes(GameConstants.GamePath));
-            if(StorageManager.Instance.IsCacheOutdateOrMissing(HLASSEMBLY_NAME, gamehash))
-            {
-                Logger.Information("Generating HL Assembly");
-                GenerateHLAssembly(gamehash);
-            }
-            //Logger.Information("Loading HL Assembly");
-            //Assembly.LoadFrom(StorageManager.Instance.GetCachePath(HLASSEMBLY_NAME));
 
-            
+
         }
 
         void IOnModCoreInjected.OnModCoreInjected()
@@ -179,39 +248,6 @@ namespace ModCore.Modules
             return result;
         }
 
-        private void GenerateHLAssembly(byte[] checksum)
-        {
-            var assemblyResolver = new DefaultAssemblyResolver();
-
-            assemblyResolver.AddSearchDirectory(GameConstants.GameRoot);
-            assemblyResolver.AddSearchDirectory(GameConstants.ModCoreHostRoot);
-
-            using var asm = AssemblyDefinition.CreateAssembly(new("DeadCellsGame", new(1, 0, 0, 0)),
-                "DeadCellsGame", new ModuleParameters()
-                {
-                    Kind = ModuleKind.Dll,
-                    AssemblyResolver = assemblyResolver
-                });
-
-
-            using var asmStream = new MemoryStream();
-            using var pdbStream = File.OpenWrite(
-                Path.ChangeExtension(
-                    StorageManager.Instance.GetCachePath(HLASSEMBLY_NAME), "pdb"
-                    ));
-
-            new HLAGenerator(asm, Logger, Context->code).Emit();
-
-            asm.Write(asmStream, new()
-            {
-                SymbolStream = pdbStream,
-                SymbolWriterProvider = new PortablePdbWriterProvider(),
-                WriteSymbols = true,
-                
-            });
-
-            //FIXME: 
-            StorageManager.Instance.UpdateCache(HLASSEMBLY_NAME, [..checksum, 1], asmStream.ToArray());
-        }
+     
     }
 }
