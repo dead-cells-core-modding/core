@@ -95,18 +95,11 @@ namespace Hashlink
         public static partial void hl_dyn_setd(HL_vdynamic* d, int hfield, HL_type* t, double val);
 
         [LibraryImport("libhl")]
-        public static partial char* hl_resolve_symbol(void* addr, char* @out, int* outSize);
+        public static partial char* hl_resolve_symbol(void* addr, char* @out, out int outSize);
 
-        public static HL_field_lookup* obj_resolve_field(HL_type_obj* o, int hfield)
-        {
-            HL_runtime_obj* rt = o->rt;
-            do
-            {
-                HL_field_lookup* f = hl_lookup_find(rt->lookup, rt->nlookup, hfield);
-                if (f != null) return f;
-                rt = rt->parent;
-            } while (rt != null);
-            return null;
-        }
+        [LibraryImport("libhl")]
+        public static partial void* hl_obj_lookup(HL_vdynamic* d, int hfield, out HL_type* t);
+        [LibraryImport("libhl")]
+        public static partial HL_vdynamic* hl_obj_lookup_extra(HL_vdynamic* d, int hfield);
     }
 }

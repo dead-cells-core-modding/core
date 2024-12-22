@@ -12,8 +12,6 @@ namespace ModCore.Hashlink
 {
     public unsafe class HashlinkObject : DynamicObject, IDisposable
     {
-        private static readonly ConcurrentDictionary<nint, WeakReference<HashlinkObject>> hlobj2obj = [];
-
         private HL_vdynamic* hl_vdy;
         private HL_type* hl_type = null;
 
@@ -47,19 +45,13 @@ namespace ModCore.Hashlink
             hl_type = v->type;
             HashlinkNative.hl_add_root(hl_vdy);
         }
-        public static nint ToHashlink(HashlinkObject obj)
+        public static HL_vdynamic* ToHashlink(HashlinkObject obj)
         {
-            return (nint)obj.HashlinkValue;
+            return obj.HashlinkValue;
         }
         public static HashlinkObject FromHashlink(HL_vdynamic* v)
         {
-            if(!hlobj2obj.TryGetValue((nint)v, out var r) || !r.TryGetTarget(out var obj))
-            {
-                obj = new HashlinkObject(v);
-                hlobj2obj[(nint)v] = new(obj);
-            }
-            
-            return obj;
+            return new HashlinkObject(v);
         }
 
         
@@ -73,18 +65,25 @@ namespace ModCore.Hashlink
             GC.SuppressFinalize(this);
             if(hl_vdy != null)
             {
-                if(hlobj2obj.TryRemove((nint)hl_vdy, out _))
-                {
-                    HashlinkNative.hl_remove_root(hl_vdy);
-                }
+                HashlinkNative.hl_remove_root(hl_vdy);
                 hl_vdy = null;
             }
         }
 
+        private void* GetFieldPtr(string name, out HL_type* type)
+        {
+            return HashlinkNative.hl_obj_lookup(hl_vdy, HashlinkUtils.HLHash(name), out type);
+        }
         public override bool TryGetMember(GetMemberBinder binder, out object? result)
         {
-            
-            return base.TryGetMember(binder, out result);
+            var ptr = GetFieldPtr(binder.Name, out var type);
+            if(ptr != null)
+            {
+                result = HashlinkUtils.GetData(ptr, type);
+                return true;
+            }
+            result = null;
+            return false;
         }
     }
 }

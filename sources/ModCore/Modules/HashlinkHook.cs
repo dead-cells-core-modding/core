@@ -95,12 +95,8 @@ namespace ModCore.Modules
         private nint Hook_mt_logClientInfos()
         {
             var stMain = HashlinkUtils.FindTypeFromName("$Main");
-            var gData = (HL_vdynamic*)HashlinkUtils.GetGlobalData(stMain);
-            Logger.Information("GD: {ptr:x}", (nint)gData);
-            var gameVerF = HashlinkNative.hl_dyn_geti(
-                gData, HashlinkUtils.HLHash("GAME_VERSION"), HashlinkNative.InternalTypes.hlt_i32
-                );
-            Logger.Information("AA{a} {b:x}", gameVerF, (nint)gData);
+            dynamic smain = HashlinkUtils.GetGlobal(stMain);
+            Logger.Information("AA{a}", smain.GAME_VERSION);
             return orig_logClientInfos();
         }
 

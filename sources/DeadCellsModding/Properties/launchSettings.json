@@ -6,7 +6,8 @@
       "environmentVariables": {
         "DEAD_CELLS_GAME_PATH": "E:\\SteamLibrary\\steamapps\\common\\Dead Cells",
         "DCCM_AutoLoad": "false"
-      }
+      },
+      "nativeDebugging": true
     }
   }
 }

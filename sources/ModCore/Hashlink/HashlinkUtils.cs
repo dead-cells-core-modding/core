@@ -20,6 +20,8 @@ namespace ModCore.Hashlink
         private readonly static Dictionary<nint, nint> funcNativePtr = [];
         private readonly static Dictionary<string, Dictionary<string, nint>> name2func = [];
         private readonly static Dictionary<string, int> hltype2globalIdx = [];
+
+        private readonly static Dictionary<string, HashlinkObject> hltype2globalObject = [];
         
         public static IReadOnlyDictionary<string, nint> GetHashlinkTypes()
         {
@@ -95,18 +97,50 @@ namespace ModCore.Hashlink
             }
         }
 
-        public static void* GetGlobalData(HL_type* type)
+        public static void* GetGlobalData(string name)
         {
-            if(type->kind != HL_type.TypeKind.HOBJ)
-            {
-                return null;
-            }
-            if(!hltype2globalIdx.TryGetValue(GetString(type->data.obj->name), out var idx))
+            if(!hltype2globalIdx.TryGetValue(name, out var idx))
             {
                 return null;
             }
             HL_module* module = HashlinkVM.Instance.Context->m;
             return (void*)(module->globals_data + module->globals_indexes[idx]);
+        }
+
+        public static HL_vdynamic* CreateDynamic(HL_type* type, void* ptr)
+        {
+            var vdyn = HashlinkNative.hl_alloc_dynamic(type);
+            vdyn->val.ptr = ptr;
+            return vdyn;
+        }
+
+        public static HashlinkObject GetGlobal(HL_type* type)
+        {
+            var name = GetString(type->data.obj->name);
+            var gPtr = GetGlobalData(name);
+            if (!hltype2globalObject.TryGetValue(name, out var val))
+            {
+                var dyn = CreateDynamic(type, gPtr);
+                hltype2globalObject[name] = val = HashlinkObject.FromHashlink(dyn);
+            }
+            return val;
+        }
+
+        public static object GetData(void* ptr, HL_type* type)
+        {
+            return type->kind switch
+            {
+                HL_type.TypeKind.HUI8 => *(byte*)ptr,
+                HL_type.TypeKind.HUI16 => *(ushort*)ptr,
+                HL_type.TypeKind.HI32 => *(int*)ptr,
+                HL_type.TypeKind.HI64 => *(long*)ptr,
+                HL_type.TypeKind.HF32 => *(float*)ptr,
+                HL_type.TypeKind.HF64 => *(double*)ptr,
+                HL_type.TypeKind.HBOOL => *(bool*)ptr,
+                HL_type.TypeKind.HBYTES => *(nint*)ptr,
+                HL_type.TypeKind.HDYN => HashlinkObject.FromHashlink((HL_vdynamic*)ptr),
+                _ => HashlinkObject.FromHashlink(CreateDynamic(type, ptr))
+            };
         }
 
         public static string GetString(char* ch)
