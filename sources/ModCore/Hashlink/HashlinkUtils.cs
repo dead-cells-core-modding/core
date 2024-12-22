@@ -105,7 +105,8 @@ namespace ModCore.Hashlink
             {
                 return null;
             }
-            return (void*) HashlinkVM.Instance.Context->m->globals_data[idx];
+            HL_module* module = HashlinkVM.Instance.Context->m;
+            return (void*)(module->globals_data + module->globals_indexes[idx]);
         }
 
         public static string GetString(char* ch)

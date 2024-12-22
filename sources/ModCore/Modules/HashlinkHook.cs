@@ -116,7 +116,7 @@ namespace ModCore.Modules
                     HashlinkUtils.FindTypeFromName("$Boot"), "logClientInfos"
                     )
                 );
-            //orig_logClientInfos = nhook.CreateHook<mt_logClientInfosHandler>((nint)plogClientInfos, Hook_mt_logClientInfos);
+            orig_logClientInfos = nhook.CreateHook<mt_logClientInfosHandler>((nint)plogClientInfos, Hook_mt_logClientInfos);
         }
 
 

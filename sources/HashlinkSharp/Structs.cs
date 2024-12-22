@@ -78,6 +78,12 @@ namespace Hashlink
         public HL_field_lookup* lookup;
     }
     [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_enum
+    {
+        public HL_type* t;
+        public int index;
+    }
+    [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_enum_construct
     {
         public char* name;

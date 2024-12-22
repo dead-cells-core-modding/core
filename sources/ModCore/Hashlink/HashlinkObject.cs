@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -9,66 +10,42 @@ using System.Threading.Tasks;
 
 namespace ModCore.Hashlink
 {
-    public unsafe class HashlinkObject : IDisposable 
+    public unsafe class HashlinkObject : DynamicObject, IDisposable
     {
-        private static readonly ConcurrentDictionary<Type, nint> type2hltype = [];
-        private static readonly ConcurrentDictionary<nint, HashlinkObject> hlobj2obj = [];
-        private static readonly ConcurrentDictionary<nint, Type> hltype2type = [];
+        private static readonly ConcurrentDictionary<nint, WeakReference<HashlinkObject>> hlobj2obj = [];
 
-        private void* hl_obj;
+        private HL_vdynamic* hl_vdy;
         private HL_type* hl_type = null;
 
-        public void* HashlinkValue => hl_obj;
-        public HL_type* HashlinkType => GetHashlinkType();
+        public HL_vdynamic* HashlinkValue => hl_vdy;
+        public HL_type* HashlinkType => hl_type;
+        public bool IsInvalid => hl_vdy == null;
 
-        private static nint GetHashlinkFromType(Type type)
+        public HashlinkObject(HL_type* type)
         {
-            if(type2hltype.TryGetValue(type, out var result))
+            hl_type = type;
+
+            hl_vdy = HashlinkNative.hl_alloc_dynamic(type);
+
+            if(type->kind == HL_type.TypeKind.HOBJ)
             {
-                return result;
+                hl_vdy->val.ptr = HashlinkNative.hl_alloc_obj(type);
             }
-            var attr = type.GetCustomAttribute<HashlinkMetadataRef>();
-            if(attr == null)
+            else if(type->kind == HL_type.TypeKind.HENUM)
             {
-                if(type.BaseType != null)
-                {
-                    result = GetHashlinkFromType(type.BaseType);
-                }
-                else
-                {
-                    result = nint.Zero;
-                }
+                hl_vdy->val.ptr = HashlinkNative.hl_alloc_enum(type);
             }
             else
             {
-                result = (nint)HashlinkUtils.FindTypeFromName(attr.Name);
+                throw new NotSupportedException($"Unknown type kind '{type->kind}'");
             }
-            type2hltype[type] = result;
-
-            return result;
+            HashlinkNative.hl_add_root(hl_vdy);
         }
-        public HL_type* GetHashlinkType()
+        private HashlinkObject(HL_vdynamic* v)
         {
-            if (hl_type != null)
-            {
-                return hl_type;
-            }
-            return hl_type = (HL_type*)GetHashlinkFromType(GetType());
-        }
-
-        public HashlinkObject()
-        {
-            
-        }
-        internal void BindHashlinkObject(HL_vdynamic* v)
-        {
-            if(hl_obj != null)
-            {
-                return;
-            }
-            hl_obj = v;
+            hl_vdy = v;
             hl_type = v->type;
-            HashlinkNative.hl_add_root(hl_obj);
+            HashlinkNative.hl_add_root(hl_vdy);
         }
         public static nint ToHashlink(HashlinkObject obj)
         {
@@ -76,30 +53,13 @@ namespace ModCore.Hashlink
         }
         public static HashlinkObject FromHashlink(HL_vdynamic* v)
         {
-            if(!hlobj2obj.TryGetValue((nint)v, out var obj))
+            if(!hlobj2obj.TryGetValue((nint)v, out var r) || !r.TryGetTarget(out var obj))
             {
-                obj = new HashlinkObject();
-                obj.BindHashlinkObject(v);
-                hlobj2obj[(nint)v] = obj;
+                obj = new HashlinkObject(v);
+                hlobj2obj[(nint)v] = new(obj);
             }
             
             return obj;
-        }
-        protected void Create()
-        {
-            if(hl_obj == null)
-            {
-                var type = GetHashlinkType();
-                if(type->kind == HL_type.TypeKind.HOBJ)
-                {
-                    hl_obj = HashlinkNative.hl_alloc_obj(type);
-                }
-                else if(type->kind == HL_type.TypeKind.HENUM)
-                {
-                    hl_obj = HashlinkNative.hl_alloc_enum(type);
-                }
-                HashlinkNative.hl_add_root(hl_obj);
-            }
         }
 
         
@@ -111,16 +71,20 @@ namespace ModCore.Hashlink
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            if(hl_obj != null)
+            if(hl_vdy != null)
             {
-                if(hlobj2obj.TryRemove((nint)hl_obj, out _))
+                if(hlobj2obj.TryRemove((nint)hl_vdy, out _))
                 {
-                    HashlinkNative.hl_remove_root(hl_obj);
+                    HashlinkNative.hl_remove_root(hl_vdy);
                 }
-                hl_obj = null;
+                hl_vdy = null;
             }
         }
 
-        public bool IsInvalid => hl_obj == null;
+        public override bool TryGetMember(GetMemberBinder binder, out object? result)
+        {
+            
+            return base.TryGetMember(binder, out result);
+        }
     }
 }

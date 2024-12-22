@@ -1,12 +1,12 @@
 ﻿using Hashlink;
 using Iced.Intel;
 using ModCore.Events;
-using ModCore.Generator;
 using ModCore.Hashlink;
 using ModCore.Modules.Events;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.RuntimeDetour;
+using Serilog;
 using Serilog.Core;
 using System;
 using System.Buffers;
@@ -28,7 +28,6 @@ namespace ModCore.Modules
     public unsafe class HashlinkVM : CoreModule<HashlinkVM>, IOnModCoreInjected
     {
         public override int Priority => ModulePriorities.HashlinkVM;
-        public const string HLASSEMBLY_NAME = "DeadCellsGame.dll";
 
         public nint LibhlHandle { get; private set; }
         public Thread MainThread { get; private set; } = null!;
@@ -51,7 +50,6 @@ namespace ModCore.Modules
 
         private static bool isFristCall_DynCallSafe = true;
 
-        [StackTraceHidden]
         private static HL_vdynamic* Hook_hl_dyn_call_safe(HL_vclosure* c, HL_vdynamic** args, int nargs, bool* isException)
         {
             try
@@ -69,8 +67,8 @@ namespace ModCore.Modules
             }
             catch (Exception ex)
             {
-                Logger.Fatal(ex, "Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.");
-                Utils.ExitGame();
+                //Logger.Fatal(ex, "Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.");
+                Environment.FailFast("Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.", ex);
                 return null;
             }
         }
@@ -119,78 +117,13 @@ namespace ModCore.Modules
             return new_stack;
         }
 
-        private static HL_array* GetExceptionStackX86(StackTrace trace)
-        {
-            var ti = HashlinkNative.hl_get_thread();
-            void** buf = stackalloc void*[512];
-            char* strbuf = stackalloc char[512];
-            int strSize = 0;
-
-            var count = Native.modcore_x86_load_stacktrace(buf, 512, ti->stack_top);
-
-            var str = new List<string>(count);
-
-            var curFrameId = 0;
-            var curFrame = trace.GetFrame(curFrameId++);
-
-            foreach(var v in trace.GetFrames())
-            {
-                Logger.Information("IP: {ip:x} {str}", v.GetFrameIP(), v);
-            }
-
-            for(int i = 0; i < count; i++)
-            {
-                var eip = buf[i];
-                if(eip == null)
-                {
-                    break;
-                }
-                var hlstr = HashlinkNative.hl_resolve_symbol(eip, strbuf, &strSize);
-                if(hlstr != null)
-                {
-                    str.Add(new(hlstr));
-                }
-                else
-                {
-                    if (curFrame != null)
-                    {
-                        var fip = curFrame.GetFrameIP();
-                        var ofs = fip - (nint)eip;
-                        Logger.Information("Eip {eip:x} Fip {fip:x} {ofs}", (nint)eip, fip, ofs);
-
-                        if(ofs < 8 && ofs > -8)
-                        {
-                            str.Add(curFrame.GetDisplay());
-                            curFrame = trace.GetFrame(curFrameId++);
-                        }
-                    }
-                }
-            }
-
-            var stack = HashlinkNative.hl_alloc_array(HashlinkNative.InternalTypes.hlt_bytes, str.Count);
-            byte** stack_val = (byte**)(stack + 1);
-
-            for(int i = 0; i < str.Count; i++)
-            {
-                stack_val[i] = (byte*)Marshal.StringToHGlobalUni(str[i]);
-            }
-            return stack;
-        }
-
         private static HL_array* Hook_hl_exception_stack()
         {
             try
             {
                 var trace = new StackTrace(0, true);
-                if (Environment.Is64BitProcess)
-                {
-                    HL_array* stack = orig_hl_exception_stack();
-                    return GetExceptionStackFallback(stack, trace);
-                }
-                else
-                {
-                    return GetExceptionStackX86(trace);
-                }
+                HL_array* stack = orig_hl_exception_stack();
+                return GetExceptionStackFallback(stack, trace);
             }catch(Exception ex)
             {
                 Logger.Error(ex, "Failed to invoke Hook_hl_exception_stack");
@@ -198,6 +131,41 @@ namespace ModCore.Modules
             }
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void hl_sys_print_handler(char* msg);
+        private static hl_sys_print_handler orig_hl_sys_print = null!;
+        private readonly static ILogger hlprintLogger = Log.ForContext("SourceContext", "Game");
+        private readonly static StringBuilder hlprintBuffer = new();
+        private static void Hook_hl_sys_print(char* msg)
+        {
+
+            char ch;
+            while((ch = *(msg++)) != 0)
+            {
+                if (ch == '\n')
+                {
+                    hlprintLogger.Information(hlprintBuffer.ToString());
+                    hlprintBuffer.Clear();
+                }
+                else
+                {
+                    hlprintBuffer.Append(ch);
+                }
+            }
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void hl_sys_exit_handler(int code);
+        private static hl_sys_exit_handler orig_hl_sys_exit = null!;
+        private static void Hook_hl_sys_exit(int code)
+        {
+            EventSystem.BroadcastEvent<IOnSaveConfig>();
+            EventSystem.BroadcastEvent<IOnGameExit>();
+
+            Logger.Information("Game is exiting");
+
+            Environment.Exit(code);
+        }
         private void InitializeModule()
         {
             var tinfo = HashlinkNative.hl_get_thread();
@@ -232,6 +200,12 @@ namespace ModCore.Modules
 
             orig_hl_throw = NativeHook.Instance.CreateHook<hl_throw_handler>(
                 NativeLibrary.GetExport(LibhlHandle, "hl_throw"), Hook_hl_throw);
+
+            orig_hl_sys_print = NativeHook.Instance.CreateHook<hl_sys_print_handler>(
+                NativeLibrary.GetExport(LibhlHandle, "hl_sys_print"), Hook_hl_sys_print);
+
+            orig_hl_sys_exit = NativeHook.Instance.CreateHook<hl_sys_exit_handler>(
+                NativeLibrary.GetExport(LibhlHandle, "hl_sys_exit"), Hook_hl_sys_exit);
         }
 
 

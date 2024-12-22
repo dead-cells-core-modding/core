@@ -61,9 +61,11 @@ namespace Hashlink
         [LibraryImport("libhl")]
         public static partial void hl_remove_root(void* ptr);
         [LibraryImport("libhl")]
+        public static partial HL_vdynamic* hl_alloc_dynamic(HL_type* t);
+        [LibraryImport("libhl")]
         public static partial HL_vdynamic* hl_alloc_obj(HL_type* type);
         [LibraryImport("libhl")]
-        public static partial HL_vdynamic* hl_alloc_enum(HL_type* type);
+        public static partial HL_enum* hl_alloc_enum(HL_type* type);
         [LibraryImport("libhl")]
         public static partial HL_field_lookup* hl_lookup_find(HL_field_lookup* l, int size, int hash);
 

@@ -45,6 +45,7 @@ namespace ModCore
 
             Environment.SetEnvironmentVariable("DCCM_CoreLoaded", "true");
 
+            _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("libhl"));
             AddPath();
 
             Log.Logger = new LoggerConfiguration()
@@ -103,21 +104,6 @@ namespace ModCore
             EventSystem.BroadcastEvent<IOnModCoreInjected>();
 
             Log.Logger.Information("Loaded modding core");
-        }
-        static int InjectMain(IntPtr args, int argsSize)
-        {
-            try
-            {
-                
-                Initialize();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Fatal(ex, "An excpetion was occured on Initalizing");
-                Console.Error.WriteLine(ex.ToString());
-                Utils.ExitGame();
-            }
-            return 0;
         }
     }
 }

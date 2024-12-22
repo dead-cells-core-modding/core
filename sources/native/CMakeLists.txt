@@ -11,9 +11,27 @@ endif()
 
 project ("native")
 
-#SET(CMAKE_ASM_NASM_SOURCE_FILE_EXTENSIONS asm)  # 设置NASM的文件扩展名为asm
-#ENABLE_LANGUAGE(ASM_NASM)  # 让CMacke启用NASM的汇编
-#SET(CMAKE_ASM_NASM_FLAGS "-g") # 让NASM生成调试信息
+SET(CMAKE_ASM_NASM_SOURCE_FILE_EXTENSIONS asm)  # 设置NASM的文件扩展名为asm
+ENABLE_LANGUAGE(ASM_NASM)  # 让CMacke启用NASM的汇编
+SET(CMAKE_ASM_NASM_FLAGS "-g") # 让NASM生成调试信息
+
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin/core/native/)
+
+if(WIN32)
+set(X86 true)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}win-x86)
+else()
+set(X64 true)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}linux-x64)
+endif()
+
+if(MSVC)
+
+add_definitions(-D_CRT_SECURE_NO_WARNINGS=1 -DUNICODE -D_UNICODE)
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MD")
+endif()
 
 # 包含子项目。
+add_subdirectory ("libhl")
 add_subdirectory ("modcorenative")

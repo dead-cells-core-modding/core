@@ -12,11 +12,7 @@ namespace ModCore
 {
     internal static class Utils
     {
-        
-        public static void ExitGame()
-        {
-            Process.GetCurrentProcess().Kill(true);
-        }
+       
 
         public static bool MemCmp(ReadOnlySpan<byte> a, ReadOnlySpan<byte> b)
         {

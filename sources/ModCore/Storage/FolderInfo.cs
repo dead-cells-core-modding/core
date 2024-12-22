@@ -58,9 +58,18 @@ namespace ModCore.Storage
                     sb.Append(p);
                     continue;
                 }
-                var name = p[..idx].ToUpper();
-                sb.Append(folders[name].FullPath);
-                sb.Append(Path.DirectorySeparatorChar);
+                var name = p[..idx];
+                var env = Environment.GetEnvironmentVariable(name);
+                if (!string.IsNullOrEmpty(env))
+                {
+                    sb.Append(env);
+                }
+                else
+                {
+                    sb.Append(folders[name.ToUpper()].FullPath);
+                    sb.Append(Path.DirectorySeparatorChar);
+                }
+                
                 if (idx < p.Length - 1)
                 {
                    sb.Append(p[(idx + 1)..]);
@@ -88,8 +97,6 @@ namespace ModCore.Storage
             FullPath = Path.GetFullPath(ParsePath(path));
             info = new(FullPath);
             info.Create();
-
-            Console.WriteLine($"New Folder Info: {name}->{FullPath}");
         }
 
     }

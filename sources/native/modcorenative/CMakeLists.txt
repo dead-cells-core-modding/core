@@ -1,37 +1,33 @@
 ﻿
-SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin/core/native/)
 
 include_directories (../include)
-
 file(GLOB_RECURSE SOURCES ./*.c ./*.cpp)
 
-add_library (modcorenative SHARED ${SOURCES})
+if(X86)
+set(ASM_HELPER_SRC ./asm_x86.asm)
+else()
+set(ASM_HELPER_SRC ./asm_x64.asm)
+endif()
+
+remove_definitions(-DLIBHL_EXPORTS)
+
+add_library (modcorenative SHARED ${SOURCES} ${ASM_HELPER_SRC})
 
 if (WIN32)
 set(LIB_ROOT ../lib/win-x86/)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}win-x86)
-
 file(GLOB_RECURSE LIBS ${LIB_ROOT}*.lib)
-if(MSVC)
 
-add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MT")
-endif()
 
 else()
 
 set(LIB_ROOT ../lib/linux-x64/)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}linux-x64)
-
 file(GLOB_RECURSE LIBS ${LIB_ROOT}*.a)
 endif()
 
 
 
-target_link_libraries(modcorenative ${LIBS})
+target_link_libraries(modcorenative ${LIBS} libhl)
 
-set(CMAKE_GENERATOR_PLATFORM x86)
 install(TARGETS modcorenative)
 
 SET_TARGET_PROPERTIES(modcorenative PROPERTIES LINKER_LANGUAGE C
@@ -39,9 +35,4 @@ SET_TARGET_PROPERTIES(modcorenative PROPERTIES LINKER_LANGUAGE C
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
         OUTPUT_NAME "modcorenative"
         PREFIX "")
-
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET modcorenative PROPERTY CXX_STANDARD 20)
-endif()
-
 
