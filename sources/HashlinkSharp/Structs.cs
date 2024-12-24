@@ -267,6 +267,8 @@ namespace Hashlink
         public byte* globals_data;
         public void** functions_ptrs;
         public int* functions_indexes;
+        public int* functions_signs;
+        public int* functions_hashs;
         public void* jit_code;
         public HL_debug_infos* jit_debug;
 

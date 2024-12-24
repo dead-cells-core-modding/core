@@ -30,9 +30,12 @@ namespace ModCore.Hashlink
             return name2hltype;
         }
 
-
+        public static nint HLJit_Start { get; internal set; }
+        public static nint HLJit_End { get; internal set; }
         internal static void Initialize(HL_code* code, HL_module* m)
         {
+            HLJit_Start = (nint) m->jit_code;
+            HLJit_End = HLJit_Start + m->codesize;
             for (int i = 0; i < code->ntypes; i++)
             {
                 var g = code->types + i;
@@ -96,6 +99,22 @@ namespace ModCore.Hashlink
                 }
                 var name = GetString(g->data.obj->name);
                 hltype2globalIdx[name] = i;
+            }
+        }
+
+        public static string GetFunctionName(HL_function* func)
+        {
+            if (func->obj != null)
+            {
+                return $"{GetString(func->obj->name)}.{GetString(func->field)}@{func->findex}";
+            }
+            else if (func->field != null)
+            {
+                return GetFunctionName((HL_function*)func->field);
+            }
+            else
+            {
+               return $"fun${func->findex}";
             }
         }
 

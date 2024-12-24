@@ -35,12 +35,13 @@ static hl_module **cur_modules = NULL;
 static int modules_count = 0;
 
 EXPORT bool module_resolve_pos( hl_module *m, void *addr, int *fidx, int *fpos ) {
+	if ((addr < m->jit_code) || (addr > ((char*)m->jit_code + m->codesize)))
+		return false;
 	int code_pos = ((int)(int_val)((unsigned char*)addr - (unsigned char*)m->jit_code));
 	int min, max;
 	hl_debug_infos *dbg;
 	hl_function *fdebug;
-	if (code_pos < 0 || code_pos > m->codesize)
-		return false;
+
 	if( m->jit_debug == NULL )
 		return false;
 	// lookup function from code pos

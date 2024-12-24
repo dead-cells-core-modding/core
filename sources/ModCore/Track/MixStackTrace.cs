@@ -2,6 +2,7 @@
 using ModCore.Hashlink;
 using ModCore.Modules;
 using ModCore.Track;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -80,13 +81,17 @@ namespace ModCore.Track
                         curTransition = curTransition.next;
                     }
                 }
-                var eip = ((void**)ebp)[1];
+                var eip = ((nint*)ebp)[1];
                 ebp = *(nint*)ebp;
 
                 var m = HashlinkVM.Instance.Context->m;
 
+                if(eip < HashlinkUtils.HLJit_Start || eip > HashlinkUtils.HLJit_End)
+                {
+                    continue;
+                }
 
-                if (!Native.module_resolve_pos(m, eip, out var fidx, out var fpos))
+                if (!Native.module_resolve_pos(m, (void*)eip, out var fidx, out var fpos))
                 {
                     //Unknown frame
                     continue;
@@ -95,17 +100,7 @@ namespace ModCore.Track
                 var func = m->code->functions + fidx;
                 var debug_addr = func->debug + ((fpos & 0xFFFF) * 2);
 
-                string funcName;
-
-                if (func->obj != null)
-                {
-                    funcName = $"{HashlinkUtils.GetString(func->obj->name)}.{HashlinkUtils.GetString(func->field)}";
-                }
-                else
-                {
-                    //funcName = $"fun${fidx}";
-                    continue;
-                }
+                string funcName = HashlinkUtils.GetFunctionName(func);
 
                 frames.Add(new HLStackFrame()
                 {

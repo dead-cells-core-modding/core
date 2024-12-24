@@ -67,6 +67,7 @@ namespace ModCore.Hashlink.Hooks
             }
         }
 
+        [WillCallHL]
         private object? CallInternal()
         {
             HL_vdynamic result = new()
