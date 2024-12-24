@@ -61,6 +61,10 @@ namespace ModCore.Modules
                 allLines.Add("");
                 allLines.Add("================================================");
                 allLines.Add("type " + name);
+                if(obj->super != null)
+                {
+                    allLines.Add("    extends " + HashlinkUtils.GetTypeString(obj->super));
+                }
                 for(int j =0; j < obj->nproto; j++)
                 {
                     sb.Clear();

@@ -24,8 +24,8 @@ namespace ModCore.Modules
 
         public class HookHandle
         {
-            internal HookInfo? hook;
-            private NativeHook manager;
+            internal readonly HookInfo? hook;
+            private readonly NativeHook manager;
 
             internal HookHandle(HookInfo info, NativeHook manager)
             {

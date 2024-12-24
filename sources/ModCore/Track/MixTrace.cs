@@ -22,7 +22,7 @@ namespace ModCore.Track
         internal static EdgeTransitionInfo? current;
 
 
-        public static void MarkEnteringHL(int skipFrame = 0)
+        public static void MarkEnteringHL()
         {
             var esp = (nint)Native.mcn_get_esp();
             var ebp = (nint)Native.mcn_get_ebp();

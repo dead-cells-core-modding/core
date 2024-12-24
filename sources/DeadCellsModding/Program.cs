@@ -16,7 +16,7 @@ namespace DeadCellsModding
             {
                 gameRoot = AppDomain.CurrentDomain.BaseDirectory;
             }
-            var core = Assembly.LoadFile(Path.Combine(gameRoot, "coremod", "core", "host", "net8.0", "ModCore.dll"));
+            var core = Assembly.LoadFile(Path.Combine(gameRoot, "coremod", "core", "host", "ModCore.dll"));
             var startup = core.GetType("ModCore.Startup");
             startup!.GetMethod("StartGame")!.Invoke(null, null);
         }

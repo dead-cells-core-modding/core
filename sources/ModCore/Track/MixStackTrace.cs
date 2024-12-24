@@ -16,9 +16,9 @@ namespace ModCore.Track
 {
     public unsafe class MixStackTrace : StackTrace
     {
-        private StackTrace innerTrace;
+        private readonly StackTrace innerTrace;
 
-        private List<StackFrame> frames = [];
+        private readonly List<StackFrame> frames = [];
 
         public MixStackTrace(int skipFrames = 0, bool needFileInfo = false)
         {

@@ -15,9 +15,9 @@ namespace ModCore.Hashlink.Hooks
 {
     public unsafe class HashlinkFunc
     {
-        private Delegate? next;
-        private void* hlfunc;
-        private HL_type* funcType;
+        private readonly Delegate? next;
+        private readonly void* hlfunc;
+        private readonly HL_type* funcType;
 
         private static readonly ConcurrentDictionary<Type, FastInvoker> putArgInvoker = [];
 

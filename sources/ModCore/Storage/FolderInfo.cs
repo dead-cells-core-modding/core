@@ -16,7 +16,7 @@ namespace ModCore.Storage
 
         public static FolderInfo CoreRoot { get; } = new("CORE_ROOT", 
             Path.GetDirectoryName(
-                Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(typeof(FolderInfo).Assembly.Location)!)!)!
+                Path.GetDirectoryName(Path.GetDirectoryName(typeof(FolderInfo).Assembly.Location)!)!
                 )!
             );
         public static FolderInfo CoreNativeRoot { get; } = 
@@ -41,7 +41,7 @@ namespace ModCore.Storage
         public string Name { get; }
         public string FullPath { get; }
 
-        private DirectoryInfo info;
+        private readonly DirectoryInfo info;
 
 
         private static string ParsePath(string path)

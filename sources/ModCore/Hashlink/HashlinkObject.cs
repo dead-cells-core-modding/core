@@ -15,7 +15,7 @@ namespace ModCore.Hashlink
     public unsafe class HashlinkObject : DynamicObject, IDisposable
     {
         private HL_vdynamic* hl_vdy;
-        private HL_type* hl_type = null;
+        private readonly HL_type* hl_type = null;
 
         public HL_vdynamic* HashlinkValue => hl_vdy;
         public HL_type* HashlinkType => hl_type;
