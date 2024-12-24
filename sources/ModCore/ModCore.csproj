@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\3rd\MinHook.NET\MinHook.NET\MinHook.NET.csproj" />
     <ProjectReference Include="..\HashlinkSharp\HashlinkSharp.csproj" />
   </ItemGroup>
 

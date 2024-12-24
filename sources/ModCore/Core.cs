@@ -16,6 +16,10 @@ namespace ModCore
         private static bool init = false;
         public static Config<CoreConfig> Config { get; } = new("modcore");
 
+        public static Thread MainThread { get; } = Thread.CurrentThread;
+
+        public static bool InMainThread => Thread.CurrentThread == MainThread;
+
         static void AddPath()
         {
             string envName;
@@ -63,7 +67,7 @@ namespace ModCore
 
             Log.Logger.Information("Initalizing");
 
-            
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
             Log.Logger.Information("Loading core modules");
 
@@ -104,6 +108,11 @@ namespace ModCore
             EventSystem.BroadcastEvent<IOnModCoreInjected>();
 
             Log.Logger.Information("Loaded modding core");
+        }
+
+        private static void CurrentDomain_ProcessExit(object? sender, EventArgs e)
+        {
+            EventSystem.BroadcastEvent<IOnSaveConfig>();
         }
     }
 }

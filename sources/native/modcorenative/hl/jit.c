@@ -2236,10 +2236,10 @@ static void jit_nops( jit_ctx *ctx ) {
 
 #define MAX_ARGS 16
 
-static void *call_jit_c2hl = NULL;
-static void *call_jit_hl2c = NULL;
+EXPORT void *call_jit_c2hl = NULL;
+EXPORT void *call_jit_hl2c = NULL;
 
-static void *callback_c2hl( void *f, hl_type *t, void **args, vdynamic *ret ) {
+EXPORT void *callback_c2hl( void *f, hl_type *t, void **args, vdynamic *ret ) {
 	/*
 		prepare stack and regs according to prepare_call_args, but by reading runtime type information
 		from the function type. The stack and regs will be setup by the trampoline function.

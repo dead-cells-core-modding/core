@@ -23,3 +23,7 @@ typedef void(*real_hl_global_init)(void);
 #endif
 
 EXTERNC void* get_ebp();
+EXTERNC void* get_esp();
+
+EXTERNC extern void* call_jit_c2hl;
+EXTERNC extern void* call_jit_hl2c;

@@ -32,6 +32,7 @@ namespace ModCore.Storage
         public static FolderInfo Mods { get; } = new("CORE_MODS", "{CORE_ROOT}/mods");
         public static FolderInfo Plugins { get; } = new("CORE_PLUGINS", "{CORE_ROOT}/plugins");
 
+        
         public string GetFilePath(string name)
         {
             return Path.Combine(FullPath, name);

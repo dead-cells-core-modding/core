@@ -67,8 +67,8 @@ namespace ModCore.Modules
             }
             catch (Exception ex)
             {
-                //Logger.Fatal(ex, "Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.");
-                Environment.FailFast("Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.", ex);
+                Logger.Fatal(ex, "Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.");
+                //Environment.FailFast("Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.", ex);
                 return null;
             }
         }
@@ -205,7 +205,7 @@ namespace ModCore.Modules
                 NativeLibrary.GetExport(LibhlHandle, "hl_sys_print"), Hook_hl_sys_print);
 
             orig_hl_sys_exit = NativeHook.Instance.CreateHook<hl_sys_exit_handler>(
-                NativeLibrary.GetExport(LibhlHandle, "hl_sys_exit"), Hook_hl_sys_exit);
+               NativeLibrary.GetExport(LibhlHandle, "hl_sys_exit"), Hook_hl_sys_exit);
         }
 
 

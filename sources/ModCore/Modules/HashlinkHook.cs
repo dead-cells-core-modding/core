@@ -96,7 +96,9 @@ namespace ModCore.Modules
         {
             var stMain = HashlinkUtils.FindTypeFromName("$Main");
             dynamic smain = HashlinkUtils.GetGlobal(stMain);
-            Logger.Information("AA{a}", smain.GAME_VERSION);
+            Logger.Information("AA{a}", (int) smain.GAME_VERSION);
+            smain.GAME_VERSION = 114514;
+
             return orig_logClientInfos();
         }
 

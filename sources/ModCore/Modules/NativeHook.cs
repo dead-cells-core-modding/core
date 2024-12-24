@@ -1,11 +1,16 @@
-﻿using MinHook;
+﻿
+using MonoMod.Core;
+using MonoMod.Core.Platforms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
+
+using HookInfo = MonoMod.Core.ICoreNativeDetour;
 
 namespace ModCore.Modules
 {
@@ -14,12 +19,19 @@ namespace ModCore.Modules
     {
         public override int Priority => ModulePriorities.NativeHook;
 
-        private readonly HookEngine? dskHookEngine;
         private readonly Dictionary<Delegate, HookHandle> delegate2handle = [];
+        private static readonly IDetourFactory detourFactory = DetourFactory.Current;
 
-        public class HookHandle(object hook, NativeHook manager)
+        public class HookHandle
         {
-            internal object hook = hook;
+            internal HookInfo? hook;
+            private NativeHook manager;
+
+            internal HookHandle(HookInfo info, NativeHook manager)
+            {
+                hook = info;
+                this.manager = manager;
+            }
 
             public nint Original => manager.GetOriginalPtr(this);
             public void Enable() => manager.EnableHook(this);
@@ -28,57 +40,43 @@ namespace ModCore.Modules
 
         public NativeHook()
         {
-            dskHookEngine = new HookEngine();
+
         }
 
         public HookHandle CreateHook(nint target, nint detour)
         {
             HookHandle result;
-            if(dskHookEngine != null)
-            {
-                result = new HookHandle(dskHookEngine.CreateHook(target, detour), this);
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
+            result = new HookHandle(detourFactory.CreateNativeDetour(target, detour, true), this);
             result.Enable();
             return result;
         }
 
         public nint GetOriginalPtr(HookHandle hook)
         {
-            if (dskHookEngine != null)
-            {
-                return ((Hook)hook.hook).Original;
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
+            return hook.hook?.OrigEntrypoint ?? throw new ObjectDisposedException(nameof(hook));
         }
 
         public void EnableHook(HookHandle hook)
         {
-            if (dskHookEngine != null)
+            ObjectDisposedException.ThrowIf(hook.hook == null, hook);
+            if(hook.hook.IsApplied)
             {
-                dskHookEngine.EnableHook((Hook)hook.hook);
+                return;
             }
-            else
-            {
-                throw new NotSupportedException();
-            }
+            hook.hook.Apply();
         }
         public void DisableHook(HookHandle hook)
         {
-            if (dskHookEngine != null)
+            if(hook.hook == null)
             {
-                dskHookEngine.DisableHook((Hook)hook.hook);
+                return;
             }
-            else
-            {
-                throw new NotSupportedException();
-            }
+            hook.hook.Undo();
+        }
+
+        public HookHandle GetHook(Delegate del)
+        {
+            return delegate2handle[del];
         }
 
         public TTarget CreateHook<TTarget>(nint nativeFunc, TTarget target) where TTarget : Delegate
@@ -86,15 +84,16 @@ namespace ModCore.Modules
             var handle = CreateHook(nativeFunc, Marshal.GetFunctionPointerForDelegate(target));
             var orig = Marshal.GetDelegateForFunctionPointer<TTarget>(handle.Original);
             delegate2handle[orig] = handle;
+            delegate2handle[target] = handle;
             return orig;
         }
         public void DisableHook(Delegate original)
         {
-            DisableHook(delegate2handle[original]);
+            DisableHook(GetHook(original));
         }
         public void EnableHook(Delegate original)
         {
-            EnableHook(delegate2handle[original]);
+            EnableHook(GetHook(original));
         }
     }
 }

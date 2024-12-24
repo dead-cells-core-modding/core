@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -22,6 +23,7 @@ namespace ModCore.Hashlink
         private readonly static Dictionary<string, int> hltype2globalIdx = [];
 
         private readonly static Dictionary<string, HashlinkObject> hltype2globalObject = [];
+
         
         public static IReadOnlyDictionary<string, nint> GetHashlinkTypes()
         {
@@ -97,14 +99,18 @@ namespace ModCore.Hashlink
             }
         }
 
-        public static void* GetGlobalData(string name)
+        public static string GetTypeString(HL_type* type)
+        {
+            return Marshal.PtrToStringUni((nint)HashlinkNative.hl_type_str(type))!;
+        }
+        public static HL_vdynamic* GetGlobalData(string name)
         {
             if(!hltype2globalIdx.TryGetValue(name, out var idx))
             {
                 return null;
             }
             HL_module* module = HashlinkVM.Instance.Context->m;
-            return (void*)(module->globals_data + module->globals_indexes[idx]);
+            return *(HL_vdynamic**)(module->globals_data + module->globals_indexes[idx]);
         }
 
         public static HL_vdynamic* CreateDynamic(HL_type* type, void* ptr)
@@ -120,13 +126,63 @@ namespace ModCore.Hashlink
             var gPtr = GetGlobalData(name);
             if (!hltype2globalObject.TryGetValue(name, out var val))
             {
-                var dyn = CreateDynamic(type, gPtr);
-                hltype2globalObject[name] = val = HashlinkObject.FromHashlink(dyn);
+                hltype2globalObject[name] = val = HashlinkObject.FromHashlink(gPtr);
             }
             return val;
         }
 
-        public static object GetData(void* ptr, HL_type* type)
+        public static void SetData(void* ptr, HL_type* type, object? val)
+        {
+            if(val == null)
+            {
+                *(nint*)ptr = 0;
+                return;
+            }
+            if(type->kind == HL_type.TypeKind.HUI8)
+            {
+                *(byte*)ptr = (byte)val;
+            }
+            else if(type->kind == HL_type.TypeKind.HUI16)
+            {
+                *(ushort*)ptr = (ushort)val;
+            }
+            else if(type->kind == HL_type.TypeKind.HI32)
+            {
+                *(int*)ptr = (int)val;
+            }
+            else if(type->kind == HL_type.TypeKind.HI64)
+            {
+                *(long*)ptr = (long)val;
+            }
+            else if(type->kind == HL_type.TypeKind.HF32)
+            {
+                *(float*)ptr = (float)val;
+            }
+            else if(type->kind == HL_type.TypeKind.HF64)
+            {
+                *(double*)ptr = (double)val;
+            }
+            else if(type->kind == HL_type.TypeKind.HBOOL)
+            {
+                *(bool*)ptr = (bool)val;
+            }
+            else
+            {
+                if (val is HashlinkObject obj)
+                {
+                    *(nint*)ptr = (nint)obj.HashlinkValue;
+                }
+                else
+                {
+                    *(nint*)ptr = (nint)val;
+                }
+            }
+        }
+        public static bool IsPointer(this HL_type.TypeKind kind)
+        {
+            return kind >= HL_type.TypeKind.HBYTES;
+        }
+        public static object? GetData(void* ptr, HL_type* type)
         {
             return type->kind switch
             {
@@ -138,8 +194,7 @@ namespace ModCore.Hashlink
                 HL_type.TypeKind.HF64 => *(double*)ptr,
                 HL_type.TypeKind.HBOOL => *(bool*)ptr,
                 HL_type.TypeKind.HBYTES => *(nint*)ptr,
-                HL_type.TypeKind.HDYN => HashlinkObject.FromHashlink((HL_vdynamic*)ptr),
-                _ => HashlinkObject.FromHashlink(CreateDynamic(type, ptr))
+                _ => null
             };
         }
 
@@ -190,17 +245,11 @@ namespace ModCore.Hashlink
 
         public static int HLHash(string str)
         {
-            int h = 0;
             fixed (char* pname = str)
             {
-                char* name = pname;
-                while (*name != 0)
-                {
-                    h = 223 * h + (int) name;
-                    name++;
-                }
+                return HashlinkNative.hl_hash_gen(pname, false);
             }
-            return h;
+            
         }
     }
 }

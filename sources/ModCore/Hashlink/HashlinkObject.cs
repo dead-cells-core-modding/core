@@ -1,4 +1,5 @@
 ﻿using Hashlink;
+using Serilog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace ModCore.Hashlink
 {
@@ -70,19 +72,54 @@ namespace ModCore.Hashlink
             }
         }
 
-        private void* GetFieldPtr(string name, out HL_type* type)
+        private void* GetFieldPtr(int hash, out HL_type* type)
         {
-            return HashlinkNative.hl_obj_lookup(hl_vdy, HashlinkUtils.HLHash(name), out type);
+            return HashlinkNative.hl_obj_lookup(hl_vdy, hash, out type);
+        }
+
+        public override bool TryConvert(ConvertBinder binder, out object? result)
+        {
+            result = HashlinkUtils.GetData(&hl_vdy->val, hl_vdy->type);
+            return result != null;
         }
         public override bool TryGetMember(GetMemberBinder binder, out object? result)
         {
-            var ptr = GetFieldPtr(binder.Name, out var type);
+            var hash = HashlinkUtils.HLHash(binder.Name);
+            var ptr = GetFieldPtr(hash, out var type);
             if(ptr != null)
             {
-                result = HashlinkUtils.GetData(ptr, type);
+                if (!type->kind.IsPointer())
+                {
+                    result = HashlinkUtils.GetData(ptr, type);
+                }
+                else
+                {
+                    result = FromHashlink(HashlinkNative.hl_obj_get_field(hl_vdy, hash));
+                }
                 return true;
             }
             result = null;
+            return false;
+        }
+        public override bool TrySetMember(SetMemberBinder binder, object? value)
+        {
+            var hash = HashlinkUtils.HLHash(binder.Name);
+            var ptr = GetFieldPtr(hash, out var type);
+            if(ptr == null)
+            {
+                return false;
+            }
+            if (value == null)
+            {
+                *(nint*)ptr = 0;
+                return true;
+            }
+            var t = value.GetType();
+            if(t.IsPrimitive || t.IsPointer || value is HashlinkObject)
+            {
+                HashlinkUtils.SetData(ptr, type, value);
+                return true;
+            }
             return false;
         }
     }

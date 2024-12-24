@@ -17,6 +17,13 @@ namespace ModCore.Storage
         public string ConfigName { get; }
         public string ConfigPath { get; }
 
+        public JsonSerializerOptions SerializerOptions { get; set; } = new()
+        {
+            WriteIndented = true,
+            IncludeFields = true,
+            AllowTrailingCommas = true,
+        };
+
         private T? value;
         public T Value
         {
@@ -48,7 +55,7 @@ namespace ModCore.Storage
             {
                 if (File.Exists(ConfigPath))
                 {
-                    value = JsonSerializer.Deserialize<T>(File.ReadAllText(ConfigPath));
+                    value = JsonSerializer.Deserialize<T>(File.ReadAllText(ConfigPath), SerializerOptions);
                 }
                 else
                 {
@@ -67,7 +74,7 @@ namespace ModCore.Storage
         {
             if (value != null)
             {
-                File.WriteAllText(ConfigPath, JsonSerializer.Serialize(value));
+                File.WriteAllText(ConfigPath, JsonSerializer.Serialize(value, SerializerOptions));
             }
         }
 
