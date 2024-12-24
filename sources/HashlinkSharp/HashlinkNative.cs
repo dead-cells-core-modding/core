@@ -114,7 +114,7 @@ namespace Hashlink
         public static partial void hl_dyn_setd(HL_vdynamic* d, int hfield, HL_type* t, double val);
 
         [LibraryImport(LIBHL)]
-        public static partial char* hl_resolve_symbol(void* addr, char* @out, out int outSize);
+        public static partial char* hl_resolve_symbol(void* addr, char* @out, ref int outSize);
 
         [LibraryImport(LIBHL)]
         public static partial void* hl_obj_lookup(HL_vdynamic* d, int hfield, out HL_type* t);

@@ -1,4 +1,5 @@
 ﻿using Hashlink;
+using ModCore.Track;
 using MonoMod.Cil;
 using System;
 using System.Collections.Concurrent;
@@ -72,6 +73,7 @@ namespace ModCore.Hashlink.Hooks
             {
                 type = funcType->data.func->ret
             };
+            MixTrace.MarkEnteringHL();
             var ptrResult = Native.callback_c2hl(hlfunc, funcType, cached_args_ptr, &result);
             var retKind = result.type->kind;
             if(retKind.IsPointer())

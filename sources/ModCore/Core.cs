@@ -17,6 +17,13 @@ namespace ModCore
         public static Config<CoreConfig> Config { get; } = new("modcore");
 
         public static Thread MainThread { get; } = Thread.CurrentThread;
+        public static void ThrowIfNotMainThread()
+        {
+            if(Thread.CurrentThread != MainThread)
+            {
+                throw new InvalidOperationException();
+            }
+        }
 
         public static bool InMainThread => Thread.CurrentThread == MainThread;
 
@@ -50,6 +57,7 @@ namespace ModCore
             Environment.SetEnvironmentVariable("DCCM_CoreLoaded", "true");
 
             _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("libhl"));
+            _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("modcorenative"));
             AddPath();
 
             Log.Logger = new LoggerConfiguration()

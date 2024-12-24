@@ -37,7 +37,7 @@ namespace ModCore.Modules
         {
 
             Logger.Information("Game Root: {root}", FolderInfo.GameRoot.FullPath);
-            Logger.Information("Mod Core Root: {root}", FolderInfo.CoreRoot);
+            Logger.Information("Mod Core Root: {root}", FolderInfo.CoreRoot.FullPath);
 
             Logger.Information("Loading cache metadata");
             if(File.Exists(cacheMetadataPath))

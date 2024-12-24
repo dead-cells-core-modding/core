@@ -1,5 +1,6 @@
 ﻿using Hashlink;
 using ModCore.Storage;
+using ModCore.Track;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace ModCore
 {
     internal unsafe static class Startup
     {
-        
+        [WillCallHL]
         public static int StartGame()
         {
             Core.Initialize();
@@ -51,6 +52,7 @@ namespace ModCore
 
             var code = Native.hl_code_read(hlboot, hlbootSize, &err);
             logger.Information("Starting game");
+            MixTrace.MarkEnteringHL();
             return Native.hlu_start_game(code);
         }
     }

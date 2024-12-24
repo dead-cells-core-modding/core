@@ -1,0 +1,62 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ModCore.Track
+{
+    public static unsafe class MixTrace
+    {
+        internal class EdgeTransitionInfo
+        {
+            public EdgeTransitionInfo? prev;
+            public EdgeTransitionInfo? next;
+            public nint esp;
+            public nint ebp;
+        }
+
+        [ThreadStatic]
+        internal static EdgeTransitionInfo? current;
+
+
+        public static void MarkEnteringHL(int skipFrame = 0)
+        {
+            var esp = (nint)Native.mcn_get_esp();
+            var ebp = (nint)Native.mcn_get_ebp();
+            var cur = current;
+            while (cur != null)
+            {
+                if(cur.esp >= esp)
+                {
+                    break;
+                }
+                cur.esp = 0;
+                cur.ebp = 0;
+                cur = cur.prev;
+            }
+            cur ??= new();
+            if (cur.ebp != ebp)
+            {
+                if (cur.esp != 0)
+                {
+                    var next = cur.next;
+                    if (next == null)
+                    {
+                        next = new()
+                        {
+                            prev = cur,
+                        };
+                        cur.next = next;
+                    }
+                    cur = next;
+                }
+                cur.esp = esp;
+            }
+            current = cur;
+        }
+        
+    }
+}

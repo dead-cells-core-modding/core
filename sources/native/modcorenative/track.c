@@ -26,7 +26,7 @@ EXTERNC EXPORT int mcn_load_stacktrace(void** buf, int maxCount, void* bottom)
 	{
 		void* ebp = ((void**)top)[0];
 		void* ret = ((void**)top)[1];
-		buf[count++] = ret;
+		buf[count++] = ebp;
 		top = ebp;
 	}
 

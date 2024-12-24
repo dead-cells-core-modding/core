@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModCore.Track;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -41,7 +42,14 @@ namespace ModCore
 
         public static string GetDisplay(this StackFrame frame)
         {
-            return frame.ToString();
+            if (frame is HLStackFrame)
+            {
+                return frame.ToString();
+            }
+            else
+            {
+                return "(.NET Runtime) " + frame.ToString().Trim();
+            }
         }
 
         public static byte[] HashFile(string path)

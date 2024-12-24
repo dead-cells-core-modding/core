@@ -13,7 +13,13 @@
     <RuntimeIdentifiers>win-x86;linux-x64</RuntimeIdentifiers>
 
     <Platforms>AnyCPU;x86</Platforms>
+
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="icon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ModCore\ModCore.csproj" />

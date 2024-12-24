@@ -261,6 +261,7 @@ HL_API void uprintf( const uchar *fmt, const uchar *str );
 C_FUNCTION_END
 #endif
 
+#ifdef ENABLE_HL_DEBUG_BREAK
 #if defined(HL_VCC)
 #	define hl_debug_break()	if( IsDebuggerPresent() ) __debugbreak()
 #elif defined(HL_PS) && defined(_DEBUG)
@@ -287,6 +288,9 @@ C_FUNCTION_END
 #	endif
 #else
 #	define hl_debug_break()
+#endif
+#else
+#define hl_debug_break()
 #endif
 
 #ifdef HL_VCC

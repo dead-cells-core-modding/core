@@ -3,6 +3,7 @@ using Iced.Intel;
 using ModCore.Events;
 using ModCore.Hashlink;
 using ModCore.Modules.Events;
+using ModCore.Track;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.RuntimeDetour;
@@ -10,6 +11,7 @@ using Serilog;
 using Serilog.Core;
 using System;
 using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -50,6 +52,7 @@ namespace ModCore.Modules
 
         private static bool isFristCall_DynCallSafe = true;
 
+        [WillCallHL]
         private static HL_vdynamic* Hook_hl_dyn_call_safe(HL_vclosure* c, HL_vdynamic** args, int nargs, bool* isException)
         {
             try
@@ -63,6 +66,7 @@ namespace ModCore.Modules
                     EventSystem.BroadcastEvent<IOnBeforeGameStartup>();
                 }
 
+                MixTrace.MarkEnteringHL();
                 return orig_hl_dyn_call_safe(c, args, nargs, isException);
             }
             catch (Exception ex)
@@ -77,6 +81,8 @@ namespace ModCore.Modules
         private delegate void hl_throw_handler(HL_vdynamic* val);
         private static hl_throw_handler orig_hl_throw = null!;
 
+        [WillCallHL]
+        [CallFromHLOnly]
         private static void Hook_hl_throw(HL_vdynamic* val)
         {
             Logger.Verbose("Hashlink throw an error");
@@ -117,17 +123,29 @@ namespace ModCore.Modules
             return new_stack;
         }
 
+        [CallFromHLOnly]
         private static HL_array* Hook_hl_exception_stack()
         {
             try
             {
-                var trace = new StackTrace(0, true);
-                HL_array* stack = orig_hl_exception_stack();
-                return GetExceptionStackFallback(stack, trace);
-            }catch(Exception ex)
+                var stack = new MixStackTrace(0, true);
+                var new_stack = HashlinkNative.hl_alloc_array(HashlinkNative.InternalTypes.hlt_bytes,
+                    stack.FrameCount
+                );
+                byte** new_stack_val = (byte**)(new_stack + 1);
+
+                for(int i = 0; i < stack.FrameCount; i++)
+                {
+                    new_stack_val[i] = (byte*)Marshal.StringToHGlobalUni(stack.GetFrame(i)!.GetDisplay());
+                }
+
+                return new_stack;
+            }
+            catch(Exception ex)
             {
+
                 Logger.Error(ex, "Failed to invoke Hook_hl_exception_stack");
-                throw;
+                return GetExceptionStackFallback(orig_hl_exception_stack(), new(0, true));
             }
         }
 
@@ -136,6 +154,7 @@ namespace ModCore.Modules
         private static hl_sys_print_handler orig_hl_sys_print = null!;
         private readonly static ILogger hlprintLogger = Log.ForContext("SourceContext", "Game");
         private readonly static StringBuilder hlprintBuffer = new();
+        [CallFromHLOnly]
         private static void Hook_hl_sys_print(char* msg)
         {
 
@@ -157,6 +176,7 @@ namespace ModCore.Modules
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void hl_sys_exit_handler(int code);
         private static hl_sys_exit_handler orig_hl_sys_exit = null!;
+        [CallFromHLOnly]
         private static void Hook_hl_sys_exit(int code)
         {
             EventSystem.BroadcastEvent<IOnSaveConfig>();
@@ -188,6 +208,7 @@ namespace ModCore.Modules
             MainThread = Thread.CurrentThread;
 
             LibhlHandle = NativeLibrary.Load("libhl");
+            NativeLibrary.GetExport(LibhlHandle, "hl_modcore_native_was_here");
 
             Logger.Information("Hooking functions");
 
@@ -207,21 +228,5 @@ namespace ModCore.Modules
             orig_hl_sys_exit = NativeHook.Instance.CreateHook<hl_sys_exit_handler>(
                NativeLibrary.GetExport(LibhlHandle, "hl_sys_exit"), Hook_hl_sys_exit);
         }
-
-
-        public HL_vdynamic* CallMethod(HL_vclosure* c, Span<nint> args)
-        {
-            bool isException = false;
-            var result = HashlinkNative.hl_dyn_call_safe(c, 
-                (HL_vdynamic**) Unsafe.AsPointer(ref args.GetPinnableReference()), args.Length, &isException);
-
-            if (isException)
-            {
-                throw new HashlinkException(result);
-            }
-            return result;
-        }
-
-     
     }
 }
