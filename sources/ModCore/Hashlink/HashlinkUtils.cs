@@ -32,6 +32,7 @@ namespace ModCore.Hashlink
 
         public static nint HLJit_Start { get; internal set; }
         public static nint HLJit_End { get; internal set; }
+
         internal static void Initialize(HL_code* code, HL_module* m)
         {
             HLJit_Start = (nint) m->jit_code;
@@ -83,9 +84,9 @@ namespace ModCore.Hashlink
                     funcTable = [];
                     name2func.Add(tname, funcTable);
                 }
-
-
                 var name = GetString(f->field);
+
+
 
                 funcTable[name] = (nint)f;
                 funcNativePtr[(nint)f] = (nint)fp;
@@ -258,14 +259,16 @@ namespace ModCore.Hashlink
             return (HL_type*) name2hltype[name];
         }
         
-
+        public static HL_function* FindFunction(string type, string name)
+        {
+            return FindFunction(FindTypeFromName(type), name);
+        }
         public static HL_function* FindFunction(HL_type* type, string name)
         {
             var tname = GetString(type->data.obj->name);
             if (!name2func.TryGetValue(tname, out var table) ||
                 !table.TryGetValue(name, out var result))
             {
-                Log.Logger.Information("AA: {a} {b} {c}", table, name, tname);
                 return null;
             }
             return (HL_function*)result;

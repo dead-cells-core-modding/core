@@ -2246,6 +2246,9 @@ EXPORT void *callback_c2hl( void *f, hl_type *t, void **args, vdynamic *ret ) {
 	*/
 	unsigned char stack[MAX_ARGS * 8];
 	call_regs cregs = {0};
+	if (ret == NULL) {
+		ret = ret;
+	}
 	if( t->fun->nargs > MAX_ARGS )
 		hl_error("Too many arguments for dynamic call");
 	int i, size = 0, pad = 0, pos = 0;

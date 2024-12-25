@@ -25,21 +25,27 @@ namespace ModCore.Hashlink
 
         private static readonly ConcurrentDictionary<Type, FastInvoker> putArgInvoker = [];
 
+        private const int HASHLINK_MAX_ARGS_COUNT = 16;
         [ThreadStatic]
         private static void* func_arg_buf;
         [ThreadStatic]
         private static void** cached_args_ptr;
-        private static void InitArg(out void* argPtr)
+        
+        private static void InitArg(out int argPtr)
         {
             if (func_arg_buf == null || cached_args_ptr == null)
             {
-                func_arg_buf = NativeMemory.AlignedAlloc(16 * 8, 8);
-                cached_args_ptr = (void**)NativeMemory.AlignedAlloc((nuint)(16 * sizeof(void*)), (nuint)sizeof(void*));
+                func_arg_buf = NativeMemory.AlignedAlloc(HASHLINK_MAX_ARGS_COUNT * 8, 8);
+                cached_args_ptr = (void**)NativeMemory.AlignedAlloc((nuint)(HASHLINK_MAX_ARGS_COUNT * sizeof(void*)), (nuint)sizeof(void*));
+                for(int i = 0; i < HASHLINK_MAX_ARGS_COUNT; i++)
+                {
+                    cached_args_ptr[i] = (void*)((nint)func_arg_buf + 8 * i);
+                }
             }
-            argPtr = func_arg_buf;
+            argPtr = 0;
         }
 
-        private static void PutArg<T>(T val, ref void* ptr)
+        private static void PutArg<T>(T val, ref int idx)
         {
             if (typeof(T) == typeof(int) ||
                 typeof(T) == typeof(short) ||
@@ -49,21 +55,26 @@ namespace ModCore.Hashlink
                 typeof(T) == typeof(double) ||
                 typeof(T) == typeof(byte) ||
                 typeof(T) == typeof(sbyte) ||
-                typeof(T) == typeof(char) ||
-                typeof(T) == typeof(nint) ||
-                typeof(T) == typeof(void*)
+                typeof(T) == typeof(char)
                 )
             {
-                Unsafe.AsRef<T>(ptr) = val;
-                ptr = (void*)((nint)ptr + 8);
+                Unsafe.AsRef<T>((void*)((nint)func_arg_buf + idx * 8)) = val;
+                cached_args_ptr[idx] = (void*)((nint)func_arg_buf + idx * 8);
+                idx++;
             }
             else if (typeof(T) == typeof(float))
             {
-                PutArg((double)Unsafe.As<T, float>(ref val), ref ptr);
+                PutArg((double)Unsafe.As<T, float>(ref val), ref idx);
+            }
+            else if(typeof(T) == typeof(nint) ||
+                typeof(T).IsPointer)
+            {
+                Unsafe.AsRef<T>(cached_args_ptr + idx) = val;
+                idx++;
             }
             else if (val is HashlinkObject obj)
             {
-                PutArg((nint)obj.HashlinkValue, ref ptr);
+                PutArg((nint)obj.HashlinkValue, ref idx);
             }
             else
             {
@@ -79,7 +90,7 @@ namespace ModCore.Hashlink
                 type = funcType->data.func->ret
             };
             MixTrace.MarkEnteringHL();
-            var ptrResult = Native.callback_c2hl(hlfunc, funcType, cached_args_ptr, &result);
+            var ptrResult = Native.callback_c2hl(hlfunc, funcType, cached_args_ptr, null);
             var retKind = result.type->kind;
             if (retKind.IsPointer())
             {
