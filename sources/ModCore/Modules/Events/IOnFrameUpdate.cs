@@ -8,6 +8,6 @@ namespace ModCore.Modules.Events
 {
     public interface IOnFrameUpdate
     {
-        public void OnFrameUpdate();
+        public void OnFrameUpdate(float dt);
     }
 }

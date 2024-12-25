@@ -1,4 +1,7 @@
-﻿using ModCore.Modules.Events;
+﻿using Hashlink;
+using ModCore.Hashlink;
+using ModCore.Modules.Events;
+using ModCore.Track;
 using SDL2;
 using System;
 using System.Collections.Generic;
@@ -16,7 +19,7 @@ namespace ModCore.Modules
 
         public override int Priority => ModulePriorities.Game;
 
-        [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate IntPtr SDL_CreateWindow_Handler(
             byte* title,
             int x,
@@ -26,6 +29,7 @@ namespace ModCore.Modules
             SDL_WindowFlags flags
         );
         private static SDL_CreateWindow_Handler orig_SDL_CreateWindow = null!;
+        [CallFromHLOnly]
         private static IntPtr Hook_SDL_CreateWindow(
             byte* title,
             int x,
@@ -35,20 +39,13 @@ namespace ModCore.Modules
             SDL_WindowFlags flags
         )
         {
-
             var result = orig_SDL_CreateWindow(title, x, y, w, h, flags);
             Instance.MainWindowPtr = result;
             SDL.SDL_SetWindowTitle(result, "Dead Cells with Core Modding");
             return result;
         }
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate nint SDL_CreateWindowFrom_Handler(nint data);
-        private static SDL_CreateWindowFrom_Handler orig_SDL_CreateWindowFrom = null!;
-        private static nint Hook_SDL_CreateWindowFrom(nint data)
-        {
-            return 0;
-        }
+  
 
         public nint MainWindowPtr { get; private set; }
 
@@ -60,12 +57,8 @@ namespace ModCore.Modules
                 NativeLibrary.GetExport(sdl2, "SDL_CreateWindow"),
                 Hook_SDL_CreateWindow
                 );
-            orig_SDL_CreateWindowFrom = NativeHook.Instance.CreateHook<SDL_CreateWindowFrom_Handler>(
-                NativeLibrary.GetExport(sdl2, "SDL_CreateWindowFrom"),
-                Hook_SDL_CreateWindowFrom
-                );
 
-            SDL_CreateWindow("TAT", 0, 0, 2, 2, SDL_WindowFlags.SDL_WINDOW_SHOWN);
+
         }
     }
 }

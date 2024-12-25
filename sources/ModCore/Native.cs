@@ -10,6 +10,7 @@ namespace ModCore
 {
     internal static unsafe partial class Native
     {
+
         private const string MODCORE_NATIVE_NAME = "modcorenative";
 
         #region Stack Trace
@@ -33,6 +34,10 @@ namespace ModCore
         public static partial int hlu_start_game(void* code);
         [LibraryImport(MODCORE_NATIVE_NAME)]
         public static partial void* callback_c2hl(void* f, HL_type* t, void** args, HL_vdynamic* ret);
+        #endregion
+        #region HL CS Interop
+        [LibraryImport(MODCORE_NATIVE_NAME)]
+        public static partial void* get_asm_call_bridge_hl_to_cs();
         #endregion
     }
 }

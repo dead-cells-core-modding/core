@@ -48,17 +48,26 @@ namespace ModCore
 
         internal static void Initialize()
         {
-            if(init)
+            if (init)
             {
                 return;
             }
             init = true;
+
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
             Environment.SetEnvironmentVariable("DCCM_CoreLoaded", "true");
 
             _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("libhl"));
             _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("modcorenative"));
             AddPath();
+
+            Initialize2();
+        }
+        internal static void Initialize2()
+        {
+            
+            
 
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose,
@@ -116,6 +125,19 @@ namespace ModCore
             EventSystem.BroadcastEvent<IOnModCoreInjected>();
 
             Log.Logger.Information("Loaded modding core");
+        }
+
+        private static Assembly? CurrentDomain_AssemblyResolve(object? sender, ResolveEventArgs args)
+        {
+            var asmName = new AssemblyName(args.Name);
+            var fileName = Path.Combine(
+                Path.GetDirectoryName(typeof(Core).Assembly.Location)!, 
+                asmName.Name + ".dll");
+            if (File.Exists(fileName))
+            {
+                return Assembly.LoadFrom(fileName);
+            }
+            return null;
         }
 
         private static void CurrentDomain_ProcessExit(object? sender, EventArgs e)

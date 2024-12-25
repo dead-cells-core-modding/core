@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeadCellsModding", "DeadCellsModding\DeadCellsModding.csproj", "{830B172B-5973-4D6A-9B6B-0E9B3F084153}"
+	ProjectSection(ProjectDependencies) = postProject
+		{798EC443-C229-4F22-86B4-8BDE18266DBA} = {798EC443-C229-4F22-86B4-8BDE18266DBA}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModCore", "ModCore\ModCore.csproj", "{798EC443-C229-4F22-86B4-8BDE18266DBA}"
 EndProject

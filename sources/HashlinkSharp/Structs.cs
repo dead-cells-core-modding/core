@@ -10,7 +10,16 @@ using System.Threading.Tasks;
 //From https://github.com/motion-twin/hashlink/blob/master/src/hl.h
 namespace Hashlink
 {
-
+    [Flags]
+    public enum HL_Alloc_Flags
+    {
+        MEM_KIND_DYNAMIC = 0,
+        MEM_KIND_RAW = 1,
+        MEM_KIND_NOPTR = 2,
+        MEM_KIND_FINALIZER = 3,
+        MEM_ALIGN_DOUBLE = 128,
+        MEM_ZERO = 256
+    }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_type
     {

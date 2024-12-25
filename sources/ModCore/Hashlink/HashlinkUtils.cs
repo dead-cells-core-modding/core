@@ -189,7 +189,22 @@ namespace ModCore.Hashlink
             {
                 if (val is HashlinkObject obj)
                 {
-                    *(nint*)ptr = (nint)obj.HashlinkValue;
+                    if (type->kind == HL_type.TypeKind.HDYN)
+                    {
+                        *(nint*)ptr = (nint)obj.HashlinkValue;
+                    }
+                    else if(type->kind.IsPointer())
+                    {
+                        *(nint*)ptr = (nint)obj.HashlinkValue->val.ptr;
+                    }
+                    else if(type->kind == HL_type.TypeKind.HF64 || type->kind == HL_type.TypeKind.HI64)
+                    {
+                        *(long*)ptr = obj.HashlinkValue->val.i64;
+                    }
+                    else
+                    {
+                        *(int*)ptr = obj.HashlinkValue->val.@int;
+                    }
                 }
                 else
                 {
@@ -199,7 +214,7 @@ namespace ModCore.Hashlink
         }
         public static bool IsPointer(this HL_type.TypeKind kind)
         {
-            return kind >= HL_type.TypeKind.HBYTES;
+            return kind >= HL_type.TypeKind.HBYTES || kind == HL_type.TypeKind.HVOID;
         }
         public static object? GetData(void* ptr, HL_type* type)
         {
@@ -260,7 +275,33 @@ namespace ModCore.Hashlink
             return (void*) funcNativePtr[(nint)func];
         }
 
-        
+        public static void* HLAlloc(HL_type* type, int size, HL_Alloc_Flags flags)
+        {
+            return HashlinkNative.hl_gc_alloc_gen(type, size, flags);
+        }
+        public static void* HLAllocNoPtr(int size)
+        {
+            return HLAlloc(HashlinkNative.InternalTypes.hlt_bytes, size, HL_Alloc_Flags.MEM_KIND_NOPTR);
+        }
+        public static void* HLAllocRaw(int size)
+        {
+            return HLAlloc(HashlinkNative.InternalTypes.hlt_abstract, size, HL_Alloc_Flags.MEM_KIND_RAW);
+        }
+
+        public static HL_vdynamic* GetHLString(string str)
+        {
+            var dyn = HashlinkNative.hl_alloc_dynamic(HashlinkNative.InternalTypes.hlt_bytes);
+            var strlen = str.Length * 2 + 2;
+            var bytes = (char*)HLAllocNoPtr(strlen);
+            
+            fixed (char* src = str)
+            {
+                Buffer.MemoryCopy(src, bytes, strlen, strlen);
+            }
+            
+            dyn->val.ptr = bytes;
+            return dyn;
+        }
 
         public static int HLHash(string str)
         {

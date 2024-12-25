@@ -15,10 +15,8 @@ namespace ModCore
     internal unsafe static class Startup
     {
         [WillCallHL]
-        public static int StartGame()
+        private static int AfterCoreLoaded()
         {
-            Core.Initialize();
-
             var logger = Log.Logger.ForContext(typeof(Startup));
 
             //Load hlboot.dat
@@ -37,8 +35,8 @@ namespace ModCore
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    logger.Information("Loading hlboot.dat from deadcells.exe");
-                    hlboot = (byte*)Native.hlu_get_hl_bytecode_from_exe(FolderInfo.GameRoot.GetFilePath("deadcells.exe"), &hlbootSize);
+                    logger.Information("Loading hlboot.dat from deadcells_gl.exe");
+                    hlboot = (byte*)Native.hlu_get_hl_bytecode_from_exe(FolderInfo.GameRoot.GetFilePath("deadcells_gl.exe"), &hlbootSize);
                 }
                 else
                 {
@@ -54,6 +52,13 @@ namespace ModCore
             logger.Information("Starting game");
             MixTrace.MarkEnteringHL();
             return Native.hlu_start_game(code);
+        }
+        
+        public static int StartGame()
+        {
+            Core.Initialize();
+
+            return AfterCoreLoaded();
         }
     }
 }
