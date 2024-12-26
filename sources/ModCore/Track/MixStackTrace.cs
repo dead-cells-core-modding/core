@@ -63,22 +63,30 @@ namespace ModCore.Track
                         while (managedId < innerTrace.FrameCount)
                         {
                             var frame = innerTrace.GetFrame(managedId++)!;
-                            if(!enter)
+                            var method = frame.GetMethod();
+                            if (!enter)
                             {
-                                if(frame.GetMethod()?.GetCustomAttribute<WillCallHL>() == null)
+                                if(method?.GetCustomAttribute<WillCallHL>() == null)
                                 {
                                     continue;
                                 }
                             }
                             enter = true;
-                            frames.Add(frame);
-                            if (frame.GetMethod()?.GetCustomAttribute<CallFromHLOnly>() != null)
+                            if (Core.Config.Value.DetailedStackTrace || (
+                                method?.GetCustomAttribute<StackTraceHiddenAttribute>() == null &&
+                                frame.HasSource())
+                                )
+                            {
+                                frames.Add(frame);
+                            }
+                            if (
+                                method?.GetCustomAttribute<CallFromHLOnly>() != null)
                             {
                                 break;
                             }
                             //Do something to exit
                         }
-                        curTransition = curTransition.next;
+                        curTransition = curTransition.prev;
                     }
                 }
                 var eip = ((nint*)ebp)[1];

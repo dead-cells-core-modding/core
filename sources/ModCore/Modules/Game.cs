@@ -21,15 +21,35 @@ namespace ModCore.Modules
 
         public nint MainWindowPtr { get; private set; }
 
-        private static object? Hook_Boot_update(HashlinkFunc orig, HashlinkObject self, double dt)
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void UpdateD(nint self);
+        private object? Hook_Boot_update(HashlinkFunc orig, HashlinkObject self)
         {
+            var rself = (HashlinkObject) HashlinkUtils.GetGlobal("$Boot").Dynamic.ME;
 
-            return orig.Call((float)dt, (nint) self.HashlinkValue->val.ptr);
+            var log = HashlinkUtils.GetGlobal("haxe.$Log");
+
+            var htrace = log.Dynamic.trace;
+            var ho = (HashlinkObject)htrace;
+            var vt = ho.HashlinkType->data.func->args[1];
+            var arg2 = new HashlinkObject(vt);
+            arg2.Dynamic.className = "&%Test1";
+            arg2.Dynamic.fileName = "Test2";
+            arg2.Dynamic.methodName = "Test3";
+            arg2.Dynamic.lineNumber = 114514;
+            
+            htrace(
+                    "Hello, World!!!!!!!" + HashlinkUtils.GetTypeString(vt),
+                arg2);
+
+            //o((nint)self.HashlinkValue.ptr);
+            Logger.Information("AA {a} {b} {c}", (string)arg2.Dynamic.className, (string)arg2.Dynamic.fileName, arg2.Dynamic.lineNumber);
+            return orig.Call(self);
         }
 
         void IOnBeforeGameStartup.OnBeforeGameStartup()
         {
-            hhook.CreateHook(HashlinkUtils.FindFunction("Boot", "update"), Hook_Boot_update);
+            hhook.CreateHook(HashlinkUtils.FindFunction("Boot", "endInit"), Hook_Boot_update);
         }
 
         void IOnModCoreInjected.OnModCoreInjected()

@@ -1,18 +1,20 @@
 ﻿using Hashlink;
-using ModCore.Hashlink.Hooks;
 using ModCore.Modules;
 using ModCore.Track;
 using MonoMod.Core.Platforms;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Hashlink.Transitions
+namespace ModCore.Hashlink.Hooks
 {
     internal static unsafe class HookTransition
     {
@@ -31,13 +33,13 @@ namespace ModCore.Hashlink.Transitions
         private static EntryItem* cur_entry_page;
         private static int cur_entry_page_offset;
 
-        [MethodImpl(MethodImplOptions.Synchronized)]  
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public static HashlinkHookInst CreateHook(HL_function* target)
         {
-            if(cur_entry_page == null || cur_entry_page_offset >= ENTRYS_COUNT_PER_PAGE)
+            if (cur_entry_page == null || cur_entry_page_offset >= ENTRYS_COUNT_PER_PAGE)
             {
                 cur_entry_page_offset = 0;
-                if(!PlatformTriple.Current.System.MemoryAllocator.TryAllocate(
+                if (!PlatformTriple.Current.System.MemoryAllocator.TryAllocate(
                     new(
                         sizeof(EntryItem) * ENTRYS_COUNT_PER_PAGE
                         )
@@ -48,7 +50,7 @@ namespace ModCore.Hashlink.Transitions
                     throw new NullReferenceException();
                 }
                 csentry_pages.Add(allocated);
-                cur_entry_page = (EntryItem *) allocated.BaseAddress;
+                cur_entry_page = (EntryItem*)allocated.BaseAddress;
             }
 
             var entry = cur_entry_page + cur_entry_page_offset;
@@ -62,7 +64,7 @@ namespace ModCore.Hashlink.Transitions
                 entryPtr
                 );
             var inst = new HashlinkHookInst(table, hook);
-            entry->table.chainHandle = (IntPtr) GCHandle.Alloc(inst);
+            entry->table.chainHandle = (nint)GCHandle.Alloc(inst);
 
             {
                 var f = target->type->data.func;
@@ -70,13 +72,13 @@ namespace ModCore.Hashlink.Transitions
                 table->argsCount = f->nargs;
                 table->func = target;
                 table->funcIndex = target->findex;
-                table->callback = (nint) csentry_ptr;
-                if(f->ret->kind == HL_type.TypeKind.HF32 ||
+                table->callback = (nint)csentry_ptr;
+                if (f->ret->kind == HL_type.TypeKind.HF32 ||
                     f->ret->kind == HL_type.TypeKind.HF64)
                 {
                     table->retType = 1;
                 }
-                else if(!Environment.Is64BitProcess && f->ret->kind == HL_type.TypeKind.HI64)
+                else if (!Environment.Is64BitProcess && f->ret->kind == HL_type.TypeKind.HI64)
                 {
                     table->retType = 2;
                 }
@@ -90,21 +92,21 @@ namespace ModCore.Hashlink.Transitions
                 {
                     table->argBitMarks <<= 1;
                     var at = f->args[i];
-                    if(at->kind.IsPointer())
+                    if (at->kind.IsPointer())
                     {
-                        if(Environment.Is64BitProcess)
+                        if (Environment.Is64BitProcess)
                         {
                             table->argBitMarks |= 1;
                         }
                         continue;
                     }
-                    if(at->kind == HL_type.TypeKind.HI64 ||
+                    if (at->kind == HL_type.TypeKind.HI64 ||
                         at->kind == HL_type.TypeKind.HF64)
                     {
                         table->argBitMarks |= 1;
                     }
                 }
-                
+
             }
 
             return inst;
@@ -133,13 +135,14 @@ namespace ModCore.Hashlink.Transitions
             }
         }
 
-        
+
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
         [CallFromHLOnly]
+        [StackTraceHidden]
         private static void CSEntry(HookTable* table, void* retVal, long* args)
         {
             var chain = (HashlinkHookInst?)GCHandle.FromIntPtr(table->chainHandle).Target;
-            if(chain == null || chain.chain == null)
+            if (chain == null || chain.chain == null)
             {
                 //This shouldn't exist.
                 throw new InvalidProgramException();
@@ -170,8 +173,16 @@ namespace ModCore.Hashlink.Transitions
                 }
                 argObj[i + 1] = HashlinkUtils.GetData(args + i, at);
             }
-            var result = delegates[0].DynamicInvoke(argObj);
-            HashlinkUtils.SetData(retVal, ft->ret, result);
+            try
+            {
+                var result = delegates[0].DynamicInvoke(argObj);
+                HashlinkUtils.SetData(retVal, ft->ret, result);
+            }
+            catch(TargetInvocationException ex)
+            {
+                ExceptionDispatchInfo.Capture(ex.InnerException!).Throw();
+            }
+            
         }
 
         [StructLayout(LayoutKind.Explicit)]
@@ -199,11 +210,11 @@ namespace ModCore.Hashlink.Transitions
             public nint callback;
 
             //The following fields are not visible to the native layer
-            
+
             public HL_function* func;
             public int funcIndex;
-            public IntPtr chainHandle;
+            public nint chainHandle;
         }
     }
-    
+
 }

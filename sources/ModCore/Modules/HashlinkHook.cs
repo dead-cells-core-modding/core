@@ -1,7 +1,6 @@
 ﻿using Hashlink;
 using ModCore.Hashlink;
 using ModCore.Hashlink.Hooks;
-using ModCore.Hashlink.Transitions;
 using ModCore.Modules.Events;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -24,7 +23,7 @@ namespace ModCore.Modules
         private static readonly ConcurrentDictionary<Delegate, HLHook> d2hooks = [];
         public class HLHook
         {
-            private HashlinkHookInst hook;
+            private readonly HashlinkHookInst hook;
             public Delegate Detour { get; }
             public HL_function* Target => hook.Target;
             internal HLHook(HashlinkHookInst inst, Delegate detour)

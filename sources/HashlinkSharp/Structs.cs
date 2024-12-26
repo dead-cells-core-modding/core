@@ -77,6 +77,13 @@ namespace Hashlink
         public int* mark_bits;
     }
     [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_vvirtual
+    {
+        public HL_type* t;
+        public HL_vdynamic* value;
+        public HL_vvirtual* next;
+    }
+    [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_type_virtual
     {
         public HL_obj_field* fields;
@@ -209,7 +216,7 @@ namespace Hashlink
             public int nargs;
             public HL_type* parent;
         }
-        Closure closure;
+        public Closure closure;
     }
     [StructLayout(LayoutKind.Explicit)]
     public unsafe struct HL_vdynamic

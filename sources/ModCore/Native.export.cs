@@ -1,4 +1,4 @@
-﻿using ModCore.Hashlink.Transitions;
+﻿using ModCore.Hashlink.Hooks;
 using System;
 using System.Collections.Generic;
 using System.Linq;

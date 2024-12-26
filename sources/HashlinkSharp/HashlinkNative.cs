@@ -137,5 +137,7 @@ namespace Hashlink
         public static partial void* hl_gc_alloc_gen(HL_type* t, int size, HL_Alloc_Flags flags);
         [LibraryImport(LIBHL)] 
         public static partial int hl_type_size(HL_type* t);
+        [LibraryImport(LIBHL)]
+        public static partial HL_vvirtual* hl_alloc_virtual(HL_type* t);
     }
 }

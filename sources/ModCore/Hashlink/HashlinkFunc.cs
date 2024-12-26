@@ -4,6 +4,7 @@ using MonoMod.Cil;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -30,23 +31,33 @@ namespace ModCore.Hashlink
         private static void* func_arg_buf;
         [ThreadStatic]
         private static void** cached_args_ptr;
-        
-        private static void InitArg(out int argPtr)
+
+        private class PutArgContext
+        {
+            public int args;
+        }
+
+        public bool HasThis => hlfunction->obj != null && !HashlinkUtils.IsGlobal(hlfunction->obj) && (
+            funcType->data.func->nargs > 0 && funcType->data.func->args[0]->data.obj == hlfunction->obj);
+
+        private void InitArg(out PutArgContext ctx)
         {
             if (func_arg_buf == null || cached_args_ptr == null)
             {
                 func_arg_buf = NativeMemory.AlignedAlloc(HASHLINK_MAX_ARGS_COUNT * 8, 8);
                 cached_args_ptr = (void**)NativeMemory.AlignedAlloc((nuint)(HASHLINK_MAX_ARGS_COUNT * sizeof(void*)), (nuint)sizeof(void*));
-                for(int i = 0; i < HASHLINK_MAX_ARGS_COUNT; i++)
-                {
-                    cached_args_ptr[i] = (void*)((nint)func_arg_buf + 8 * i);
-                }
             }
-            argPtr = 0;
+            for (int i = 0; i < HASHLINK_MAX_ARGS_COUNT; i++)
+            {
+                cached_args_ptr[i] = (void*)((nint)func_arg_buf + 8 * i);
+            }
+            ctx = new();
         }
 
-        private static void PutArg<T>(T val, ref int idx)
+        private void PutArg<T>(T val, PutArgContext ctx)
         {
+            ref int idx = ref ctx.args;
+            
             if (typeof(T) == typeof(int) ||
                 typeof(T) == typeof(short) ||
                 typeof(T) == typeof(ushort) ||
@@ -58,15 +69,21 @@ namespace ModCore.Hashlink
                 typeof(T) == typeof(char)
                 )
             {
-                Unsafe.AsRef<T>((void*)((nint)func_arg_buf + idx * 8)) = val;
-                cached_args_ptr[idx] = (void*)((nint)func_arg_buf + idx * 8);
+                var argPtr = (void*)((nint)func_arg_buf + idx * 8);
+                Unsafe.AsRef<T>(argPtr) = val;
+                cached_args_ptr[idx] = argPtr;
                 idx++;
+            }
+            else if (typeof(T) == typeof(bool))
+            {
+                PutArg((byte)(Unsafe.As<T, bool>(ref val) ? 1 : 0), ctx);
             }
             else if (typeof(T) == typeof(float))
             {
-                PutArg((double)Unsafe.As<T, float>(ref val), ref idx);
+                PutArg((double)Unsafe.As<T, float>(ref val), ctx);
             }
-            else if(typeof(T) == typeof(nint) ||
+            else if (typeof(T) == typeof(nint) ||
+                typeof(T) == typeof(nuint) ||
                 typeof(T).IsPointer)
             {
                 Unsafe.AsRef<T>(cached_args_ptr + idx) = val;
@@ -74,7 +91,29 @@ namespace ModCore.Hashlink
             }
             else if (val is HashlinkObject obj)
             {
-                PutArg((nint)obj.HashlinkValue, ref idx);
+                var at = funcType->data.func->args[idx];
+                
+                if (at->kind == HL_type.TypeKind.HDYN ||
+                    obj.IsString || obj.IsArray)
+                {
+                    PutArg((nint)obj.HashlinkObj, ctx);
+                }
+                else
+                {
+                    PutArg((nint)obj.AsDynamic->val.ptr, ctx);
+                }
+            }
+            else if(val is string str)
+            {
+                var at = funcType->data.func->args[idx];
+                if(at->kind == HL_type.TypeKind.HBYTES)
+                {
+                    PutArg((nint)HashlinkUtils.GetHLBytesString(str)->val.ptr, ctx);
+                }
+                else
+                {
+                    PutArg(HashlinkUtils.GetHLString(str), ctx);
+                }
             }
             else
             {
@@ -90,7 +129,7 @@ namespace ModCore.Hashlink
                 type = funcType->data.func->ret
             };
             MixTrace.MarkEnteringHL();
-            var ptrResult = Native.callback_c2hl(hlfunc, funcType, cached_args_ptr, null);
+            var ptrResult = Native.callback_c2hl(hlfunc, funcType, cached_args_ptr, &result);
             var retKind = result.type->kind;
             if (retKind.IsPointer())
             {
@@ -149,26 +188,30 @@ namespace ModCore.Hashlink
 
             return CallInternal();
         }
-        public object? CallDynamic(params object?[] args)
+        [StackTraceHidden]
+        public object? CallDynamic(params object?[]? args)
         {
             if (next != null)
             {
-                return next.DynamicInvoke([new HashlinkFunc(next_list!, next_index + 1, hlfunction, FuncPointer), ..args]);
+                return next.DynamicInvoke([new HashlinkFunc(next_list!, next_index + 1, hlfunction, FuncPointer), .. args]);
             }
             InitArg(out var arg);
-            nint narg = (nint)arg;
-            foreach (var v in args)
+            if (args != null)
             {
-                var t = v?.GetType() ?? typeof(nint);
-                var invoker = putArgInvoker.GetOrAdd(t, type =>
+                foreach (var v in args)
                 {
-                    return typeof(HashlinkFunc).GetMethod(nameof(PutArg), System.Reflection.BindingFlags.NonPublic |
-                        System.Reflection.BindingFlags.Static)!.MakeGenericMethod(t).GetFastInvoker();
-                });
-                invoker(null, v, (nint)Unsafe.AsPointer(ref narg));
+                    var t = v?.GetType() ?? typeof(nint);
+                    var invoker = putArgInvoker.GetOrAdd(t, type =>
+                    {
+                        return typeof(HashlinkFunc).GetMethod(nameof(PutArg), System.Reflection.BindingFlags.NonPublic |
+                            System.Reflection.BindingFlags.Instance)!.MakeGenericMethod(t).GetFastInvoker();
+                    });
+                    invoker(this, v, arg);
+                }
             }
             return CallInternal();
         }
+        [StackTraceHidden]
         public object? Call<T1>(T1 arg1)
         {
             if (next != null)
@@ -177,10 +220,11 @@ namespace ModCore.Hashlink
             }
             InitArg(out var arg);
 
-            PutArg(arg1, ref arg);
+            PutArg(arg1, arg);
 
             return CallInternal();
         }
+        [StackTraceHidden]
         public object? Call<T1, T2>(T1 arg1, T2 arg2)
         {
             if (next != null)
@@ -189,11 +233,12 @@ namespace ModCore.Hashlink
             }
             InitArg(out var arg);
 
-            PutArg(arg1, ref arg);
-            PutArg(arg2, ref arg);
+            PutArg(arg1, arg);
+            PutArg(arg2, arg);
 
             return CallInternal();
         }
+        [StackTraceHidden]
         public object? Call<T1, T2, T3>(T1 arg1, T2 arg2, T3 arg3)
         {
             if (next != null)
@@ -202,12 +247,13 @@ namespace ModCore.Hashlink
             }
             InitArg(out var arg);
 
-            PutArg(arg1, ref arg);
-            PutArg(arg2, ref arg);
-            PutArg(arg3, ref arg);
+            PutArg(arg1, arg);
+            PutArg(arg2, arg);
+            PutArg(arg3, arg);
 
             return CallInternal();
         }
+        [StackTraceHidden]
         public object? Call<T1, T2, T3, T4>(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
             if (next != null)
@@ -216,13 +262,14 @@ namespace ModCore.Hashlink
             }
             InitArg(out var arg);
 
-            PutArg(arg1, ref arg);
-            PutArg(arg2, ref arg);
-            PutArg(arg3, ref arg);
-            PutArg(arg4, ref arg);
+            PutArg(arg1, arg);
+            PutArg(arg2, arg);
+            PutArg(arg3, arg);
+            PutArg(arg4, arg);
 
             return CallInternal();
         }
+        [StackTraceHidden]
         public object? Call<T1, T2, T3, T4, T5>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
             if (next != null)
@@ -231,14 +278,15 @@ namespace ModCore.Hashlink
             }
             InitArg(out var arg);
 
-            PutArg(arg1, ref arg);
-            PutArg(arg2, ref arg);
-            PutArg(arg3, ref arg);
-            PutArg(arg4, ref arg);
-            PutArg(arg5, ref arg);
+            PutArg(arg1, arg);
+            PutArg(arg2, arg);
+            PutArg(arg3, arg);
+            PutArg(arg4, arg);
+            PutArg(arg5, arg);
 
             return CallInternal();
         }
+        [StackTraceHidden]
         public object? Call<T1, T2, T3, T4, T5, T6>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
         {
             if (next != null)
@@ -247,15 +295,16 @@ namespace ModCore.Hashlink
             }
             InitArg(out var arg);
 
-            PutArg(arg1, ref arg);
-            PutArg(arg2, ref arg);
-            PutArg(arg3, ref arg);
-            PutArg(arg4, ref arg);
-            PutArg(arg5, ref arg);
-            PutArg(arg6, ref arg);
+            PutArg(arg1, arg);
+            PutArg(arg2, arg);
+            PutArg(arg3, arg);
+            PutArg(arg4, arg);
+            PutArg(arg5, arg);
+            PutArg(arg6, arg);
 
             return CallInternal();
         }
+        [StackTraceHidden]
         public object? Call<T1, T2, T3, T4, T5, T6, T7>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
         {
             if (next != null)
@@ -264,16 +313,17 @@ namespace ModCore.Hashlink
             }
             InitArg(out var arg);
 
-            PutArg(arg1, ref arg);
-            PutArg(arg2, ref arg);
-            PutArg(arg3, ref arg);
-            PutArg(arg4, ref arg);
-            PutArg(arg5, ref arg);
-            PutArg(arg6, ref arg);
-            PutArg(arg7, ref arg);
+            PutArg(arg1, arg);
+            PutArg(arg2, arg);
+            PutArg(arg3, arg);
+            PutArg(arg4, arg);
+            PutArg(arg5, arg);
+            PutArg(arg6, arg);
+            PutArg(arg7, arg);
 
             return CallInternal();
         }
+        [StackTraceHidden]
         public object? Call<T1, T2, T3, T4, T5, T6, T7, T8>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7,
             T8 arg8)
         {
@@ -283,14 +333,14 @@ namespace ModCore.Hashlink
             }
             InitArg(out var arg);
 
-            PutArg(arg1, ref arg);
-            PutArg(arg2, ref arg);
-            PutArg(arg3, ref arg);
-            PutArg(arg4, ref arg);
-            PutArg(arg5, ref arg);
-            PutArg(arg6, ref arg);
-            PutArg(arg7, ref arg);
-            PutArg(arg8, ref arg);
+            PutArg(arg1, arg);
+            PutArg(arg2, arg);
+            PutArg(arg3, arg);
+            PutArg(arg4, arg);
+            PutArg(arg5, arg);
+            PutArg(arg6, arg);
+            PutArg(arg7, arg);
+            PutArg(arg8, arg);
 
             return CallInternal();
         }

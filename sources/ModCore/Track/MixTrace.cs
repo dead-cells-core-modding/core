@@ -29,7 +29,7 @@ namespace ModCore.Track
             var cur = current;
             while (cur != null)
             {
-                if(cur.esp >= esp)
+                if (cur.esp >= esp)
                 {
                     break;
                 }
@@ -38,23 +38,22 @@ namespace ModCore.Track
                 cur = cur.prev;
             }
             cur ??= new();
-            if (cur.ebp != ebp)
+
+            if (cur.esp != 0)
             {
-                if (cur.esp != 0)
+                var next = cur.next;
+                if (next == null)
                 {
-                    var next = cur.next;
-                    if (next == null)
+                    next = new()
                     {
-                        next = new()
-                        {
-                            prev = cur,
-                        };
-                        cur.next = next;
-                    }
-                    cur = next;
+                        prev = cur,
+                    };
+                    cur.next = next;
                 }
-                cur.esp = esp;
+                cur = next;
             }
+            cur.esp = esp;
+
             current = cur;
         }
         

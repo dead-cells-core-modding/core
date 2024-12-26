@@ -53,6 +53,7 @@ namespace ModCore.Modules
         private static bool isFristCall_DynCallSafe = true;
 
         [WillCallHL]
+        [StackTraceHidden]
         private static HL_vdynamic* Hook_hl_dyn_call_safe(HL_vclosure* c, HL_vdynamic** args, int nargs, bool* isException)
         {
             try
@@ -83,6 +84,7 @@ namespace ModCore.Modules
 
         [WillCallHL]
         [CallFromHLOnly]
+        [StackTraceHidden]
         private static void Hook_hl_throw(HL_vdynamic* val)
         {
             Logger.Verbose("Hashlink throw an error");
@@ -101,11 +103,12 @@ namespace ModCore.Modules
         {
             
             byte** stack_val = (byte**)(hlstack + 1);
-    
-            var new_stack = HashlinkNative.hl_alloc_array(HashlinkNative.InternalTypes.hlt_bytes,
+            
+            
+            var new_stack = HashlinkObject.CreateArray(HashlinkNative.InternalTypes.hlt_bytes,
                 hlstack->size + 1 + trace.FrameCount
                 );
-            byte** new_stack_val = (byte**)(new_stack + 1);
+            byte** new_stack_val = (byte**)new_stack.ValuePointer;
 
             int index = 0;
             new_stack_val[index++] = exception_stack_msg_split0;
@@ -120,7 +123,7 @@ namespace ModCore.Modules
             new_stack_val[index++] = exception_stack_msg_split1;
             Buffer.MemoryCopy(stack_val, new_stack_val + index, hlstack->size * sizeof(byte*), hlstack->size * sizeof(byte*));
 
-            return new_stack;
+            return new_stack.AsArray;
         }
 
         [CallFromHLOnly]
@@ -129,17 +132,16 @@ namespace ModCore.Modules
             try
             {
                 var stack = new MixStackTrace(0, true);
-                var new_stack = HashlinkNative.hl_alloc_array(HashlinkNative.InternalTypes.hlt_bytes,
+                var new_stack = HashlinkObject.CreateArray(HashlinkNative.InternalTypes.hlt_bytes,
                     stack.FrameCount
                 );
-                byte** new_stack_val = (byte**)(new_stack + 1);
 
                 for(int i = 0; i < stack.FrameCount; i++)
                 {
-                    new_stack_val[i] = (byte*)Marshal.StringToHGlobalUni(stack.GetFrame(i)!.GetDisplay());
+                    new_stack.Dynamic[i] = Marshal.StringToHGlobalUni(stack.GetFrame(i)!.GetDisplay());
                 }
 
-                return new_stack;
+                return new_stack.AsArray;
             }
             catch(Exception ex)
             {
