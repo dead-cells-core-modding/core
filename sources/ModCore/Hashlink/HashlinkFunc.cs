@@ -93,8 +93,7 @@ namespace ModCore.Hashlink
             {
                 var at = funcType->data.func->args[idx];
                 
-                if (at->kind == HL_type.TypeKind.HDYN ||
-                    obj.IsString || obj.IsArray)
+                if (at->kind == HL_type.TypeKind.HDYN || !obj.IsDynamic)
                 {
                     PutArg((nint)obj.HashlinkObj, ctx);
                 }

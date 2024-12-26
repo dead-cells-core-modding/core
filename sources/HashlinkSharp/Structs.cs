@@ -94,6 +94,18 @@ namespace Hashlink
         public HL_field_lookup* lookup;
     }
     [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_vdynobj
+    {
+        public HL_type* t;
+        public HL_field_lookup* lookup;
+        public char* raw_data;
+        public void** values;
+        public int nfields;
+        public int raw_size;
+        public int nvalues;
+        public HL_vvirtual* virtuals;
+    }
+    [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_enum
     {
         public HL_type* t;

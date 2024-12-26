@@ -43,7 +43,9 @@ namespace ModCore.Modules
                 arg2);
 
             //o((nint)self.HashlinkValue.ptr);
-            Logger.Information("AA {a} {b} {c}", (string)arg2.Dynamic.className, (string)arg2.Dynamic.fileName, arg2.Dynamic.lineNumber);
+            //Logger.Information("AA {a} {b} {c}", (string)arg2.Dynamic.className, 
+            //    (string)arg2.Dynamic.fileName, 
+             //   arg2.Dynamic.lineNumber);
             return orig.Call(self);
         }
 

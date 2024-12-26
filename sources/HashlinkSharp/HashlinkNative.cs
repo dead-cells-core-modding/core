@@ -80,6 +80,8 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial void hl_remove_root(void* ptr);
         [LibraryImport(LIBHL)]
+        public static partial HL_vdynobj* hl_alloc_dynobj();
+        [LibraryImport(LIBHL)]
         public static partial HL_vdynamic* hl_alloc_dynamic(HL_type* t);
         [LibraryImport(LIBHL)]
         public static partial HL_vdynamic* hl_alloc_obj(HL_type* type);

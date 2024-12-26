@@ -131,7 +131,7 @@ namespace ModCore.Hashlink
 
         public static string GetTypeString(HL_type* type)
         {
-            return Marshal.PtrToStringUni((nint)HashlinkNative.hl_type_str(type))!;
+            return Marshal.PtrToStringUni((nint)hl_type_str(type))!;
         }
 
         public static bool IsGlobal(HL_type_obj* obj)
@@ -159,7 +159,7 @@ namespace ModCore.Hashlink
 
         public static HL_vdynamic* CreateDynamic(HL_type* type, void* ptr)
         {
-            var vdyn = HashlinkNative.hl_alloc_dynamic(type);
+            var vdyn = hl_alloc_dynamic(type);
             vdyn->val.ptr = ptr;
             return vdyn;
         }
@@ -172,6 +172,24 @@ namespace ModCore.Hashlink
                 hltype2globalObject[name] = val = HashlinkObject.FromHashlink(gPtr);
             }
             return val;
+        }
+
+        public static bool IsValidHLObject(void* ptr)
+        {
+            if(!Native.mcn_memory_readable(ptr, sizeof(void*)))
+            {
+                return false;
+            }
+            HL_type* ptype = (HL_type*) *(void**)ptr;
+            if (!Native.mcn_memory_readable(ptr, sizeof(HL_type.TypeKind)))
+            {
+                return false;
+            }
+            if(ptype->kind < 0 || ptype->kind >= HL_type.TypeKind.HLAST)
+            {
+                return false;
+            }
+            return true;
         }
 
         public static void SetData(void* ptr, HL_type* type, object? val)
@@ -266,7 +284,7 @@ namespace ModCore.Hashlink
                 HL_type.TypeKind.HF64 => *(double*)ptr,
                 HL_type.TypeKind.HBOOL => *(bool*)ptr,
                 HL_type.TypeKind.HBYTES => *(nint*)ptr,
-                _ => null
+                _ => HashlinkObject.FromHashlink((HL_vdynamic*) ptr)
             };
         }
 
@@ -317,15 +335,15 @@ namespace ModCore.Hashlink
 
         public static void* HLAlloc(HL_type* type, int size, HL_Alloc_Flags flags)
         {
-            return HashlinkNative.hl_gc_alloc_gen(type, size, flags);
+            return hl_gc_alloc_gen(type, size, flags);
         }
         public static void* HLAllocNoPtr(int size)
         {
-            return HLAlloc(HashlinkNative.InternalTypes.hlt_bytes, size, HL_Alloc_Flags.MEM_KIND_NOPTR);
+            return HLAlloc(hlt_bytes, size, HL_Alloc_Flags.MEM_KIND_NOPTR);
         }
         public static void* HLAllocRaw(int size)
         {
-            return HLAlloc(HashlinkNative.InternalTypes.hlt_abstract, size, HL_Alloc_Flags.MEM_KIND_RAW);
+            return HLAlloc(hlt_abstract, size, HL_Alloc_Flags.MEM_KIND_RAW);
         }
 
         public static HashlinkObject GetHLString(string str)
@@ -343,7 +361,7 @@ namespace ModCore.Hashlink
 
         public static HL_vdynamic* GetHLBytesString(string str)
         {
-            var dyn = HashlinkNative.hl_alloc_dynamic(HashlinkNative.InternalTypes.hlt_bytes);
+            var dyn = hl_alloc_dynamic(hlt_bytes);
             var strlen = str.Length * 2 + 2;
             var bytes = (char*)HLAllocNoPtr(strlen);
             
@@ -360,7 +378,7 @@ namespace ModCore.Hashlink
         {
             fixed (char* pname = str)
             {
-                return HashlinkNative.hl_hash_gen(pname, false);
+                return hl_hash_gen(pname, false);
             }
             
         }

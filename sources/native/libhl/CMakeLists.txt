@@ -8,17 +8,10 @@ add_library(libhl SHARED ${SOURCES})
 
 install(TARGETS libhl)
 
-if(WIN32)
-    set_target_properties(libhl
+set_target_properties(libhl
         PROPERTIES
         OUTPUT_NAME libhl
-    )
-else()
-    set_target_properties(libhl
-        PROPERTIES
-        OUTPUT_NAME hl
-    )
-endif()
+)
 
 set_target_properties(libhl
     PROPERTIES

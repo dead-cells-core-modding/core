@@ -159,15 +159,15 @@ namespace ModCore.Hashlink.Hooks
             for (int i = 0; i < table->argsCount; i++)
             {
                 var at = ft->args[i];
-                if (at->kind.IsPointer())
+                if (at->kind != HL_type.TypeKind.HBYTES && at->kind.IsPointer())
                 {
-                    if (at->kind == HL_type.TypeKind.HDYN)
+                    if (at->kind == HL_type.TypeKind.HOBJ)
                     {
-                        argObj[i + 1] = HashlinkObject.FromHashlink((HL_vdynamic*)args[i]);
+                        argObj[i + 1] = HashlinkObject.FromHashlink(HashlinkUtils.CreateDynamic(at, (void*)args[i]));
                     }
                     else
                     {
-                        argObj[i + 1] = HashlinkObject.FromHashlink(HashlinkUtils.CreateDynamic(at, (void*)args[i]));
+                        argObj[i + 1] = HashlinkObject.FromHashlink((HL_vdynamic*)args[i]);
                     }
                     continue;
                 }

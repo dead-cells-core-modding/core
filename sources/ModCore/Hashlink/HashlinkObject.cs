@@ -26,7 +26,14 @@ namespace ModCore.Hashlink
             public HL_vstring vstring;
             [FieldOffset(0)]
             public HL_array varray;
-
+            [FieldOffset(0)]
+            public HL_vvirtual vvirtual;
+            [FieldOffset(0)]
+            public HL_vclosure vclosure;
+            [FieldOffset(0)]
+            public HL_enum venum;
+            [FieldOffset(0)]
+            public HL_vdynobj vdynobj;
             //Common Field
             [FieldOffset(0)]
             public HL_type* type;
@@ -63,50 +70,59 @@ namespace ModCore.Hashlink
         public HL_array* AsArray => (HL_array*)hl_vbox;
         public HL_vdynamic* AsDynamic => (HL_vdynamic*)hl_vbox;
         public HL_vstring* AsString => IsString ? (HL_vstring*)hl_vbox : throw new InvalidOperationException();
+        public HL_vdynobj* AsDynObj => (HL_vdynobj*)hl_vbox;
+        public HL_enum* AsEnum => (HL_enum*)hl_vbox;
+        public HL_vvirtual* AsVirtual => (HL_vvirtual*)hl_vbox;
         public HL_type* HashlinkType => hl_type;
         public bool IsInvalid => hl_vbox == null;
+
         public bool IsString => hl_type == HashlinkUtils.HLType_String;
         public bool IsArray => hl_type->kind == HL_type.TypeKind.HARRAY;
-        public bool IsDynamic => !IsString && !IsString;
+        public bool IsEnum => hl_type->kind == HL_type.TypeKind.HENUM;
+        public bool IsVirtual => hl_type->kind == HL_type.TypeKind.HVIRTUAL;
+        public bool IsDynObj => hl_type->kind == HL_type.TypeKind.HDYNOBJ;
+        public bool IsDynamic => !IsString && (
+            hl_type->kind == HL_type.TypeKind.HOBJ ||
+            hl_type->kind == HL_type.TypeKind.HABSTRACT
+            );
         public HashlinkObject(HL_type* type)
         {
             hl_type = type;
-
-            if (IsDynamic)
+            if (IsEnum)
             {
-                hl_vbox = (ObjectBox*) HashlinkNative.hl_alloc_dynamic(type);
-
-                if (type->kind == HL_type.TypeKind.HOBJ)
-                {
-                    hl_vbox->vdynamic.val.ptr = HashlinkNative.hl_alloc_obj(type);
-                }
-                else if (type->kind == HL_type.TypeKind.HENUM)
-                {
-                    hl_vbox->vdynamic.val.ptr = HashlinkNative.hl_alloc_enum(type);
-                }
-                else if (type->kind == HL_type.TypeKind.HVIRTUAL)
-                {
-                    hl_vbox->vdynamic.val.ptr = HashlinkNative.hl_alloc_virtual(type);
-                }
-                else
-                {
-                    throw new NotSupportedException($"Unknown type kind '{type->kind}'");
-                }
+                hl_vbox = (ObjectBox*) hl_alloc_enum(type);
+            }
+            else if (IsVirtual)
+            {
+                hl_vbox = (ObjectBox*)hl_alloc_virtual(type);
+            }
+            else if(IsDynObj)
+            {
+                hl_vbox = (ObjectBox*)hl_alloc_dynobj();
+            }
+            else if (IsDynamic)
+            {
+                hl_vbox = (ObjectBox*) hl_alloc_dynamic(type);
+                hl_vbox->vdynamic.val.ptr = hl_alloc_obj(type);
             }
             else
             {
                 throw new NotSupportedException($"Unknown type kind '{type->kind}'");
             }
-            HashlinkNative.hl_add_root(hl_vbox);
+            hl_add_root(hl_vbox);
         }
         public static HashlinkObject CreateArray(HL_type* type, int len)
         {
-            var array = HashlinkNative.hl_alloc_array(type, len);
+            var array = hl_alloc_array(type, len);
 
             return FromHashlink((HL_vdynamic*) array);
         }
         private HashlinkObject(ObjectBox* v, HL_type* type)
         {
+            if(!HashlinkUtils.IsValidHLObject(v))
+            {
+                throw new InvalidOperationException();
+            }
             hl_vbox = v;
             if (type == null)
             {
@@ -115,8 +131,16 @@ namespace ModCore.Hashlink
             hl_type = type;
             if (v != null)
             {
-                HashlinkNative.hl_add_root(hl_vbox);
+                hl_add_root(hl_vbox);
             }
+        }
+        public static HashlinkObject FromHashlink(HL_vdynobj* v)
+        {
+            return FromHashlink((ObjectBox*)v);
+        }
+        public static HashlinkObject FromHashlink(HL_vvirtual* v)
+        {
+            return FromHashlink((ObjectBox*)v);
         }
         public static HashlinkObject FromHashlink(HL_array* v)
         {
@@ -147,14 +171,14 @@ namespace ModCore.Hashlink
             GC.SuppressFinalize(this);
             if(hl_vbox != null)
             {
-                HashlinkNative.hl_remove_root(hl_vbox);
+                hl_remove_root(hl_vbox);
                 hl_vbox = null;
             }
         }
 
         private void* GetFieldPtr(int hash, out HL_type* type)
         {
-            var result = HashlinkNative.hl_obj_lookup(&hl_vbox->vdynamic, hash, out type);
+            var result = hl_obj_lookup(&hl_vbox->vdynamic, hash, out type);
             if(result == null &&
                 hl_type->kind == HL_type.TypeKind.HOBJ)
             {
@@ -195,7 +219,7 @@ namespace ModCore.Hashlink
             {
                 return false;
             }
-            var data = (nint)ValuePointer + HashlinkNative.hl_type_size(array->at) * idx;
+            var data = (nint)ValuePointer + hl_type_size(array->at) * idx;
             HashlinkUtils.SetData((void*)data, array->at, value);
             return true;
         }
@@ -221,7 +245,7 @@ namespace ModCore.Hashlink
             {
                 return false;
             }
-            var data = (nint)ValuePointer + HashlinkNative.hl_type_size(array->at) * idx;
+            var data = (nint)ValuePointer + hl_type_size(array->at) * idx;
             result = HashlinkUtils.GetData((void*)data, array->at);
             return true;
         }
@@ -267,7 +291,7 @@ namespace ModCore.Hashlink
                 }
                 else
                 {
-                    result = FromHashlink(HashlinkNative.hl_obj_get_field(AsDynamic, hash));
+                    result = FromHashlink(hl_obj_get_field(AsDynamic, hash));
                 }
                 return true;
             }
