@@ -29,6 +29,8 @@ namespace ModCore.Modules
         }
         private object? Hook_Boot_Init(HashlinkFunc orig, HashlinkObject self)
         {
+            GameVersion = (int)HashlinkUtils.GetGlobal("Main").Dynamic.GAME_VERSION;
+
             EventSystem.BroadcastEvent<IOnGameInit>();
             return orig.Call(self);
         }
@@ -44,17 +46,44 @@ namespace ModCore.Modules
 
             return orig.Call(self);
         }
+        
+        private object? Hook_Hero_onDamage(HashlinkFunc orig, HashlinkObject self, HashlinkObject damage)
+        {
+            var baseDmg = damage.Dynamic.baseDmg;
+            damage.Dynamic.dmgMultiplier = 0.01f;
+            var sm = (HashlinkObject) self.Dynamic.substractCells;
+            sm.Dynamic(
+                1000, 
+                new HashlinkObject(sm.HashlinkType->data.func->args[2]));
+            return orig.Call(self, damage);
+        }
+        private object? Hook_Hero_addMoney(HashlinkFunc orig, HashlinkObject self, int v, HashlinkObject v2)
+        {
+            v += 100;
+            self.Dynamic.cells += v;
+            //self.Dynamic.substractMoney(v + 10, v2);
+            return orig.Call(self, v, v2);
+        }
+        private object? Hook_Hero_addCells(HashlinkFunc orig, HashlinkObject self, int v, HashlinkObject v2)
+        {
+            v *= 100;
+            return orig.Call(self, v, v2);
+        }
+
         void IOnBeforeGameStartup.OnBeforeGameStartup()
         {
             hhook.CreateHook(HashlinkUtils.FindFunction("Boot", "update"), Hook_Boot_update);
             hhook.CreateHook(HashlinkUtils.FindFunction("Boot", "endInit"), Hook_Boot_endInit);
             hhook.CreateHook(HashlinkUtils.FindFunction("Boot", "init"), Hook_Boot_endInit);
+
+            hhook.CreateHook(HashlinkUtils.FindFunction("en.Hero", "onDamage"), Hook_Hero_onDamage);
+            hhook.CreateHook(HashlinkUtils.FindFunction("en.Hero", "addMoney"), Hook_Hero_addMoney);
+            hhook.CreateHook(HashlinkUtils.FindFunction("en.Hero", "addCells"), Hook_Hero_addCells);
         }
 
         void IOnModCoreInjected.OnModCoreInjected()
         {
             hhook = HashlinkHook.Instance;
-
         }
     }
 }

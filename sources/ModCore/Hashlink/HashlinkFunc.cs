@@ -92,7 +92,10 @@ namespace ModCore.Hashlink
             else if (val is HashlinkObject obj)
             {
                 var at = funcType->data.func->args[idx];
-                
+                if(at == HashlinkUtils.HLType_String)
+                {
+                    _ = 1;
+                }
                 PutArg((nint)obj.HashlinkObj, ctx);
             }
             else if(val is string str)
@@ -106,6 +109,10 @@ namespace ModCore.Hashlink
                 {
                     PutArg(HashlinkUtils.GetHLString(str), ctx);
                 }
+            }
+            else if(val is null)
+            {
+                PutArg<nint>(0, ctx);
             }
             else
             {
@@ -126,6 +133,10 @@ namespace ModCore.Hashlink
             if(retKind == HL_type.TypeKind.HVOID)
             {
                 return null;
+            }
+            if(result.type == HashlinkUtils.HLType_String)
+            {
+                _ = 1;
             }
             if (retKind.IsPointer())
             {

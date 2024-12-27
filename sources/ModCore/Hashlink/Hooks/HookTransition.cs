@@ -161,13 +161,18 @@ namespace ModCore.Hashlink.Hooks
                 var at = ft->args[i];
                 if (at->kind != HL_type.TypeKind.HBYTES && at->kind.IsPointer())
                 {
-                    if (!HashlinkUtils.IsValidHLObject((void*)args[i]))
+                    void* val = (void*)args[i];
+                    if(val == null)
                     {
-                        argObj[i + 1] = HashlinkObject.FromHashlink(HashlinkUtils.CreateDynamic(at, (void*)args[i]));
+                        argObj[i + 1] = null;
+                    }
+                    else if (!HashlinkUtils.IsValidHLObject((void*)args[i]))
+                    {
+                        argObj[i + 1] = HashlinkObject.FromHashlink(HashlinkUtils.CreateDynamic(at, val));
                     }
                     else
                     {
-                        argObj[i + 1] = HashlinkObject.FromHashlink((HL_vdynamic*)args[i]);
+                        argObj[i + 1] = HashlinkObject.FromHashlink((HL_vdynamic*)val);
                     }
                     continue;
                 }

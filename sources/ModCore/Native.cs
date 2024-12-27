@@ -13,8 +13,8 @@ namespace ModCore
 
         private const string MODCORE_NATIVE_NAME = "modcorenative";
         [LibraryImport(MODCORE_NATIVE_NAME)]
-        [return: MarshalAs(UnmanagedType.I4)]
-        public static partial bool mcn_memory_readable(void* ptr, int len);
+        [return: MarshalAs(UnmanagedType.I4)] 
+        public static partial bool mcn_memory_readable(void* ptr);
         #region Stack Trace
         [LibraryImport(MODCORE_NATIVE_NAME)]
         public static partial int mcn_load_stacktrace(void** buf, int maxCount, void* stackBottom);

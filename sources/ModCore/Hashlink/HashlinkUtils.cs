@@ -82,9 +82,14 @@ namespace ModCore.Hashlink
                 fid2hlfuctionn[f->findex] = (nint) f;
                 hlfun2hlfunction[(nint)f->type->data.func] = (nint)f;
                 funcNativePtr[(nint)f] = (nint)fp;
-
-                if (f->obj == null || f->field == null)
+                
+                if (f->obj == null)
                 {
+                    if(f->field.field == null)
+                    {
+                        continue;
+                    }
+
                     continue;
                 }
                 var tname = GetString(f->obj->name);
@@ -93,7 +98,7 @@ namespace ModCore.Hashlink
                     funcTable = [];
                     name2func.Add(tname, funcTable);
                 }
-                var name = GetString(f->field);
+                var name = GetString(f->field.field);
                 funcTable[name] = (nint)f;
                 
             }
@@ -119,11 +124,11 @@ namespace ModCore.Hashlink
         {
             if (func->obj != null)
             {
-                return $"{GetString(func->obj->name)}.{GetString(func->field)}@{func->findex}";
+                return $"{GetString(func->obj->name)}.{GetString(func->field.field)}@{func->findex}";
             }
-            else if (func->field != null)
+            else if (func->field.@ref != null)
             {
-                return GetFunctionName((HL_function*)func->field);
+                return GetFunctionName(func->field.@ref);
             }
             else
             {
@@ -178,12 +183,12 @@ namespace ModCore.Hashlink
 
         public static bool IsValidHLObject(void* ptr)
         {
-            if(!Native.mcn_memory_readable(ptr, sizeof(void*)))
+            if(!Native.mcn_memory_readable(ptr))
             {
                 return false;
             }
             HL_type* ptype = (HL_type*) *(void**)ptr;
-            if (!Native.mcn_memory_readable(ptr, sizeof(HL_type.TypeKind)))
+            if (!Native.mcn_memory_readable(ptype))
             {
                 return false;
             }
@@ -255,6 +260,10 @@ namespace ModCore.Hashlink
             }
             else if(type->kind == HL_type.TypeKind.HF64)
             {
+                if(val is float v)
+                {
+                    val = (double)v;
+                }
                 *(double*)ptr = (double)val;
             }
             else if(type->kind == HL_type.TypeKind.HBOOL)
@@ -326,6 +335,7 @@ namespace ModCore.Hashlink
         }
         public static HL_function* FindFunction(HL_type* type, string name)
         {
+           
             var tname = GetString(type->data.obj->name);
             if (name2func.TryGetValue(tname, out var table) &&
                 table.TryGetValue(name, out var result))
@@ -337,9 +347,16 @@ namespace ModCore.Hashlink
                 return null;
             }
             var hashed = HLHash(name);
-            
-            //Maybe Is Field
-            return GetFunction(((HashlinkObject)GetGlobal(tname).Dynamic[name]).HashlinkType->data.func);
+            var obj = type->data.obj;
+            for (int i = 0; i < obj->nproto; i++)
+            {
+                var p = obj->proto + i;
+                if(p->hashed_name == hashed)
+                {
+                    return (HL_function*) fid2hlfuctionn[p->findex];
+                }
+            }
+            return null;
         }
         public static void* GetFunctionNativePtr(HL_function* func)
         {
@@ -364,7 +381,7 @@ namespace ModCore.Hashlink
             fixed (char* c = str)
             {
                 var hstr = HashlinkObject.FromHashlink(GetHLBytesString(str));
-                var vobj = GetGlobal("$String").Dynamic.fromUCS2((nint)hstr.AsDynamic->val.ptr);
+                var vobj = new HashlinkObject(HLType_String).Dynamic;
                 vobj.length = str.Length;
                 vobj.bytes = (nint)hstr.ValuePointer;
                 

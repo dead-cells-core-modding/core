@@ -52,6 +52,10 @@ namespace ModCore.Hashlink
                 {
                     return hl_vbox->vstring.bytes;
                 }
+                else if(IsRef)
+                {
+                    return hl_vbox->type + 1;
+                }
                 else
                 {
                     if(hl_type->kind.IsPointer())
@@ -69,13 +73,25 @@ namespace ModCore.Hashlink
         public HL_vclosure* AsClosure => (HL_vclosure*)hl_vbox;
         public HL_array* AsArray => (HL_array*)hl_vbox;
         public HL_vdynamic* AsDynamic => (HL_vdynamic*)hl_vbox;
-        public HL_vstring* AsString => IsString ? (HL_vstring*)hl_vbox : throw new InvalidOperationException();
+        public HL_vstring* AsString => (HL_vstring*)hl_vbox;
         public HL_vdynobj* AsDynObj => (HL_vdynobj*)hl_vbox;
         public HL_enum* AsEnum => (HL_enum*)hl_vbox;
         public HL_vvirtual* AsVirtual => (HL_vvirtual*)hl_vbox;
         public HL_type* HashlinkType => hl_type;
+        public HL_type* RefType => IsRef ? hl_type->data.tparam : throw new InvalidOperationException();
+        public object? RefValue
+        {
+            get
+            {
+                return HashlinkUtils.GetData(ValuePointer, RefType);
+            }
+            set
+            {
+                HashlinkUtils.SetData(ValuePointer, RefType, value);
+            }
+        }
         public bool IsInvalid => hl_vbox == null;
-
+        public bool IsRef => hl_type->kind == HL_type.TypeKind.HREF;
         public bool IsString => hl_type == HashlinkUtils.HLType_String;
         public bool IsArray => hl_type->kind == HL_type.TypeKind.HARRAY;
         public bool IsEnum => hl_type->kind == HL_type.TypeKind.HENUM;
@@ -105,6 +121,18 @@ namespace ModCore.Hashlink
             {
                 hl_vbox = (ObjectBox*) hl_alloc_dynamic(type);
                 hl_vbox->vdynamic.val.ptr = hl_alloc_obj(type);
+            }
+            else if(IsString)
+            {
+                hl_vbox = (ObjectBox*)hl_alloc_dynamic(type);
+                AsString->type = type;
+            }
+            else if(IsRef)
+            {
+                hl_vbox = (ObjectBox*)hl_gc_alloc_gen(type,
+                    sizeof(HL_type*) + hl_type_size(type->data.tparam),
+                    HL_Alloc_Flags.MEM_KIND_DYNAMIC);
+                hl_vbox->type = type;
             }
             else
             {
@@ -297,6 +325,14 @@ namespace ModCore.Hashlink
             }
             else
             {
+                if (type == null)
+                {
+                    var f = HashlinkUtils.FindFunction(hl_type, name);
+                    if (f != null)
+                    {
+                        type = f->type;
+                    }
+                }
                 if (type != null)
                 {
                     result = new HashlinkObject(hl_vbox, type);
@@ -352,14 +388,7 @@ namespace ModCore.Hashlink
             }
             if (func.HasThis)
             {
-                if (IsString)
-                {
-                    return func.CallDynamic([(nint)(&hl_vbox->vstring.bytes), .. args]);
-                }
-                else
-                {
-                    return func.CallDynamic([(nint)(ValuePointer),.. args]);
-                }
+                return func.CallDynamic([(nint)hl_vbox, .. args]);
             }
             else
             {
@@ -371,7 +400,17 @@ namespace ModCore.Hashlink
         {
             var hash = HashlinkUtils.HLHash(binder.Name);
             var ptr = GetFieldPtr(hash, out var type);
-            if(type == null || type->kind != HL_type.TypeKind.HFUN)
+            if(type == null)
+            {
+                var f = HashlinkUtils.FindFunction(hl_type, binder.Name);
+                if (f == null)
+                {
+                    result = null;
+                    return false;
+                }
+                type = f->type;
+            }
+            if(type->kind != HL_type.TypeKind.HFUN)
             {
                 result = null;
                 return false;

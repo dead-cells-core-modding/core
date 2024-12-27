@@ -23,6 +23,16 @@ namespace Hashlink
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_type
     {
+        public string TypeName
+        {
+            get
+            {
+                fixed (HL_type* ptr = &this)
+                {
+                    return new string(HashlinkNative.hl_type_str(ptr));
+                }
+            }
+        }
         public enum TypeKind
         {
             HVOID = 0,
@@ -331,7 +341,17 @@ namespace Hashlink
         public HL_opcode* ops;
         public int* debug;
         public HL_type_obj* obj;
-        public char* field;
+
+        [StructLayout (LayoutKind.Explicit)]
+        public unsafe struct FieldAndRef
+        {
+            [FieldOffset(0)]
+            public char* field;
+            [FieldOffset(0)]
+            public HL_function* @ref;
+        }
+
+        public FieldAndRef field;
         //public HL_function* @refPtr;
     }
     [StructLayout(LayoutKind.Sequential)]
