@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Modules.Events
+namespace ModCore.Modules
 {
-    public interface IOnModCoreInjected
+    internal class HScript
     {
-        void OnModCoreInjected();
     }
 }

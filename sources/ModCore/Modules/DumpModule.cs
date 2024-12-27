@@ -1,6 +1,6 @@
 ﻿using Hashlink;
+using ModCore.Events;
 using ModCore.Hashlink;
-using ModCore.Modules.Events;
 using ModCore.Storage;
 using System;
 using System.Collections.Generic;

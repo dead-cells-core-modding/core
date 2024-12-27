@@ -20,6 +20,7 @@ namespace ModCore.Hashlink
 
         private readonly static Dictionary<nint, nint> hlfun2hlfunction = [];
         private readonly static Dictionary<nint, nint> funcNativePtr = [];
+        private readonly static Dictionary<int, nint> fid2hlfuctionn = [];
         private readonly static Dictionary<string, Dictionary<string, nint>> name2func = [];
         private readonly static Dictionary<string, int> hltype2globalIdx = [];
 
@@ -78,6 +79,10 @@ namespace ModCore.Hashlink
                 var f = code->functions + i;
                 var fp = m->functions_ptrs[f->findex];
 
+                fid2hlfuctionn[f->findex] = (nint) f;
+                hlfun2hlfunction[(nint)f->type->data.func] = (nint)f;
+                funcNativePtr[(nint)f] = (nint)fp;
+
                 if (f->obj == null || f->field == null)
                 {
                     continue;
@@ -89,11 +94,8 @@ namespace ModCore.Hashlink
                     name2func.Add(tname, funcTable);
                 }
                 var name = GetString(f->field);
-
-
-                hlfun2hlfunction[(nint)f->type->data.func] = (nint)f;
                 funcTable[name] = (nint)f;
-                funcNativePtr[(nint)f] = (nint)fp;
+                
             }
             for (int i = 0; i < code->nglobals; i++)
             {
@@ -270,7 +272,7 @@ namespace ModCore.Hashlink
         }
         public static bool IsPointer(this HL_type.TypeKind kind)
         {
-            return kind >= HL_type.TypeKind.HBYTES || kind == HL_type.TypeKind.HVOID;
+            return kind >= HL_type.TypeKind.HBYTES;
         }
         public static object? GetData(void* ptr, HL_type* type)
         {
@@ -284,7 +286,11 @@ namespace ModCore.Hashlink
                 HL_type.TypeKind.HF64 => *(double*)ptr,
                 HL_type.TypeKind.HBOOL => *(bool*)ptr,
                 HL_type.TypeKind.HBYTES => *(nint*)ptr,
-                _ => HashlinkObject.FromHashlink((HL_vdynamic*) ptr)
+                HL_type.TypeKind.HVOID => null,
+                HL_type.TypeKind.HABSTRACT => *(nint*)ptr,
+                _ => IsValidHLObject(*(void**)ptr) ? 
+                    HashlinkObject.FromHashlink(*(HL_vdynamic**)ptr) :
+                    *(nint*)ptr,
             };
         }
 
@@ -321,12 +327,19 @@ namespace ModCore.Hashlink
         public static HL_function* FindFunction(HL_type* type, string name)
         {
             var tname = GetString(type->data.obj->name);
-            if (!name2func.TryGetValue(tname, out var table) ||
-                !table.TryGetValue(name, out var result))
+            if (name2func.TryGetValue(tname, out var table) &&
+                table.TryGetValue(name, out var result))
+            {
+                return (HL_function*)result;
+            }
+            if(type->kind != HL_type.TypeKind.HOBJ)
             {
                 return null;
             }
-            return (HL_function*)result;
+            var hashed = HLHash(name);
+            
+            //Maybe Is Field
+            return GetFunction(((HashlinkObject)GetGlobal(tname).Dynamic[name]).HashlinkType->data.func);
         }
         public static void* GetFunctionNativePtr(HL_function* func)
         {

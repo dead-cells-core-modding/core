@@ -1,7 +1,7 @@
 
 #include "modcorenative.h"
 
-#if WIN32
+#ifdef WIN32
 EXTERNC EXPORT void* hlu_get_hl_bytecode_from_exe(const uchar* exePath, int* outSize)
 {
 	HMODULE exe = LoadLibrary(exePath);

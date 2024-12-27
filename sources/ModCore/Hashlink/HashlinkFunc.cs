@@ -93,14 +93,7 @@ namespace ModCore.Hashlink
             {
                 var at = funcType->data.func->args[idx];
                 
-                if (at->kind == HL_type.TypeKind.HDYN || !obj.IsDynamic)
-                {
-                    PutArg((nint)obj.HashlinkObj, ctx);
-                }
-                else
-                {
-                    PutArg((nint)obj.AsDynamic->val.ptr, ctx);
-                }
+                PutArg((nint)obj.HashlinkObj, ctx);
             }
             else if(val is string str)
             {
@@ -130,11 +123,22 @@ namespace ModCore.Hashlink
             MixTrace.MarkEnteringHL();
             var ptrResult = Native.callback_c2hl(hlfunc, funcType, cached_args_ptr, &result);
             var retKind = result.type->kind;
+            if(retKind == HL_type.TypeKind.HVOID)
+            {
+                return null;
+            }
             if (retKind.IsPointer())
             {
-                var dyn = HashlinkNative.hl_alloc_dynamic(result.type);
-                dyn->val.ptr = ptrResult;
-                return HashlinkObject.FromHashlink(dyn);
+                if (retKind == HL_type.TypeKind.HBYTES)
+                {
+                    var dyn = hl_alloc_dynamic(result.type);
+                    dyn->val.ptr = ptrResult;
+                    return HashlinkObject.FromHashlink(dyn);
+                }
+                else
+                {
+                    return HashlinkObject.FromHashlink((HL_vdynamic*) ptrResult);
+                }
             }
             else
             {

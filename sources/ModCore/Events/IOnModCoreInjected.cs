@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Modules.Events
+namespace ModCore.Events
 {
-    public interface IOnGameExit
+    public interface IOnModCoreInjected : ICallOnceEvent<IOnModCoreInjected>
     {
-        public void OnGameExit();
+        void OnModCoreInjected();
     }
 }

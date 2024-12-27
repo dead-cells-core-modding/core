@@ -1,6 +1,6 @@
 ﻿using Hashlink;
+using ModCore.Events;
 using ModCore.Hashlink;
-using ModCore.Modules.Events;
 using ModCore.Track;
 using SDL2;
 using System;
@@ -19,39 +19,36 @@ namespace ModCore.Modules
         private HashlinkHook hhook = null!;
         public override int Priority => ModulePriorities.Game;
 
+        public int GameVersion { get; private set; }
         public nint MainWindowPtr { get; private set; }
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void UpdateD(nint self);
-        private object? Hook_Boot_update(HashlinkFunc orig, HashlinkObject self)
+        private object? Hook_Boot_update(HashlinkFunc orig, HashlinkObject self, double dt)
         {
-            var rself = (HashlinkObject) HashlinkUtils.GetGlobal("$Boot").Dynamic.ME;
-
-            var log = HashlinkUtils.GetGlobal("haxe.$Log");
-
-            var htrace = log.Dynamic.trace;
-            var ho = (HashlinkObject)htrace;
-            var vt = ho.HashlinkType->data.func->args[1];
-            var arg2 = new HashlinkObject(vt);
-            arg2.Dynamic.className = "&%Test1";
-            arg2.Dynamic.fileName = "Test2";
-            arg2.Dynamic.methodName = "Test3";
-            arg2.Dynamic.lineNumber = 114514;
-            
-            htrace(
-                    "Hello, World!!!!!!!" + HashlinkUtils.GetTypeString(vt),
-                arg2);
-
-            //o((nint)self.HashlinkValue.ptr);
-            //Logger.Information("AA {a} {b} {c}", (string)arg2.Dynamic.className, 
-            //    (string)arg2.Dynamic.fileName, 
-             //   arg2.Dynamic.lineNumber);
+            EventSystem.BroadcastEvent<IOnFrameUpdate, double>(dt);
+            return orig.Call(self, dt);
+        }
+        private object? Hook_Boot_Init(HashlinkFunc orig, HashlinkObject self)
+        {
+            EventSystem.BroadcastEvent<IOnGameInit>();
             return orig.Call(self);
         }
+        private object? Hook_Boot_endInit(HashlinkFunc orig, HashlinkObject self)
+        {
+            MainWindowPtr = (nint)self.Dynamic.engine.window.window.win;
 
+            Logger.Information("Game initialization completed");
+            
+            SDL_SetWindowTitle(MainWindowPtr, "Dead Cells with Core Modding");
+
+            EventSystem.BroadcastEvent<IOnGameEndInit>();
+
+            return orig.Call(self);
+        }
         void IOnBeforeGameStartup.OnBeforeGameStartup()
         {
-            hhook.CreateHook(HashlinkUtils.FindFunction("Boot", "endInit"), Hook_Boot_update);
+            hhook.CreateHook(HashlinkUtils.FindFunction("Boot", "update"), Hook_Boot_update);
+            hhook.CreateHook(HashlinkUtils.FindFunction("Boot", "endInit"), Hook_Boot_endInit);
+            hhook.CreateHook(HashlinkUtils.FindFunction("Boot", "init"), Hook_Boot_endInit);
         }
 
         void IOnModCoreInjected.OnModCoreInjected()

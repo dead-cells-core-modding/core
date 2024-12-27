@@ -27,4 +27,8 @@
     <ProjectReference Include="..\HashlinkSharp\HashlinkSharp.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Modules\Events\" />
+  </ItemGroup>
+
 </Project>

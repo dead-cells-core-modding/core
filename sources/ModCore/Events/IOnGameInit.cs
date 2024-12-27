@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Modules.Events
+namespace ModCore.Events
 {
-    public interface IOnFrameUpdate
+    public interface IOnGameInit : ICallOnceEvent<IOnGameInit>
     {
-        public void OnFrameUpdate(float dt);
+        public void OnGameInit();
     }
 }

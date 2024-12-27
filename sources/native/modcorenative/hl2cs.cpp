@@ -28,10 +28,10 @@ EXTERNC EXPORT void* get_asm_call_bridge_hl_to_cs()
 	return asm_call_bridge_hl_to_cs;
 }
 
-EXTERNC void* c_call_bridge_hl_to_cs(hl2c_table* table, ...)
+EXTERNC void* c_call_bridge_hl_to_cs(hl2c_table* table, void* pad, ...)
 {
 	va_list args;
-	va_start(args, table);
+	va_start(args, pad);
 	void* result;
 	call_bridge_hl_to_cs(table, &result, args);
 	va_end(args);
@@ -39,10 +39,10 @@ EXTERNC void* c_call_bridge_hl_to_cs(hl2c_table* table, ...)
 }
 
 
-EXTERNC double c_call_bridge_hl_to_cs2(hl2c_table* table, ...)
+EXTERNC double c_call_bridge_hl_to_cs2(hl2c_table* table, void* pad, ...)
 {
 	va_list args;
-	va_start(args, table);
+	va_start(args, pad);
 	double result;
 	call_bridge_hl_to_cs(table, &result, args);
 	va_end(args);
@@ -50,10 +50,10 @@ EXTERNC double c_call_bridge_hl_to_cs2(hl2c_table* table, ...)
 }
 
 #ifdef X86
-EXTERNC hl_value_fat c_call_bridge_hl_to_cs_fat(hl2c_table* table, ...)
+EXTERNC hl_value_fat c_call_bridge_hl_to_cs_fat(hl2c_table* table, void* pad, ...)
 {
 	va_list args;
-	va_start(args, table);
+	va_start(args, pad);
 	hl_value_fat result;
 	call_bridge_hl_to_cs(table, &result, args);
 	va_end(args);

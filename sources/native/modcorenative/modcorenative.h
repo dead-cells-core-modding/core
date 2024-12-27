@@ -53,12 +53,6 @@ EXTERNC void* get_esp();
 EXTERNC void debug_break();
 
 EXTERNC void* asm_call_bridge_hl_to_cs();
-EXTERNC void* c_call_bridge_hl_to_cs(hl2c_table* table, ...);
-EXTERNC double c_call_bridge_hl_to_cs2(hl2c_table* table, ...);
-
-#ifdef X86
-EXTERNC hl_value_fat c_call_bridge_hl_to_cs_fat(hl2c_table* table, ...);
-#endif
 
 EXTERNC extern void* call_jit_c2hl;
 EXTERNC extern void* call_jit_hl2c;

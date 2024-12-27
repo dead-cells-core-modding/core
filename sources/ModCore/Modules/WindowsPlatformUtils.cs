@@ -1,4 +1,4 @@
-﻿using ModCore.Modules.Events;
+﻿using ModCore.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;

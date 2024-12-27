@@ -1,7 +1,7 @@
 ﻿using Hashlink;
+using ModCore.Events;
 using ModCore.Hashlink;
 using ModCore.Hashlink.Hooks;
-using ModCore.Modules.Events;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.Utils;

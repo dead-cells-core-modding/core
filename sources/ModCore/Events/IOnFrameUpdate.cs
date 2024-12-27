@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Modules.Events
+namespace ModCore.Events
 {
-    public interface IOnSaveConfig
+    public interface IOnFrameUpdate
     {
-        public void OnSaveConfig();
+        public void OnFrameUpdate(float dt);
     }
 }

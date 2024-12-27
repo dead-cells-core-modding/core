@@ -40,7 +40,6 @@ namespace ModCore.Hashlink
         }
         private ObjectBox* hl_vbox;
         private readonly HL_type* hl_type = null;
-        private HashlinkFunc? cached_func;
         public void* ValuePointer
         {
             get
@@ -67,6 +66,7 @@ namespace ModCore.Hashlink
             }
         }
         public ObjectBox* HashlinkObj => hl_vbox;
+        public HL_vclosure* AsClosure => (HL_vclosure*)hl_vbox;
         public HL_array* AsArray => (HL_array*)hl_vbox;
         public HL_vdynamic* AsDynamic => (HL_vdynamic*)hl_vbox;
         public HL_vstring* AsString => IsString ? (HL_vstring*)hl_vbox : throw new InvalidOperationException();
@@ -81,6 +81,7 @@ namespace ModCore.Hashlink
         public bool IsEnum => hl_type->kind == HL_type.TypeKind.HENUM;
         public bool IsVirtual => hl_type->kind == HL_type.TypeKind.HVIRTUAL;
         public bool IsDynObj => hl_type->kind == HL_type.TypeKind.HDYNOBJ;
+        public bool IsClosure => hl_type->kind == HL_type.TypeKind.HFUN;
         public bool IsDynamic => !IsString && (
             hl_type->kind == HL_type.TypeKind.HOBJ ||
             hl_type->kind == HL_type.TypeKind.HABSTRACT
@@ -254,13 +255,12 @@ namespace ModCore.Hashlink
         {
             if (binder.Type == typeof(HashlinkFunc))
             {
-                if (hl_type->kind != HL_type.TypeKind.HFUN)
+                if (!IsClosure)
                 {
                     result = null;
                     return false;
                 }
-                cached_func ??= new(HashlinkUtils.GetFunction(hl_type->data.func));
-                result = cached_func;
+                result = new HashlinkFunc(HashlinkUtils.GetFunction(hl_type->data.func), AsClosure->fun);
                 return true;
             }
             else if (binder.Type == typeof(string))
@@ -299,7 +299,7 @@ namespace ModCore.Hashlink
             {
                 if (type != null)
                 {
-                    result = new HashlinkObject(null, type);
+                    result = new HashlinkObject(hl_vbox, type);
                     return true;
                 }
             }
@@ -339,7 +339,18 @@ namespace ModCore.Hashlink
         [StackTraceHidden]
         private object? InvokeFunction(HashlinkFunc func, object?[]? args)
         {
-            if(func.HasThis)
+            if (IsClosure)
+            {
+                if (AsClosure->hasValue > 0)
+                {
+                    return func.CallDynamic([(nint)AsClosure->value, .. args]);
+                }
+                else
+                {
+                    return func.CallDynamic(args);
+                }
+            }
+            if (func.HasThis)
             {
                 if (IsString)
                 {
@@ -347,7 +358,7 @@ namespace ModCore.Hashlink
                 }
                 else
                 {
-                    return func.CallDynamic([(nint)ValuePointer, .. args]);
+                    return func.CallDynamic([(nint)(ValuePointer),.. args]);
                 }
             }
             else
@@ -371,13 +382,12 @@ namespace ModCore.Hashlink
         [StackTraceHidden]
         public override bool TryInvoke(InvokeBinder binder, object?[]? args, out object? result)
         {
-            if(hl_type->kind != HL_type.TypeKind.HFUN)
+            if(!IsClosure)
             {
                 result = null;
                 return false;
             }
-            cached_func ??= new(HashlinkUtils.GetFunction(hl_type->data.func));
-            result = InvokeFunction(cached_func, args);
+            result = InvokeFunction(new(HashlinkUtils.GetFunction(hl_type->data.func), AsClosure->fun), args);
             return true;
         }
         private bool SetMemberImpl(string name, object? value)

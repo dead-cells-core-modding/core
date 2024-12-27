@@ -2337,6 +2337,7 @@ EXPORT void *callback_c2hl( void *f, hl_type *t, void **args, vdynamic *ret ) {
 		}
 	}
 	pos >>= IS_64 ? 3 : 2;
+	//printf("Test: %p %d", &stack, pos);
 	switch( t->fun->ret->kind ) {
 	case HUI8:
 	case HUI16:

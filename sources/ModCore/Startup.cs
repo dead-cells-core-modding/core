@@ -20,7 +20,12 @@ namespace ModCore
             var logger = Log.Logger.ForContext(typeof(Startup));
 
             //Load hlboot.dat
-            var hlbootPath = FolderInfo.GameRoot.GetFilePath("hlboot.dat");
+            var hlbootPath = Environment.GetEnvironmentVariable("DCCM_HLBOOT_PATH");
+            if (true || string.IsNullOrEmpty(hlbootPath))
+            {
+                hlbootPath = FolderInfo.GameRoot.GetFilePath("hlboot.dat");
+            }
+            
             byte* hlboot = null;
             int hlbootSize = 0;
             logger.Information("Finding hlboot.dat");
@@ -46,7 +51,7 @@ namespace ModCore
             byte* err = null;
             logger.Information("Reading hl bytecode");
 
-            HashlinkNative.hl_global_init();
+            hl_global_init();
 
             var code = Native.hl_code_read(hlboot, hlbootSize, &err);
             logger.Information("Starting game");

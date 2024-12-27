@@ -161,7 +161,7 @@ namespace ModCore.Hashlink.Hooks
                 var at = ft->args[i];
                 if (at->kind != HL_type.TypeKind.HBYTES && at->kind.IsPointer())
                 {
-                    if (at->kind == HL_type.TypeKind.HOBJ)
+                    if (!HashlinkUtils.IsValidHLObject((void*)args[i]))
                     {
                         argObj[i + 1] = HashlinkObject.FromHashlink(HashlinkUtils.CreateDynamic(at, (void*)args[i]));
                     }

@@ -2,7 +2,6 @@
 using Iced.Intel;
 using ModCore.Events;
 using ModCore.Hashlink;
-using ModCore.Modules.Events;
 using ModCore.Track;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -73,7 +72,10 @@ namespace ModCore.Modules
             catch (Exception ex)
             {
                 Logger.Fatal(ex, "Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.");
-                //Environment.FailFast("Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.", ex);
+                if(Debugger.IsAttached)
+                {
+                    throw;
+                }
                 return null;
             }
         }
