@@ -32,5 +32,5 @@ set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEB
 endif()
 
 # 包含子项目。
-add_subdirectory ("libhl")
+add_subdirectory ("3rd/hashlink")
 add_subdirectory ("modcorenative")
