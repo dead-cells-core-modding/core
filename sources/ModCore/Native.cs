@@ -27,8 +27,7 @@ namespace ModCore
         public static partial bool module_resolve_pos(HL_module* m, void* addr, out int fidx, out int fpos);
         #endregion
         #region HL Utils
-        [LibraryImport(MODCORE_NATIVE_NAME)]
-        public static partial void* hl_code_read(void* data, int size, byte** errorMsg);
+        
         [LibraryImport(MODCORE_NATIVE_NAME)]
         public static partial void* hlu_get_hl_bytecode_from_exe(
             [MarshalAs(UnmanagedType.LPWStr)] string path, int* outSize);

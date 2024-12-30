@@ -1,7 +1,8 @@
 
-include_directories (../include)
+include_directories (../3rd/hashlink/src/)
+include_directories (../3rd/hashlink/include/)
 
-file(GLOB_RECURSE SOURCES ./*.c ./*.cpp ./*.h)
+file(GLOB_RECURSE SOURCES ../3rd/hashlink/src/*.c ../3rd/hashlink/include/pcre/*.c)
 
 
 add_library(libhl SHARED ${SOURCES})

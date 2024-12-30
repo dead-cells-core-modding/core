@@ -53,7 +53,7 @@ namespace ModCore
 
             hl_global_init();
 
-            var code = Native.hl_code_read(hlboot, hlbootSize, &err);
+            var code = hl_code_read(hlboot, hlbootSize, &err);
             logger.Information("Starting game");
             MixTrace.MarkEnteringHL();
             return Native.hlu_start_game(code);

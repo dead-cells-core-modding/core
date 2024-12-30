@@ -1,6 +1,6 @@
 ﻿
 
-include_directories (../include)
+include_directories (../3rd/hashlink/src)
 file(GLOB_RECURSE SOURCES ./*.c ./*.cpp)
 
 if(X86)

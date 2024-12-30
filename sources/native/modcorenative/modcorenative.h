@@ -9,10 +9,6 @@
 #else
 #endif
 
-#define NETHOST_USE_AS_STATIC
-#include "hostfxr.h"
-#include "nethost.h"
-#include "coreclr_delegates.h"
 #include "hl.h"
 #include "hlmodule.h"
 

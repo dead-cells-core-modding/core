@@ -143,5 +143,7 @@ namespace Hashlink
         public static partial HL_vvirtual* hl_alloc_virtual(HL_type* t);
         [LibraryImport(LIBHL)]
         public static partial HL_vclosure* hl_alloc_closure_ptr(HL_type* fullt, void* fvalue, void* v);
+        [LibraryImport(LIBHL)]
+        public static partial void* hl_code_read(void* data, int size, byte** errorMsg);
     }
 }
