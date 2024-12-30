@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace ModCore.Hashlink
 {
-    public unsafe class HashlinkObject : DynamicObject, IDisposable
+    public unsafe class HashlinkObject : DynamicObject
     {
         [StructLayout(LayoutKind.Explicit)]
         public unsafe struct ObjectBox
@@ -38,6 +38,7 @@ namespace ModCore.Hashlink
             [FieldOffset(0)]
             public HL_type* type;
         }
+        private GCHandle cacheHandle;
         private ObjectBox* hl_vbox;
         private readonly HL_type* hl_type = null;
         public void* ValuePointer
@@ -69,6 +70,7 @@ namespace ModCore.Hashlink
                 }
             }
         }
+
         public ObjectBox* HashlinkObj => hl_vbox;
         public HL_vclosure* AsClosure => (HL_vclosure*)hl_vbox;
         public HL_array* AsArray => (HL_array*)hl_vbox;
@@ -100,7 +102,8 @@ namespace ModCore.Hashlink
         public bool IsClosure => hl_type->kind == HL_type.TypeKind.HFUN;
         public bool IsDynamic => !IsString && (
             hl_type->kind == HL_type.TypeKind.HOBJ ||
-            hl_type->kind == HL_type.TypeKind.HABSTRACT
+            hl_type->kind == HL_type.TypeKind.HABSTRACT ||
+            !hl_type->kind.IsPointer()
             );
         public HashlinkObject(HL_type* type)
         {
@@ -134,10 +137,16 @@ namespace ModCore.Hashlink
                     HL_Alloc_Flags.MEM_KIND_DYNAMIC);
                 hl_vbox->type = type;
             }
+            else if(IsClosure)
+            {
+                hl_vbox = (ObjectBox*)hl_alloc_closure_ptr(type, null, null);
+            }
             else
             {
                 throw new NotSupportedException($"Unknown type kind '{type->kind}'");
             }
+            cacheHandle = GCHandle.Alloc(this, GCHandleType.WeakTrackResurrection);
+            *((nint*)hl_vbox - 1) = (nint)cacheHandle;
             hl_add_root(hl_vbox);
         }
         public static HashlinkObject CreateArray(HL_type* type, int len)
@@ -146,7 +155,7 @@ namespace ModCore.Hashlink
 
             return FromHashlink((HL_vdynamic*) array);
         }
-        private HashlinkObject(ObjectBox* v, HL_type* type)
+        protected HashlinkObject(ObjectBox* v, HL_type* type)
         {
             if(!HashlinkUtils.IsValidHLObject(v))
             {
@@ -160,6 +169,8 @@ namespace ModCore.Hashlink
             hl_type = type;
             if (v != null)
             {
+                cacheHandle = GCHandle.Alloc(this, GCHandleType.WeakTrackResurrection);
+                *((nint*)v - 1) = (nint)cacheHandle;
                 hl_add_root(hl_vbox);
             }
         }
@@ -185,6 +196,20 @@ namespace ModCore.Hashlink
         }
         public static HashlinkObject FromHashlink(ObjectBox* v)
         {
+            if (!HashlinkUtils.IsValidHLObject(v))
+            {
+                throw new InvalidOperationException();
+            }
+            var cacheHandle = *((nint*)v - 1);
+            if(cacheHandle != 0)
+            {
+                var gch = GCHandle.FromIntPtr(cacheHandle);
+                var obj = gch.Target;
+                if(obj is HashlinkObject hobj)
+                {
+                    return hobj;
+                }
+            }
             return new HashlinkObject(v, null);
         }
 
@@ -192,14 +217,12 @@ namespace ModCore.Hashlink
         
         ~HashlinkObject()
         {
-            Dispose();
-        }
-
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            if(hl_vbox != null)
+            if (hl_vbox != null)
             {
+                if (cacheHandle.IsAllocated)
+                {
+                    cacheHandle.Free();
+                }
                 hl_remove_root(hl_vbox);
                 hl_vbox = null;
             }
@@ -323,11 +346,11 @@ namespace ModCore.Hashlink
                 }
                 return true;
             }
-            else
+            else //Function
             {
                 if (type == null)
                 {
-                    var f = HashlinkUtils.FindFunction(hl_type, name);
+                    var f = HashlinkUtils.GetFunction(hl_type, name);
                     if (f != null)
                     {
                         type = f->type;
@@ -335,7 +358,15 @@ namespace ModCore.Hashlink
                 }
                 if (type != null)
                 {
-                    result = new HashlinkObject(hl_vbox, type);
+                    var robj = new HashlinkObject(type);
+                    result = robj;
+                    var func = HashlinkUtils.GetFunction(type->data.func);
+                    robj.AsClosure->fun = HashlinkUtils.GetFunctionNativePtr(func);
+                    robj.AsClosure->hasValue = HashlinkUtils.HasThis(func) ? 1 : 0;
+                    if(robj.AsClosure->hasValue != 0)
+                    {
+                        robj.AsClosure->value = hl_vbox;
+                    }
                     return true;
                 }
             }
@@ -402,7 +433,7 @@ namespace ModCore.Hashlink
             var ptr = GetFieldPtr(hash, out var type);
             if(type == null)
             {
-                var f = HashlinkUtils.FindFunction(hl_type, binder.Name);
+                var f = HashlinkUtils.GetFunction(hl_type, binder.Name);
                 if (f == null)
                 {
                     result = null;

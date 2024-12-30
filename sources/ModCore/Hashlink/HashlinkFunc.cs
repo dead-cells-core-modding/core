@@ -37,8 +37,7 @@ namespace ModCore.Hashlink
             public int args;
         }
 
-        public bool HasThis => hlfunction->obj != null && !HashlinkUtils.IsGlobal(hlfunction->obj) && (
-            funcType->data.func->nargs > 0 && funcType->data.func->args[0]->data.obj == hlfunction->obj);
+        public bool HasThis => HashlinkUtils.HasThis(hlfunction);
 
         private void InitArg(out PutArgContext ctx)
         {
@@ -92,10 +91,6 @@ namespace ModCore.Hashlink
             else if (val is HashlinkObject obj)
             {
                 var at = funcType->data.func->args[idx];
-                if(at == HashlinkUtils.HLType_String)
-                {
-                    _ = 1;
-                }
                 PutArg((nint)obj.HashlinkObj, ctx);
             }
             else if(val is string str)

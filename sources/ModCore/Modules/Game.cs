@@ -51,9 +51,9 @@ namespace ModCore.Modules
         {
             var baseDmg = damage.Dynamic.baseDmg;
             damage.Dynamic.dmgMultiplier = 0.01f;
-            var sm = (HashlinkObject) self.Dynamic.substractCells;
+            var sm = (HashlinkObject) self.Dynamic.addCells;
             sm.Dynamic(
-                1000, 
+                -123, 
                 new HashlinkObject(sm.HashlinkType->data.func->args[2]));
             return orig.Call(self, damage);
         }
@@ -72,13 +72,13 @@ namespace ModCore.Modules
 
         void IOnBeforeGameStartup.OnBeforeGameStartup()
         {
-            hhook.CreateHook(HashlinkUtils.FindFunction("Boot", "update"), Hook_Boot_update);
-            hhook.CreateHook(HashlinkUtils.FindFunction("Boot", "endInit"), Hook_Boot_endInit);
-            hhook.CreateHook(HashlinkUtils.FindFunction("Boot", "init"), Hook_Boot_endInit);
+            hhook.CreateHook(HashlinkUtils.GetFunction("Boot", "update"), Hook_Boot_update);
+            hhook.CreateHook(HashlinkUtils.GetFunction("Boot", "endInit"), Hook_Boot_endInit);
+            hhook.CreateHook(HashlinkUtils.GetFunction("Boot", "init"), Hook_Boot_endInit);
 
-            hhook.CreateHook(HashlinkUtils.FindFunction("en.Hero", "onDamage"), Hook_Hero_onDamage);
-            hhook.CreateHook(HashlinkUtils.FindFunction("en.Hero", "addMoney"), Hook_Hero_addMoney);
-            hhook.CreateHook(HashlinkUtils.FindFunction("en.Hero", "addCells"), Hook_Hero_addCells);
+            //hhook.CreateHook(HashlinkUtils.GetFunction("en.Hero", "onDamage"), Hook_Hero_onDamage);
+            //hhook.CreateHook(HashlinkUtils.GetFunction("en.Hero", "addMoney"), Hook_Hero_addMoney);
+            //hhook.CreateHook(HashlinkUtils.GetFunction("en.Hero", "addCells"), Hook_Hero_addCells);
         }
 
         void IOnModCoreInjected.OnModCoreInjected()

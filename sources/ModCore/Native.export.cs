@@ -1,8 +1,10 @@
 ﻿using ModCore.Hashlink.Hooks;
+using ModCore.Track;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
@@ -32,7 +34,16 @@ namespace ModCore
         }
         #region Exports
 
-
+        [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+        private static void PrintStackDebug()
+        {
+            var stack = new MixStackTrace(0, true);
+            for (int i = 0; i < stack.FrameCount; i++)
+            {
+                Console.WriteLine(stack.GetFrame(i)!.ToString());
+            }
+            
+        }
 
         #endregion
     }

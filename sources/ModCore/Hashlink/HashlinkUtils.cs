@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ModCore.Hashlink
 {
@@ -21,7 +22,6 @@ namespace ModCore.Hashlink
         private readonly static Dictionary<nint, nint> hlfun2hlfunction = [];
         private readonly static Dictionary<nint, nint> funcNativePtr = [];
         private readonly static Dictionary<int, nint> fid2hlfuctionn = [];
-        private readonly static Dictionary<string, Dictionary<string, nint>> name2func = [];
         private readonly static Dictionary<string, int> hltype2globalIdx = [];
 
         private readonly static Dictionary<string, HashlinkObject> hltype2globalObject = [];
@@ -92,15 +92,6 @@ namespace ModCore.Hashlink
 
                     continue;
                 }
-                var tname = GetString(f->obj->name);
-                if (!name2func.TryGetValue(tname, out var funcTable))
-                {
-                    funcTable = [];
-                    name2func.Add(tname, funcTable);
-                }
-                var name = GetString(f->field.field);
-                funcTable[name] = (nint)f;
-                
             }
             for (int i = 0; i < code->nglobals; i++)
             {
@@ -139,6 +130,12 @@ namespace ModCore.Hashlink
         public static string GetTypeString(HL_type* type)
         {
             return Marshal.PtrToStringUni((nint)hl_type_str(type))!;
+        }
+
+        public static bool HasThis(HL_function* func)
+        {
+            return func->obj != null && !IsGlobal(func->obj) && (
+            func->type->data.func->nargs > 0 && func->type->data.func->args[0]->data.obj == func->obj);
         }
 
         public static bool IsGlobal(HL_type_obj* obj)
@@ -329,19 +326,15 @@ namespace ModCore.Hashlink
             return (HL_type*) name2hltype[name];
         }
         
-        public static HL_function* FindFunction(string type, string name)
+        public static HL_function* GetFunction(string type, string name)
         {
-            return FindFunction(FindTypeFromName(type), name);
+            return GetFunction(FindTypeFromName(type), name);
         }
-        public static HL_function* FindFunction(HL_type* type, string name)
+        public static HL_function* GetFunction(HL_type* type, string name)
         {
            
             var tname = GetString(type->data.obj->name);
-            if (name2func.TryGetValue(tname, out var table) &&
-                table.TryGetValue(name, out var result))
-            {
-                return (HL_function*)result;
-            }
+
             if(type->kind != HL_type.TypeKind.HOBJ)
             {
                 return null;
@@ -355,6 +348,11 @@ namespace ModCore.Hashlink
                 {
                     return (HL_function*) fid2hlfuctionn[p->findex];
                 }
+            }
+            //Find super
+            if(obj->super != null)
+            {
+                return GetFunction(obj->super, name);
             }
             return null;
         }
