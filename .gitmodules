@@ -1,0 +1,3 @@
+[submodule "sources/native/3rd/hashlink"]
+	path = sources/native/3rd/hashlink
+	url = git@github.com:DreamBoxSpy/hashlink.git
