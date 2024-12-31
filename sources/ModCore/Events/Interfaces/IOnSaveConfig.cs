@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Events
+namespace ModCore.Events.Interfaces
 {
-    public interface IOnModCoreInjected : ICallOnceEvent<IOnModCoreInjected>
+    public interface IOnSaveConfig
     {
-        void OnModCoreInjected();
+        public void OnSaveConfig();
     }
 }

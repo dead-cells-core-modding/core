@@ -1,4 +1,5 @@
 ﻿using ModCore.Events;
+using ModCore.Events.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Generic;

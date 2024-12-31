@@ -209,7 +209,7 @@ namespace ModCore.Hashlink
         {
             if (!HashlinkUtils.IsValidHLObject(v))
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Invalid Hashlink Object pointer");
             }
 
             return new HashlinkObject((ObjectBox*) v, null);

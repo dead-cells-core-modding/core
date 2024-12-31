@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Events
+namespace ModCore.Events.Interfaces
 {
-    public interface IOnPluginInitialized
+    public interface IOnPluginInitialized : ICallOnceEvent<IOnPluginInitialized>
     {
         public void OnPluginInitialized();
     }

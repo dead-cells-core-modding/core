@@ -1,5 +1,6 @@
 ﻿using Hashlink;
 using ModCore.Events;
+using ModCore.Events.Interfaces;
 using ModCore.Hashlink;
 using ModCore.Track;
 using SDL2;

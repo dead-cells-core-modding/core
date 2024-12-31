@@ -41,6 +41,11 @@ namespace ModCore
             Logger = Log.ForContext("SourceContext", GetType().Name);
         }
 
+        internal static void RemoveModule(Module module)
+        {
+            EventSystem.RemoveReceiver(module);
+            modules.Remove(module);
+        }
         
         internal static void AddModule(Module module)
         {

@@ -1,4 +1,5 @@
 ﻿using ModCore.Events;
+using ModCore.Events.Interfaces;
 using ModCore.Plugins;
 using ModCore.Storage;
 using System;

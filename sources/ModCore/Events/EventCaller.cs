@@ -15,6 +15,10 @@ namespace ModCore.Events
     {
         private readonly static ModuleEventCall call;
 
+        public static bool IsCalled { get; set; }
+        public static bool IsCallOnce { get;  }
+        public static MethodInfo EventMethod { get; }
+
         private static ModuleEventCall GenerateCall(MethodInfo method)
         {
             var @params = method.GetParameters();
@@ -47,11 +51,14 @@ namespace ModCore.Events
 
         static EventCaller()
         {
-            call = GenerateCall(FindEventMethod(typeof(TEvent)));
+            IsCallOnce = typeof(TEvent).IsAssignableTo(typeof(ICallOnceEvent<TEvent>));
+            EventMethod = FindEventMethod(typeof(TEvent));
+            call = GenerateCall(EventMethod);
         }
 
         public static void Invoke(TEvent self, nint refOfarg)
         {
+            IsCalled = true;
             call(self!, refOfarg);
         }
         public static unsafe void Invoke<TArg>(TEvent self, ref TArg argOnStack)

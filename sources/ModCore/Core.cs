@@ -1,5 +1,6 @@
 ﻿
 using ModCore.Events;
+using ModCore.Events.Interfaces;
 using ModCore.Modules;
 using ModCore.Storage;
 using Serilog;

@@ -47,6 +47,13 @@ namespace ModCore.Events
         }
         public static void BroadcastEvent<TEvent, TArg>(TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default)
         {
+            if(EventCaller<TEvent>.IsCallOnce)
+            {
+                if(EventCaller<TEvent>.IsCalled)
+                {
+                    throw new InvalidOperationException("An event that should only be called once was called multiple times");
+                }
+            }
             List<Exception>? exceptions = null;
             foreach (var module in eventReceivers)
             {
