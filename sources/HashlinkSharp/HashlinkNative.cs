@@ -147,5 +147,8 @@ namespace Hashlink
         public static partial void* hl_code_read(void* data, int size, byte** errorMsg);
         [LibraryImport(LIBHL)]
         public static partial void* callback_c2hl(void* f, HL_type* t, void** args, HL_vdynamic* ret);
+        [LibraryImport(LIBHL)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static partial bool module_resolve_pos(HL_module* m, void* addr, out int fidx, out int fpos);
     }
 }

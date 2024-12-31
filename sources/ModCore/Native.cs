@@ -22,9 +22,7 @@ namespace ModCore
         public static partial void* mcn_get_ebp();
         [LibraryImport(MODCORE_NATIVE_NAME)]
         public static partial void* mcn_get_esp();
-        [LibraryImport(MODCORE_NATIVE_NAME)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static partial bool module_resolve_pos(HL_module* m, void* addr, out int fidx, out int fpos);
+        
         #endregion
         #region HL Utils
         

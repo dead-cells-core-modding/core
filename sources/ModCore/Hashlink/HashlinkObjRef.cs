@@ -77,6 +77,15 @@ namespace ModCore.Hashlink
         }
         ~HashlinkObjRef()
         {
+            try
+            {
+                refsLock.EnterWriteLock();
+                refs.Remove(hl_obj);
+            }
+            finally
+            {
+                refsLock.ExitWriteLock();
+            }
             hl_remove_root((void*)hl_obj);
         }
     }

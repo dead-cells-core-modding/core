@@ -99,7 +99,7 @@ namespace ModCore.Track
                     continue;
                 }
 
-                if (!Native.module_resolve_pos(m, (void*)eip, out var fidx, out var fpos))
+                if (!module_resolve_pos(m, (void*)eip, out var fidx, out var fpos))
                 {
                     //Unknown frame
                     continue;
