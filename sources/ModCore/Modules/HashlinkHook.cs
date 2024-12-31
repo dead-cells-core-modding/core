@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 namespace ModCore.Modules
 {
     [CoreModule]
-    public unsafe class HashlinkHook : CoreModule<HashlinkHook> , IOnBeforeGameStartup
+    public unsafe class HashlinkHook : CoreModule<HashlinkHook>
     {
         private static readonly ConcurrentDictionary<int, HashlinkHookInst> hooks = [];
         private static readonly ConcurrentDictionary<Delegate, HLHook> d2hooks = [];
@@ -60,13 +60,6 @@ namespace ModCore.Modules
             return result;
         }
 
-        public void OnBeforeGameStartup()
-        {
-            Logger.Information("Initializing");
-
-            Logger.Information("Hooking Hashlink");
-
-        }
 
 
     }

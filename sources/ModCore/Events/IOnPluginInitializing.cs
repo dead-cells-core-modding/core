@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Hashlink
+namespace ModCore.Events
 {
-    
+    public interface IOnPluginInitializing
+    {
+        public void OnPluginInitializing();
+    }
 }

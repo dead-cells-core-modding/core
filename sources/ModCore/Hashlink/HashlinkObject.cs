@@ -55,7 +55,15 @@ namespace ModCore.Hashlink
                 }
                 else if(IsRef)
                 {
-                    return hl_vbox->type + 1;
+                    return AsDynamic->val.ptr;
+                }
+                else if(IsEnum)
+                {
+                    return &AsEnum->index;
+                }
+                else if(IsAbstract)
+                {
+                    return &AsDynamic->val.ptr;
                 }
                 else
                 {
@@ -85,6 +93,10 @@ namespace ModCore.Hashlink
         {
             get
             {
+                if(!IsRef)
+                {
+                    throw new InvalidOperationException();
+                }
                 return HashlinkUtils.GetData(ValuePointer, RefType);
             }
             set
@@ -100,9 +112,9 @@ namespace ModCore.Hashlink
         public bool IsVirtual => hl_type->kind == HL_type.TypeKind.HVIRTUAL;
         public bool IsDynObj => hl_type->kind == HL_type.TypeKind.HDYNOBJ;
         public bool IsClosure => hl_type->kind == HL_type.TypeKind.HFUN;
+        public bool IsAbstract => hl_type->kind == HL_type.TypeKind.HABSTRACT;
         public bool IsDynamic => !IsString && (
             hl_type->kind == HL_type.TypeKind.HOBJ ||
-            hl_type->kind == HL_type.TypeKind.HABSTRACT ||
             !hl_type->kind.IsPointer()
             );
         public HashlinkObject(HL_type* type)
@@ -133,9 +145,10 @@ namespace ModCore.Hashlink
             else if(IsRef)
             {
                 hl_vbox = (ObjectBox*)hl_gc_alloc_gen(type,
-                    sizeof(HL_type*) + hl_type_size(type->data.tparam),
+                    sizeof(HL_vdynamic) + hl_type_size(type->data.tparam),
                     HL_Alloc_Flags.MEM_KIND_DYNAMIC);
                 hl_vbox->type = type;
+                AsDynamic->val.ptr = AsDynamic + 1;
             }
             else if(IsClosure)
             {
@@ -316,7 +329,14 @@ namespace ModCore.Hashlink
                     return true;
                 }
             }
-            result = HashlinkUtils.GetData(&AsDynamic->val, hl_vbox->type);
+            if (IsRef)
+            {
+                result = RefValue;
+            }
+            else
+            {
+                result = HashlinkUtils.GetData(ValuePointer, hl_vbox->type);
+            }
             return result != null;
         }
         private bool GetMemberImpl(string name, out object? result)

@@ -7,9 +7,18 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-//From https://github.com/motion-twin/hashlink/blob/master/src/hl.h
+
 namespace Hashlink
 {
+    [Flags]
+    public enum HL_GC_Flags
+    {
+        GC_PROFILE = 1,
+        GC_DUMP_MEM = 2,
+        GC_NO_THREADS = 4,
+        GC_FORCE_MAJOR = 8,
+        GC_PROFILE_MEM = 16
+    }
     [Flags]
     public enum HL_Alloc_Flags
     {

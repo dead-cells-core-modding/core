@@ -21,7 +21,7 @@ namespace ModCore
 
             //Load hlboot.dat
             var hlbootPath = Environment.GetEnvironmentVariable("DCCM_HLBOOT_PATH");
-            if (true || string.IsNullOrEmpty(hlbootPath))
+            if (string.IsNullOrEmpty(hlbootPath))
             {
                 hlbootPath = FolderInfo.GameRoot.GetFilePath("hlboot.dat");
             }
@@ -53,7 +53,13 @@ namespace ModCore
 
             hl_global_init();
 
+
             var code = hl_code_read(hlboot, hlbootSize, &err);
+            if(err != null)
+            {
+                logger.Error("An error occurred while loading bytecode: {err}", Marshal.PtrToStringAnsi((nint)err));
+                return -1;
+            }
             logger.Information("Starting game");
             MixTrace.MarkEnteringHL();
             return Native.hlu_start_game(code);
@@ -61,6 +67,7 @@ namespace ModCore
         
         public static int StartGame()
         {
+            Console.Title = "Dead Cells with Core Modding";
             Core.Initialize();
 
             return AfterCoreLoaded();

@@ -13,6 +13,11 @@ namespace ModCore
     static class Core
     {
         private static bool init = false;
+        public static readonly List<string> dllSearchPath = [
+            Path.GetDirectoryName(typeof(Core).Assembly.Location),
+            FolderInfo.Plugins.FullPath,
+            FolderInfo.Mods.FullPath,
+            ];
         public static Config<CoreConfig> Config { get; } = new("modcore");
 
         public static Thread MainThread { get; } = Thread.CurrentThread;
@@ -45,6 +50,7 @@ namespace ModCore
             Environment.SetEnvironmentVariable(envName, val);
         }
 
+
         internal static void Initialize()
         {
             if (init)
@@ -63,20 +69,9 @@ namespace ModCore
 
             Initialize2();
         }
-        internal static void Initialize2()
+        private static void Initialize2()
         {
-            
-            
-
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose,
-                    outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}")
-                .WriteTo.File(
-                    Path.Combine(FolderInfo.Logs.FullPath, "log_.log"),
-                    outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Minute
-                )
-                .CreateLogger();
+           
 
             Log.Logger.Information("Runtime: {FrameworkDescription} {RuntimeIdentifier}",
                    RuntimeInformation.FrameworkDescription, RuntimeInformation.RuntimeIdentifier);
@@ -129,12 +124,15 @@ namespace ModCore
         private static Assembly? CurrentDomain_AssemblyResolve(object? sender, ResolveEventArgs args)
         {
             var asmName = new AssemblyName(args.Name);
-            var fileName = Path.Combine(
-                Path.GetDirectoryName(typeof(Core).Assembly.Location)!, 
-                asmName.Name + ".dll");
-            if (File.Exists(fileName))
+            foreach (var p in dllSearchPath)
             {
-                return Assembly.LoadFrom(fileName);
+                var fileName = Path.Combine(
+                    p,
+                    asmName.Name + ".dll");
+                if (File.Exists(fileName))
+                {
+                    return Assembly.LoadFrom(fileName);
+                }
             }
             return null;
         }

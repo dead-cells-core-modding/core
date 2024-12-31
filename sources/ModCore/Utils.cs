@@ -52,6 +52,16 @@ namespace ModCore
             }
         }
 
+        public static Type?[] SafeGetAllTypes(this Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }catch(ReflectionTypeLoadException ex)
+            {
+                return ex.Types;
+            }
+        }
         public static byte[] HashFile(string path)
         {
             using var fs = File.OpenRead(path);

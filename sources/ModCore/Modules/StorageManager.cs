@@ -15,148 +15,14 @@ namespace ModCore.Modules
     [CoreModule]
     public class StorageManager : CoreModule<StorageManager>, IOnModCoreInjected
     {
-
-        private class CacheMetadata
-        {
-            public Dictionary<string, CacheItem> Caches { get; set; } = [];
-            public class CacheItem
-            {
-
-                public long LastModified { get; set; } = 0;
-                
-                public byte[] CacheChecksum { get; set; } = [];
-                public byte[] Checksum { get; set; } = [];
-            }
-        }
         public override int Priority => ModulePriorities.Storage;
-
-        private readonly string cacheMetadataPath = FolderInfo.Cache.GetFilePath("cache.json");
-        private CacheMetadata cache = new();
 
         void IOnModCoreInjected.OnModCoreInjected()
         {
-
             Logger.Information("Game Root: {root}", FolderInfo.GameRoot.FullPath);
             Logger.Information("Mod Core Root: {root}", FolderInfo.CoreRoot.FullPath);
 
-            Logger.Information("Loading cache metadata");
-            if(File.Exists(cacheMetadataPath))
-            {
-                try
-                {
-                    var data = JsonSerializer.Deserialize<CacheMetadata>(File.ReadAllText(cacheMetadataPath));
-                    if(data != null)
-                    {
-                        cache = data;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex, "Failed to load cache metadata");
-                }
-            }
-        }
 
-        public string GetCachePath(string filename)
-        {
-            return FolderInfo.Cache.GetFilePath(filename);
-        }
-        public bool IsCacheOutdateOrMissing(string filename, long lastModified)
-        {
-            if(!cache.Caches.TryGetValue(filename, out var result))
-            {
-                return true;
-            }
-            var p = GetCachePath(filename);
-            if (!File.Exists(p))
-            {
-                return true;
-            }
-            if(result.LastModified < lastModified)
-            {
-                return true;
-            }
-            using var fs = File.OpenRead(p);
-            var hash = SHA256.HashData(fs);
-            if(!Utils.MemCmp(hash, result.CacheChecksum))
-            {
-                return true;
-            }
-
-            return false;
-        }
-        public bool IsCacheOutdateOrMissing(string filename, byte[] checksum)
-        {
-            if (!cache.Caches.TryGetValue(filename, out var result))
-            {
-                return true;
-            }
-            var p = GetCachePath(filename);
-            if (!File.Exists(p))
-            {
-                return true;
-            }
-            if (!Utils.MemCmp(result.CacheChecksum, checksum))
-            {
-                return true;
-            }
-            using var fs = File.OpenRead(p);
-            var hash = SHA256.HashData(fs);
-            if (!Utils.MemCmp(hash, result.CacheChecksum))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        public void UpdateCache(string filename, long lastModified, ReadOnlySpan<byte> data)
-        {
-            cache.Caches[filename] = new()
-            {
-                CacheChecksum = SHA256.HashData(data),
-                LastModified = lastModified,
-            };
-            using var fs = File.OpenWrite(GetCachePath(filename));
-            fs.Write(data);
-
-            SaveCacheMetadata();
-        }
-        public void UpdateCache(string filename, byte[] checksum, ReadOnlySpan<byte> data)
-        {
-            cache.Caches[filename] = new()
-            {
-                CacheChecksum = SHA256.HashData(data),
-                Checksum = checksum,
-            };
-            using var fs = File.OpenWrite(GetCachePath(filename));
-            fs.Write(data);
-
-            SaveCacheMetadata();
-        }
-
-        public void UpdateCacheMetadata(string filename, long lastModified)
-        {
-            cache.Caches[filename] = new()
-            {
-                CacheChecksum = Utils.HashFile(GetCachePath(filename)),
-                LastModified = lastModified,
-            };
-            SaveCacheMetadata();
-        }
-        public void UpdateCacheMetadata(string filename, byte[] checksum)
-        {
-            cache.Caches[filename] = new()
-            {
-                CacheChecksum = Utils.HashFile(GetCachePath(filename)),
-                Checksum = checksum,
-            };
-            SaveCacheMetadata();
-        }
-
-        public void SaveCacheMetadata()
-        {
-            File.WriteAllText(cacheMetadataPath, JsonSerializer.Serialize(cache));
         }
     }
 }

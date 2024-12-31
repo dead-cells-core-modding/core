@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -43,7 +44,13 @@ namespace DeadCellsModding
 
             var core = Assembly.LoadFrom(modcore);
             var startup = core.GetType("ModCore.Startup");
-            startup!.GetMethod("StartGame")!.Invoke(null, null);
+            try
+            {
+                startup!.GetMethod("StartGame")!.Invoke(null, null);
+            }catch(TargetInvocationException ex)
+            {
+                ExceptionDispatchInfo.Throw(ex.InnerException!);
+            }
         }
     }
 }

@@ -150,5 +150,9 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static partial bool module_resolve_pos(HL_module* m, void* addr, out int fidx, out int fpos);
+        [LibraryImport(LIBHL)]
+        public static partial void hl_gc_set_flags(HL_GC_Flags flags);
+        [LibraryImport(LIBHL)]
+        public static partial HL_GC_Flags hl_gc_get_flags();
     }
 }

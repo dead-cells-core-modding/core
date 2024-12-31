@@ -4,9 +4,7 @@
       "commandName": "Project",
       "workingDirectory": "E:\\SteamLibrary\\steamapps\\common\\Dead Cells",
       "environmentVariables": {
-        "DEAD_CELLS_GAME_PATH": "E:\\SteamLibrary\\steamapps\\common\\Dead Cells",
-        "DCCM_AutoLoad": "false",
-        "DCCM_HLBOOT_PATH": "F:\\HKLab\\DeadCellsCoreModding\\bin\\hl\\hlboot.dat"
+        "DEAD_CELLS_GAME_PATH": "E:\\SteamLibrary\\steamapps\\common\\Dead Cells"
       },
       "nativeDebugging": true
     }

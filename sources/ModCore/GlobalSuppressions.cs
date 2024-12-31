@@ -6,3 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Interoperability", "CA1401:P/Invokes 应该是不可见的")]
+[assembly: SuppressMessage("Usage", "CA2255:不应在库中使用 “ModuleInitializer” 属性")]

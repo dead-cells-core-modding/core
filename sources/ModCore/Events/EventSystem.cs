@@ -1,4 +1,5 @@
 ﻿using ModCore.Events.Collections;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,16 @@ namespace ModCore.Events
 {
     public static class EventSystem
     {
+        private static ILogger Logger { get; } = Log.Logger.ForContext("SourceContext", "EventSystem");
+        [Flags]
+        public enum ExceptionHandingFlags
+        {
+            Default = Continue ,
+
+            Continue = 1,
+            NoThrow = 2,
+            Quiet = 4
+        }
         private static readonly EventReceiverList eventReceivers = [];
 
         public static void AddReceiver(IEventReceiver receiver)
@@ -30,24 +41,43 @@ namespace ModCore.Events
             return eventReceivers.OfType<T>();
         }
 
-        public static void BroadcastEvent<TEvent>()
+        public static void BroadcastEvent<TEvent>(ExceptionHandingFlags flags = ExceptionHandingFlags.Default)
         {
+            BroadcastEvent<TEvent, int>(0, flags);
+        }
+        public static void BroadcastEvent<TEvent, TArg>(TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default)
+        {
+            List<Exception>? exceptions = null;
             foreach (var module in eventReceivers)
             {
                 if (module is TEvent ev)
                 {
-                    EventCaller<TEvent>.Invoke(ev);
+                    try
+                    {
+                        EventCaller<TEvent>.Invoke(ev, ref arg);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!flags.HasFlag(ExceptionHandingFlags.Quiet))
+                        {
+                            Logger.Error(ex, "An exception occurred when executing event");
+                        }
+                        if (flags.HasFlag(ExceptionHandingFlags.NoThrow))
+                        {
+                            continue;
+                        }
+                        if (!flags.HasFlag(ExceptionHandingFlags.Continue))
+                        {
+                            throw;
+                        }
+                        exceptions ??= [];
+                        exceptions.Add(ex);
+                    }
                 }
             }
-        }
-        public static void BroadcastEvent<TEvent, TArg>(TArg arg)
-        {
-            foreach (var module in eventReceivers)
+            if (exceptions != null)
             {
-                if (module is TEvent ev)
-                {
-                    EventCaller<TEvent>.Invoke(ev, ref arg);
-                }
+                throw new AggregateException(exceptions);
             }
         }
 

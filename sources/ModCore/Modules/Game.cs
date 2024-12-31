@@ -25,18 +25,20 @@ namespace ModCore.Modules
         private object? Hook_Boot_update(HashlinkFunc orig, HashlinkObject self, double dt)
         {
             EventSystem.BroadcastEvent<IOnFrameUpdate, double>(dt);
+
             return orig.Call(self, dt);
         }
         private object? Hook_Boot_Init(HashlinkFunc orig, HashlinkObject self)
         {
-            GameVersion = (int)HashlinkUtils.GetGlobal("Main").Dynamic.GAME_VERSION;
-
+            GameVersion = (int)HashlinkUtils.GetGlobal("$Main").Dynamic.GAME_VERSION;
+ 
             EventSystem.BroadcastEvent<IOnGameInit>();
             return orig.Call(self);
         }
         private object? Hook_Boot_endInit(HashlinkFunc orig, HashlinkObject self)
         {
-            MainWindowPtr = (nint)self.Dynamic.engine.window.window.win;
+            var winPtr = (HashlinkObject)self.Dynamic.engine.window.window.win;
+            MainWindowPtr = (nint)winPtr.Dynamic;
 
             Logger.Information("Game initialization completed");
             
@@ -46,39 +48,12 @@ namespace ModCore.Modules
 
             return orig.Call(self);
         }
-        
-        private object? Hook_Hero_onDamage(HashlinkFunc orig, HashlinkObject self, HashlinkObject damage)
-        {
-            var baseDmg = damage.Dynamic.baseDmg;
-            damage.Dynamic.dmgMultiplier = 0.01f;
-            var sm = (HashlinkObject) self.Dynamic.addCells;
-            sm.Dynamic(
-                -123, 
-                new HashlinkObject(sm.HashlinkType->data.func->args[2]));
-            return orig.Call(self, damage);
-        }
-        private object? Hook_Hero_addMoney(HashlinkFunc orig, HashlinkObject self, int v, HashlinkObject v2)
-        {
-            v += 100;
-            self.Dynamic.cells += v;
-            //self.Dynamic.substractMoney(v + 10, v2);
-            return orig.Call(self, v, v2);
-        }
-        private object? Hook_Hero_addCells(HashlinkFunc orig, HashlinkObject self, int v, HashlinkObject v2)
-        {
-            v *= 100;
-            return orig.Call(self, v, v2);
-        }
-
+       
         void IOnBeforeGameStartup.OnBeforeGameStartup()
         {
             hhook.CreateHook(HashlinkUtils.GetFunction("Boot", "update"), Hook_Boot_update);
             hhook.CreateHook(HashlinkUtils.GetFunction("Boot", "endInit"), Hook_Boot_endInit);
-            hhook.CreateHook(HashlinkUtils.GetFunction("Boot", "init"), Hook_Boot_endInit);
-
-            //hhook.CreateHook(HashlinkUtils.GetFunction("en.Hero", "onDamage"), Hook_Hero_onDamage);
-            //hhook.CreateHook(HashlinkUtils.GetFunction("en.Hero", "addMoney"), Hook_Hero_addMoney);
-            //hhook.CreateHook(HashlinkUtils.GetFunction("en.Hero", "addCells"), Hook_Hero_addCells);
+            hhook.CreateHook(HashlinkUtils.GetFunction("Boot", "init"), Hook_Boot_Init);
         }
 
         void IOnModCoreInjected.OnModCoreInjected()

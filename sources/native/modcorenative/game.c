@@ -90,11 +90,26 @@ static void setup_handler() {
 }
 #endif
 
+EXTERNC EXPORT void(*csapi_LogPrint)(const char* source, int level, const char* msg);
+EXTERNC EXPORT void(*csapi_OnHLEvent)(int eventId, void* data);
+
+void log_printf_handler(const char* source, int level, const char* format, va_list args) {
+	char* buf = malloc(4096);
+	vsprintf(buf, format, args);
+	csapi_LogPrint(source, level, buf);
+	free(buf);
+}
+
+void event_handler(int eventId, void* data) {
+	csapi_OnHLEvent(eventId, data);
+}
+
 EXTERNC EXPORT int hlu_start_game(hl_code* code) {
 	char *error_msg = NULL;
 	bool isExc = false;
 	main_context ctx;
 
+	hl_log_set_handler(log_printf_handler);
 	hl_sys_init((void**)"", 0, "hlboot.dat");
 	hl_register_thread(&ctx);
 	ctx.file = NULL;
