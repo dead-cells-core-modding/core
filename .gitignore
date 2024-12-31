@@ -400,3 +400,5 @@ FodyWeavers.xsd
 out/
 
 launchSettings.json
+
+vcpkg_installed/

@@ -38,7 +38,7 @@ namespace ModCore.Hashlink
             [FieldOffset(0)]
             public HL_type* type;
         }
-        private GCHandle cacheHandle;
+        private readonly HashlinkObjRef @ref;
         private ObjectBox* hl_vbox;
         private readonly HL_type* hl_type = null;
         public void* ValuePointer
@@ -145,8 +145,7 @@ namespace ModCore.Hashlink
             {
                 throw new NotSupportedException($"Unknown type kind '{type->kind}'");
             }
-            cacheHandle = GCHandle.Alloc(this, GCHandleType.WeakTrackResurrection);
-            *((nint*)hl_vbox - 1) = (nint)cacheHandle;
+            @ref = HashlinkObjRef.RegisterRef(this);
             hl_add_root(hl_vbox);
         }
         public static HashlinkObject CreateArray(HL_type* type, int len)
@@ -169,10 +168,9 @@ namespace ModCore.Hashlink
             hl_type = type;
             if (v != null)
             {
-                cacheHandle = GCHandle.Alloc(this, GCHandleType.WeakTrackResurrection);
-                *((nint*)v - 1) = (nint)cacheHandle;
                 hl_add_root(hl_vbox);
             }
+            @ref = HashlinkObjRef.RegisterRef(this);
         }
         public static HashlinkObject FromHashlink(HL_vdynobj* v)
         {
@@ -194,35 +192,26 @@ namespace ModCore.Hashlink
         {
             return FromHashlink((ObjectBox*)v);
         }
-        public static HashlinkObject FromHashlink(ObjectBox* v)
+        public static HashlinkObject FromHashlinkInternal(void* v)
         {
             if (!HashlinkUtils.IsValidHLObject(v))
             {
                 throw new InvalidOperationException();
             }
-            var cacheHandle = *((nint*)v - 1);
-            if(cacheHandle != 0)
-            {
-                var gch = GCHandle.FromIntPtr(cacheHandle);
-                var obj = gch.Target;
-                if(obj is HashlinkObject hobj)
-                {
-                    return hobj;
-                }
-            }
-            return new HashlinkObject(v, null);
-        }
 
+            return new HashlinkObject((ObjectBox*) v, null);
+        }
+        public static HashlinkObject FromHashlink(ObjectBox* v)
+        {
+            var oref = HashlinkObjRef.GetRef((nint)v);
+            return oref.cachedObj;
+        }
         public dynamic Dynamic => this;
         
         ~HashlinkObject()
         {
             if (hl_vbox != null)
             {
-                if (cacheHandle.IsAllocated)
-                {
-                    cacheHandle.Free();
-                }
                 hl_remove_root(hl_vbox);
                 hl_vbox = null;
             }

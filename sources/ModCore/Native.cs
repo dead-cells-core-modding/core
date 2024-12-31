@@ -33,8 +33,7 @@ namespace ModCore
             [MarshalAs(UnmanagedType.LPWStr)] string path, int* outSize);
         [LibraryImport(MODCORE_NATIVE_NAME)]
         public static partial int hlu_start_game(void* code);
-        [LibraryImport(MODCORE_NATIVE_NAME)]
-        public static partial void* callback_c2hl(void* f, HL_type* t, void** args, HL_vdynamic* ret);
+       
         #endregion
         #region HL CS Interop
         [LibraryImport(MODCORE_NATIVE_NAME)]
