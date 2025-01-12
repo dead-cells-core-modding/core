@@ -14,13 +14,6 @@
 
 typedef void(*real_hl_global_init)(void);
 
-#ifdef _WIN64 or __LP64__
-#define X64
-#else
-#define X86
-#endif
-
-
 #ifdef __cplusplus
 #define EXTERNC extern "C"
 #else

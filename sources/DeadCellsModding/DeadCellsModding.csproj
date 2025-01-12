@@ -8,6 +8,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>false</SelfContained>
+    
+    <RollForward>LatestMajor</RollForward>
 
     <RuntimeIdentifiers>win-x86;linux-x64</RuntimeIdentifiers>
 

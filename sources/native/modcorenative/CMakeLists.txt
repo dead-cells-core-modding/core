@@ -1,7 +1,7 @@
 ﻿
 
 include_directories (../3rd/hashlink/src)
-file(GLOB_RECURSE SOURCES ./*.c ./*.cpp)
+file(GLOB_RECURSE SOURCES ./*.c)
 
 if(X86)
 set(ASM_HELPER_SRC ./asm_x86.asm)
