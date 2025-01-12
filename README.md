@@ -8,6 +8,7 @@ A Dead Cells Modding API/loader.
 ### Requirement
 
 - .NET 9 SDK
+- NASM
 - CMake
 
 ### Build
