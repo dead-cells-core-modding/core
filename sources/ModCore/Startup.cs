@@ -1,4 +1,6 @@
 ﻿using Hashlink;
+using ModCore.Events;
+using ModCore.Events.Interfaces;
 using ModCore.Storage;
 using ModCore.Track;
 using Serilog;
@@ -41,7 +43,8 @@ namespace ModCore
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     logger.Information("Loading hlboot.dat from deadcells_gl.exe");
-                    hlboot = (byte*)Native.hlu_get_hl_bytecode_from_exe(FolderInfo.GameRoot.GetFilePath("deadcells_gl.exe"), &hlbootSize);
+                    hlboot = (byte*)Native.hlu_get_hl_bytecode_from_exe(FolderInfo.GameRoot.GetFilePath("deadcells_gl.exe"),
+                        &hlbootSize);
                 }
                 else
                 {
@@ -53,6 +56,9 @@ namespace ModCore
 
             hl_global_init();
 
+            var codeData = new Span<byte>(hlboot, hlbootSize);
+
+            EventSystem.BroadcastEvent<IOnCodeLoading, Span<byte>>(ref codeData);
 
             var code = hl_code_read(hlboot, hlbootSize, &err);
             if(err != null)
@@ -60,9 +66,17 @@ namespace ModCore
                 logger.Error("An error occurred while loading bytecode: {err}", Marshal.PtrToStringAnsi((nint)err));
                 return -1;
             }
-            logger.Information("Starting game");
-            MixTrace.MarkEnteringHL();
-            return Native.hlu_start_game(code);
+            try
+            {
+                logger.Information("Starting game");
+                MixTrace.MarkEnteringHL();
+                return Native.hlu_start_game(code);
+            }
+            catch (Exception ex)
+            {
+                logger.Fatal(ex, "Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.");
+                throw;
+            }
         }
         
         public static int StartGame()

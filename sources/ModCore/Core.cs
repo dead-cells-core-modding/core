@@ -8,6 +8,7 @@ using Serilog.Core;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Loader;
 
 namespace ModCore
 {
@@ -18,6 +19,10 @@ namespace ModCore
             Path.GetDirectoryName(typeof(Core).Assembly.Location),
             FolderInfo.Plugins.FullPath,
             FolderInfo.Mods.FullPath,
+            ];
+        public static readonly List<string> nativeSearchPath = [
+            FolderInfo.CoreNativeRoot.FullPath,
+             FolderInfo.GameRoot.FullPath
             ];
         public static Config<CoreConfig> Config { get; } = new("modcore");
 
@@ -44,10 +49,7 @@ namespace ModCore
                 envName = "LD_LIBRARY_PATH";
             }
             var val = Environment.GetEnvironmentVariable(envName);
-            val = 
-                FolderInfo.CoreNativeRoot.FullPath + ";" +
-                FolderInfo.GameRoot.FullPath + ";" +
-                val;
+            val = string.Join(';', nativeSearchPath) + ";" + val;
             Environment.SetEnvironmentVariable(envName, val);
         }
 
@@ -64,12 +66,15 @@ namespace ModCore
 
             Environment.SetEnvironmentVariable("DCCM_CoreLoaded", "true");
 
+            AddPath();
+
             _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("libhl"));
             _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("modcorenative"));
-            AddPath();
+            
 
             Initialize2();
         }
+
         private static void Initialize2()
         {
            
@@ -117,7 +122,7 @@ namespace ModCore
                 Module.AddModule(module);
             }
 
-            EventSystem.BroadcastEvent<IOnModCoreInjected>();
+            EventSystem.BroadcastEvent<IOnCoreModuleInitializing>();
 
             Log.Logger.Information("Loaded modding core");
         }

@@ -1,4 +1,6 @@
-﻿using ModCore.Hashlink.Hooks;
+﻿using ModCore.Events;
+using ModCore.Events.Interfaces;
+using ModCore.Hashlink.Hooks;
 using ModCore.Track;
 using Serilog;
 using System;
@@ -50,7 +52,10 @@ namespace ModCore
         private enum HashlinkEvent
         {
             BeforeGC = 1,
-            AfterGC = 2
+            AfterGC = 2,
+
+            HashlinkVMReady = 3,
+
         }
 
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
@@ -60,6 +65,14 @@ namespace ModCore
             {
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
+            }
+            else if (eventId == HashlinkEvent.AfterGC)
+            {
+
+            }
+            else if(eventId == HashlinkEvent.HashlinkVMReady)
+            {
+                EventSystem.BroadcastEvent<IOnHashlinkVMReady>();
             }
         }
 
@@ -82,7 +95,18 @@ namespace ModCore
                 }
                 else
                 {
-                    sourceStr = Marshal.PtrToStringAnsi(source) ?? "Native";
+                    sourceStr = Marshal.PtrToStringAnsi(source);
+                    if(sourceStr != null)
+                    {
+                        if(Path.IsPathRooted(sourceStr))
+                        {
+                            sourceStr = Path.GetFileName(sourceStr);
+                        }
+                    }
+                    else
+                    {
+                        sourceStr = "Native";
+                    }
                 }
             }
 

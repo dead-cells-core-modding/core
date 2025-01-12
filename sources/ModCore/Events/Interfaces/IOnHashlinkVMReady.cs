@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace ModCore.Events.Interfaces
 {
-    public interface IOnGameExit : ICallOnceEvent<IOnGameExit>
+    public interface IOnHashlinkVMReady : ICallOnceEvent<IOnHashlinkVMReady>
     {
-        public void OnGameExit();
+        public void OnHashlinkVMReady();
     }
 }

@@ -159,7 +159,6 @@ namespace ModCore.Hashlink
                 throw new NotSupportedException($"Unknown type kind '{type->kind}'");
             }
             @ref = HashlinkObjRef.RegisterRef(this);
-            hl_add_root(hl_vbox);
         }
         public static HashlinkObject CreateArray(HL_type* type, int len)
         {
@@ -221,14 +220,6 @@ namespace ModCore.Hashlink
         }
         public dynamic Dynamic => this;
         
-        ~HashlinkObject()
-        {
-            if (hl_vbox != null)
-            {
-                hl_remove_root(hl_vbox);
-                hl_vbox = null;
-            }
-        }
 
         private void* GetFieldPtr(int hash, out HL_type* type)
         {

@@ -2,6 +2,7 @@
 using Iced.Intel;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
+using ModCore.Events.Interfaces.Game;
 using ModCore.Hashlink;
 using ModCore.Track;
 using Mono.Cecil;
@@ -27,7 +28,7 @@ using System.Threading.Tasks;
 namespace ModCore.Modules
 {
     [CoreModule]
-    public unsafe class HashlinkVM : CoreModule<HashlinkVM>, IOnModCoreInjected
+    public unsafe class HashlinkVM : CoreModule<HashlinkVM>, IOnCoreModuleInitializing, IOnHashlinkVMReady
     {
         public override int Priority => ModulePriorities.HashlinkVM;
 
@@ -44,55 +45,6 @@ namespace ModCore.Modules
         }
 
         public VMContext* Context { get; private set; }
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-
-        private delegate HL_vdynamic* hl_dyn_call_safe_handler(HL_vclosure* c, HL_vdynamic** args, int nargs, bool* isException);
-        private static hl_dyn_call_safe_handler orig_hl_dyn_call_safe = null!;
-
-        private static bool isFristCall_DynCallSafe = true;
-
-        [WillCallHL]
-        [StackTraceHidden]
-        private static HL_vdynamic* Hook_hl_dyn_call_safe(HL_vclosure* c, HL_vdynamic** args, int nargs, bool* isException)
-        {
-            try
-            {
-                if (isFristCall_DynCallSafe)
-                {
-                    isFristCall_DynCallSafe = false;
-                    Logger.Information("Initializing Hashlink VM");
-                    Instance.InitializeModule();
-
-                    EventSystem.BroadcastEvent<IOnBeforeGameStartup>();
-                }
-
-                MixTrace.MarkEnteringHL();
-                return orig_hl_dyn_call_safe(c, args, nargs, isException);
-            }
-            catch (Exception ex)
-            {
-                Logger.Fatal(ex, "Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.");
-                if(Debugger.IsAttached)
-                {
-                    throw;
-                }
-                return null;
-            }
-        }
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void hl_throw_handler(HL_vdynamic* val);
-        private static hl_throw_handler orig_hl_throw = null!;
-
-        [WillCallHL]
-        [CallFromHLOnly]
-        [StackTraceHidden]
-        private static void Hook_hl_throw(HL_vdynamic* val)
-        {
-            Logger.Verbose("Hashlink throw an error");
-            orig_hl_throw(val);
-        }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 
@@ -191,22 +143,8 @@ namespace ModCore.Modules
 
             Environment.Exit(code);
         }
-        private void InitializeModule()
-        {
-            var tinfo = HashlinkNative.hl_get_thread();
 
-            Context = (VMContext*)tinfo->stack_top;
-
-            Logger.Information("VM Context ptr: {ctxptr:x}h", (nint)Context);
-            Logger.Information("VM Code Version: {version}", Context->code->version);
-
-            Logger.Information("Initializing HashlinkVM Utils");
-            HashlinkUtils.Initialize(Context->code, Context->m);
-
-
-        }
-
-        void IOnModCoreInjected.OnModCoreInjected()
+        void IOnCoreModuleInitializing.OnCoreModuleInitializing()
         {
             Logger.Information("Initalizing HashlinkModule");
 
@@ -218,20 +156,28 @@ namespace ModCore.Modules
             Logger.Information("Hooking functions");
 
 
-            orig_hl_dyn_call_safe = NativeHook.Instance.CreateHook<hl_dyn_call_safe_handler>(
-                NativeLibrary.GetExport(LibhlHandle, "hl_dyn_call_safe"), Hook_hl_dyn_call_safe);
-
             orig_hl_exception_stack = NativeHook.Instance.CreateHook<hl_exception_stack_handler>(
                  NativeLibrary.GetExport(LibhlHandle, "hl_exception_stack"), Hook_hl_exception_stack);
-
-            orig_hl_throw = NativeHook.Instance.CreateHook<hl_throw_handler>(
-                NativeLibrary.GetExport(LibhlHandle, "hl_throw"), Hook_hl_throw);
 
             orig_hl_sys_print = NativeHook.Instance.CreateHook<hl_sys_print_handler>(
                 NativeLibrary.GetExport(LibhlHandle, "hl_sys_print"), Hook_hl_sys_print);
 
             orig_hl_sys_exit = NativeHook.Instance.CreateHook<hl_sys_exit_handler>(
                NativeLibrary.GetExport(LibhlHandle, "hl_sys_exit"), Hook_hl_sys_exit);
+        }
+
+        void IOnHashlinkVMReady.OnHashlinkVMReady()
+        {
+            var tinfo = hl_get_thread();
+
+            Context = (VMContext*)tinfo->stack_top;
+
+            Logger.Information("VM Context ptr: {ctxptr:x}h", (nint)Context);
+            Logger.Information("VM Code Version: {version}", Context->code->version);
+
+            Logger.Information("Initializing HashlinkVM Utils");
+            HashlinkUtils.Initialize(Context->code, Context->m);
+
         }
     }
 }

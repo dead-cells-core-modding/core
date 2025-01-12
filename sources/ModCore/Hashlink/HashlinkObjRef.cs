@@ -86,7 +86,7 @@ namespace ModCore.Hashlink
             {
                 refsLock.ExitWriteLock();
             }
-            hl_remove_root((void*)hl_obj);
+            //hl_remove_root((void*)hl_obj);
         }
     }
 }

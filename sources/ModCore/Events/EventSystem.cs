@@ -47,12 +47,18 @@ namespace ModCore.Events
         }
         public static void BroadcastEvent<TEvent, TArg>(TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default)
         {
+            BroadcastEvent<TEvent, TArg>(ref arg, flags);
+        }
+        public static void BroadcastEvent<TEvent, TArg>(ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default) 
+            where TArg : allows ref struct
+        {
             if(EventCaller<TEvent>.IsCallOnce)
             {
                 if(EventCaller<TEvent>.IsCalled)
                 {
                     throw new InvalidOperationException("An event that should only be called once was called multiple times");
                 }
+                Logger.Information("Broadcast Global Event: {Name}", typeof(TEvent).Name); 
             }
             List<Exception>? exceptions = null;
             foreach (var module in eventReceivers)

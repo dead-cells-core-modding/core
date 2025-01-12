@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 namespace ModCore.Modules
 {
     [CoreModule]
-    public class PluginLoader : CoreModule<PluginLoader>, IOnModCoreInjected
+    public class PluginLoader : CoreModule<PluginLoader>, IOnCoreModuleInitializing
     {
         public override int Priority => ModulePriorities.PluginLoader;
 
-        void IOnModCoreInjected.OnModCoreInjected()
+        void IOnCoreModuleInitializing.OnCoreModuleInitializing()
         {
             Logger.Information("Loading plugins");
             foreach (var v in FolderInfo.Plugins.Info.GetFiles("*.dll"))

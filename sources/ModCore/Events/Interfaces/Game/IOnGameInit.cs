@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Events.Interfaces
+namespace ModCore.Events.Interfaces.Game
 {
     public interface IOnGameInit : ICallOnceEvent<IOnGameInit>
     {

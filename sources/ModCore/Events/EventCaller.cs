@@ -33,7 +33,10 @@ namespace ModCore.Events
             if (@params.Length == 1)
             {
                 il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Ldobj, @params[0].ParameterType);
+                if (!@params[0].ParameterType.IsByRef)
+                {
+                    il.Emit(OpCodes.Ldobj, @params[0].ParameterType);
+                }
             }
             il.Emit(OpCodes.Callvirt, method);
             il.Emit(OpCodes.Ret);
@@ -61,7 +64,7 @@ namespace ModCore.Events
             IsCalled = true;
             call(self!, refOfarg);
         }
-        public static unsafe void Invoke<TArg>(TEvent self, ref TArg argOnStack)
+        public static unsafe void Invoke<TArg>(TEvent self, ref TArg argOnStack) where TArg : allows ref struct 
         {
             Invoke(self!, (nint)Unsafe.AsPointer(ref argOnStack));
         }

@@ -15,12 +15,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodule: true
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9
-    - name: Restore dependencies
-      run: dotnet restore
     - name: Build
       run: ./buildWin.bat
 

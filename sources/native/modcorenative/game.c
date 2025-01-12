@@ -109,6 +109,7 @@ EXTERNC EXPORT int hlu_start_game(hl_code* code) {
 	bool isExc = false;
 	main_context ctx;
 
+	hl_event_set_handler(event_handler);
 	hl_log_set_handler(log_printf_handler);
 	hl_sys_init((void**)"", 0, "hlboot.dat");
 	hl_register_thread(&ctx);
@@ -123,6 +124,8 @@ EXTERNC EXPORT int hlu_start_game(hl_code* code) {
 		return 2;
 	if( !hl_module_init(ctx.m,FALSE) )
 		return 3;
+
+	hl_event(HL_EV_VM_READY, NULL);
 
 	hl_code_free(ctx.code);
 	ctx.c.t = ctx.code->functions[ctx.m->functions_indexes[ctx.m->code->entrypoint]].type;

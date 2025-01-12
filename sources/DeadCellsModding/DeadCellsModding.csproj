@@ -11,6 +11,8 @@
 
     <RuntimeIdentifiers>win-x86;linux-x64</RuntimeIdentifiers>
 
+    <PublishDir>../../bin/core/host/startup</PublishDir>
+
     <Platforms>x64;x86</Platforms>
 
     <ApplicationIcon>icon.ico</ApplicationIcon>

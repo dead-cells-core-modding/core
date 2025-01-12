@@ -13,11 +13,11 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace ModCore.Modules
 {
     [CoreModule]
-    public class StorageManager : CoreModule<StorageManager>, IOnModCoreInjected
+    public class StorageManager : CoreModule<StorageManager>, IOnCoreModuleInitializing
     {
         public override int Priority => ModulePriorities.Storage;
 
-        void IOnModCoreInjected.OnModCoreInjected()
+        void IOnCoreModuleInitializing.OnCoreModuleInitializing()
         {
             Logger.Information("Game Root: {root}", FolderInfo.GameRoot.FullPath);
             Logger.Information("Mod Core Root: {root}", FolderInfo.CoreRoot.FullPath);

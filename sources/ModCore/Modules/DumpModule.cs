@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 namespace ModCore.Modules
 {
     [CoreModule]
-    internal unsafe class DumpModule : CoreModule<DumpModule>, IOnBeforeGameStartup
+    internal unsafe class DumpModule : CoreModule<DumpModule>, IOnHashlinkVMReady
     {
         private static readonly FolderInfo dumpOutput = new("CORE_DUMP", "{CORE_ROOT}/dump");
-        public void OnBeforeGameStartup()
+        public void OnHashlinkVMReady()
         {
             if(!Core.Config.Value.EnableDump)
             {

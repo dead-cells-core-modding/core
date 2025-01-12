@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace ModCore.Modules
 {
     [CoreModule(supportOS = CoreModuleAttribute.SupportOS.Windows)]
-    internal class WindowsPlatformUtils : CoreModule<WindowsPlatformUtils>, IOnBeforeGameStartup
+    internal class WindowsPlatformUtils : CoreModule<WindowsPlatformUtils>, IOnHashlinkVMReady
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 
@@ -21,7 +21,7 @@ namespace ModCore.Modules
 
         }
 
-        public void OnBeforeGameStartup()
+        public void OnHashlinkVMReady()
         {
             var kernel32 = NativeLibrary.Load("kernel32.dll");
             var freeconsole = NativeLibrary.GetExport(kernel32, "FreeConsole");

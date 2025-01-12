@@ -1,6 +1,7 @@
 ﻿using Hashlink;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
+using ModCore.Events.Interfaces.Game;
 using ModCore.Hashlink;
 using ModCore.Track;
 using SDL2;
@@ -15,7 +16,7 @@ using static SDL2.SDL;
 namespace ModCore.Modules
 {
     [CoreModule]
-    public unsafe class Game : CoreModule<Game>, IOnModCoreInjected, IOnBeforeGameStartup
+    public unsafe class Game : CoreModule<Game>, IOnCoreModuleInitializing, IOnHashlinkVMReady
     {
         private HashlinkHook hhook = null!;
         public override int Priority => ModulePriorities.Game;
@@ -50,14 +51,14 @@ namespace ModCore.Modules
             return orig.Call(self);
         }
        
-        void IOnBeforeGameStartup.OnBeforeGameStartup()
+        void IOnHashlinkVMReady.OnHashlinkVMReady()
         {
             hhook.CreateHook(HashlinkUtils.GetFunction("Boot", "update"), Hook_Boot_update);
             hhook.CreateHook(HashlinkUtils.GetFunction("Boot", "endInit"), Hook_Boot_endInit);
             hhook.CreateHook(HashlinkUtils.GetFunction("Boot", "init"), Hook_Boot_Init);
         }
 
-        void IOnModCoreInjected.OnModCoreInjected()
+        void IOnCoreModuleInitializing.OnCoreModuleInitializing()
         {
             hhook = HashlinkHook.Instance;
         }
