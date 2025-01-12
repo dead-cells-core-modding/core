@@ -16,7 +16,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        submodule: true
+        submodules: true
+    - name: Setup Ninja
+      uses: ashutoshvarma/setup-ninja@master
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
