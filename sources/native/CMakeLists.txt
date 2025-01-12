@@ -1,5 +1,5 @@
 ﻿
-cmake_minimum_required (VERSION 3.30)
+cmake_minimum_required (VERSION 3.20)
 
 project ("native")
 
@@ -18,6 +18,15 @@ set(X64 true)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}linux-x64)
 endif()
 
+if(X86)
+add_definitions(-DX86)
+if(MSVC)
+SET(CMAKE_ASM_NASM_FLAGS "${CMAKE_ASM_NASM_FLAGS} --prefix _") 
+endif()
+else()
+add_definitions(-DX64)
+endif()
+
 if(MSVC)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -27,8 +36,8 @@ add_definitions(-D_CRT_SECURE_NO_WARNINGS=1 -DUNICODE -D_UNICODE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD /Zi /Oy- /Gd")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MD /Zi /Oy- /Gd")
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG /OPT:REF /OPT:ICF")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEBUG /OPT:REF /OPT:ICF")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG /OPT:ICF")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEBUG /OPT:ICF")
 endif()
 
 # 包含子项目。

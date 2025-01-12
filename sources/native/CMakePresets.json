@@ -23,7 +23,7 @@
       "inherits": "windows-base",
       "architecture": {
         "value": "win32",
-        "strategy": "external"
+        "strategy": "set"
       },
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
     },
