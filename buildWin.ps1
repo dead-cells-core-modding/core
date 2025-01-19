@@ -7,7 +7,7 @@ cd $PSScriptRoot/sources
 dotnet build -c=Release ./ModCore
 
 echo "Building Shell"
-dotnet publish -c=Release -a x86 ./DeadCellsModding
+dotnet publish -c=Release -r win-x86 ./DeadCellsModding
 
 echo "Building Native"
 cd native

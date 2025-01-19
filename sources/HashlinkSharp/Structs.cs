@@ -295,7 +295,10 @@ namespace Hashlink
     {
         public HL_type* type;
         public void* fun;
-        public nint hasValue;
+        public int hasValue;
+#if x64
+        public int __padding;
+#endif
         public void* value;
     }
     [StructLayout(LayoutKind.Sequential)]

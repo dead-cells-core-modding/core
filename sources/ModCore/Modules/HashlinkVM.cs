@@ -1,10 +1,10 @@
 ﻿using Hashlink;
+using Hashlink.Track;
 using Iced.Intel;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Hashlink;
-using ModCore.Track;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.RuntimeDetour;
@@ -50,61 +50,6 @@ namespace ModCore.Modules
 
         private delegate HL_array* hl_exception_stack_handler();
         private static hl_exception_stack_handler orig_hl_exception_stack = null!;
-
-        private static readonly byte* exception_stack_msg_split0 = (byte*)Marshal.StringToHGlobalUni("\n==Below is the .Net Stack==\n");
-        private static readonly byte* exception_stack_msg_split1 = (byte*) Marshal.StringToHGlobalUni("\n==Below is the Hashlink Stack==\n");
-
-        private static HL_array* GetExceptionStackFallback(HL_array* hlstack, StackTrace trace)
-        {
-            
-            byte** stack_val = (byte**)(hlstack + 1);
-            
-            
-            var new_stack = HashlinkObject.CreateArray(HashlinkNative.InternalTypes.hlt_bytes,
-                hlstack->size + 1 + trace.FrameCount
-                );
-            byte** new_stack_val = (byte**)new_stack.ValuePointer;
-
-            int index = 0;
-            new_stack_val[index++] = exception_stack_msg_split0;
-            for (int i = 0; i < trace.FrameCount; i++)
-            {
-                var frame = trace.GetFrame(i);
-                if (frame != null)
-                {
-                    new_stack_val[index++] = (byte*)Marshal.StringToHGlobalUni(frame.GetDisplay());
-                }
-            }
-            new_stack_val[index++] = exception_stack_msg_split1;
-            Buffer.MemoryCopy(stack_val, new_stack_val + index, hlstack->size * sizeof(byte*), hlstack->size * sizeof(byte*));
-
-            return new_stack.AsArray;
-        }
-
-        [CallFromHLOnly]
-        private static HL_array* Hook_hl_exception_stack()
-        {
-            try
-            {
-                var stack = new MixStackTrace(0, true);
-                var new_stack = HashlinkObject.CreateArray(HashlinkNative.InternalTypes.hlt_bytes,
-                    stack.FrameCount
-                );
-
-                for(int i = 0; i < stack.FrameCount; i++)
-                {
-                    new_stack.Dynamic[i] = Marshal.StringToHGlobalUni(stack.GetFrame(i)!.GetDisplay());
-                }
-
-                return new_stack.AsArray;
-            }
-            catch(Exception ex)
-            {
-
-                Logger.Error(ex, "Failed to invoke Hook_hl_exception_stack");
-                return GetExceptionStackFallback(orig_hl_exception_stack(), new(0, true));
-            }
-        }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void hl_sys_print_handler(char* msg);
@@ -155,10 +100,6 @@ namespace ModCore.Modules
 
             Logger.Information("Hooking functions");
 
-
-            orig_hl_exception_stack = NativeHook.Instance.CreateHook<hl_exception_stack_handler>(
-                 NativeLibrary.GetExport(LibhlHandle, "hl_exception_stack"), Hook_hl_exception_stack);
-
             orig_hl_sys_print = NativeHook.Instance.CreateHook<hl_sys_print_handler>(
                 NativeLibrary.GetExport(LibhlHandle, "hl_sys_print"), Hook_hl_sys_print);
 
@@ -176,7 +117,6 @@ namespace ModCore.Modules
             Logger.Information("VM Code Version: {version}", Context->code->version);
 
             Logger.Information("Initializing HashlinkVM Utils");
-            HashlinkUtils.Initialize(Context->code, Context->m);
 
         }
     }

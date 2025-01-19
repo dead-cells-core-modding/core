@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <RootNamespace>ModCore</RootNamespace>
+    
+   
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+    <PackageReference Include="MonoMod.RuntimeDetour" Version="25.2.1" />
+    <PackageReference Include="Serilog" Version="4.1.0" />
+  </ItemGroup>
+
+</Project>

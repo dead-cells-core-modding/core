@@ -1,5 +1,6 @@
 ﻿using Hashlink;
-using ModCore.Track;
+using Hashlink.Marshaling;
+using Hashlink.Track;
 using MonoMod.Cil;
 using System;
 using System.Collections.Concurrent;
@@ -21,8 +22,7 @@ namespace ModCore.Hashlink
         private readonly Delegate? next;
         private readonly int next_index = -1;
         private readonly void* hlfunc;
-        private readonly HL_function* hlfunction;
-        private readonly HL_type* funcType;
+        private readonly HL_type_func* hlfunction;
 
         private static readonly ConcurrentDictionary<Type, FastInvoker> putArgInvoker = [];
 
@@ -37,8 +37,6 @@ namespace ModCore.Hashlink
             public int args;
         }
 
-        public bool HasThis => HashlinkUtils.HasThis(hlfunction);
-
         private void InitArg(out PutArgContext ctx)
         {
             if (func_arg_buf == null || cached_args_ptr == null)
@@ -51,6 +49,11 @@ namespace ModCore.Hashlink
                 cached_args_ptr[i] = (void*)((nint)func_arg_buf + 8 * i);
             }
             ctx = new();
+
+            if(BindingThis is not null)
+            {
+                PutArg<nint>(BindingThis.Value, ctx);
+            }
         }
 
         private void PutArg<T>(T val, PutArgContext ctx)
@@ -88,22 +91,10 @@ namespace ModCore.Hashlink
                 Unsafe.AsRef<T>(cached_args_ptr + idx) = val;
                 idx++;
             }
-            else if (val is HashlinkObject obj)
+            else if (val is IHashlinkPointer obj)
             {
-                var at = funcType->data.func->args[idx];
-                PutArg((nint)obj.HashlinkObj, ctx);
-            }
-            else if(val is string str)
-            {
-                var at = funcType->data.func->args[idx];
-                if(at->kind == HL_type.TypeKind.HBYTES)
-                {
-                    PutArg((nint)HashlinkUtils.GetHLBytesString(str)->val.ptr, ctx);
-                }
-                else
-                {
-                    PutArg(HashlinkUtils.GetHLString(str), ctx);
-                }
+    
+                PutArg(obj.HashlinkPointer, ctx);
             }
             else if(val is null)
             {
@@ -120,42 +111,38 @@ namespace ModCore.Hashlink
         {
             HL_vdynamic result = new()
             {
-                type = funcType->data.func->ret
+                type = hlfunction->ret
+            };
+            HL_type funcType = new()
+            {
+                kind = HL_type.TypeKind.HFUN,
+                data =
+                {
+                    func = hlfunction
+                }
             };
             MixTrace.MarkEnteringHL();
-            var ptrResult = callback_c2hl(hlfunc, funcType, cached_args_ptr, &result);
+            var ptrResult = callback_c2hl(hlfunc, &funcType, cached_args_ptr, &result);
             var retKind = result.type->kind;
             if(retKind == HL_type.TypeKind.HVOID)
             {
                 return null;
             }
-            if(result.type == HashlinkUtils.HLType_String)
-            {
-                _ = 1;
-            }
+
             if (retKind.IsPointer())
             {
-                if (retKind == HL_type.TypeKind.HBYTES)
-                {
-                    var dyn = hl_alloc_dynamic(result.type);
-                    dyn->val.ptr = ptrResult;
-                    return HashlinkObject.FromHashlink(dyn);
-                }
-                else
-                {
-                    return HashlinkObject.FromHashlink((HL_vdynamic*) ptrResult);
-                }
+                return HashlinkMarshal.ConvertHashlinkObject(ptrResult);
             }
             else
             {
-                return HashlinkUtils.GetData(&result.val, result.type);
+                return HashlinkMarshal.ReadData(&result.val, retKind);
             }
         }
-        internal HashlinkFunc(Delegate[] next, HL_function* func, void* ptr = null) : this(next, 0, func, ptr)
+        internal HashlinkFunc(Delegate[] next, HL_type_func* func, void* ptr = null) : this(next, 0, func, ptr)
         {
 
         }
-        internal HashlinkFunc(Delegate[] next, int index, HL_function* func, void* ptr = null) : this(func, ptr)
+        internal HashlinkFunc(Delegate[] next, int index, HL_type_func* func, void* ptr) : this(func, ptr)
         {
             next_list = next;
             next_index = index;
@@ -165,17 +152,15 @@ namespace ModCore.Hashlink
                 this.next = next_list[next_index];
             }
         }
-        public HashlinkFunc(HL_function* func, void* ptr = null)
+        public HashlinkFunc(HL_type_func* func, void* ptr)
         {
             hlfunction = func;
-            funcType = func->type;
-            if (funcType->kind != HL_type.TypeKind.HFUN)
-            {
-                throw new InvalidOperationException();
-            }
+           
             if (ptr == null)
             {
-                hlfunc = HashlinkUtils.GetFunctionNativePtr(func);
+                throw new ArgumentNullException(nameof(ptr));
+                //FIXME: Get entry pointer from HL_function
+                //hlfunc = HashlinkUtils.GetFunctionNativePtr(func);
             }
             else
             {
@@ -183,9 +168,10 @@ namespace ModCore.Hashlink
             }
         }
 
-
+        
         public void* FuncPointer => hlfunc;
-        public HL_type* FuncType => funcType;
+        public HL_type_func* FuncType => hlfunction;
+        public nint? BindingThis { get; set; } = null;
 
         public object? Call()
         {
@@ -338,7 +324,7 @@ namespace ModCore.Hashlink
         {
             if (next != null)
             {
-                return CallDynamic(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                return CallDynamic(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             }
             InitArg(out var arg);
 

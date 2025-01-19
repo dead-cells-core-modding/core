@@ -30,7 +30,8 @@ typedef struct
 	void* origFunc;
 	int enabled;
 	int argsCount;
-	int argBitMarks; /* bit marks : 1 means the parameter is 8 bytes long, otherwise it is 4 bytes long */
+	int argSizeMarks; /* bit marks : 1 means the parameter is 8 bytes long, otherwise it is 4 bytes long */
+	int argFloatMarks; /* bit marks : 1 means the parameter is float/double, otherwise it is int/ptr */
 	hl2cs_callback callback;
 } hl2c_table;
 

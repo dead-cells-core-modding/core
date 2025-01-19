@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Track
+namespace Hashlink.Proxy.Objects
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    public class WillCallHL : Attribute
+    public unsafe class HashlinkVirtual(void* objPtr) : HashlinkFieldObject<HL_vvirtual>(objPtr)
     {
+
     }
 }

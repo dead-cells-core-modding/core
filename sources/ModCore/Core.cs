@@ -78,11 +78,12 @@ namespace ModCore
         private static void Initialize2()
         {
            
-
             Log.Logger.Information("Runtime: {FrameworkDescription} {RuntimeIdentifier}",
                    RuntimeInformation.FrameworkDescription, RuntimeInformation.RuntimeIdentifier);
 
             Log.Logger.Information("Initalizing");
+
+            Native.BindNativeExport(typeof(NativeExport));
 
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 

@@ -27,10 +27,10 @@ get_esp:
 
 asm_call_bridge_hl_to_cs:
 	mov eax, [esp] ;Get Return EIP
-	cmp dword [eax+8], 1 ; Is Enabled?
-	jz acbltc_enabled
+
 	;Call Orig
 	mov ecx, [eax+4] ;Orig Func Ptr
+	jnz acbltc_enabled
 	mov [esp], ecx
 	ret
 
