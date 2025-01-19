@@ -1,27 +1,25 @@
 
 # Dead Cells Core Modding (WIP)
 
+![GitHub License](https://img.shields.io/github/license/dead-cells-core-modding/core) 
+[![Build](https://github.com/dead-cells-core-modding/core/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/dead-cells-core-modding/core/actions/workflows/build.yml)
+
+
 A Dead Cells Modding API/loader. 
 
-## Development
+> [!WARNING]
+> This project is under active development. Breaking changes may be made to APIs with zero notice.
 
-### Requirement
+Download the latest build [here](https://nightly.link/dead-cells-core-modding/core/workflows/build/main)
 
-- .NET 9 SDK
-- NASM
-- CMake
+## Requirement
 
-### Build
+- .NET 9 runtime or higher
 
-#### Windows
+## Installation
 
-1. Clone the repository
-2. Run `buildWin.bat`
-
-### Install
-
-1. After "Build", copy the `bin` folder in the root directory of the repository to `<DeadCellsGameRoot>` and rename it to `coremod`
-2. Start the game from `<DeadCellsGameRoot>/coremod/core/host/startup/DeadCellsModding.exe`
+1. Get the core file from [nightly link](https://nightly.link/dead-cells-core-modding/core/workflows/build/main) or [releases](https://github.com/dead-cells-core-modding/core/releases)
+2. Unzip it to the game root directory
 
 The folder structure should be similar to the following
 ```
@@ -53,6 +51,35 @@ The folder structure should be similar to the following
 +- ...
 ```
 
+## Usage
+
+### Startup
+
+Start the game from `<DeadCellsGameRoot>/coremod/core/host/startup/DeadCellsModding.exe`
+
+## Development
+
+### Requirement
+
+- .NET 9 SDK
+- NASM
+- CMake
+
+### Build
+
+#### Windows
+
+1. Clone the repository
+2. Run `buildWin.bat`
+
+## Credit
+
+- [DeadCellsDecomp](https://github.com/N3rdL0rd/DeadCellsDecomp) and [alivecells](https://github.com/N3rdL0rd/alivecells) from N3rdL0rd
+- [Hashlink](https://github.com/HaxeFoundation/hashlink) from HaxeFoundation
+
 ## License
 
 Distributed under the MIT [license](https://github.com/DreamBoxSpy/DeadCellsCoreModding/blob/main/LICENSE).
+
+## Disclaimer
+Dead Cells Core Modding is in no way associated with Motion Twin.
