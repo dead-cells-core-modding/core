@@ -123,6 +123,8 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial HL_vdynamic* hl_obj_lookup_extra(HL_vdynamic* d, int hfield);
         [LibraryImport(LIBHL)]
+        public static partial void* hl_obj_lookup_set(HL_vdynamic* d, int hfield, HL_type* t, out HL_type* ft);
+        [LibraryImport(LIBHL)]
         public static partial int hl_hash_gen(char* name, [MarshalAs(UnmanagedType.Bool)] bool cache_name);
         [LibraryImport(LIBHL)]
         public static partial HL_vdynamic* hl_make_dyn(void* data, HL_type* t);
@@ -154,5 +156,9 @@ namespace Hashlink
         public static partial void hl_gc_set_flags(HL_GC_Flags flags);
         [LibraryImport(LIBHL)]
         public static partial HL_GC_Flags hl_gc_get_flags();
+        [LibraryImport(LIBHL)]
+        public static partial char* hl_field_name(int hashedName);
+        [LibraryImport(LIBHL)]
+        public static partial void* hl_alloc_executable_memory(int size);
     }
 }

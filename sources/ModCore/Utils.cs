@@ -1,4 +1,4 @@
-﻿using ModCore.Track;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -40,17 +40,6 @@ namespace ModCore
             return offset + (frame.GetMethod()?.MethodHandle.GetFunctionPointer() ?? 0);
         }
 
-        public static string GetDisplay(this StackFrame frame)
-        {
-            if (frame is HLStackFrame)
-            {
-                return frame.ToString();
-            }
-            else
-            {
-                return "(.NET Runtime) " + frame.ToString().Trim();
-            }
-        }
 
         public static Type?[] SafeGetAllTypes(this Assembly assembly)
         {

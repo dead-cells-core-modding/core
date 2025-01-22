@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModCore;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Track
+namespace Hashlink.Track
 {
     public static unsafe class MixTrace
     {
@@ -56,6 +57,6 @@ namespace ModCore.Track
 
             current = cur;
         }
-        
+
     }
 }

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Modules
+namespace Hashlink
 {
-    internal class HScript
+    public interface IHashlinkPointer
     {
+        public nint HashlinkPointer { get; }
     }
 }

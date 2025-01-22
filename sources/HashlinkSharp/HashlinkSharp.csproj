@@ -6,6 +6,21 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>Hashlink</RootNamespace>
+    <Platforms>x86;x64</Platforms>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MonoModReorg.Utils" Version="23.3.22.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Hashlink.HashlinkNative">
+      <Static>True</Static>
+    </Using>
+  </ItemGroup>
 
 </Project>

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Track
+namespace Hashlink.Track
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class CallFromHLOnly : Attribute
