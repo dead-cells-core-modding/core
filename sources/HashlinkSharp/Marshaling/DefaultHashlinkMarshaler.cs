@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Hashlink.Proxy;
+using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.Objects;
+using Hashlink.Proxy.Values;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -139,6 +143,58 @@ namespace Hashlink.Marshaling
                 return false;
             }
             return true;
+        }
+
+        public virtual HashlinkObj? TryConvertHashlinkObject(void* target)
+        {
+            HL_type* type = *(HL_type**)target;
+            HL_type.TypeKind kind = type->kind;
+
+
+            if (kind == HL_type.TypeKind.HUI8)
+            {
+                return new HashlinkTypedValue<byte>(target);
+            }
+            else if (kind == HL_type.TypeKind.HUI16)
+            {
+                return new HashlinkTypedValue<ushort>(target);
+            }
+            else if (kind == HL_type.TypeKind.HI32)
+            {
+                return new HashlinkTypedValue<int>(target);
+            }
+            else if (kind == HL_type.TypeKind.HI64)
+            {
+                return new HashlinkTypedValue<long>(target);
+            }
+            else if (kind == HL_type.TypeKind.HF32)
+            {
+                return new HashlinkTypedValue<float>(target);
+            }
+            else if (kind == HL_type.TypeKind.HF64)
+            {
+                return new HashlinkTypedValue<double>(target);
+            }
+            else if (kind == HL_type.TypeKind.HBOOL)
+            {
+                return new HashlinkTypedValue<bool>(target);
+            }
+            else if (kind == HL_type.TypeKind.HVIRTUAL)
+            {
+                return new HashlinkVirtual(target);
+            }
+            else if (kind == HL_type.TypeKind.HOBJ)
+            {
+                return new HashlinkObject(target);
+            }
+            else if(kind == HL_type.TypeKind.HFUN)
+            {
+                return new HashlinkClosure(target);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unrecognized type {kind}");
+            }
         }
     }
 }

@@ -16,7 +16,8 @@ namespace ModCore.Events
         private readonly static ModuleEventCall call;
 
         public static bool IsCalled { get; set; }
-        public static bool IsCallOnce { get;  }
+        public static bool IsCallOnce => Attribute.Once;
+        public static EventAttribute Attribute { get; }
         public static MethodInfo EventMethod { get; }
 
         private static ModuleEventCall GenerateCall(MethodInfo method)
@@ -54,7 +55,8 @@ namespace ModCore.Events
 
         static EventCaller()
         {
-            IsCallOnce = typeof(TEvent).IsAssignableTo(typeof(ICallOnceEvent<TEvent>));
+            Attribute = typeof(TEvent).GetCustomAttribute<EventAttribute>() ??
+                throw new InvalidOperationException();
             EventMethod = FindEventMethod(typeof(TEvent));
             call = GenerateCall(EventMethod);
         }

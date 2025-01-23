@@ -28,7 +28,10 @@ using System.Threading.Tasks;
 namespace ModCore.Modules
 {
     [CoreModule]
-    public unsafe class HashlinkVM : CoreModule<HashlinkVM>, IOnCoreModuleInitializing, IOnHashlinkVMReady
+    public unsafe class HashlinkVM : CoreModule<HashlinkVM>, 
+        IOnCoreModuleInitializing, 
+        IOnHashlinkVMReady,
+        IOnNativeEvent
     {
         public override int Priority => ModulePriorities.HashlinkVM;
 
@@ -113,11 +116,20 @@ namespace ModCore.Modules
 
             Context = (VMContext*)tinfo->stack_top;
 
-            Logger.Information("VM Context ptr: {ctxptr:x}h", (nint)Context);
-            Logger.Information("VM Code Version: {version}", Context->code->version);
-
             Logger.Information("Initializing HashlinkVM Utils");
 
+        }
+
+        void IOnNativeEvent.OnNativeEvent(IOnNativeEvent.Event ev)
+        {
+            if(ev.EventId == IOnNativeEvent.EventId.HL_EV_BEGORE_GC)
+            {
+                //GC.Collect();
+            }
+            else if(ev.EventId == IOnNativeEvent.EventId.HL_EV_VM_READY)
+            {
+                EventSystem.BroadcastEvent<IOnHashlinkVMReady>();
+            }
         }
     }
 }

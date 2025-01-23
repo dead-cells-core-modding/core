@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ModCore.Events.Interfaces
 {
-    public interface IOnCodeLoading : ICallOnceEvent<IOnCodeLoading>
+    [Event(true)]
+    public interface IOnCodeLoading
     {
         public void OnCodeLoading(ref Span<byte> data);
     }

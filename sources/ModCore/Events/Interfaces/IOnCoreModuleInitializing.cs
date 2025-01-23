@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ModCore.Events.Interfaces
 {
-    public interface IOnCoreModuleInitializing : ICallOnceEvent<IOnCoreModuleInitializing>
+    [Event(true)]
+    public interface IOnCoreModuleInitializing
     {
         void OnCoreModuleInitializing();
     }

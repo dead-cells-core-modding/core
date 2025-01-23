@@ -11,6 +11,8 @@ namespace ModCore.Events
 {
     public static class EventSystem
     {
+        public static event Action<IEventReceiver>? OnAddReceiver;
+        public static event Action<IEventReceiver>? OnRemoveReceiver;
         private static ILogger Logger { get; } = Log.Logger.ForContext("SourceContext", "EventSystem");
         [Flags]
         public enum ExceptionHandingFlags
@@ -26,17 +28,19 @@ namespace ModCore.Events
         public static void AddReceiver(IEventReceiver receiver)
         {
             eventReceivers.Add(receiver);
+            OnAddReceiver?.Invoke(receiver);
         }
         public static void RemoveReceiver(IEventReceiver receiver)
         {
             eventReceivers.Remove(receiver);
+            OnRemoveReceiver?.Invoke(receiver);
         }
 
-        public static T? FindReceiver<T>() where T : IEventReceiver
+        public static T? FindReceiver<T>()
         {
             return eventReceivers.OfType<T>().FirstOrDefault();
         }
-        public static IEnumerable<T> FindReceivers<T>() where T : IEventReceiver
+        public static IEnumerable<T> FindReceivers<T>()
         {
             return eventReceivers.OfType<T>();
         }
@@ -58,10 +62,19 @@ namespace ModCore.Events
                 {
                     throw new InvalidOperationException("An event that should only be called once was called multiple times");
                 }
-                Logger.Information("Broadcast Global Event: {Name}", typeof(TEvent).Name); 
+                Logger.Debug("Broadcast Global Event: {Name}", typeof(TEvent).Name); 
             }
             List<Exception>? exceptions = null;
-            foreach (var module in eventReceivers)
+            IEnumerable<IEventReceiver> receivers;
+            if (EventCaller<TEvent>.IsCallOnce)
+            {
+                receivers = eventReceivers;
+            }
+            else
+            {
+                receivers = EventReceiversCache<TEvent>.receivers;
+            }
+            foreach (var module in receivers)
             {
                 if (module is TEvent ev)
                 {

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ModCore.Events.Interfaces.Game
 {
-    public interface IOnGameEndInit : ICallOnceEvent<IOnGameEndInit>
+    [Event(true)]
+    public interface IOnGameEndInit
     {
         public void OnGameEndInit();
     }

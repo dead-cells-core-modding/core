@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ModCore.Events.Interfaces
 {
-    public interface IOnHashlinkVMReady : ICallOnceEvent<IOnHashlinkVMReady>
+    [Event(true)]
+    public interface IOnHashlinkVMReady
     {
         public void OnHashlinkVMReady();
     }

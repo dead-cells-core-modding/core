@@ -85,52 +85,12 @@ namespace Hashlink.Marshaling
         }
 
 
-        public static HashlinkObj ConvertHashlinkObject(void* target)
+        public static HashlinkObj ConvertHashlinkObject(void* target,
+            IHashlinkMarshaler? marshaler = null)
         {
-            HL_type* type = *(HL_type**)target;
-            HL_type.TypeKind kind = type->kind;
-
-
-            if (kind == HL_type.TypeKind.HUI8)
-            {
-                return new HashlinkTypedValue<byte>(target);
-            }
-            else if (kind == HL_type.TypeKind.HUI16)
-            {
-                return new HashlinkTypedValue<ushort>(target);
-            }
-            else if(kind == HL_type.TypeKind.HI32)
-            {
-                return new HashlinkTypedValue<int>(target);
-            }
-            else if(kind == HL_type.TypeKind.HI64)
-            {
-                return new HashlinkTypedValue<long>(target);
-            }
-            else if(kind == HL_type.TypeKind.HF32)
-            {
-                return new HashlinkTypedValue<float>(target);
-            }
-            else if(kind == HL_type.TypeKind.HF64)
-            {
-                return new HashlinkTypedValue<double>(target);
-            }
-            else if(kind == HL_type.TypeKind.HBOOL)
-            {
-                return new HashlinkTypedValue<bool>(target);
-            }
-            else if(kind == HL_type.TypeKind.HVIRTUAL)
-            {
-                return new HashlinkVirtual(target);
-            }
-            else if(kind == HL_type.TypeKind.HOBJ)
-            {
-                return new HashlinkObject(target);
-            }
-            else
-            {
-                throw new InvalidOperationException($"Unrecognized type {kind}");
-            }
+            marshaler ??= DefaultHashlinkMarshaler.Instance;
+            return marshaler.TryConvertHashlinkObject(target) ?? throw new InvalidOperationException();
         }
+
     }
 }

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ModCore.Events.Interfaces.Game
 {
-    public interface IOnGameInit : ICallOnceEvent<IOnGameInit>
+    [Event(true)]
+    public interface IOnGameInit
     {
         public void OnGameInit();
     }

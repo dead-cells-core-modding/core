@@ -100,16 +100,12 @@ void log_printf_handler(const char* source, int level, const char* format, va_li
 	free(buf);
 }
 
-void event_handler(int eventId, void* data) {
-	csapi_OnHLEvent(eventId, data);
-}
-
 EXTERNC EXPORT int hlu_start_game(hl_code* code) {
 	char *error_msg = NULL;
 	bool isExc = false;
 	main_context ctx;
 
-	hl_event_set_handler(event_handler);
+	hl_event_set_handler(csapi_OnHLEvent);
 	hl_log_set_handler(log_printf_handler);
 	hl_sys_init((void**)"", 0, "hlboot.dat");
 	hl_register_thread(&ctx);

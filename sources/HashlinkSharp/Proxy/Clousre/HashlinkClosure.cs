@@ -36,6 +36,10 @@ namespace Hashlink.Proxy.Clousre
                 {
                     TypedRef->value = (void*) value.Value;
                 }
+                if(cachedFunc != null)
+                {
+                    cachedFunc.BindingThis = value;
+                }
             }
         }
     }

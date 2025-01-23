@@ -1,5 +1,6 @@
 ﻿
 using ModCore.Events;
+using ModCore.Events.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Concurrent;
@@ -50,6 +51,12 @@ namespace ModCore
         };
 
         private static readonly ConcurrentDictionary<string, ILogger> nativeLoggers = [];
+
+        [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+        public static void OnHLEvent(int eventId, nint data)
+        {
+            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(new((IOnNativeEvent.EventId)eventId, data));
+        }
 
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
         private static void LogPrint(nint source, int level, byte* msg)

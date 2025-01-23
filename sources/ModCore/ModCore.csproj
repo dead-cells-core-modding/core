@@ -17,6 +17,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Hashlink\**" />
+    <Compile Remove="Track\**" />
+    <EmbeddedResource Remove="Hashlink\**" />
+    <EmbeddedResource Remove="Track\**" />
+    <None Remove="Hashlink\**" />
+    <None Remove="Track\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
     <PackageReference Include="MonoMod.RuntimeDetour" Version="25.2.1" />
     <PackageReference Include="Serilog" Version="4.1.0" />
@@ -31,9 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Hashlink\" />
     <Folder Include="Modules\Events\" />
-    <Folder Include="Track\" />
   </ItemGroup>
 
 </Project>

@@ -79,6 +79,12 @@ namespace Hashlink
         public static partial void hl_add_root(void* ptr);
         [LibraryImport(LIBHL)]
         public static partial void hl_remove_root(void* ptr);
+
+        [LibraryImport(LIBHL)]
+        public static partial void hl_add_root_2(void* ptr);
+        [LibraryImport(LIBHL)]
+        public static partial void hl_remove_root_2(void* ptr);
+
         [LibraryImport(LIBHL)]
         public static partial HL_vdynobj* hl_alloc_dynobj();
         [LibraryImport(LIBHL)]

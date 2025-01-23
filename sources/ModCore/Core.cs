@@ -83,8 +83,6 @@ namespace ModCore
 
             Log.Logger.Information("Initalizing");
 
-            Native.BindNativeExport(typeof(NativeExport));
-
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
             Log.Logger.Information("Loading core modules");

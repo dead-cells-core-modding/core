@@ -10,10 +10,11 @@ namespace Hashlink.Brigde
 {
     public sealed unsafe class MethodWrapper : IDisposable
     {
+        public delegate object? WrapperEntry(MethodWrapper wrapper, object?[] args);
         private bool disposedValue;
 
         private static readonly ConcurrentDictionary<Type, Func<object[], object>> targetCaller = [];
-        private readonly Delegate target;
+        private readonly WrapperEntry target;
         private MethodWrapperFactory.EntryItem* entry;
 
         public object? Data { get; set; }
@@ -32,7 +33,7 @@ namespace Hashlink.Brigde
 
         internal MethodWrapperFactory.EntryItem* EntryHandle => entry;
 
-        public MethodWrapper(Delegate target,
+        public MethodWrapper(WrapperEntry target,
             HL_type.TypeKind retType, 
             IEnumerable<HL_type.TypeKind> argTypes)
         {
@@ -45,8 +46,18 @@ namespace Hashlink.Brigde
             var args = new object?[table->argsCount];
             for (int i = 0; i < table->argsCount; i++)
             {
-                var at = (HL_type.TypeKind) table->targs[i];
+                var at = (HL_type.TypeKind)table->targs[i];
                 args[i] = HashlinkMarshal.ReadData(argPtr + i, at);
+            }
+
+            var ret = target(this, args);
+            if (ret is float fret)
+            {
+                *(double*)retVal = fret;
+            }
+            else
+            {
+                HashlinkMarshal.WriteData(retVal, ret, (HL_type.TypeKind)table->retType);
             }
         }
 

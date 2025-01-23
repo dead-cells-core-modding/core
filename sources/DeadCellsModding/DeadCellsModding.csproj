@@ -24,4 +24,10 @@
     <Content Include="icon.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="steam_appid.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

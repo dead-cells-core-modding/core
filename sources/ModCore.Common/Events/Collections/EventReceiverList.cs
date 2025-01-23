@@ -11,8 +11,13 @@ namespace ModCore.Events.Collections
     {
         class NodeDataBlock(int count)
         {
+            public class BlockItem
+            {
+                public required IEventReceiver Receiver { get; set; }
+                public required int Version { get; set; }
+            }
             public int Count { get; } = count;
-            public IEventReceiver[] Receivers { get; } = new IEventReceiver[count];
+            public BlockItem?[] Items { get; } = new BlockItem[count];
             public NodeDataBlock? NextBlock { get; set; }
         }
         class Node
@@ -25,7 +30,6 @@ namespace ModCore.Events.Collections
             public Node? Left { get; set; }
             public Node? Right { get; set; }
             public required int Priority { get; init; }
-            public int Version { get; set; }
             public Node LowestNode { get; set; }
             public NodeDataBlock Data { get; } = new(2);
             
@@ -89,7 +93,6 @@ namespace ModCore.Events.Collections
                     {
                         Priority = priority,
                         Parent = curNode,
-                        Version = ++Version
                     };
                     curNode.Left = newNode;
                     break;
@@ -106,7 +109,6 @@ namespace ModCore.Events.Collections
                     {
                         Priority = priority,
                         Parent = curNode,
-                        Version = ++Version
                     };
                     curNode.Right = newNode;
                     break;
@@ -134,19 +136,20 @@ namespace ModCore.Events.Collections
             while(en.MoveNext())
             {
                 var node = en.Current;
-                if(en.Current.Version > curVer)
-                {
-                    continue;
-                }
                 var curBlock = node.Data;
                 while(curBlock != null)
                 {
                     for(int i = 0; i < curBlock.Count; i++)
                     {
-                        if (curBlock.Receivers[i] != null)
+                        var block = curBlock.Items[i];
+                        if(block != null)
                         {
-                            yield return curBlock.Receivers[i];
+                            if(block.Version <= curVer)
+                            {
+                                yield return block.Receiver;
+                            }
                         }
+
                     }
                     curBlock = curBlock.NextBlock;
                 }
@@ -162,14 +165,18 @@ namespace ModCore.Events.Collections
             {
                 for (int i = 0; i < curBlock.Count; i++)
                 {
-                    ref var rec = ref curBlock.Receivers[i];
+                    ref var rec = ref curBlock.Items[i];
                     if(rec == receiver)
                     {
                         return;
                     }
                     if (rec == null)
                     {
-                        rec = receiver;
+                        rec = new()
+                        {
+                            Receiver = receiver,
+                            Version = Version
+                        };
                         return;
                     }
                 }
@@ -177,7 +184,11 @@ namespace ModCore.Events.Collections
                 curBlock = curBlock.NextBlock;
             }
             lastBlock.NextBlock = curBlock = new(lastBlock.Count * 2);
-            curBlock.Receivers[0] = receiver;
+            curBlock.Items[0] = new()
+            {
+                Receiver = receiver,
+                Version = Version
+            };
         }
         public void Remove(IEventReceiver receiver)
         {
@@ -187,7 +198,7 @@ namespace ModCore.Events.Collections
             {
                 for (int i = 0; i < curBlock.Count; i++)
                 {
-                    ref var rec = ref curBlock.Receivers[i];
+                    ref var rec = ref curBlock.Items[i];
                     if (rec == receiver)
                     {
                         rec = null;
