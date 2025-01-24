@@ -121,14 +121,14 @@ EXTERNC EXPORT int hlu_start_game(hl_code* code) {
 	if( !hl_module_init(ctx.m,FALSE) )
 		return 3;
 
-	hl_event(HL_EV_VM_READY, NULL);
+	hl_event(HL_EV_VM_READY, &ctx);
 
 	hl_code_free(ctx.code);
 	ctx.c.t = ctx.code->functions[ctx.m->functions_indexes[ctx.m->code->entrypoint]].type;
 	ctx.c.fun = ctx.m->functions_ptrs[ctx.m->code->entrypoint];
 	ctx.c.hasValue = 0;
 	setup_handler();
-	ctx.ret = hl_dyn_call_safe(&ctx.c,NULL,0,&isExc);
+	/*ctx.ret = hl_dyn_call_safe(&ctx.c, NULL, 0, &isExc);
 	if( isExc ) {
 		varray *a = hl_exception_stack();
 		int i;
@@ -138,7 +138,8 @@ EXTERNC EXPORT int hlu_start_game(hl_code* code) {
 		hl_global_free();
 		return 1;
 	}
-	hl_module_free(ctx.m);
+	hl_module_free(ctx.m);*/
+	hl_event(HL_EV_START_GAME, &ctx);
 	hl_free(&ctx.code->alloc);
 	hl_global_free();
 	return 0;

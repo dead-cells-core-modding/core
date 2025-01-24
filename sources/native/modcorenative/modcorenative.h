@@ -22,7 +22,7 @@ typedef void(*real_hl_global_init)(void);
 
 typedef unsigned long long hl_value_fat;
 
-typedef void(*hl2cs_callback)(void* table, void* retVal, hl_value_fat* args);
+typedef void(*hl2cs_callback)(void* table, void* retVal, hl_value_fat* args, void** hl_error);
 
 typedef struct
 {
@@ -46,3 +46,5 @@ EXTERNC void* asm_call_bridge_hl_to_cs();
 
 EXTERNC extern void* call_jit_c2hl;
 EXTERNC extern void* call_jit_hl2c;
+
+HL_PRIM void* callback_c2hl(void* f, hl_type* t, void** args, vdynamic* ret);

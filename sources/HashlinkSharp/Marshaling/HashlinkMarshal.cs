@@ -1,6 +1,7 @@
 ﻿using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
+using ModCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,11 +85,42 @@ namespace Hashlink.Marshaling
             return marshaler.TryReadData(target, type);
         }
 
+        public static bool IsHashlinkObject(void* ptr)
+        {
+            if(!Native.mcn_memory_readable(ptr))
+            {
+                return false;
+            }
+            var type = ((HL_vdynamic*)ptr)->type;
+            if(!Native.mcn_memory_readable(type))
+            {
+                return false;
+            }
+            if(type->kind < 0 || type->kind > HL_type.TypeKind.HLAST)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public static bool IsAllocatedHashlinkObject(void* ptr)
+        {
+            if(!hl_is_gc_ptr(ptr))
+            {
+                return false;
+            }
+            return IsHashlinkObject(ptr);
+        }
 
         public static HashlinkObj ConvertHashlinkObject(void* target,
             IHashlinkMarshaler? marshaler = null)
         {
             marshaler ??= DefaultHashlinkMarshaler.Instance;
+            var handle = HashlinkObjHandle.GetHandle(target);
+            if(handle != null && handle.Target != null)
+            {
+                return handle.Target;
+            }
             return marshaler.TryConvertHashlinkObject(target) ?? throw new InvalidOperationException();
         }
 

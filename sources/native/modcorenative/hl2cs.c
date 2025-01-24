@@ -38,7 +38,11 @@ static void call_bridge_hl_to_cs(hl2c_table* table, void* retVal, va_list args)
 		smark >>= 1;
 		fmark >>= 1;
 	}
-	table->callback(table, retVal, argsBuf);
+	void* err = NULL;
+	table->callback(table, retVal, argsBuf, &err);
+	if (err != NULL) {
+		hl_throw(err);
+	}
 }
 
 EXTERNC EXPORT void* get_asm_call_bridge_hl_to_cs()

@@ -7,10 +7,20 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Proxy.Values
 {
-    public unsafe class HashlinkTypedValue<TValue>(void* val) : HashlinkValue(val)
+    public unsafe class HashlinkTypedValue<TValue>(HashlinkObjPtr val) : HashlinkValue(val)
         where TValue : unmanaged
     {
-        public TValue TypedValue
+        public HashlinkTypedValue() : this(HashlinkObjPtr.GetUnsafe(
+            hl_alloc_dynamic(InternalTypes.GetFrom(typeof(TValue))
+            )))
+            {
+
+        }
+        public HashlinkTypedValue(TValue value) : this()
+        {
+            TypedValue = value;
+        }
+        public virtual TValue TypedValue
         {
             get
             {
@@ -22,6 +32,6 @@ namespace Hashlink.Proxy.Values
             }
         }
 
-        public override object Value { get => TypedValue; set => TypedValue = (TValue)value; }
+        public override object? Value { get => TypedValue; set => TypedValue = (TValue)value!; }
     }
 }

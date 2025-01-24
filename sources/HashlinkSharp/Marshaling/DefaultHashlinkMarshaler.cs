@@ -147,49 +147,59 @@ namespace Hashlink.Marshaling
 
         public virtual HashlinkObj? TryConvertHashlinkObject(void* target)
         {
-            HL_type* type = *(HL_type**)target;
-            HL_type.TypeKind kind = type->kind;
+            var ptr = HashlinkObjPtr.Get(target);
 
+            HL_type.TypeKind kind = ptr.TypeKind;
+
+            
 
             if (kind == HL_type.TypeKind.HUI8)
             {
-                return new HashlinkTypedValue<byte>(target);
+                return new HashlinkTypedValue<byte>(ptr);
             }
             else if (kind == HL_type.TypeKind.HUI16)
             {
-                return new HashlinkTypedValue<ushort>(target);
+                return new HashlinkTypedValue<ushort>(ptr);
             }
             else if (kind == HL_type.TypeKind.HI32)
             {
-                return new HashlinkTypedValue<int>(target);
+                return new HashlinkTypedValue<int>(ptr);
             }
             else if (kind == HL_type.TypeKind.HI64)
             {
-                return new HashlinkTypedValue<long>(target);
+                return new HashlinkTypedValue<long>(ptr);
             }
             else if (kind == HL_type.TypeKind.HF32)
             {
-                return new HashlinkTypedValue<float>(target);
+                return new HashlinkTypedValue<float>(ptr);
             }
             else if (kind == HL_type.TypeKind.HF64)
             {
-                return new HashlinkTypedValue<double>(target);
+                return new HashlinkTypedValue<double>(ptr);
             }
             else if (kind == HL_type.TypeKind.HBOOL)
             {
-                return new HashlinkTypedValue<bool>(target);
+                return new HashlinkTypedValue<bool>(ptr);
+            }
+            else if(kind == HL_type.TypeKind.HBYTES)
+            {
+                return new HashlinkBytes(ptr);
             }
             else if (kind == HL_type.TypeKind.HVIRTUAL)
             {
-                return new HashlinkVirtual(target);
+                return new HashlinkVirtual(ptr);
             }
             else if (kind == HL_type.TypeKind.HOBJ)
             {
-                return new HashlinkObject(target);
+                return new HashlinkObject(ptr);
             }
             else if(kind == HL_type.TypeKind.HFUN)
             {
-                return new HashlinkClosure(target);
+                return new HashlinkClosure(ptr);
+            }
+            else if(kind == HL_type.TypeKind.HREF)
+            {
+                return new HashlinkRef(ptr);
             }
             else
             {

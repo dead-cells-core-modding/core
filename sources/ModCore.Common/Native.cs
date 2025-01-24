@@ -36,6 +36,8 @@ namespace ModCore
         #region HL CS Interop
         [LibraryImport(MODCORE_NATIVE_NAME)]
         public static partial void* get_asm_call_bridge_hl_to_cs();
+        [LibraryImport(MODCORE_NATIVE_NAME)]
+        public static partial void* hlu_call_c2hl(void* f, void* t, void** args, void* ret);
         #endregion
     }
 }

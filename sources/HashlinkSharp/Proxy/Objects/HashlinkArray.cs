@@ -8,8 +8,12 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Proxy.Objects
 {
-    public unsafe class HashlinkArray(void* objPtr) : HashlinkTypedObj<HL_array>(objPtr)
+    public unsafe class HashlinkArray(HashlinkObjPtr objPtr) : HashlinkTypedObj<HL_array>(objPtr)
     {
+        public HashlinkArray(HL_type* type, int size) : this(HashlinkObjPtr.GetUnsafe(hl_alloc_array(type, size)))
+        {
+
+        }
         public HL_type* ElementType => TypedRef->at;
         public int ElementSize => hl_type_size(ElementType);
         public int Count => TypedRef->size;

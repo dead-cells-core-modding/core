@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ModCore.Events
 {
-    public interface ICallOnceEvent<TEvent>
+    public class EventBreakException(Exception ex) : Exception(null, ex)
     {
     }
 }

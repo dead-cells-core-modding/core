@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Proxy.Objects
 {
-    public unsafe abstract class HashlinkFieldObject<T>(void* objPtr) : HashlinkTypedObj<T>(objPtr),
+    public unsafe abstract class HashlinkFieldObject<T>(HashlinkObjPtr objPtr) : HashlinkTypedObj<T>(objPtr),
         IHashlinkFieldObject
         where T : unmanaged
     {

@@ -1,4 +1,5 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Proxy.Values;
 using Hashlink.Track;
 using ModCore;
 using MonoMod.Core.Platforms;
@@ -27,7 +28,7 @@ namespace Hashlink.Brigde
             ];
 
         private static readonly void* csentry_no_orig_ptr = (delegate* unmanaged[Cdecl]<void>)&CSEntry_NoOriginal;
-        private static readonly void* csentry_ptr = (delegate* unmanaged[Cdecl]<NativeInfoTable*, void*, long*, void>)&CSEntry;
+        private static readonly void* csentry_ptr = (delegate* unmanaged[Cdecl]<NativeInfoTable*, void*, long*, void**, void>)&CSEntry;
         private static readonly Queue<nint> freeEntries = [];
 
         [MethodImpl(MethodImplOptions.Synchronized)]
@@ -157,7 +158,7 @@ namespace Hashlink.Brigde
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
         [CallFromHLOnly]
         [StackTraceHidden]
-        private static void CSEntry(NativeInfoTable* table, void* retVal, long* args)
+        private static void CSEntry(NativeInfoTable* table, void* retVal, long* args, void** err)
         {
             if(table->wrapperHandle == 0 ||
                 table->enabled == 0)
@@ -166,7 +167,18 @@ namespace Hashlink.Brigde
             }
             var gch = GCHandle.FromIntPtr(table->wrapperHandle);
             var wrapper = (MethodWrapper?)gch.Target ?? throw new InvalidOperationException();
-            wrapper.Entry(table, retVal, args);
+            try
+            {
+                wrapper.Entry(table, retVal, args);
+            }
+            catch (HashlinkError ex)
+            {
+                *err = (void*)ex.Error;
+            }
+            catch (Exception ex)
+            {
+                *err = (void*)new HashlinkBytes((byte*)Marshal.StringToCoTaskMemUTF8(ex.ToString())).HashlinkPointer;
+            }
         }
 
 

@@ -1,4 +1,5 @@
 ﻿
+using ModCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -153,8 +154,10 @@ namespace Hashlink
         public static partial HL_vclosure* hl_alloc_closure_ptr(HL_type* fullt, void* fvalue, void* v);
         [LibraryImport(LIBHL)]
         public static partial void* hl_code_read(void* data, int size, byte** errorMsg);
-        [LibraryImport(LIBHL)]
-        public static partial void* callback_c2hl(void* f, HL_type* t, void** args, HL_vdynamic* ret);
+        public static void* callback_c2hl(void* f, HL_type* t, void** args, HL_vdynamic* ret)
+        {
+            return Native.hlu_call_c2hl(f, t, args, ret);
+        }
         [LibraryImport(LIBHL)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static partial bool module_resolve_pos(HL_module* m, void* addr, out int fidx, out int fpos);
@@ -166,5 +169,8 @@ namespace Hashlink
         public static partial char* hl_field_name(int hashedName);
         [LibraryImport(LIBHL)]
         public static partial void* hl_alloc_executable_memory(int size);
+        [LibraryImport(LIBHL)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static partial bool hl_is_gc_ptr(void* ptr);
     }
 }

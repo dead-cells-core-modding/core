@@ -18,7 +18,9 @@ namespace ModCore.Events.Interfaces
             HL_EV_GC_FREE_PAGE = 5,
             HL_EV_GC_BEFORE_MARK = 6,
             HL_EV_GC_AFTER_MARK = 7,
-            HL_EV_GC_CS_NO_MARKED = 8
+            HL_EV_GC_CS_NO_MARKED = 8,
+            HL_EV_ERR_NET_CAUGHT = 9,
+            HL_EV_START_GAME = 10
         }
         public record class Event(EventId EventId, nint Data);
         public void OnNativeEvent(Event ev);

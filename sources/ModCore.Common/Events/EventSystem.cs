@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,11 +18,13 @@ namespace ModCore.Events
         [Flags]
         public enum ExceptionHandingFlags
         {
-            Default = Continue ,
+            None = 0,
+            Default = 0,
 
             Continue = 1,
             NoThrow = 2,
-            Quiet = 4
+            Quiet = 4,
+            DirectRethrow = 8
         }
         private static readonly EventReceiverList eventReceivers = [];
 
@@ -82,11 +85,23 @@ namespace ModCore.Events
                     {
                         EventCaller<TEvent>.Invoke(ev, ref arg);
                     }
+                    catch (EventBreakException ex)
+                    {
+                        if (ex.InnerException != null)
+                        {
+                            ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                        }
+                        throw;
+                    }
                     catch (Exception ex)
                     {
+                        if (flags == ExceptionHandingFlags.DirectRethrow)
+                        {
+                            throw;
+                        }
                         if (!flags.HasFlag(ExceptionHandingFlags.Quiet))
                         {
-                            Logger.Error(ex, "An exception occurred when executing event");
+                            Logger.Error(ex, "An exception occurred when executing event {evName}", typeof(TEvent).Name);
                         }
                         if (flags.HasFlag(ExceptionHandingFlags.NoThrow))
                         {

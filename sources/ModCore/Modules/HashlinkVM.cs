@@ -1,4 +1,5 @@
 ﻿using Hashlink;
+using Hashlink.Marshaling;
 using Hashlink.Track;
 using Iced.Intel;
 using ModCore.Events;
@@ -19,10 +20,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using static Hashlink.HL_module;
 
 
 namespace ModCore.Modules
@@ -59,10 +62,10 @@ namespace ModCore.Modules
         private static hl_sys_print_handler orig_hl_sys_print = null!;
         private readonly static ILogger hlprintLogger = Log.ForContext("SourceContext", "Game");
         private readonly static StringBuilder hlprintBuffer = new();
+
         [CallFromHLOnly]
         private static void Hook_hl_sys_print(char* msg)
         {
-
             char ch;
             while((ch = *(msg++)) != 0)
             {
@@ -122,12 +125,15 @@ namespace ModCore.Modules
 
         void IOnNativeEvent.OnNativeEvent(IOnNativeEvent.Event ev)
         {
-            if(ev.EventId == IOnNativeEvent.EventId.HL_EV_BEGORE_GC)
+            if(ev.EventId == IOnNativeEvent.EventId.HL_EV_ERR_NET_CAUGHT)
             {
-                //GC.Collect();
+                var hlerr = new HashlinkError(ev.Data);
+                ExceptionDispatchInfo.SetRemoteStackTrace(hlerr, "TODO: hashlink stacktrace");
+                throw new EventBreakException(hlerr);
             }
             else if(ev.EventId == IOnNativeEvent.EventId.HL_EV_VM_READY)
             {
+                Context = (VMContext*)ev.Data;
                 EventSystem.BroadcastEvent<IOnHashlinkVMReady>();
             }
         }

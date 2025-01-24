@@ -55,7 +55,10 @@ namespace ModCore
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
         public static void OnHLEvent(int eventId, nint data)
         {
-            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(new((IOnNativeEvent.EventId)eventId, data));
+
+            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
+                new((IOnNativeEvent.EventId)eventId, data));
+
         }
 
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
