@@ -1,22 +1,15 @@
-﻿using Hashlink.Marshaling;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Hashlink.Proxy.Values
+﻿namespace Hashlink.Proxy.Values
 {
-    public unsafe class HashlinkTypedValue<TValue>(HashlinkObjPtr val) : HashlinkValue(val)
+    public unsafe class HashlinkTypedValue<TValue>( HashlinkObjPtr val ) : HashlinkValue(val)
         where TValue : unmanaged
     {
         public HashlinkTypedValue() : this(HashlinkObjPtr.GetUnsafe(
             hl_alloc_dynamic(InternalTypes.GetFrom(typeof(TValue))
             )))
-            {
+        {
 
         }
-        public HashlinkTypedValue(TValue value) : this()
+        public HashlinkTypedValue( TValue value ) : this()
         {
             TypedValue = value;
         }
@@ -32,6 +25,9 @@ namespace Hashlink.Proxy.Values
             }
         }
 
-        public override object? Value { get => TypedValue; set => TypedValue = (TValue)value!; }
+        public override object? Value
+        {
+            get => TypedValue; set => TypedValue = (TValue)value!;
+        }
     }
 }

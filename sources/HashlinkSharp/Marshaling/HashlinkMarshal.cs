@@ -1,19 +1,11 @@
 ﻿using Hashlink.Proxy;
-using Hashlink.Proxy.Objects;
-using Hashlink.Proxy.Values;
 using ModCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hashlink.Marshaling
 {
     public static unsafe class HashlinkMarshal
     {
-        public static HL_type.TypeKind? GetTypeKind(Type type)
+        public static HL_type.TypeKind? GetTypeKind( Type type )
         {
             if (type == typeof(int) || type == typeof(uint))
             {
@@ -52,22 +44,22 @@ namespace Hashlink.Marshaling
 
         public static IHashlinkMarshaler DefaultMarshaler { get; set; } = DefaultHashlinkMarshaler.Instance;
 
-        public static bool IsPointer(this HL_type.TypeKind type)
+        public static bool IsPointer( this HL_type.TypeKind type )
         {
             return type >= HL_type.TypeKind.HBYTES;
         }
-        
+
         public static void WriteData(
             void* target,
             object? val,
             HL_type.TypeKind? type,
-            IHashlinkMarshaler? marshaler = null)
+            IHashlinkMarshaler? marshaler = null )
         {
             ArgumentNullException.ThrowIfNull(target, nameof(target));
 
             marshaler ??= DefaultHashlinkMarshaler.Instance;
 
-            if(!marshaler.TryWriteData(target, val, type))
+            if (!marshaler.TryWriteData(target, val, type))
             {
                 throw new InvalidOperationException("Unable to marshal the specified object");
             }
@@ -85,46 +77,32 @@ namespace Hashlink.Marshaling
             return marshaler.TryReadData(target, type);
         }
 
-        public static bool IsHashlinkObject(void* ptr)
+        public static bool IsHashlinkObject( void* ptr )
         {
-            if(!Native.mcn_memory_readable(ptr))
+            if (!Native.mcn_memory_readable(ptr))
             {
                 return false;
             }
             var type = ((HL_vdynamic*)ptr)->type;
-            if(!Native.mcn_memory_readable(type))
-            {
-                return false;
-            }
-            if(type->kind < 0 || type->kind > HL_type.TypeKind.HLAST)
-            {
-                return false;
-            }
-            return true;
+            return Native.mcn_memory_readable(type) && type->kind is >= 0 and <= HL_type.TypeKind.HLAST;
         }
 
-        public static bool IsAllocatedHashlinkObject(void* ptr)
+        public static bool IsAllocatedHashlinkObject( void* ptr )
         {
-            if(!hl_is_gc_ptr(ptr))
-            {
-                return false;
-            }
-            return IsHashlinkObject(ptr);
+            return hl_is_gc_ptr(ptr) && IsHashlinkObject(ptr);
         }
 
-        public static HashlinkObj ConvertHashlinkObject(void* target,
-            IHashlinkMarshaler? marshaler = null)
+        public static HashlinkObj ConvertHashlinkObject( void* target,
+            IHashlinkMarshaler? marshaler = null )
         {
             marshaler ??= DefaultHashlinkMarshaler.Instance;
             var handle = HashlinkObjHandle.GetHandle(target);
-            if(handle != null && handle.Target != null)
-            {
-                return handle.Target;
-            }
-            return marshaler.TryConvertHashlinkObject(target) ?? throw new InvalidOperationException();
+            return handle != null && handle.Target != null
+                ? handle.Target
+                : marshaler.TryConvertHashlinkObject(target) ?? throw new InvalidOperationException();
         }
-        public static T ConvertHashlinkObject<T>(void* target,
-           IHashlinkMarshaler? marshaler = null) where T : HashlinkObj
+        public static T ConvertHashlinkObject<T>( void* target,
+           IHashlinkMarshaler? marshaler = null ) where T : HashlinkObj
         {
             return (T)ConvertHashlinkObject(target, marshaler);
         }

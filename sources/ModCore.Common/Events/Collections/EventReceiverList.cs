@@ -1,38 +1,58 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections;
 
 namespace ModCore.Events.Collections
 {
     internal sealed class EventReceiverList : IEnumerable<IEventReceiver>
     {
-        class NodeDataBlock(int count)
+        private class NodeDataBlock( int count )
         {
             public class BlockItem
             {
-                public required IEventReceiver Receiver { get; set; }
-                public required int Version { get; set; }
+                public required IEventReceiver Receiver
+                {
+                    get; set;
+                }
+                public required int Version
+                {
+                    get; set;
+                }
             }
             public int Count { get; } = count;
             public BlockItem?[] Items { get; } = new BlockItem[count];
-            public NodeDataBlock? NextBlock { get; set; }
+            public NodeDataBlock? NextBlock
+            {
+                get; set;
+            }
         }
-        class Node
+
+        private class Node
         {
             public Node()
             {
                 LowestNode = this;
             }
-            public Node? Parent { get; set; }
-            public Node? Left { get; set; }
-            public Node? Right { get; set; }
-            public required int Priority { get; init; }
-            public Node LowestNode { get; set; }
+            public Node? Parent
+            {
+                get; set;
+            }
+            public Node? Left
+            {
+                get; set;
+            }
+            public Node? Right
+            {
+                get; set;
+            }
+            public required int Priority
+            {
+                get; init;
+            }
+            public Node LowestNode
+            {
+                get; set;
+            }
             public NodeDataBlock Data { get; } = new(2);
-            
+
         }
 
         public int Version { get; private set; } = 0;
@@ -42,9 +62,9 @@ namespace ModCore.Events.Collections
             Priority = 0
         };
 
-        private static IEnumerator<Node> ForeachAllNode(Node root)
+        private static IEnumerator<Node> ForeachAllNode( Node root )
         {
-            if(root.Left == null && root.Right == null)
+            if (root.Left == null && root.Right == null)
             {
                 yield return root;
                 yield break;
@@ -52,16 +72,16 @@ namespace ModCore.Events.Collections
             var cur = root.LowestNode;
             while (cur != root.Parent)
             {
-                if(cur == null)
+                if (cur == null)
                 {
                     yield break;
                 }
                 yield return cur;
 
-                if(cur.Right != null)
+                if (cur.Right != null)
                 {
                     var en = ForeachAllNode(cur.Right);
-                    while(en.MoveNext())
+                    while (en.MoveNext())
                     {
                         yield return en.Current;
                     }
@@ -71,20 +91,20 @@ namespace ModCore.Events.Collections
             }
         }
 
-        private Node GetOrAddNode(int priority)
+        private Node GetOrAddNode( int priority )
         {
             var curNode = root;
             Node? newNode;
-            while(true)
+            while (true)
             {
-                if(curNode.Priority == priority)
+                if (curNode.Priority == priority)
                 {
                     return curNode;
                 }
-                if(curNode.Priority > priority)
+                if (curNode.Priority > priority)
                 {
                     var node = curNode.Left;
-                    if(node != null)
+                    if (node != null)
                     {
                         curNode = node;
                         continue;
@@ -114,9 +134,9 @@ namespace ModCore.Events.Collections
                     break;
                 }
             }
-            while(curNode != null)
+            while (curNode != null)
             {
-                if(curNode.LowestNode.Priority >= priority)
+                if (curNode.LowestNode.Priority >= priority)
                 {
                     curNode.LowestNode = newNode;
                 }
@@ -133,18 +153,18 @@ namespace ModCore.Events.Collections
         {
             var en = ForeachAllNode(root);
             var curVer = Version;
-            while(en.MoveNext())
+            while (en.MoveNext())
             {
                 var node = en.Current;
                 var curBlock = node.Data;
-                while(curBlock != null)
+                while (curBlock != null)
                 {
-                    for(int i = 0; i < curBlock.Count; i++)
+                    for (var i = 0; i < curBlock.Count; i++)
                     {
                         var block = curBlock.Items[i];
-                        if(block != null)
+                        if (block != null)
                         {
-                            if(block.Version <= curVer)
+                            if (block.Version <= curVer)
                             {
                                 yield return block.Receiver;
                             }
@@ -156,17 +176,17 @@ namespace ModCore.Events.Collections
             }
         }
 
-        public void Add(IEventReceiver receiver)
+        public void Add( IEventReceiver receiver )
         {
             var node = GetOrAddNode(receiver.Priority);
             var curBlock = node.Data;
             var lastBlock = curBlock;
             while (curBlock != null)
             {
-                for (int i = 0; i < curBlock.Count; i++)
+                for (var i = 0; i < curBlock.Count; i++)
                 {
                     ref var rec = ref curBlock.Items[i];
-                    if(rec == receiver)
+                    if (rec == receiver)
                     {
                         return;
                     }
@@ -190,13 +210,13 @@ namespace ModCore.Events.Collections
                 Version = Version
             };
         }
-        public void Remove(IEventReceiver receiver)
+        public void Remove( IEventReceiver receiver )
         {
             var node = GetOrAddNode(receiver.Priority);
             var curBlock = node.Data;
             while (curBlock != null)
             {
-                for (int i = 0; i < curBlock.Count; i++)
+                for (var i = 0; i < curBlock.Count; i++)
                 {
                     ref var rec = ref curBlock.Items[i];
                     if (rec == receiver)

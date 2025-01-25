@@ -1,17 +1,10 @@
 ﻿using Hashlink;
 using Hashlink.Trace;
 using ModCore.Modules;
-using MonoMod.Utils;
-using Serilog;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore.Trace
 {
@@ -21,7 +14,7 @@ namespace ModCore.Trace
 
         private readonly List<StackFrame> frames = [];
 
-        public MixStackTrace(StackTrace trace)
+        public MixStackTrace( StackTrace trace )
         {
             innerTrace = trace;
 
@@ -29,12 +22,12 @@ namespace ModCore.Trace
 
             CollectInfo();
         }
-        public MixStackTrace(int skipFrames = 0, bool needFileInfo = false) : this(new(skipFrames + 1, needFileInfo))
+        public MixStackTrace( int skipFrames = 0, bool needFileInfo = false ) : this(new(skipFrames + 1, needFileInfo))
         {
         }
 
         public override int FrameCount => frames.Count;
-        public override StackFrame? GetFrame(int index)
+        public override StackFrame? GetFrame( int index )
         {
             return frames[index];
         }
@@ -42,37 +35,28 @@ namespace ModCore.Trace
         {
             return [.. frames];
         }
-        private static string GetFunctionName(HL_function* func)
+        private static string GetFunctionName( HL_function* func )
         {
-            if (func->obj != null)
-            {
-                return $"{new string(func->obj->name)}.{new string(func->field.field)}@{func->findex}";
-            }
-            else if (func->field.@ref != null)
-            {
-                return GetFunctionName(func->field.@ref);
-            }
-            else
-            {
-                return $"fun${func->findex}";
-            }
+            return func->obj != null
+                ? $"{new string(func->obj->name)}.{new string(func->field.field)}@{func->findex}"
+                : func->field.@ref != null ? GetFunctionName(func->field.@ref) : $"fun${func->findex}";
         }
         private void CollectInfo()
         {
             var t = hl_get_thread();
-            void** buf = stackalloc void*[512];
+            var buf = stackalloc void*[512];
             var ebpCount = Native.mcn_load_stacktrace(buf, 512, t->stack_top);
 
             var curTransition = MixTrace.current;
             var managedId = 0;
 
-            var jitStart = (nint) HashlinkVM.Instance.Context->m->jit_code;
+            var jitStart = (nint)HashlinkVM.Instance.Context->m->jit_code;
             var jitEnd = jitStart + HashlinkVM.Instance.Context->m->codesize;
 
             var symBuf = stackalloc char[512];
             var modNameBuf = stackalloc char[512];
 
-            for (int i = 0; i < ebpCount; i++)
+            for (var i = 0; i < ebpCount; i++)
             {
                 var ebp = (nint)buf[i];
                 if (curTransition != null)
@@ -81,14 +65,14 @@ namespace ModCore.Trace
                         (ebp >= curTransition.ebp && curTransition.ebp > 0))
                     {
                         //Enter managed code
-                        bool enter = false;
+                        var enter = false;
                         while (managedId < innerTrace.FrameCount)
                         {
                             var frame = innerTrace.GetFrame(managedId++)!;
                             var method = frame.GetMethod();
                             if (!enter)
                             {
-                                if(method?.GetCustomAttribute<WillCallHL>() == null)
+                                if (method?.GetCustomAttribute<WillCallHL>() == null)
                                 {
                                     continue;
                                 }
@@ -116,7 +100,7 @@ namespace ModCore.Trace
 
                 var m = HashlinkVM.Instance.Context->m;
 
-                if(eip < jitStart || eip > jitEnd)
+                if (eip < jitStart || eip > jitEnd)
                 {
                     goto UNKNOWN_FUNC;
                 }
@@ -134,9 +118,9 @@ namespace ModCore.Trace
                     continue;
                 }
 
-                int modNameLen = 512;
-                if(Native.mcn_get_sym((void*)eip, 
-                    symBuf, 
+                var modNameLen = 512;
+                if (Native.mcn_get_sym((void*)eip,
+                    symBuf,
                     out var symNameLen,
                     modNameBuf,
                     ref modNameLen,
@@ -144,7 +128,7 @@ namespace ModCore.Trace
                     out var line) &&
                     (symNameLen > 0 || fileName != null || line != 0))
                 {
-                    
+
                     frames.Add(new NativeStackFrame()
                     {
                         Pointer = eip,
@@ -164,7 +148,7 @@ namespace ModCore.Trace
                 var func = m->code->functions + fidx;
                 var debug_addr = func->debug + ((fpos & 0xFFFF) * 2);
 
-                string funcName = GetFunctionName(func);
+                var funcName = GetFunctionName(func);
 
                 frames.Add(new HLStackFrame()
                 {
@@ -175,7 +159,7 @@ namespace ModCore.Trace
                     FileLine = debug_addr[1],
                 });
             }
-            while(managedId < innerTrace.FrameCount)
+            while (managedId < innerTrace.FrameCount)
             {
                 frames.Add(innerTrace.GetFrame(managedId++)!);
             }
@@ -183,7 +167,7 @@ namespace ModCore.Trace
         public override string ToString()
         {
             StringBuilder sb = new();
-            foreach(var v in frames)
+            foreach (var v in frames)
             {
                 sb.Append(" at ");
                 sb.Append(v.GetDisplayName());

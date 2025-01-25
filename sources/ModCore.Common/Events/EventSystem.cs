@@ -1,12 +1,6 @@
 ﻿using ModCore.Events.Collections;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.ExceptionServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore.Events
 {
@@ -28,12 +22,12 @@ namespace ModCore.Events
         }
         private static readonly EventReceiverList eventReceivers = [];
 
-        public static void AddReceiver(IEventReceiver receiver)
+        public static void AddReceiver( IEventReceiver receiver )
         {
             eventReceivers.Add(receiver);
             OnAddReceiver?.Invoke(receiver);
         }
-        public static void RemoveReceiver(IEventReceiver receiver)
+        public static void RemoveReceiver( IEventReceiver receiver )
         {
             eventReceivers.Remove(receiver);
             OnRemoveReceiver?.Invoke(receiver);
@@ -48,35 +42,27 @@ namespace ModCore.Events
             return eventReceivers.OfType<T>();
         }
 
-        public static void BroadcastEvent<TEvent>(ExceptionHandingFlags flags = ExceptionHandingFlags.Default)
+        public static void BroadcastEvent<TEvent>( ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
         {
             BroadcastEvent<TEvent, int>(0, flags);
         }
-        public static void BroadcastEvent<TEvent, TArg>(TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default)
+        public static void BroadcastEvent<TEvent, TArg>( TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
         {
             BroadcastEvent<TEvent, TArg>(ref arg, flags);
         }
-        public static void BroadcastEvent<TEvent, TArg>(ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default) 
+        public static void BroadcastEvent<TEvent, TArg>( ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
             where TArg : allows ref struct
         {
-            if(EventCaller<TEvent>.IsCallOnce)
+            if (EventCaller<TEvent>.IsCallOnce)
             {
-                if(EventCaller<TEvent>.IsCalled)
+                if (EventCaller<TEvent>.IsCalled)
                 {
                     throw new InvalidOperationException("An event that should only be called once was called multiple times");
                 }
-                Logger.Debug("Broadcast Global Event: {Name}", typeof(TEvent).Name); 
+                Logger.Debug("Broadcast Global Event: {Name}", typeof(TEvent).Name);
             }
             List<Exception>? exceptions = null;
-            IEnumerable<IEventReceiver> receivers;
-            if (EventCaller<TEvent>.IsCallOnce)
-            {
-                receivers = eventReceivers;
-            }
-            else
-            {
-                receivers = EventReceiversCache<TEvent>.receivers;
-            }
+            var receivers = EventCaller<TEvent>.IsCallOnce ? eventReceivers : (IEnumerable<IEventReceiver>)EventReceiversCache<TEvent>.receivers;
             foreach (var module in receivers)
             {
                 if (module is TEvent ev)

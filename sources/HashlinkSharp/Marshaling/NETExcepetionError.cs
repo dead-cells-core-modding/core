@@ -1,29 +1,27 @@
 ﻿using Hashlink.Proxy.Objects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hashlink.Marshaling
 {
     internal static unsafe class NETExcepetionError
     {
-        public static HL_type* ErrorType { get; }
+        public static HL_type* ErrorType
+        {
+            get;
+        }
 
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-        private static char* ExceptionToString(HL_vdynamic* vdy)
+        private static char* ExceptionToString( HL_vdynamic* vdy )
         {
             var ex = HashlinkMarshal.ConvertHashlinkObject<HashlinkNETExceptionObj>(vdy);
             var str = ex.ToString()!;
 
-            var result = (char*)hl_gc_alloc_gen(InternalTypes.hlt_bytes, str.Length * 2 + 2, 
+            var result = (char*)hl_gc_alloc_gen(InternalTypes.hlt_bytes, (str.Length * 2) + 2,
                 HL_Alloc_Flags.MEM_KIND_NOPTR | HL_Alloc_Flags.MEM_ZERO);
-            fixed(char* src = str)
+            fixed (char* src = str)
             {
-                Buffer.MemoryCopy(src, result, str.Length * 2 + 2, str.Length * 2 + 2);
+                Buffer.MemoryCopy(src, result, (str.Length * 2) + 2, (str.Length * 2) + 2);
             }
             return result;
         }

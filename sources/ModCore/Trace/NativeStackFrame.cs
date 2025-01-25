@@ -1,20 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore.Trace
 {
     public class NativeStackFrame : StackFrame
     {
-        public int FileLine { get; set; }
-        public string? FileName { get; set; }
-        public string? FuncName { get; set; }
-        public string? ModuleName { get; set; }
-        public nint Pointer { get; set; }
+        public int FileLine
+        {
+            get; set;
+        }
+        public string? FileName
+        {
+            get; set;
+        }
+        public string? FuncName
+        {
+            get; set;
+        }
+        public string? ModuleName
+        {
+            get; set;
+        }
+        public nint Pointer
+        {
+            get; set;
+        }
         public override string ToString()
         {
             return $"{(string.IsNullOrEmpty(ModuleName) ? "<Unknown>" : ModuleName)}!{FuncName} in file:line:ptr {FileName}:{FileLine}:{Pointer:x}";

@@ -1,14 +1,7 @@
 ﻿using Hashlink.Proxy;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hashlink.Marshaling
 {
@@ -22,24 +15,25 @@ namespace Hashlink.Marshaling
         {
             EventSystem.AddReceiver(new EventReceiver());
         }
-        class EventReceiver : IEventReceiver, IOnNativeEvent
+
+        private class EventReceiver : IEventReceiver, IOnNativeEvent
         {
             private readonly Dictionary<nint, HandleInternal>[] aliveHandles = [[], []];
 
             public int Priority => 0;
 
-            public void OnNativeEvent(IOnNativeEvent.Event ev)
+            public void OnNativeEvent( IOnNativeEvent.Event ev )
             {
-                if(ev.EventId == IOnNativeEvent.EventId.HL_EV_BEGORE_GC)
+                if (ev.EventId == IOnNativeEvent.EventId.HL_EV_BEGORE_GC)
                 {
                     gcLock.EnterWriteLock();
 
                     // Save all currently existing handles
                     var cur = aliveHandles[1];
                     cur.Clear();
-                    foreach((var ptr, var wh) in weakHandles)
+                    foreach ((var ptr, var wh) in weakHandles)
                     {
-                        if(wh.TryGetTarget(out var h))
+                        if (wh.TryGetTarget(out var h))
                         {
                             cur.Add(ptr, h);
                         }
@@ -49,13 +43,13 @@ namespace Hashlink.Marshaling
                     aliveHandles[1] = aliveHandles[0];
                     aliveHandles[0] = cur;
                 }
-                else if(ev.EventId == IOnNativeEvent.EventId.HL_EV_AFTER_GC)
+                else if (ev.EventId == IOnNativeEvent.EventId.HL_EV_AFTER_GC)
                 {
                     gcLock.ExitWriteLock();
                 }
-                else if(ev.EventId == IOnNativeEvent.EventId.HL_EV_GC_CS_NO_MARKED)
+                else if (ev.EventId == IOnNativeEvent.EventId.HL_EV_GC_CS_NO_MARKED)
                 {
-                    if(weakHandles.TryGetValue(ev.Data, out var h) && h.TryGetTarget(out var handle))
+                    if (weakHandles.TryGetValue(ev.Data, out var h) && h.TryGetTarget(out var handle))
                     {
                         // Allow the GC to recycle this handle
                         aliveHandles[0].Remove(ev.Data);
@@ -63,11 +57,12 @@ namespace Hashlink.Marshaling
                 }
             }
         }
-        class HandleInternal
+
+        private class HandleInternal
         {
             private readonly void* target;
             public readonly HashlinkObjHandle handle;
-            public HandleInternal(void* ptr)
+            public HandleInternal( void* ptr )
             {
                 target = ptr;
                 handle = new(this);
@@ -78,16 +73,16 @@ namespace Hashlink.Marshaling
                 hl_remove_root_2(target);
             }
         }
-        private static HandleInternal? GetInternalHandle(void* ptr)
+        private static HandleInternal? GetInternalHandle( void* ptr )
         {
-            if(!HashlinkMarshal.IsAllocatedHashlinkObject(ptr))
+            if (!HashlinkMarshal.IsAllocatedHashlinkObject(ptr))
             {
                 return null;
             }
             gcLock.EnterUpgradeableReadLock();
             try
             {
-                if(weakHandles.TryGetValue((nint)ptr, out var wh) && wh.TryGetTarget(out var handle))
+                if (weakHandles.TryGetValue((nint)ptr, out var wh) && wh.TryGetTarget(out var handle))
                 {
                     usedHandles.TryAdd((nint)ptr, handle);
                     return handle;
@@ -112,18 +107,18 @@ namespace Hashlink.Marshaling
             }
         }
 
-        public static HashlinkObjHandle? GetHandle(void* ptr)
+        public static HashlinkObjHandle? GetHandle( void* ptr )
         {
             return GetInternalHandle(ptr)?.handle;
         }
-        public static void MarkUsed(void* ptr)
+        public static void MarkUsed( void* ptr )
         {
             _ = GetInternalHandle(ptr);
         }
 
         private HashlinkObj? obj;
-        private HandleInternal interHandle;
-        private HashlinkObjHandle(HandleInternal handle)
+        private readonly HandleInternal interHandle;
+        private HashlinkObjHandle( HandleInternal handle )
         {
             interHandle = handle;
         }
@@ -132,7 +127,7 @@ namespace Hashlink.Marshaling
             get => obj;
             set
             {
-                if(obj != null)
+                if (obj != null)
                 {
                     throw new InvalidOperationException();
                 }

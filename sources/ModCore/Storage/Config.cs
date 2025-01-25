@@ -1,12 +1,7 @@
 ﻿using ModCore.Events;
 using ModCore.Events.Interfaces;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace ModCore.Storage
 {
@@ -14,10 +9,19 @@ namespace ModCore.Storage
     {
         public int Priority => 0;
 
-        public string ConfigName { get; }
-        public string ConfigPath { get; }
+        public string ConfigName
+        {
+            get;
+        }
+        public string ConfigPath
+        {
+            get;
+        }
 
-        public JsonSerializerOptions SerializerOptions { get; set; } = new()
+        public JsonSerializerOptions SerializerOptions
+        {
+            get; set;
+        } = new()
         {
             WriteIndented = true,
             IncludeFields = true,
@@ -41,7 +45,7 @@ namespace ModCore.Storage
             }
         }
 
-        public Config(string name)
+        public Config( string name )
         {
             ConfigName = name;
             ConfigPath = Path.Combine(FolderInfo.Config.FullPath, ConfigName + ".json");

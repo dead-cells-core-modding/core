@@ -1,24 +1,16 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Proxy.Objects;
-using Hashlink.Proxy.Values;
 using Hashlink.Trace;
 using ModCore;
-using MonoMod.Core.Platforms;
-using MonoMod.RuntimeDetour;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hashlink.Brigde
 {
-    internal unsafe static class MethodWrapperFactory
+    internal static unsafe class MethodWrapperFactory
     {
-        private readonly static int PAGE_ALLOC_SIZE = 8192;
+        private static readonly int PAGE_ALLOC_SIZE = 8192;
         private static readonly byte[] call_code_x64 = [
             0x48, 0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, //mov rax, 0xffffffffffffffff
             0xFF, 0xD0 //call rax
@@ -28,25 +20,25 @@ namespace Hashlink.Brigde
             0xFF, 0xD0 //call eax
             ];
 
-        private static readonly void* csentry_no_orig_ptr = (delegate* unmanaged[Cdecl]<void>)&CSEntry_NoOriginal;
-        private static readonly void* csentry_ptr = (delegate* unmanaged[Cdecl]<NativeInfoTable*, void*, long*, void**, void>)&CSEntry;
+        private static readonly void* csentry_no_orig_ptr = (delegate* unmanaged[Cdecl]< void >)&CSEntry_NoOriginal;
+        private static readonly void* csentry_ptr = (delegate* unmanaged[Cdecl]< NativeInfoTable*, void*, long*, void**, void >)&CSEntry;
         private static readonly Queue<nint> freeEntries = [];
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public static EntryItem* CreateWrapper(MethodWrapper wrapper,
-            IEnumerable<HL_type.TypeKind> argTypes, HL_type.TypeKind retType)
+        public static EntryItem* CreateWrapper( MethodWrapper wrapper,
+            IEnumerable<HL_type.TypeKind> argTypes, HL_type.TypeKind retType )
         {
             if (freeEntries.Count == 0)
             {
                 //Allocate New Page
-                void* page = hl_alloc_executable_memory(PAGE_ALLOC_SIZE);
-                for(int i = 0; i < PAGE_ALLOC_SIZE; i+= sizeof(EntryItem))
+                var page = hl_alloc_executable_memory(PAGE_ALLOC_SIZE);
+                for (var i = 0; i < PAGE_ALLOC_SIZE; i += sizeof(EntryItem))
                 {
                     freeEntries.Enqueue((nint)page + i);
                 }
             }
-            EntryItem* entry = (EntryItem*)freeEntries.Dequeue();
-            
+            var entry = (EntryItem*)freeEntries.Dequeue();
+
             InitEntryItem(entry);
             var table = &entry->table;
             table->wrapperHandle = (nint)GCHandle.Alloc(wrapper, GCHandleType.Normal);
@@ -57,19 +49,10 @@ namespace Hashlink.Brigde
 
             table->tret = retType;
 
-            if (retType == HL_type.TypeKind.HF32 ||
-                retType == HL_type.TypeKind.HF64)
-            {
-                table->retType = 1;
-            }
-            else if (!Environment.Is64BitProcess && retType == HL_type.TypeKind.HI64)
-            {
-                table->retType = 2;
-            }
-            else
-            {
-                table->retType = 0;
-            }
+            table->retType = retType is HL_type.TypeKind.HF32 or
+                HL_type.TypeKind.HF64
+                ? 1
+                : !Environment.Is64BitProcess && retType == HL_type.TypeKind.HI64 ? 2 : 0;
 
             //
 
@@ -78,22 +61,22 @@ namespace Hashlink.Brigde
                 table->targs[table->argsCount] = (int)at;
                 table->argsCount++;
 
-                if(at == HL_type.TypeKind.HF32 ||
-                    at == HL_type.TypeKind.HF64)
+                if (at is HL_type.TypeKind.HF32 or
+                    HL_type.TypeKind.HF64)
                 {
                     table->argFloatMarks |= 1;
-                    if(at == HL_type.TypeKind.HF64)
+                    if (at == HL_type.TypeKind.HF64)
                     {
                         table->argSizeBitMarks |= 1;
                     }
                 }
                 else
                 {
-                    if(at.IsPointer() && Environment.Is64BitProcess)
+                    if (at.IsPointer() && Environment.Is64BitProcess)
                     {
                         table->argSizeBitMarks |= 1;
                     }
-                    else if(at == HL_type.TypeKind.HI64)
+                    else if (at == HL_type.TypeKind.HI64)
                     {
                         table->argSizeBitMarks |= 1;
                     }
@@ -112,9 +95,9 @@ namespace Hashlink.Brigde
             return entry;
         }
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public static void FreeWrapper(MethodWrapper wrapper)
+        public static void FreeWrapper( MethodWrapper wrapper )
         {
-            if(wrapper.EntryHandle == null)
+            if (wrapper.EntryHandle == null)
             {
                 return;
             }
@@ -125,7 +108,7 @@ namespace Hashlink.Brigde
             freeEntries.Enqueue((nint)wrapper.EntryHandle);
         }
 
-        private static void* InitEntryItem(EntryItem* item)
+        private static void* InitEntryItem( EntryItem* item )
         {
             item->table = new();
             if (Environment.Is64BitProcess)
@@ -159,9 +142,9 @@ namespace Hashlink.Brigde
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
         [CallFromHLOnly]
         [StackTraceHidden]
-        private static void CSEntry(NativeInfoTable* table, void* retVal, long* args, void** err)
+        private static void CSEntry( NativeInfoTable* table, void* retVal, long* args, void** err )
         {
-            if(table->wrapperHandle == 0 ||
+            if (table->wrapperHandle == 0 ||
                 table->enabled == 0)
             {
                 throw new InvalidOperationException();

@@ -1,9 +1,4 @@
 ﻿using ModCore.Events.Collections;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore.Events
 {
@@ -16,26 +11,26 @@ namespace ModCore.Events
 
             foreach (var v in EventSystem.FindReceivers<TEvent>())
             {
-                receivers.Add((IEventReceiver) v!);
+                receivers.Add((IEventReceiver)v!);
             }
         }
 
-        private static void EventSystem_OnRemoveReceiver(IEventReceiver obj)
+        private static void EventSystem_OnRemoveReceiver( IEventReceiver obj )
         {
-            if(obj is TEvent)
+            if (obj is TEvent)
             {
                 receivers.Remove(obj);
             }
         }
 
-        private static void EventSystem_OnAddReceiver(IEventReceiver obj)
+        private static void EventSystem_OnAddReceiver( IEventReceiver obj )
         {
-            if(obj is TEvent)
+            if (obj is TEvent)
             {
                 receivers.Add(obj);
             }
         }
 
-        public readonly static EventReceiverList receivers = [];
+        public static readonly EventReceiverList receivers = [];
     }
 }

@@ -1,17 +1,10 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Trace;
-using MonoMod.Cil;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using static MonoMod.Utils.FastReflectionHelper;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Hashlink
 {
@@ -36,16 +29,16 @@ namespace Hashlink
             public int args;
         }
 
-        private void InitArg(out PutArgContext ctx)
+        private void InitArg( out PutArgContext ctx )
         {
             if (func_arg_buf == null || cached_args_ptr == null)
             {
                 func_arg_buf = NativeMemory.AlignedAlloc(HASHLINK_MAX_ARGS_COUNT * 8, 8);
                 cached_args_ptr = (void**)NativeMemory.AlignedAlloc((nuint)(HASHLINK_MAX_ARGS_COUNT * sizeof(void*)), (nuint)sizeof(void*));
             }
-            for (int i = 0; i < HASHLINK_MAX_ARGS_COUNT; i++)
+            for (var i = 0; i < HASHLINK_MAX_ARGS_COUNT; i++)
             {
-                cached_args_ptr[i] = (void*)((nint)func_arg_buf + 8 * i);
+                cached_args_ptr[i] = (void*)((nint)func_arg_buf + (8 * i));
             }
             ctx = new();
 
@@ -55,9 +48,9 @@ namespace Hashlink
             }
         }
 
-        private void PutArg<T>(T val, PutArgContext ctx)
+        private void PutArg<T>( T val, PutArgContext ctx )
         {
-            ref int idx = ref ctx.args;
+            ref var idx = ref ctx.args;
 
             if (typeof(T) == typeof(int) ||
                 typeof(T) == typeof(short) ||
@@ -70,7 +63,7 @@ namespace Hashlink
                 typeof(T) == typeof(char)
                 )
             {
-                var argPtr = (void*)((nint)func_arg_buf + idx * 8);
+                var argPtr = (void*)((nint)func_arg_buf + (idx * 8));
                 Unsafe.AsRef<T>(argPtr) = val;
                 cached_args_ptr[idx] = argPtr;
                 idx++;
@@ -123,25 +116,15 @@ namespace Hashlink
             MixTrace.MarkEnteringHL();
             var ptrResult = callback_c2hl(hlfunc, &funcType, cached_args_ptr, &result);
             var retKind = result.type->kind;
-            if (retKind == HL_type.TypeKind.HVOID)
-            {
-                return null;
-            }
-
-            if (retKind.IsPointer())
-            {
-                return HashlinkMarshal.ConvertHashlinkObject(ptrResult);
-            }
-            else
-            {
-                return HashlinkMarshal.ReadData(&result.val, retKind);
-            }
+            return retKind == HL_type.TypeKind.HVOID
+                ? null
+                : retKind.IsPointer() ? HashlinkMarshal.ConvertHashlinkObject(ptrResult) : HashlinkMarshal.ReadData(&result.val, retKind);
         }
-        internal HashlinkFunc(Delegate[] next, HL_type_func* func, void* ptr = null) : this(next, 0, func, ptr)
+        internal HashlinkFunc( Delegate[] next, HL_type_func* func, void* ptr = null ) : this(next, 0, func, ptr)
         {
 
         }
-        internal HashlinkFunc(Delegate[] next, int index, HL_type_func* func, void* ptr) : this(func, ptr)
+        internal HashlinkFunc( Delegate[] next, int index, HL_type_func* func, void* ptr ) : this(func, ptr)
         {
             next_list = next;
             next_index = index;
@@ -151,20 +134,11 @@ namespace Hashlink
                 this.next = next_list[next_index];
             }
         }
-        public HashlinkFunc(HL_type_func* func, void* ptr)
+        public HashlinkFunc( HL_type_func* func, void* ptr )
         {
             hlfunction = func;
 
-            if (ptr == null)
-            {
-                throw new ArgumentNullException(nameof(ptr));
-                //FIXME: Get entry pointer from HL_function
-                //hlfunc = HashlinkUtils.GetFunctionNativePtr(func);
-            }
-            else
-            {
-                hlfunc = ptr;
-            }
+            hlfunc = ptr == null ? throw new ArgumentNullException(nameof(ptr)) : ptr;
         }
 
 
@@ -183,7 +157,7 @@ namespace Hashlink
             return CallInternal();
         }
         [StackTraceHidden]
-        public object? CallDynamic(params object?[]? args)
+        public object? CallDynamic( params object?[]? args )
         {
             if (next != null)
             {
@@ -206,7 +180,7 @@ namespace Hashlink
             return CallInternal();
         }
         [StackTraceHidden]
-        public object? Call<T1>(T1 arg1)
+        public object? Call<T1>( T1 arg1 )
         {
             if (next != null)
             {
@@ -219,7 +193,7 @@ namespace Hashlink
             return CallInternal();
         }
         [StackTraceHidden]
-        public object? Call<T1, T2>(T1 arg1, T2 arg2)
+        public object? Call<T1, T2>( T1 arg1, T2 arg2 )
         {
             if (next != null)
             {
@@ -233,7 +207,7 @@ namespace Hashlink
             return CallInternal();
         }
         [StackTraceHidden]
-        public object? Call<T1, T2, T3>(T1 arg1, T2 arg2, T3 arg3)
+        public object? Call<T1, T2, T3>( T1 arg1, T2 arg2, T3 arg3 )
         {
             if (next != null)
             {
@@ -248,7 +222,7 @@ namespace Hashlink
             return CallInternal();
         }
         [StackTraceHidden]
-        public object? Call<T1, T2, T3, T4>(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        public object? Call<T1, T2, T3, T4>( T1 arg1, T2 arg2, T3 arg3, T4 arg4 )
         {
             if (next != null)
             {
@@ -264,7 +238,7 @@ namespace Hashlink
             return CallInternal();
         }
         [StackTraceHidden]
-        public object? Call<T1, T2, T3, T4, T5>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
+        public object? Call<T1, T2, T3, T4, T5>( T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5 )
         {
             if (next != null)
             {
@@ -281,7 +255,7 @@ namespace Hashlink
             return CallInternal();
         }
         [StackTraceHidden]
-        public object? Call<T1, T2, T3, T4, T5, T6>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
+        public object? Call<T1, T2, T3, T4, T5, T6>( T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6 )
         {
             if (next != null)
             {
@@ -299,7 +273,7 @@ namespace Hashlink
             return CallInternal();
         }
         [StackTraceHidden]
-        public object? Call<T1, T2, T3, T4, T5, T6, T7>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
+        public object? Call<T1, T2, T3, T4, T5, T6, T7>( T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7 )
         {
             if (next != null)
             {
@@ -318,8 +292,8 @@ namespace Hashlink
             return CallInternal();
         }
         [StackTraceHidden]
-        public object? Call<T1, T2, T3, T4, T5, T6, T7, T8>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7,
-            T8 arg8)
+        public object? Call<T1, T2, T3, T4, T5, T6, T7, T8>( T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7,
+            T8 arg8 )
         {
             if (next != null)
             {

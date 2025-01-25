@@ -4,15 +4,12 @@ using ModCore.Events.Interfaces;
 using ModCore.Modules;
 using ModCore.Storage;
 using Serilog;
-using Serilog.Core;
-using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.Loader;
 
 namespace ModCore
 {
-    static class Core
+    internal static class Core
     {
         private static bool init = false;
         public static readonly List<string> dllSearchPath = [
@@ -29,7 +26,7 @@ namespace ModCore
         public static Thread MainThread { get; } = Thread.CurrentThread;
         public static void ThrowIfNotMainThread()
         {
-            if(Thread.CurrentThread != MainThread)
+            if (Thread.CurrentThread != MainThread)
             {
                 throw new InvalidOperationException();
             }
@@ -37,17 +34,9 @@ namespace ModCore
 
         public static bool InMainThread => Thread.CurrentThread == MainThread;
 
-        static void AddPath()
+        private static void AddPath()
         {
-            string envName;
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                envName = "Path";
-            }
-            else
-            {
-                envName = "LD_LIBRARY_PATH";
-            }
+            var envName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Path" : "LD_LIBRARY_PATH";
             var val = Environment.GetEnvironmentVariable(envName);
             val = string.Join(';', nativeSearchPath) + ";" + val;
             Environment.SetEnvironmentVariable(envName, val);
@@ -70,14 +59,14 @@ namespace ModCore
 
             _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("libhl"));
             _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("modcorenative"));
-            
+
 
             Initialize2();
         }
 
         private static void Initialize2()
         {
-           
+
             Log.Logger.Information("Runtime: {FrameworkDescription} {RuntimeIdentifier}",
                    RuntimeInformation.FrameworkDescription, RuntimeInformation.RuntimeIdentifier);
 
@@ -87,16 +76,9 @@ namespace ModCore
 
             Log.Logger.Information("Loading core modules");
 
-            CoreModuleAttribute.SupportOS os;
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                os = CoreModuleAttribute.SupportOS.Windows;
-            }
-            else
-            {
-                os = CoreModuleAttribute.SupportOS.Linux;
-            }
-
+            var os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? CoreModuleAttribute.SupportOS.Windows
+                : CoreModuleAttribute.SupportOS.Linux;
             foreach (var type in typeof(Core).Assembly.GetTypes())
             {
                 if (!type.IsSubclassOf(typeof(Module)) || type.IsAbstract)
@@ -108,13 +90,13 @@ namespace ModCore
                 {
                     continue;
                 }
-                if((attr.supportOS & os) != os)
+                if ((attr.supportOS & os) != os)
                 {
                     continue;
                 }
                 Log.Logger.Information("Loading core module: {type}", type.FullName);
                 var module = (Module?)Activator.CreateInstance(type);
-                if(module == null)
+                if (module == null)
                 {
                     continue;
                 }
@@ -126,7 +108,7 @@ namespace ModCore
             Log.Logger.Information("Loaded modding core");
         }
 
-        private static Assembly? CurrentDomain_AssemblyResolve(object? sender, ResolveEventArgs args)
+        private static Assembly? CurrentDomain_AssemblyResolve( object? sender, ResolveEventArgs args )
         {
             var asmName = new AssemblyName(args.Name);
             foreach (var p in dllSearchPath)
@@ -142,7 +124,7 @@ namespace ModCore
             return null;
         }
 
-        private static void CurrentDomain_ProcessExit(object? sender, EventArgs e)
+        private static void CurrentDomain_ProcessExit( object? sender, EventArgs e )
         {
             EventSystem.BroadcastEvent<IOnSaveConfig>();
         }

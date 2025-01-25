@@ -1,26 +1,30 @@
 ﻿using Mono.Cecil.Cil;
 using MonoMod.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore.Events
 {
-    internal delegate void ModuleEventCall(object self, nint refArg);
+    internal delegate void ModuleEventCall( object self, nint refArg );
     internal static class EventCaller<TEvent>
     {
-        private readonly static ModuleEventCall call;
+        private static readonly ModuleEventCall call;
 
-        public static bool IsCalled { get; set; }
+        public static bool IsCalled
+        {
+            get; set;
+        }
         public static bool IsCallOnce => Attribute.Once;
-        public static EventAttribute Attribute { get; }
-        public static MethodInfo EventMethod { get; }
+        public static EventAttribute Attribute
+        {
+            get;
+        }
+        public static MethodInfo EventMethod
+        {
+            get;
+        }
 
-        private static ModuleEventCall GenerateCall(MethodInfo method)
+        private static ModuleEventCall GenerateCall( MethodInfo method )
         {
             var @params = method.GetParameters();
             if (@params.Length >= 2)
@@ -44,7 +48,7 @@ namespace ModCore.Events
             return caller.Generate().CreateDelegate<ModuleEventCall>();
         }
 
-        private static MethodInfo FindEventMethod(Type type)
+        private static MethodInfo FindEventMethod( Type type )
         {
             return type
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
@@ -61,16 +65,16 @@ namespace ModCore.Events
             call = GenerateCall(EventMethod);
         }
 
-        public static void Invoke(TEvent self, nint refOfarg)
+        public static void Invoke( TEvent self, nint refOfarg )
         {
             IsCalled = true;
             call(self!, refOfarg);
         }
-        public static unsafe void Invoke<TArg>(TEvent self, ref TArg argOnStack) where TArg : allows ref struct 
+        public static unsafe void Invoke<TArg>( TEvent self, ref TArg argOnStack ) where TArg : allows ref struct
         {
             Invoke(self!, (nint)Unsafe.AsPointer(ref argOnStack));
         }
-        public static void Invoke(TEvent self)
+        public static void Invoke( TEvent self )
         {
             Invoke(self!, 0);
         }

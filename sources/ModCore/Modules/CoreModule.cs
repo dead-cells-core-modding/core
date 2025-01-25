@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ModCore.Modules
+﻿namespace ModCore.Modules
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class CoreModuleAttribute : Attribute
@@ -19,7 +13,9 @@ namespace ModCore.Modules
     }
     public abstract class CoreModule<TModule> : Module<TModule> where TModule : CoreModule<TModule>
     {
-        
-        internal CoreModule() { }
+
+        internal CoreModule()
+        {
+        }
     }
 }

@@ -1,11 +1,6 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using ModCore.Events.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore.Modules
 {
@@ -30,7 +25,7 @@ namespace ModCore.Modules
             }
         }
 
-        void IOnNativeEvent.OnNativeEvent(IOnNativeEvent.Event ev)
+        void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )
         {
             if (ev.EventId == IOnNativeEvent.EventId.HL_EV_START_GAME)
             {

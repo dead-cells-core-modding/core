@@ -1,11 +1,4 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 
 namespace Hashlink
@@ -136,7 +129,7 @@ namespace Hashlink
         public char* name;
         public int nparams;
         public HL_type** @params;
-	    public int size;
+        public int size;
         public bool hasptr;
         public int* offsets;
     }
@@ -200,13 +193,13 @@ namespace Hashlink
         public HL_runtime_binding* bindings;
         public HL_runtime_obj* parent;
 
-        public delegate* unmanaged[Cdecl]<HL_vdynamic*, char*> toStringFun;
-        public delegate* unmanaged[Cdecl]<HL_vdynamic*, HL_vdynamic*, int> compareFun;
-        public delegate* unmanaged[Cdecl]<HL_vdynamic*, HL_type*, HL_vdynamic*> castFun;
-        public delegate* unmanaged[Cdecl]<HL_vdynamic*, int, HL_vdynamic*> getFieldFun;
+        public delegate* unmanaged[Cdecl]< HL_vdynamic*, char* > toStringFun;
+        public delegate* unmanaged[Cdecl]< HL_vdynamic*, HL_vdynamic*, int > compareFun;
+        public delegate* unmanaged[Cdecl]< HL_vdynamic*, HL_type*, HL_vdynamic* > castFun;
+        public delegate* unmanaged[Cdecl]< HL_vdynamic*, int, HL_vdynamic* > getFieldFun;
 
-	    // relative
-	    public int nlookup;
+        // relative
+        public int nlookup;
         public HL_field_lookup* lookup;
     }
     [StructLayout(LayoutKind.Sequential)]
@@ -240,7 +233,7 @@ namespace Hashlink
         }
         public ClosureType closure_type;
         [StructLayout(LayoutKind.Sequential)]
-	    public struct Closure
+        public struct Closure
         {
             public HL_type** args;
             public HL_type* ret;
@@ -340,7 +333,7 @@ namespace Hashlink
         public HL_type* type;
         public int findex;
     }
-    
+
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_function
     {
@@ -354,7 +347,7 @@ namespace Hashlink
         public int* debug;
         public HL_type_obj* obj;
 
-        [StructLayout (LayoutKind.Explicit)]
+        [StructLayout(LayoutKind.Explicit)]
         public unsafe struct FieldAndRef
         {
             [FieldOffset(0)]
@@ -446,7 +439,7 @@ namespace Hashlink
         public C_jmpbuf gc_regs;
         public fixed byte exc_stack_trace[1]; //As void* [0x100]
     }
-    [StructLayout (LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_array
     {
         public HL_type* t;

@@ -1,23 +1,18 @@
 ﻿using ModCore.Events;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore
 {
     public abstract class Module<TModule> : Module where TModule : Module<TModule>
     {
-        public new static ILogger Logger { get; } = Log.ForContext("SourceContext", typeof(TModule).Name);
+        public static new ILogger Logger { get; } = Log.ForContext("SourceContext", typeof(TModule).Name);
         internal Module()
         {
             if (instance != null && instance != this)
             {
                 throw new InvalidOperationException();
             }
-            instance = (TModule) this;
+            instance = (TModule)this;
         }
         private static TModule? instance;
         public static TModule Instance
@@ -35,19 +30,22 @@ namespace ModCore
 
         public virtual int Priority => 0;
 
-        public ILogger Logger { get; private set; }
+        public ILogger Logger
+        {
+            get; private set;
+        }
         internal Module()
         {
             Logger = Log.ForContext("SourceContext", GetType().Name);
         }
 
-        internal static void RemoveModule(Module module)
+        internal static void RemoveModule( Module module )
         {
             EventSystem.RemoveReceiver(module);
             modules.Remove(module);
         }
-        
-        internal static void AddModule(Module module)
+
+        internal static void AddModule( Module module )
         {
             EventSystem.AddReceiver(module);
             modules.Add(module);

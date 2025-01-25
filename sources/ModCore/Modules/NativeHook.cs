@@ -1,14 +1,6 @@
 ﻿
 using MonoMod.Core;
-using MonoMod.Core.Platforms;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
 
 using HookInfo = MonoMod.Core.ICoreNativeDetour;
 
@@ -27,7 +19,7 @@ namespace ModCore.Modules
             internal readonly HookInfo? hook;
             private readonly NativeHook manager;
 
-            internal HookHandle(HookInfo info, NativeHook manager)
+            internal HookHandle( HookInfo info, NativeHook manager )
             {
                 hook = info;
                 this.manager = manager;
@@ -43,7 +35,7 @@ namespace ModCore.Modules
 
         }
 
-        public HookHandle CreateHook(nint target, nint detour)
+        public HookHandle CreateHook( nint target, nint detour )
         {
             HookHandle result;
             result = new HookHandle(detourFactory.CreateNativeDetour(target, detour, true), this);
@@ -51,35 +43,35 @@ namespace ModCore.Modules
             return result;
         }
 
-        public nint GetOriginalPtr(HookHandle hook)
+        public nint GetOriginalPtr( HookHandle hook )
         {
             return hook.hook?.OrigEntrypoint ?? throw new ObjectDisposedException(nameof(hook));
         }
 
-        public void EnableHook(HookHandle hook)
+        public void EnableHook( HookHandle hook )
         {
             ObjectDisposedException.ThrowIf(hook.hook == null, hook);
-            if(hook.hook.IsApplied)
+            if (hook.hook.IsApplied)
             {
                 return;
             }
             hook.hook.Apply();
         }
-        public void DisableHook(HookHandle hook)
+        public void DisableHook( HookHandle hook )
         {
-            if(hook.hook == null)
+            if (hook.hook == null)
             {
                 return;
             }
             hook.hook.Undo();
         }
 
-        public HookHandle GetHook(Delegate del)
+        public HookHandle GetHook( Delegate del )
         {
             return delegate2handle[del];
         }
 
-        public TTarget CreateHook<TTarget>(nint nativeFunc, TTarget target) where TTarget : Delegate
+        public TTarget CreateHook<TTarget>( nint nativeFunc, TTarget target ) where TTarget : Delegate
         {
             var handle = CreateHook(nativeFunc, Marshal.GetFunctionPointerForDelegate(target));
             var orig = Marshal.GetDelegateForFunctionPointer<TTarget>(handle.Original);
@@ -87,11 +79,11 @@ namespace ModCore.Modules
             delegate2handle[target] = handle;
             return orig;
         }
-        public void DisableHook(Delegate original)
+        public void DisableHook( Delegate original )
         {
             DisableHook(GetHook(original));
         }
-        public void EnableHook(Delegate original)
+        public void EnableHook( Delegate original )
         {
             EnableHook(GetHook(original));
         }

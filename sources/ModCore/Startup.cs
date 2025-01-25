@@ -1,20 +1,14 @@
-﻿using Hashlink;
-using Hashlink.Trace;
+﻿using Hashlink.Trace;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Storage;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.IO.MemoryMappedFiles;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore
 {
-    internal unsafe static class Startup
+    internal static unsafe class Startup
     {
         [WillCallHL]
         private static int AfterCoreLoaded()
@@ -27,9 +21,9 @@ namespace ModCore
             {
                 hlbootPath = FolderInfo.GameRoot.GetFilePath("hlboot.dat");
             }
-            
+
             byte* hlboot = null;
-            int hlbootSize = 0;
+            var hlbootSize = 0;
             logger.Information("Finding hlboot.dat");
             if (File.Exists(hlbootPath))
             {
@@ -61,7 +55,7 @@ namespace ModCore
             EventSystem.BroadcastEvent<IOnCodeLoading, Span<byte>>(ref codeData);
 
             var code = hl_code_read(hlboot, hlbootSize, &err);
-            if(err != null)
+            if (err != null)
             {
                 logger.Error("An error occurred while loading bytecode: {err}", Marshal.PtrToStringAnsi((nint)err));
                 return -1;
@@ -78,7 +72,7 @@ namespace ModCore
                 throw;
             }
         }
-        
+
         public static int StartGame()
         {
             Console.Title = "Dead Cells with Core Modding";

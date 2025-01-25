@@ -1,22 +1,18 @@
 ﻿
 using ModCore.Trace;
 using MonoMod.Utils;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore
 {
     internal static class Utils
     {
-       
-        public static string GetDisplayName(this StackFrame frame)
+
+        public static string GetDisplayName( this StackFrame frame )
         {
             var sb = new StringBuilder();
             if (frame is HLStackFrame)
@@ -47,13 +43,13 @@ namespace ModCore
             }
             return sb.ToString();
         }
-        public static bool MemCmp(ReadOnlySpan<byte> a, ReadOnlySpan<byte> b)
+        public static bool MemCmp( ReadOnlySpan<byte> a, ReadOnlySpan<byte> b )
         {
             if (a.Length != b.Length)
             {
                 return false;
             }
-            for (int i = 0; i < a.Length; i++)
+            for (var i = 0; i < a.Length; i++)
             {
                 if (a[i] != b[i])
                 {
@@ -63,26 +59,26 @@ namespace ModCore
             return true;
         }
 
-        public static nint GetFrameIP(this StackFrame frame)
+        public static nint GetFrameIP( this StackFrame frame )
         {
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_nativeOffset")]
-            static extern ref int GetNativeOffset(StackFrame frame);
+            static extern ref int GetNativeOffset( StackFrame frame );
 
             var offset = GetNativeOffset(frame);
             return offset + (frame.GetMethod()?.MethodHandle.GetFunctionPointer() ?? 0);
         }
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_stackTraceString")]
-        public static extern ref string? Exception_stackTraceString(Exception ex);
+        public static extern ref string? Exception_stackTraceString( Exception ex );
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_stackTrace")]
-        public static extern ref object? Exception_stackTrace(Exception ex);
+        public static extern ref object? Exception_stackTrace( Exception ex );
 
-        public static void FillExternStackTrace(Exception ex)
+        public static void FillExternStackTrace( Exception ex )
         {
-            ref object? stackTrace = ref Exception_stackTrace(ex);
-            ref string? stackTraceString = ref Exception_stackTraceString(ex);
+            ref var stackTrace = ref Exception_stackTrace(ex);
+            ref var stackTraceString = ref Exception_stackTraceString(ex);
 
-            if(stackTrace is MixStackTrace)
+            if (stackTrace is MixStackTrace)
             {
                 return;
             }
@@ -91,17 +87,18 @@ namespace ModCore
             stackTraceString = st.ToString();
         }
 
-        public static Type?[] SafeGetAllTypes(this Assembly assembly)
+        public static Type?[] SafeGetAllTypes( this Assembly assembly )
         {
             try
             {
                 return assembly.GetTypes();
-            }catch(ReflectionTypeLoadException ex)
+            }
+            catch (ReflectionTypeLoadException ex)
             {
                 return ex.Types;
             }
         }
-        public static byte[] HashFile(string path)
+        public static byte[] HashFile( string path )
         {
             using var fs = File.OpenRead(path);
             return SHA256.HashData(fs);

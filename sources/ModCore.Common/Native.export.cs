@@ -3,16 +3,10 @@ using Hashlink.Trace;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using Serilog;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore
 {
@@ -20,7 +14,7 @@ namespace ModCore
     {
         public static nint ModcorenativeHandle { get; } = NativeLibrary.Load(MODCORE_NATIVE_NAME);
 
-        public static void BindNativeExport(Type type)
+        public static void BindNativeExport( Type type )
         {
             foreach (var m in type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public |
                 BindingFlags.Static))
@@ -55,7 +49,7 @@ namespace ModCore
 
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
         [CallFromHLOnly]
-        public static void OnHLEvent(int eventId, nint data)
+        public static void OnHLEvent( int eventId, nint data )
         {
 
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
@@ -65,20 +59,20 @@ namespace ModCore
 
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
         [CallFromHLOnly]
-        private static void LogPrint(nint source, int level, byte* msg)
+        private static void LogPrint( nint source, int level, byte* msg )
         {
-            if(!knownLogSources.TryGetValue(source, out var sourceStr))
+            if (!knownLogSources.TryGetValue(source, out var sourceStr))
             {
-                if(source < 0xff || !mcn_memory_readable((void*)source))
+                if (source < 0xff || !mcn_memory_readable((void*)source))
                 {
                     sourceStr = "Native";
                 }
                 else
                 {
                     sourceStr = Marshal.PtrToStringAnsi(source);
-                    if(sourceStr != null)
+                    if (sourceStr != null)
                     {
-                        if(Path.IsPathRooted(sourceStr))
+                        if (Path.IsPathRooted(sourceStr))
                         {
                             sourceStr = Path.GetFileName(sourceStr);
                         }

@@ -1,18 +1,10 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.ExceptionServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 
 namespace DeadCellsModding
 {
     internal static class Program
     {
-        private static string CombineModCore(string root)
+        private static string CombineModCore( string root )
         {
             return Path.Combine(root, "coremod", "core", "host", "ModCore.dll");
         }
@@ -47,7 +39,7 @@ namespace DeadCellsModding
             var startup = core.GetType("ModCore.Startup");
             startup!.GetMethod("StartGame")!.Invoke(null, null);
         }
-        private static void Main(string[] args)
+        private static void Main( string[] args )
         {
             StartGame();
         }

@@ -2,12 +2,7 @@
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hashlink.Marshaling
 {
@@ -18,55 +13,32 @@ namespace Hashlink.Marshaling
 
         private readonly bool ignoreCustomMarshaler;
 
-        protected DefaultHashlinkMarshaler(bool ignoreCustomMarshaler)
+        protected DefaultHashlinkMarshaler( bool ignoreCustomMarshaler )
         {
             this.ignoreCustomMarshaler = ignoreCustomMarshaler;
         }
-        public virtual object? TryReadData(void* target, HL_type.TypeKind? typeKind)
+        public virtual object? TryReadData( void* target, HL_type.TypeKind? typeKind )
         {
-            if(typeKind == null)
-            {
-                return null;
-            }
-            if(typeKind == HL_type.TypeKind.HBOOL)
-            {
-                return *(byte*)target == 1;
-            }
-            else if(typeKind == HL_type.TypeKind.HUI8)
-            {
-                return *(byte*)target;
-            }
-            else if(typeKind == HL_type.TypeKind.HUI16)
-            {
-                return *(ushort*)target;
-            }
-            else if(typeKind == HL_type.TypeKind.HI32)
-            {
-                return *(int*)target;
-            }
-            else if(typeKind == HL_type.TypeKind.HI64)
-            {
-                return *(long*)target;
-            }
-            else if(typeKind == HL_type.TypeKind.HF32)
-            {
-                return *(float*)target;
-            }
-            else if(typeKind == HL_type.TypeKind.HF64)
-            {
-                return *(double*)target;
-            }
-            else if(typeKind?.IsPointer() ?? false)
-            {
-                return HashlinkMarshal.ConvertHashlinkObject(*(void**)target);
-            }
-            else
-            {
-                return null;
-            }
+            return typeKind == null
+                ? null
+                : typeKind == HL_type.TypeKind.HBOOL
+                ? *(byte*)target == 1
+                : typeKind == HL_type.TypeKind.HUI8
+                    ? *(byte*)target
+                    : typeKind == HL_type.TypeKind.HUI16
+                                    ? *(ushort*)target
+                                    : typeKind == HL_type.TypeKind.HI32
+                                                    ? *(int*)target
+                                                    : typeKind == HL_type.TypeKind.HI64
+                                                                    ? *(long*)target
+                                                                    : typeKind == HL_type.TypeKind.HF32
+                                                                                    ? *(float*)target
+                                                                                    : typeKind == HL_type.TypeKind.HF64
+                                                                                                    ? *(double*)target
+                                                                                                    : typeKind?.IsPointer() ?? false ? HashlinkMarshal.ConvertHashlinkObject(*(void**)target) : (object?)null;
         }
 
-        public virtual bool TryWriteData(void* target, object? value, HL_type.TypeKind? type)
+        public virtual bool TryWriteData( void* target, object? value, HL_type.TypeKind? type )
         {
             if (!ignoreCustomMarshaler && value is IHashlinkCustomMarshaler customMarshaler)
             {
@@ -93,7 +65,7 @@ namespace Hashlink.Marshaling
                     type = HashlinkMarshal.GetTypeKind(value.GetType());
                 }
             }
-            if(type is null || value is null)
+            if (type is null || value is null)
             {
                 return false;
             }
@@ -121,14 +93,7 @@ namespace Hashlink.Marshaling
             }
             else if (type is HL_type.TypeKind.HF64)
             {
-                if (value is float floatVal)
-                {
-                    *(double*)target = floatVal;
-                }
-                else
-                {
-                    *(double*)target = Utils.ForceUnbox<double>(value);
-                }
+                *(double*)target = value is float floatVal ? (double)floatVal : Utils.ForceUnbox<double>(value);
             }
             else if (type is HL_type.TypeKind.HBOOL)
             {
@@ -152,70 +117,37 @@ namespace Hashlink.Marshaling
             return true;
         }
 
-        public virtual HashlinkObj? TryConvertHashlinkObject(void* target)
+        public virtual HashlinkObj? TryConvertHashlinkObject( void* target )
         {
             var ptr = HashlinkObjPtr.Get(target);
 
-            HL_type.TypeKind kind = ptr.TypeKind;
+            var kind = ptr.TypeKind;
 
-            
 
-            if (kind == HL_type.TypeKind.HUI8)
-            {
-                return new HashlinkTypedValue<byte>(ptr);
-            }
-            else if (kind == HL_type.TypeKind.HUI16)
-            {
-                return new HashlinkTypedValue<ushort>(ptr);
-            }
-            else if (kind == HL_type.TypeKind.HI32)
-            {
-                return new HashlinkTypedValue<int>(ptr);
-            }
-            else if (kind == HL_type.TypeKind.HI64)
-            {
-                return new HashlinkTypedValue<long>(ptr);
-            }
-            else if (kind == HL_type.TypeKind.HF32)
-            {
-                return new HashlinkTypedValue<float>(ptr);
-            }
-            else if (kind == HL_type.TypeKind.HF64)
-            {
-                return new HashlinkTypedValue<double>(ptr);
-            }
-            else if (kind == HL_type.TypeKind.HBOOL)
-            {
-                return new HashlinkTypedValue<bool>(ptr);
-            }
-            else if(kind == HL_type.TypeKind.HBYTES)
-            {
-                return new HashlinkBytes(ptr);
-            }
-            else if (kind == HL_type.TypeKind.HVIRTUAL)
-            {
-                return new HashlinkVirtual(ptr);
-            }
-            else if (kind == HL_type.TypeKind.HOBJ)
-            {
-                if(ptr.Type == NETExcepetionError.ErrorType)
-                {
-                    return new HashlinkNETExceptionObj(ptr);
-                }
-                return new HashlinkObject(ptr);
-            }
-            else if(kind == HL_type.TypeKind.HFUN)
-            {
-                return new HashlinkClosure(ptr);
-            }
-            else if(kind == HL_type.TypeKind.HREF)
-            {
-                return new HashlinkRef(ptr);
-            }
-            else
-            {
-                throw new InvalidOperationException($"Unrecognized type {kind}");
-            }
+
+            return kind == HL_type.TypeKind.HUI8
+                ? new HashlinkTypedValue<byte>(ptr)
+                : kind == HL_type.TypeKind.HUI16
+                    ? new HashlinkTypedValue<ushort>(ptr)
+                    : kind == HL_type.TypeKind.HI32
+                                    ? new HashlinkTypedValue<int>(ptr)
+                                    : kind == HL_type.TypeKind.HI64
+                                                    ? new HashlinkTypedValue<long>(ptr)
+                                                    : kind == HL_type.TypeKind.HF32
+                                                                    ? new HashlinkTypedValue<float>(ptr)
+                                                                    : kind == HL_type.TypeKind.HF64
+                                                                                    ? new HashlinkTypedValue<double>(ptr)
+                                                                                    : kind == HL_type.TypeKind.HBOOL
+                                                                                                    ? new HashlinkTypedValue<bool>(ptr)
+                                                                                                    : kind == HL_type.TypeKind.HBYTES
+                                                                                                                    ? new HashlinkBytes(ptr)
+                                                                                                                    : kind == HL_type.TypeKind.HVIRTUAL
+                                                                                                                                    ? new HashlinkVirtual(ptr)
+                                                                                                                                    : kind == HL_type.TypeKind.HOBJ
+                                                                                                                                                    ? ptr.Type == NETExcepetionError.ErrorType ? new HashlinkNETExceptionObj(ptr) : new HashlinkObject(ptr)
+                                                                                                                                                    : kind == HL_type.TypeKind.HFUN
+                                                                                                                                                                    ? new HashlinkClosure(ptr)
+                                                                                                                                                                    : kind == HL_type.TypeKind.HREF ? (HashlinkObj)new HashlinkRef(ptr) : throw new InvalidOperationException($"Unrecognized type {kind}");
         }
     }
 }

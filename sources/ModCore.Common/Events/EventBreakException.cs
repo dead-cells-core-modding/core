@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ModCore.Events
+﻿namespace ModCore.Events
 {
-    public class EventBreakException(Exception ex) : Exception(null, ex)
+    public class EventBreakException( Exception ex ) : Exception(null, ex)
     {
     }
 }

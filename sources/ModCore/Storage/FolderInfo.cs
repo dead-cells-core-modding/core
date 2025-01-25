@@ -1,12 +1,5 @@
-﻿using Serilog;
-using Serilog.Core;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore.Storage
 {
@@ -14,15 +7,21 @@ namespace ModCore.Storage
     {
         private static readonly Dictionary<string, FolderInfo> folders = [];
 
-        public static FolderInfo CoreRoot { get; } = new("CORE_ROOT", 
+        public static FolderInfo CoreRoot
+        {
+            get;
+        } = new("CORE_ROOT",
             Path.GetDirectoryName(
                 Path.GetDirectoryName(Path.GetDirectoryName(typeof(FolderInfo).Assembly.Location)!)!
                 )!
             );
-        public static FolderInfo CoreNativeRoot { get; } = 
-            new("CORE_NATIVE_ROOT", "{CORE_ROOT}core/native/" + 
+        public static FolderInfo CoreNativeRoot
+        {
+            get;
+        } =
+            new("CORE_NATIVE_ROOT", "{CORE_ROOT}core/native/" +
                 (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "win-x86" : "linux-x64"));
-        
+
         public static FolderInfo GameRoot { get; } = new("GAME_ROOT", "{CORE_ROOT}../");
 
         public static FolderInfo Logs { get; } = new("CORE_LOGS", "{CORE_ROOT}/logs");
@@ -32,29 +31,35 @@ namespace ModCore.Storage
         public static FolderInfo Mods { get; } = new("CORE_MODS", "{CORE_ROOT}/mods");
         public static FolderInfo Plugins { get; } = new("CORE_PLUGINS", "{CORE_ROOT}/plugins");
 
-        
-        public string GetFilePath(string name)
+
+        public string GetFilePath( string name )
         {
             return Path.Combine(FullPath, name);
         }
         public DirectoryInfo Info => info;
-        public string Name { get; }
-        public string FullPath { get; }
+        public string Name
+        {
+            get;
+        }
+        public string FullPath
+        {
+            get;
+        }
 
         private readonly DirectoryInfo info;
 
 
-        private static string ParsePath(string path)
+        private static string ParsePath( string path )
         {
             var parts = path.Split('{', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
             var sb = new StringBuilder();
 
-            for(int i = 0; i < parts.Length; i++)
+            for (var i = 0; i < parts.Length; i++)
             {
                 var p = parts[i];
                 var idx = p.IndexOf('}');
-                if(idx == -1)
+                if (idx == -1)
                 {
                     sb.Append(p);
                     continue;
@@ -70,26 +75,26 @@ namespace ModCore.Storage
                     sb.Append(folders[name.ToUpper()].FullPath);
                     sb.Append(Path.DirectorySeparatorChar);
                 }
-                
+
                 if (idx < p.Length - 1)
                 {
-                   sb.Append(p[(idx + 1)..]);
+                    sb.Append(p[(idx + 1)..]);
                 }
             }
             return sb.ToString();
         }
 
-        public static FolderInfo? GetFolder(string name)
+        public static FolderInfo? GetFolder( string name )
         {
             return folders.TryGetValue(name.ToUpper(), out var folder) ? folder : null;
         }
 
-        public FolderInfo(string name, string path)
+        public FolderInfo( string name, string path )
         {
             name = name.ToUpper();
             Name = name;
             var overridePath = Environment.GetEnvironmentVariable("DCCM_OverridePath_" + name);
-            if(!string.IsNullOrEmpty(overridePath))
+            if (!string.IsNullOrEmpty(overridePath))
             {
                 path = overridePath;
             }

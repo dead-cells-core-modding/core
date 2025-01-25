@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ModCore.Events.Interfaces
+﻿namespace ModCore.Events.Interfaces
 {
     [Event]
     public unsafe interface IOnNativeEvent
@@ -22,7 +16,7 @@ namespace ModCore.Events.Interfaces
             HL_EV_ERR_NET_CAUGHT = 9,
             HL_EV_START_GAME = 10
         }
-        public record class Event(EventId EventId, nint Data);
-        public void OnNativeEvent(Event ev);
+        public record class Event( EventId EventId, nint Data );
+        public void OnNativeEvent( Event ev );
     }
 }

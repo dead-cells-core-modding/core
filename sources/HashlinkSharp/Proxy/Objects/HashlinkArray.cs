@@ -1,16 +1,10 @@
 ﻿using Hashlink.Marshaling;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hashlink.Proxy.Objects
 {
-    public unsafe class HashlinkArray(HashlinkObjPtr objPtr) : HashlinkTypedObj<HL_array>(objPtr)
+    public unsafe class HashlinkArray( HashlinkObjPtr objPtr ) : HashlinkTypedObj<HL_array>(objPtr)
     {
-        public HashlinkArray(HL_type* type, int size) : this(HashlinkObjPtr.GetUnsafe(hl_alloc_array(type, size)))
+        public HashlinkArray( HL_type* type, int size ) : this(HashlinkObjPtr.GetUnsafe(hl_alloc_array(type, size)))
         {
 
         }
@@ -24,12 +18,12 @@ namespace Hashlink.Proxy.Objects
             get
             {
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count, nameof(index));
-                return HashlinkMarshal.ReadData((void*)((nint)Data + ElementSize * index), ElementType->kind);
+                return HashlinkMarshal.ReadData((void*)((nint)Data + (ElementSize * index)), ElementType->kind);
             }
             set
             {
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count, nameof(index));
-                HashlinkMarshal.WriteData((void*)((nint)Data + ElementSize * index), value, ElementType->kind);
+                HashlinkMarshal.WriteData((void*)((nint)Data + (ElementSize * index)), value, ElementType->kind);
             }
         }
     }

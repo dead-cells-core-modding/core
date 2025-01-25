@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Hashlink.Proxy
+﻿namespace Hashlink.Proxy
 {
-    public unsafe abstract class HashlinkTypedObj<T>(HashlinkObjPtr objPtr) : HashlinkObj(objPtr) where T : unmanaged
+    public abstract unsafe class HashlinkTypedObj<T>( HashlinkObjPtr objPtr ) : HashlinkObj(objPtr) where T : unmanaged
     {
         public T* TypedRef => (T*)HashlinkPointer;
     }

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Hashlink.Proxy.Objects
+﻿namespace Hashlink.Proxy.Objects
 {
-    public unsafe class HashlinkString(HashlinkObjPtr objPtr) : HashlinkObject(objPtr), IHashlinkValue
+    public unsafe class HashlinkString( HashlinkObjPtr objPtr ) : HashlinkObject(objPtr), IHashlinkValue
     {
         public string? TypedValue
         {
@@ -18,7 +12,7 @@ namespace Hashlink.Proxy.Objects
             {
                 ArgumentNullException.ThrowIfNull(value, nameof(value));
                 var str = (HL_vstring*)HashlinkPointer;
-                str->bytes = (char*)hl_gc_alloc_gen(InternalTypes.hlt_bytes, value.Length * 2 + 2, HL_Alloc_Flags.MEM_KIND_NOPTR |
+                str->bytes = (char*)hl_gc_alloc_gen(InternalTypes.hlt_bytes, (value.Length * 2) + 2, HL_Alloc_Flags.MEM_KIND_NOPTR |
                     HL_Alloc_Flags.MEM_ZERO);
                 str->length = value.Length;
                 fixed (char* p = value)
@@ -27,6 +21,9 @@ namespace Hashlink.Proxy.Objects
                 }
             }
         }
-        public object? Value { get => TypedValue; set => TypedValue = (string?)value; }
+        public object? Value
+        {
+            get => TypedValue; set => TypedValue = (string?)value;
+        }
     }
 }
