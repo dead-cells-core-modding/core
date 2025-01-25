@@ -136,7 +136,14 @@ namespace Hashlink.Marshaling
             }
             else if (type is HL_type.TypeKind.HBYTES)
             {
-                *(nint*)target = Utils.ForceUnbox<nint>(value);
+                if (value is string str)
+                {
+                    return TryWriteData(target, new HashlinkBytes(str).Value, type);
+                }
+                else
+                {
+                    *(nint*)target = Utils.ForceUnbox<nint>(value);
+                }
             }
             else
             {
@@ -191,6 +198,10 @@ namespace Hashlink.Marshaling
             }
             else if (kind == HL_type.TypeKind.HOBJ)
             {
+                if(ptr.Type == NETExcepetionError.ErrorType)
+                {
+                    return new HashlinkNETExceptionObj(ptr);
+                }
                 return new HashlinkObject(ptr);
             }
             else if(kind == HL_type.TypeKind.HFUN)

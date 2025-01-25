@@ -123,6 +123,10 @@ namespace Hashlink.Marshaling
             }
             return marshaler.TryConvertHashlinkObject(target) ?? throw new InvalidOperationException();
         }
-
+        public static T ConvertHashlinkObject<T>(void* target,
+           IHashlinkMarshaler? marshaler = null) where T : HashlinkObj
+        {
+            return (T)ConvertHashlinkObject(target, marshaler);
+        }
     }
 }

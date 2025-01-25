@@ -1,6 +1,7 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
-using Hashlink.Track;
+using Hashlink.Trace;
 using ModCore;
 using MonoMod.Core.Platforms;
 using MonoMod.RuntimeDetour;
@@ -177,7 +178,7 @@ namespace Hashlink.Brigde
             }
             catch (Exception ex)
             {
-                *err = (void*)new HashlinkBytes((byte*)Marshal.StringToCoTaskMemUTF8(ex.ToString())).HashlinkPointer;
+                *err = (void*)new HashlinkNETExceptionObj(ex).HashlinkPointer;
             }
         }
 

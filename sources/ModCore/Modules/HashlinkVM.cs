@@ -1,11 +1,13 @@
 ﻿using Hashlink;
 using Hashlink.Marshaling;
-using Hashlink.Track;
+using Hashlink.Proxy.Objects;
+using Hashlink.Trace;
 using Iced.Intel;
+using Microsoft.VisualBasic;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
-using ModCore.Hashlink;
+using ModCore.Trace;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.RuntimeDetour;
@@ -56,6 +58,29 @@ namespace ModCore.Modules
 
         private delegate HL_array* hl_exception_stack_handler();
         private static hl_exception_stack_handler orig_hl_exception_stack = null!;
+        private static HL_array* Hook_hl_exception_stack()
+        {
+            try
+            {
+                var st = new MixStackTrace(0, true);
+                var result = new HashlinkArray(hlt_bytes, st.FrameCount);
+                for (int i = 0; i < st.FrameCount; i++)
+                {
+                    var f = st.GetFrame(i);
+                    if(f == null)
+                    {
+                        continue;
+                    }
+                    result[i] = f.GetDisplayName();
+                }
+                return (HL_array*) result.HashlinkPointer;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Error on Hook_hl_exception_stack");
+                return orig_hl_exception_stack();
+            }
+        }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void hl_sys_print_handler(char* msg);
@@ -106,6 +131,9 @@ namespace ModCore.Modules
 
             Logger.Information("Hooking functions");
 
+            orig_hl_exception_stack = NativeHook.Instance.CreateHook<hl_exception_stack_handler>(
+                NativeLibrary.GetExport(LibhlHandle, "hl_exception_stack"), Hook_hl_exception_stack);
+
             orig_hl_sys_print = NativeHook.Instance.CreateHook<hl_sys_print_handler>(
                 NativeLibrary.GetExport(LibhlHandle, "hl_sys_print"), Hook_hl_sys_print);
 
@@ -127,8 +155,8 @@ namespace ModCore.Modules
         {
             if(ev.EventId == IOnNativeEvent.EventId.HL_EV_ERR_NET_CAUGHT)
             {
-                var hlerr = new HashlinkError(ev.Data);
-                ExceptionDispatchInfo.SetRemoteStackTrace(hlerr, "TODO: hashlink stacktrace");
+                var hlerr = new HashlinkError(ev.Data, new MixStackTrace(0, true).ToString());
+                
                 throw new EventBreakException(hlerr);
             }
             else if(ev.EventId == IOnNativeEvent.EventId.HL_EV_VM_READY)

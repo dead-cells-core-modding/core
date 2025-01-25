@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <malloc.h>
+#include <string.h>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -48,3 +49,6 @@ EXTERNC extern void* call_jit_c2hl;
 EXTERNC extern void* call_jit_hl2c;
 
 HL_PRIM void* callback_c2hl(void* f, hl_type* t, void** args, vdynamic* ret);
+
+EXTERNC void vsd_init(hl_module* module);
+EXTERNC void init_trace();

@@ -200,10 +200,10 @@ namespace Hashlink
         public HL_runtime_binding* bindings;
         public HL_runtime_obj* parent;
 
-        public delegate* unmanaged<HL_vdynamic*, char*> toStringFun;
-        public delegate* unmanaged<HL_vdynamic*, HL_vdynamic*, int> compareFun;
-        public delegate* unmanaged<HL_vdynamic*, HL_type*, HL_vdynamic*> castFun;
-        public delegate* unmanaged<HL_vdynamic*, int, HL_vdynamic*> getFieldFun;
+        public delegate* unmanaged[Cdecl]<HL_vdynamic*, char*> toStringFun;
+        public delegate* unmanaged[Cdecl]<HL_vdynamic*, HL_vdynamic*, int> compareFun;
+        public delegate* unmanaged[Cdecl]<HL_vdynamic*, HL_type*, HL_vdynamic*> castFun;
+        public delegate* unmanaged[Cdecl]<HL_vdynamic*, int, HL_vdynamic*> getFieldFun;
 
 	    // relative
 	    public int nlookup;

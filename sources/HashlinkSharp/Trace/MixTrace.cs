@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hashlink.Track
+namespace Hashlink.Trace
 {
     public static unsafe class MixTrace
     {

@@ -27,8 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="dotnetCampus.LargeAddressAware" Condition=" $(PlatformTarget) == x86"
-                      Version="1.0.2" />
+    <PackageReference Include="dotnetCampus.LargeAddressAware" Condition=" $(PlatformTarget) == x86" Version="1.0.2" />
+    <PackageReference Include="Microsoft.Diagnostics.Runtime" Version="3.1.512801" />
   </ItemGroup>
 
   <ItemGroup>

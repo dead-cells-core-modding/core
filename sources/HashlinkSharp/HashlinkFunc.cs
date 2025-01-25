@@ -1,6 +1,5 @@
-﻿using Hashlink;
-using Hashlink.Marshaling;
-using Hashlink.Track;
+﻿using Hashlink.Marshaling;
+using Hashlink.Trace;
 using MonoMod.Cil;
 using System;
 using System.Collections.Concurrent;
@@ -14,7 +13,7 @@ using System.Threading.Tasks;
 using static MonoMod.Utils.FastReflectionHelper;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace ModCore.Hashlink
+namespace Hashlink
 {
     public unsafe class HashlinkFunc
     {
@@ -50,16 +49,16 @@ namespace ModCore.Hashlink
             }
             ctx = new();
 
-            if(BindingThis is not null)
+            if (BindingThis is not null)
             {
-                PutArg<nint>(BindingThis.Value, ctx);
+                PutArg(BindingThis.Value, ctx);
             }
         }
 
         private void PutArg<T>(T val, PutArgContext ctx)
         {
             ref int idx = ref ctx.args;
-            
+
             if (typeof(T) == typeof(int) ||
                 typeof(T) == typeof(short) ||
                 typeof(T) == typeof(ushort) ||
@@ -93,10 +92,10 @@ namespace ModCore.Hashlink
             }
             else if (val is IHashlinkPointer obj)
             {
-    
+
                 PutArg(obj.HashlinkPointer, ctx);
             }
-            else if(val is null)
+            else if (val is null)
             {
                 PutArg<nint>(0, ctx);
             }
@@ -124,7 +123,7 @@ namespace ModCore.Hashlink
             MixTrace.MarkEnteringHL();
             var ptrResult = callback_c2hl(hlfunc, &funcType, cached_args_ptr, &result);
             var retKind = result.type->kind;
-            if(retKind == HL_type.TypeKind.HVOID)
+            if (retKind == HL_type.TypeKind.HVOID)
             {
                 return null;
             }
@@ -155,7 +154,7 @@ namespace ModCore.Hashlink
         public HashlinkFunc(HL_type_func* func, void* ptr)
         {
             hlfunction = func;
-           
+
             if (ptr == null)
             {
                 throw new ArgumentNullException(nameof(ptr));
@@ -168,7 +167,7 @@ namespace ModCore.Hashlink
             }
         }
 
-        
+
         public void* FuncPointer => hlfunc;
         public HL_type_func* FuncType => hlfunction;
         public nint? BindingThis { get; set; } = null;

@@ -47,6 +47,6 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG /OPT:ICF")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEBUG /OPT:ICF")
 endif()
 
-# 包含子项目。
+
 add_subdirectory ("3rd/hashlink")
 add_subdirectory ("modcorenative")

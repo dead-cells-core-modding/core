@@ -22,10 +22,15 @@ namespace ModCore
         public static partial void* mcn_get_ebp();
         [LibraryImport(MODCORE_NATIVE_NAME)]
         public static partial void* mcn_get_esp();
-        
+        [LibraryImport(MODCORE_NATIVE_NAME)]
+        [return: MarshalAs(UnmanagedType.I4)]
+        public static partial bool mcn_get_sym(void* ptr, char* symNameBuf, out int symNameLen,
+            char* moduleNameBuf, ref int moduleNameBufLen,
+            out byte* fileName, out int line);
+
         #endregion
         #region HL Utils
-        
+
         [LibraryImport(MODCORE_NATIVE_NAME)]
         public static partial void* hlu_get_hl_bytecode_from_exe(
             [MarshalAs(UnmanagedType.LPWStr)] string path, int* outSize);

@@ -70,8 +70,8 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial HL_vdynamic* hl_dyn_call_safe(HL_vclosure* c, HL_vdynamic** args, int nargs, bool* isException);
 
-        [LibraryImport(LIBHL, StringMarshalling = StringMarshalling.Utf16)]
-        public static partial string hl_to_string(HL_vdynamic* v);
+        [LibraryImport(LIBHL)]
+        public static partial char* hl_to_string(HL_vdynamic* v);
         [LibraryImport(LIBHL)]
         public static partial void hl_throw(HL_vdynamic* v);
 

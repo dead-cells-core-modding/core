@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -15,10 +16,10 @@ namespace DeadCellsModding
         {
             return Path.Combine(root, "coremod", "core", "host", "ModCore.dll");
         }
-        private static void Main(string[] args)
+        private static void StartGame()
         {
             var gameRoot = Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH");
-            if(string.IsNullOrEmpty(gameRoot))
+            if (string.IsNullOrEmpty(gameRoot))
             {
                 gameRoot = Path.GetDirectoryName(Environment.ProcessPath!)!;
             }
@@ -45,6 +46,10 @@ namespace DeadCellsModding
             var core = Assembly.LoadFrom(modcore);
             var startup = core.GetType("ModCore.Startup");
             startup!.GetMethod("StartGame")!.Invoke(null, null);
+        }
+        private static void Main(string[] args)
+        {
+            StartGame();
         }
     }
 }
