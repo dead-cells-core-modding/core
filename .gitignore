@@ -402,3 +402,5 @@ out/
 launchSettings.json
 
 vcpkg_installed/
+
+!3rd/Goldberg/*.dll

@@ -25,13 +25,35 @@
         "value": "win32",
         "strategy": "set"
       },
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "TARGET_ARCH": "x86"
+      }
     },
     {
       "name": "win-x86-release",
       "displayName": "x86 Release",
       "inherits": "win-x86-debug",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    },
+    {
+      "name": "win-x64-debug",
+      "displayName": "x64 Debug",
+      "inherits": "windows-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "set"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "TARGET_ARCH": "x64"
+      }
+    },
+    {
+      "name": "win-x64-release",
+      "displayName": "x64 Release",
+      "inherits": "win-x64-debug",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     }
   ]
 }

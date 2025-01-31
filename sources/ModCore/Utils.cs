@@ -1,7 +1,10 @@
 ﻿
+using Hashlink;
+using Hashlink.Proxy.Objects;
 using ModCore.Trace;
 using MonoMod.Utils;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -9,7 +12,7 @@ using System.Text;
 
 namespace ModCore
 {
-    internal static class Utils
+    internal static unsafe class Utils
     {
 
         public static string GetDisplayName( this StackFrame frame )
@@ -72,6 +75,14 @@ namespace ModCore
         public static extern ref string? Exception_stackTraceString( Exception ex );
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_stackTrace")]
         public static extern ref object? Exception_stackTrace( Exception ex );
+
+        [DoesNotReturn]
+        public static void HashlinkThrow( this Exception ex )
+        {
+            FillExternStackTrace( ex );
+            var err = new HashlinkNETExceptionObj(ex);
+            hl_throw((HL_vdynamic*) err.HashlinkPointer);
+        }
 
         public static void FillExternStackTrace( Exception ex )
         {

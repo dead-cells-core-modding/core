@@ -22,4 +22,8 @@
     <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Event\Interfaces\" />
+  </ItemGroup>
+
 </Project>

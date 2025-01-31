@@ -121,9 +121,7 @@ EXTERNC EXPORT int hlu_start_game(hl_code* code) {
 		return 2;
 	if( !hl_module_init(ctx.m,FALSE) )
 		return 3;
-#if WIN32
-	vsd_init(ctx.m);
-#endif
+
 	init_trace();
 	hl_event(HL_EV_VM_READY, &ctx);
 

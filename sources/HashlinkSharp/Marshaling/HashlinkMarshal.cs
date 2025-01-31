@@ -1,4 +1,5 @@
 ﻿using Hashlink.Proxy;
+using Hashlink.Proxy.Objects;
 using ModCore;
 
 namespace Hashlink.Marshaling
@@ -123,5 +124,7 @@ namespace Hashlink.Marshaling
         {
             return (T)ConvertHashlinkObject(target, marshaler);
         }
+
+
     }
 }

@@ -7,7 +7,7 @@ using System.Reflection;
 namespace ModCore.Modules
 {
     [CoreModule]
-    public class PluginLoader : CoreModule<PluginLoader>, IOnCoreModuleInitializing
+    internal class PluginLoader : CoreModule<PluginLoader>, IOnCoreModuleInitializing
     {
         public override int Priority => ModulePriorities.PluginLoader;
 

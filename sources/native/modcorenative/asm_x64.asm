@@ -2,12 +2,17 @@
 bits 64
 section .text
 
-global _get_ebp
-global _get_esp
+global get_ebp
+global get_esp
+global asm_call_bridge_hl_to_cs
 
-_get_ebp:
+get_ebp:
 	mov rax,rbp
 	ret
-_get_esp:
+get_esp:
 	mov rax,rsp
+	ret
+
+asm_call_bridge_hl_to_cs:
+	int 3
 	ret

@@ -36,8 +36,8 @@ namespace ModCore
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    logger.Information("Loading hlboot.dat from deadcells_gl.exe");
-                    hlboot = (byte*)Native.hlu_get_hl_bytecode_from_exe(FolderInfo.GameRoot.GetFilePath("deadcells_gl.exe"),
+                    logger.Information("Loading hlboot.dat from deadcells.exe");
+                    hlboot = (byte*)Native.hlu_get_hl_bytecode_from_exe(FolderInfo.GameRoot.GetFilePath("deadcells.exe"),
                         &hlbootSize);
                 }
                 else

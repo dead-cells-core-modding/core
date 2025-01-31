@@ -21,17 +21,21 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0A4D46B9-FD22-476F-9451-F3C17380253E}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		..\.gitignore = ..\.gitignore
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ci", "ci", "{D82BFBA7-3D6C-4FF4-9F82-BE048BEEFBE7}"
 	ProjectSection(SolutionItems) = preProject
 		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
+		..\buildWin.ps1 = ..\buildWin.ps1
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModCore.Common", "ModCore.Common\ModCore.Common.csproj", "{5666766A-4901-4F75-8F1E-0BF433A9F55D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaxeSharp", "HaxeSharp\HaxeSharp.csproj", "{507214C4-FAED-45B1-BC58-08DB29E7FD04}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lib", "Lib", "{4457E291-2C8F-44D8-A1C3-C44DDE4B6F52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
