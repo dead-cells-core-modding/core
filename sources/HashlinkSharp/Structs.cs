@@ -23,6 +23,13 @@ namespace Hashlink
         MEM_ZERO = 256
     }
     [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HLEV_native_resolve_event
+    {
+        public byte* libName;
+        public byte* functionName;
+        public void* result;
+    }
+    [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_type
     {
         public string TypeName

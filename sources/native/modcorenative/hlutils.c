@@ -33,7 +33,7 @@ EXTERNC EXPORT void* hlu_call_c2hl(void* f, hl_type* t, void** args, vdynamic* r
 
 	void* result = callback_c2hl(f, t, args, ret);
 	hl_endtrap(ctx);
-
+	return result;
 on_exception:
 	hl_fatal("on_exception");
 	return NULL;

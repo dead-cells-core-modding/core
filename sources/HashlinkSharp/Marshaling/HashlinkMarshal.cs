@@ -5,6 +5,14 @@ namespace Hashlink.Marshaling
 {
     public static unsafe class HashlinkMarshal
     {
+        public static HL_module* Module
+        {
+            get; private set;
+        }
+        internal static void Initialize( HL_module* module )
+        {
+            Module = module;
+        }
         public static HL_type.TypeKind? GetTypeKind( Type type )
         {
             if (type == typeof(int) || type == typeof(uint))
@@ -79,19 +87,23 @@ namespace Hashlink.Marshaling
 
         public static bool IsHashlinkObject( void* ptr )
         {
-            if (!Native.mcn_memory_readable(ptr))
+            if (!mcn_memory_readable(ptr))
             {
                 return false;
             }
             var type = ((HL_vdynamic*)ptr)->type;
-            return Native.mcn_memory_readable(type) && type->kind is >= 0 and <= HL_type.TypeKind.HLAST;
+            return mcn_memory_readable(type) && type->kind is >= 0 and <= HL_type.TypeKind.HLAST;
         }
 
         public static bool IsAllocatedHashlinkObject( void* ptr )
         {
             return hl_is_gc_ptr(ptr) && IsHashlinkObject(ptr);
         }
-
+        public static HashlinkObj ConvertHashlinkObject( HashlinkObjPtr target,
+            IHashlinkMarshaler? marshaler = null )
+        {
+            return ConvertHashlinkObject((void*)target.Pointer, marshaler);
+        }
         public static HashlinkObj ConvertHashlinkObject( void* target,
             IHashlinkMarshaler? marshaler = null )
         {
@@ -100,6 +112,11 @@ namespace Hashlink.Marshaling
             return handle != null && handle.Target != null
                 ? handle.Target
                 : marshaler.TryConvertHashlinkObject(target) ?? throw new InvalidOperationException();
+        }
+        public static T ConvertHashlinkObject<T>( HashlinkObjPtr target,
+           IHashlinkMarshaler? marshaler = null ) where T : HashlinkObj
+        {
+            return (T)ConvertHashlinkObject((void*)target.Pointer, marshaler);
         }
         public static T ConvertHashlinkObject<T>( void* target,
            IHashlinkMarshaler? marshaler = null ) where T : HashlinkObj

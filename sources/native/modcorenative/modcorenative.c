@@ -11,6 +11,7 @@ static int mcn_memory_readable_throw_handler(int code) {
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 EXTERNC EXPORT int mcn_memory_readable(volatile int* ptr) {
+#if DEBUG
 	__try
 	{
 		volatile int old = *ptr;
@@ -21,7 +22,9 @@ EXTERNC EXPORT int mcn_memory_readable(volatile int* ptr) {
 	{
 		return 0;
 	}
-
+#else
+	return !IsBadReadPtr(ptr, 4);
+#endif
 }
 #else
 EXTERNC EXPORT int mcn_memory_readable(void* ptr, int len) {

@@ -5,16 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <RootNamespace>Hashlink</RootNamespace>
+    <RootNamespace>Haxe</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MonoModReorg.Utils" Version="23.3.22.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
-  </ItemGroup>
 
   <ItemGroup>
     <Using Include="Hashlink.HashlinkNative">
@@ -23,6 +15,11 @@
     <Using Include="ModCore.Native">
       <Static>true</Static>
     </Using>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HashlinkSharp\HashlinkSharp.csproj" />
+    <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
   </ItemGroup>
 
 </Project>

@@ -9,4 +9,3 @@ using System.Runtime.CompilerServices;
 [assembly: SuppressMessage("Interoperability", "CA1401:P/Invokes 应该是不可见的")]
 
 [assembly: InternalsVisibleTo("ModCore")]
-[assembly: InternalsVisibleTo("HaxeSharp")]

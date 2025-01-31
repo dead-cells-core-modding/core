@@ -12,8 +12,6 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     
     <OutputPath>../../bin/core/host/</OutputPath>
-    
-    <Platforms>x86;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,11 +25,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HashlinkSharp\HashlinkSharp.csproj" />
+    <ProjectReference Include="..\HaxeSharp\HaxeSharp.csproj" />
     <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Modules\Events\" />
+    <Using Include="Hashlink.HashlinkNative">
+      <Static>True</Static>
+    </Using>
+    <Using Include="ModCore.Native">
+      <Static>true</Static>
+    </Using>
   </ItemGroup>
-
 </Project>

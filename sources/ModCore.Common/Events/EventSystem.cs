@@ -22,6 +22,8 @@ namespace ModCore.Events
         }
         private static readonly EventReceiverList eventReceivers = [];
 
+        
+
         public static void AddReceiver( IEventReceiver receiver )
         {
             eventReceivers.Add(receiver);
@@ -47,11 +49,22 @@ namespace ModCore.Events
             BroadcastEvent<TEvent, int>(0, flags);
         }
         public static void BroadcastEvent<TEvent, TArg>( TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
+                        where TArg : allows ref struct
         {
             BroadcastEvent<TEvent, TArg>(ref arg, flags);
         }
-        public static void BroadcastEvent<TEvent, TArg>( ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
-            where TArg : allows ref struct
+        public static void BroadcastEvent<TEvent, TArg>(ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
+                        where TArg : allows ref struct
+        {
+            _ = BroadcastEvent<TEvent, TArg, object?>(ref arg, flags);
+        }
+        public static EventResult<TResult> BroadcastEvent<TEvent, TArg, TResult>( TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
+                       where TArg : allows ref struct
+        {
+            return BroadcastEvent<TEvent, TArg, TResult>(ref arg, flags);
+        }
+        public static EventResult<TResult> BroadcastEvent<TEvent, TArg, TResult>( ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
+                        where TArg : allows ref struct
         {
             if (EventCaller<TEvent>.IsCallOnce)
             {
@@ -69,7 +82,11 @@ namespace ModCore.Events
                 {
                     try
                     {
-                        EventCaller<TEvent>.Invoke(ev, ref arg);
+                        EventCaller<TEvent>.Invoke(ev, ref arg, out EventResult<TResult> result);
+                        if (result.HasValue)
+                        {
+                            return result;
+                        }
                     }
                     catch (EventBreakException ex)
                     {
@@ -106,6 +123,7 @@ namespace ModCore.Events
             {
                 throw new AggregateException(exceptions);
             }
+            return default;
         }
 
     }

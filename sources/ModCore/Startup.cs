@@ -54,7 +54,11 @@ namespace ModCore
 
             EventSystem.BroadcastEvent<IOnCodeLoading, Span<byte>>(ref codeData);
 
-            var code = hl_code_read(hlboot, hlbootSize, &err);
+            void* code;
+            fixed (byte* data = codeData)
+            {
+                code = hl_code_read(data, codeData.Length, &err);
+            }
             if (err != null)
             {
                 logger.Error("An error occurred while loading bytecode: {err}", Marshal.PtrToStringAnsi((nint)err));
@@ -64,7 +68,7 @@ namespace ModCore
             {
                 logger.Information("Starting game");
                 MixTrace.MarkEnteringHL();
-                return Native.hlu_start_game(code);
+                return hlu_start_game(code);
             }
             catch (Exception ex)
             {

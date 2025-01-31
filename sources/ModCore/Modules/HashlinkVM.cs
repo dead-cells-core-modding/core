@@ -5,6 +5,7 @@ using Hashlink.Trace;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
+using ModCore.Events.Interfaces.VM;
 using ModCore.Trace;
 using Serilog;
 using System.Runtime.InteropServices;
@@ -17,7 +18,8 @@ namespace ModCore.Modules
     public unsafe class HashlinkVM : CoreModule<HashlinkVM>,
         IOnCoreModuleInitializing,
         IOnHashlinkVMReady,
-        IOnNativeEvent
+        IOnNativeEvent,
+        IOnResolveNativeFunction
     {
         public override int Priority => ModulePriorities.HashlinkVM;
 
@@ -50,7 +52,7 @@ namespace ModCore.Modules
             try
             {
                 var st = new MixStackTrace(0, true);
-                var result = new HashlinkArray(hlt_bytes, st.FrameCount);
+                var result = new HashlinkArray(InternalTypes.hlt_bytes, st.FrameCount);
                 for (var i = 0; i < st.FrameCount; i++)
                 {
                     var f = st.GetFrame(i);
@@ -71,7 +73,7 @@ namespace ModCore.Modules
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void hl_sys_print_handler( char* msg );
-        private static hl_sys_print_handler orig_hl_sys_print = null!;
+        private static readonly hl_sys_print_handler hl_sys_print_del = Hook_hl_sys_print;
         private static readonly ILogger hlprintLogger = Log.ForContext("SourceContext", "Game");
         private static readonly StringBuilder hlprintBuffer = new();
 
@@ -95,7 +97,7 @@ namespace ModCore.Modules
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void hl_sys_exit_handler( int code );
-        private static hl_sys_exit_handler orig_hl_sys_exit = null!;
+        private readonly static hl_sys_exit_handler hl_sys_exit_del = Hook_hl_sys_exit;
         [CallFromHLOnly]
         private static void Hook_hl_sys_exit( int code )
         {
@@ -120,12 +122,6 @@ namespace ModCore.Modules
 
             orig_hl_exception_stack = NativeHook.Instance.CreateHook<hl_exception_stack_handler>(
                 NativeLibrary.GetExport(LibhlHandle, "hl_exception_stack"), Hook_hl_exception_stack);
-
-            orig_hl_sys_print = NativeHook.Instance.CreateHook<hl_sys_print_handler>(
-                NativeLibrary.GetExport(LibhlHandle, "hl_sys_print"), Hook_hl_sys_print);
-
-            orig_hl_sys_exit = NativeHook.Instance.CreateHook<hl_sys_exit_handler>(
-               NativeLibrary.GetExport(LibhlHandle, "hl_sys_exit"), Hook_hl_sys_exit);
         }
 
         void IOnHashlinkVMReady.OnHashlinkVMReady()
@@ -134,8 +130,9 @@ namespace ModCore.Modules
 
             Context = (VMContext*)tinfo->stack_top;
 
-            Logger.Information("Initializing HashlinkVM Utils");
+            Logger.Information("Initializing Haxe Utils Utils");
 
+            Haxe.Marshaling.HaxeMarshal.Initialize(Context->m);
         }
 
         void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )
@@ -151,6 +148,52 @@ namespace ModCore.Modules
                 Context = (VMContext*)ev.Data;
                 EventSystem.BroadcastEvent<IOnHashlinkVMReady>();
             }
+            else if (ev.EventId == IOnNativeEvent.EventId.HL_EV_RESOLVE_NATIVE)
+            {
+                var data = (HLEV_native_resolve_event*)ev.Data;
+                if (data->functionName == null)
+                {
+                    var result = EventSystem.BroadcastEvent<IOnResolveNativeLib, string, nint>(
+                        Marshal.PtrToStringAnsi((nint)data->libName)!
+                        );
+                    if (result.HasValue)
+                    {
+                        data->result = (void*)result.Value;
+                        return;
+                    }
+                }
+                else
+                {
+                    var result = EventSystem.BroadcastEvent<IOnResolveNativeFunction, 
+                        IOnResolveNativeFunction.NativeFunctionInfo, nint>(
+                            new(){
+                                libname = Marshal.PtrToStringAnsi((nint)data->libName)!,
+                                name = Marshal.PtrToStringAnsi((nint)data->functionName)!
+                            }
+                            );
+                    if (result.HasValue)
+                    {
+                        data->result = (void*)result.Value;
+                        return;
+                    }
+                }
+            }
+        }
+
+        EventResult<nint> IOnResolveNativeFunction.OnResolveNativeFunction( IOnResolveNativeFunction.NativeFunctionInfo info )
+        {
+            if(info.libname == "std")
+            {
+                if (info.name == "sys_print")
+                {
+                    return Marshal.GetFunctionPointerForDelegate(hl_sys_print_del);
+                }
+                if (info.name == "sys_exit")
+                {
+                    return Marshal.GetFunctionPointerForDelegate(hl_sys_exit_del);
+                }
+            }
+            return default;
         }
     }
 }

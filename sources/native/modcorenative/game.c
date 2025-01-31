@@ -100,6 +100,7 @@ void log_printf_handler(const char* source, int level, const char* format, va_li
 	free(buf);
 }
 
+
 EXTERNC EXPORT int hlu_start_game(hl_code* code) {
 	char *error_msg = NULL;
 	bool isExc = false;
@@ -131,17 +132,7 @@ EXTERNC EXPORT int hlu_start_game(hl_code* code) {
 	ctx.c.fun = ctx.m->functions_ptrs[ctx.m->code->entrypoint];
 	ctx.c.hasValue = 0;
 	setup_handler();
-	/*ctx.ret = hl_dyn_call_safe(&ctx.c, NULL, 0, &isExc);
-	if( isExc ) {
-		varray *a = hl_exception_stack();
-		int i;
-		uprintf(USTR("Uncaught exception: %s\n"), hl_to_string(ctx.ret));
-		for(i=0;i<a->size;i++)
-			uprintf(USTR("Called from %s\n"), hl_aptr(a,uchar*)[i]);
-		hl_global_free();
-		return 1;
-	}
-	hl_module_free(ctx.m);*/
+
 	hl_event(HL_EV_START_GAME, &ctx);
 	hl_free(&ctx.code->alloc);
 	hl_global_free();

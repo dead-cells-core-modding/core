@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace ModCore.Events
 {
-    internal delegate void ModuleEventCall( object self, nint refArg );
+    internal delegate void ModuleEventCall( object self, nint refArg, nint resultRef );
     internal static class EventCaller<TEvent>
     {
         private static readonly ModuleEventCall call;
@@ -32,8 +32,13 @@ namespace ModCore.Events
                 throw new NotSupportedException("Methods with multiple parameters are not supported");
             }
 
-            DynamicMethodDefinition caller = new($"ModuleEventCall+{method.Name}", typeof(void), [typeof(object), typeof(nint)]);
+            DynamicMethodDefinition caller = new($"ModuleEventCall+{method.Name}", 
+                typeof(void), [typeof(object), typeof(nint), typeof(nint)]);
             var il = caller.GetILProcessor();
+            if (method.ReturnType != typeof(void))
+            {
+                il.Emit(OpCodes.Ldarg_2);
+            }
             il.Emit(OpCodes.Ldarg_0);
             if (@params.Length == 1)
             {
@@ -44,6 +49,18 @@ namespace ModCore.Events
                 }
             }
             il.Emit(OpCodes.Callvirt, method);
+            if (method.ReturnType != typeof(void))
+            {
+                var ret = method.ReturnType;
+                if (!ret.IsGenericType || ret.GetGenericTypeDefinition() != typeof(EventResult<>))
+                {
+                    throw new NotSupportedException("Invalid return value type");
+                }
+                else
+                {
+                    il.Emit(OpCodes.Stobj, ret);
+                }
+            }
             il.Emit(OpCodes.Ret);
             return caller.Generate().CreateDelegate<ModuleEventCall>();
         }
@@ -65,18 +82,15 @@ namespace ModCore.Events
             call = GenerateCall(EventMethod);
         }
 
-        public static void Invoke( TEvent self, nint refOfarg )
+        public static void Invoke( TEvent self, nint refOfarg , nint refOfResult)
         {
             IsCalled = true;
-            call(self!, refOfarg);
+            call(self!, refOfarg, refOfResult);
         }
-        public static unsafe void Invoke<TArg>( TEvent self, ref TArg argOnStack ) where TArg : allows ref struct
+        public static unsafe void Invoke<TArg, TResult>( TEvent self, ref TArg argOnStack, out EventResult<TResult> resultOnStack ) where TArg : allows ref struct
         {
-            Invoke(self!, (nint)Unsafe.AsPointer(ref argOnStack));
-        }
-        public static void Invoke( TEvent self )
-        {
-            Invoke(self!, 0);
+            Unsafe.SkipInit(out resultOnStack);
+            Invoke(self!, (nint)Unsafe.AsPointer(ref argOnStack), (nint)Unsafe.AsPointer(ref resultOnStack));
         }
     }
 }

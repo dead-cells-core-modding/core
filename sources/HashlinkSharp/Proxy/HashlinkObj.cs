@@ -16,6 +16,10 @@ namespace Hashlink.Proxy
             Type = *(HL_type**)ptr;
             TypeKind = Type->kind;
         }
+        public override string? ToString()
+        {
+            return new(hl_to_string((HL_vdynamic*)HashlinkPointer));
+        }
         public HashlinkObjHandle? Handle
         {
             get;
