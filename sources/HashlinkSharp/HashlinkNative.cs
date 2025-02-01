@@ -1,5 +1,6 @@
 ﻿
 using ModCore;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -68,6 +69,7 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial char* hl_to_string( HL_vdynamic* v );
         [LibraryImport(LIBHL)]
+        [DoesNotReturn]
         public static partial void hl_throw( HL_vdynamic* v );
 
 

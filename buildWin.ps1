@@ -26,6 +26,6 @@ echo "Copying hlsteam"
 $hlsteam = $thirdparty + "/hlsteam/*"
 Copy-Item -Path $hlsteam -Destination "./hlsteam" -Recurse -Force
 
-echo "Copying Goldberg"
-$goldberg = $thirdparty + "/Goldberg/*"
-Copy-Item -Path $goldberg -Destination "./goldberg" -Recurse -Force
+#echo "Copying Goldberg"
+#$goldberg = $thirdparty + "/Goldberg/*"
+#Copy-Item -Path $goldberg -Destination "./goldberg" -Recurse -Force
