@@ -22,6 +22,18 @@ jobs:
       with:
         dotnet-version: 9
 
+    - name: Download Dependencies
+      run: |
+        cd ./sources/native/3rd/hashlink/include
+
+        Invoke-WebRequest -Uri https://github.com/kcat/openal-soft/releases/download/1.23.1/openal-soft-1.23.1-bin.zip -OutFile ./OpenAL.zip
+        Expand-Archive -LiteralPath ./OpenAL.zip -DestinationPath . -Force
+        Move-Item -Path ./openal-soft-1.23.1-bin -Destination ./openal -Force
+        
+        Invoke-WebRequest -Uri https://www.libsdl.org/release/SDL2-devel-2.30.2-VC.zip -OutFile ./SDL.zip
+        Expand-Archive -LiteralPath ./SDL.zip -DestinationPath . -Force
+        Move-Item -Path ./SDL2-2.30.2 -Destination ./sdl -Force
+
     - name: Build
       run: ./buildWin.ps1
 

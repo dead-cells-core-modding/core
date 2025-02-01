@@ -9,15 +9,13 @@
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>false</SelfContained>
 
-    <LargeAddressAware>true</LargeAddressAware>
-    
     <RollForward>LatestMajor</RollForward>
 
-    <RuntimeIdentifiers>win-x86;linux-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
 
     <PublishDir>../../bin/core/host/startup</PublishDir>
 
-    <Platforms>x64;x86</Platforms>
+    <Platforms>x64</Platforms>
 
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
@@ -25,11 +23,7 @@
   <ItemGroup>
     <Content Include="icon.ico" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="dotnetCampus.LargeAddressAware" Condition=" $(PlatformTarget) == x86" Version="1.0.2" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <None Update="steam_appid.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

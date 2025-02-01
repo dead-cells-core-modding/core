@@ -4,7 +4,7 @@
 #ifdef WIN32
 EXTERNC EXPORT void* hlu_get_hl_bytecode_from_exe(const uchar* exePath, int* outSize)
 {
-	HMODULE exe = LoadLibrary(exePath);
+	HMODULE exe = LoadLibraryEx(exePath, NULL, LOAD_LIBRARY_AS_DATAFILE | LOAD_LIBRARY_AS_IMAGE_RESOURCE);
 	if (exe == NULL) {
 		return NULL;
 	}

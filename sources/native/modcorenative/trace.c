@@ -79,6 +79,7 @@ EXTERNC EXPORT int mcn_get_sym(void* ptr, wchar_t* symNameBuf, int* symNameLen,
 			*line = 0;
 		}
 	}
+	return 1;
 #else
 	return 0;
 #endif

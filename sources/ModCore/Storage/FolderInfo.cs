@@ -6,6 +6,8 @@ namespace ModCore.Storage
     public class FolderInfo
     {
         private static readonly Dictionary<string, FolderInfo> folders = [];
+        private static readonly string platform_name = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "win" : "linux";
+        private static readonly string cpu_name = Environment.Is64BitProcess ? "x64" : "x86";
 
         public static FolderInfo CoreRoot
         {
@@ -20,7 +22,7 @@ namespace ModCore.Storage
             get;
         } =
             new("CORE_NATIVE_ROOT", "{CORE_ROOT}core/native/" +
-                (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "win-x86" : "linux-x64"));
+               platform_name + "-" + cpu_name);
 
         public static FolderInfo GameRoot { get; } = new("GAME_ROOT", "{CORE_ROOT}../");
 

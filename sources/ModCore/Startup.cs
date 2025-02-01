@@ -3,6 +3,7 @@ using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Storage;
 using Serilog;
+using System.Diagnostics;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
 
@@ -14,7 +15,7 @@ namespace ModCore
         private static int AfterCoreLoaded()
         {
             var logger = Log.Logger.ForContext(typeof(Startup));
-
+            var useOpenGL = Environment.GetEnvironmentVariable("GAME_OPENGL")?.ToLower() == "true";
             //Load hlboot.dat
             var hlbootPath = Environment.GetEnvironmentVariable("DCCM_HLBOOT_PATH");
             if (string.IsNullOrEmpty(hlbootPath))
@@ -36,14 +37,15 @@ namespace ModCore
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    logger.Information("Loading hlboot.dat from deadcells.exe");
-                    hlboot = (byte*)Native.hlu_get_hl_bytecode_from_exe(FolderInfo.GameRoot.GetFilePath("deadcells.exe"),
+                    var exeName = useOpenGL ? "deadcells_gl.exe" : "deadcells.exe";
+                    logger.Information("Loading hlboot.dat from {name}", exeName);
+                    hlboot = (byte*)hlu_get_hl_bytecode_from_exe(FolderInfo.GameRoot.GetFilePath(exeName),
                         &hlbootSize);
                 }
-                else
-                {
-                    throw new FileNotFoundException(null, "hlboot.dat");
-                }
+            }
+            if (hlboot == null)
+            {
+                throw new FileNotFoundException(null, "hlboot.dat");
             }
             byte* err = null;
             logger.Information("Reading hl bytecode");
@@ -72,7 +74,7 @@ namespace ModCore
             }
             catch (Exception ex)
             {
-                logger.Fatal(ex, "Uncaught .NET Exception crossing the HashlinkVM-.NET runtime boundary.");
+                logger.Fatal(ex, "Uncaught .NET Exception");
                 throw;
             }
         }
