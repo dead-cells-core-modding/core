@@ -15,26 +15,57 @@ EXTERNC EXPORT void* mcn_get_esp()
 	return get_esp();
 }
 
-EXTERNC EXPORT int mcn_load_stacktrace(void** buf, int maxCount, void* bottom)
+#if WIN32
+static bool is_executable(void* ptr, hl_value_fat page_mask) {
+	MEMORY_BASIC_INFORMATION meminfo = { 0 };
+	if (VirtualQuery((hl_value_fat)ptr & page_mask, &meminfo, sizeof(meminfo)) != 0) {
+		if ((meminfo.Protect &
+			(PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)) != 0) {
+			return true;
+		}
+	}
+	return false;
+}
+#endif
+
+static int stack_frame_compare(hlu_stack_frame* a, hlu_stack_frame* b) {
+	return (DWORD64)a->esp - (DWORD64)b->esp;
+}
+
+EXTERNC EXPORT int mcn_load_stacktrace(hlu_stack_frame* buf, int maxCount, void* bottom)
 {
-	void* top = get_ebp();
+#if WIN32
 
-	if (top == NULL)
-	{
-		return 0;
+	SYSTEM_INFO sysInfo = { 0 };
+	GetSystemInfo(&sysInfo);
+
+	hl_value_fat page_mask = ~((hl_value_fat)sysInfo.dwPageSize - 1);
+#else
+	hl_value_fat page_mask = ~((hl_value_fat)sysconf(_SC_PAGESIZE) - 1);
+#endif
+	void** stack = &buf;
+	
+	int index = 0;
+	while (stack <= bottom && index < maxCount) {
+		void* ip = *stack;
+		if (!is_executable(ip, page_mask)) {
+			stack++;
+			continue;
+		}
+		void* ebp = *(stack - 1);
+		stack++;
+		if (ebp <= stack || ebp >= bottom) {
+			continue;
+		}
+		void* eip = ((void**)ebp)[1];
+		if (is_executable(eip, page_mask)) {
+			buf[index].eip = eip;
+			buf[index].esp = ebp;
+			index++;
+		}
 	}
-
-	int count = 0;
-
-	while (count < maxCount && top <= bottom)
-	{
-		void* ebp = ((void**)top)[0];
-		void* ret = ((void**)top)[1];
-		buf[count++] = ebp;
-		top = ebp;
-	}
-
-	return count;
+	qsort(buf, index, sizeof(hlu_stack_frame), stack_frame_compare);
+	return index;
 }
 
 EXTERNC void init_trace()
@@ -54,7 +85,7 @@ EXTERNC EXPORT int mcn_get_sym(void* ptr, wchar_t* symNameBuf, int* symNameLen,
 	DWORD64  dwDisplacement = 0;
 	{
 		
-		SYMBOL_INFO* sym = (SYMBOL_INFO*)alloca(sizeof(SYMBOL_INFO) + maxNameLen * sizeof(TCHAR));
+		SYMBOL_INFOW* sym = (SYMBOL_INFO*)alloca(sizeof(SYMBOL_INFO) + maxNameLen * sizeof(TCHAR));
 		sym->SizeOfStruct = sizeof(SYMBOL_INFO);
 		sym->MaxNameLen = maxNameLen;
 		if (SymFromAddrW(GetCurrentProcess(), ptr, &dwDisplacement, sym))

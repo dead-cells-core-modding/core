@@ -36,6 +36,12 @@ typedef struct
 	hl2cs_callback callback;
 } hl2c_table;
 
+typedef struct
+{
+	void* eip;
+	void* esp;
+} hlu_stack_frame;
+
 
 
 EXTERNC void* get_ebp();

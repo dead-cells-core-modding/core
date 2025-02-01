@@ -40,5 +40,5 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4.6.0
       with:
-        name: build-win-x86
+        name: build-win-x64
         path: ./bin/*

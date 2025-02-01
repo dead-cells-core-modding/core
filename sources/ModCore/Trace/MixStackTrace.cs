@@ -44,8 +44,8 @@ namespace ModCore.Trace
         private void CollectInfo()
         {
             var t = hl_get_thread();
-            var buf = stackalloc void*[512];
-            var ebpCount = Native.mcn_load_stacktrace(buf, 512, t->stack_top);
+            var buf = stackalloc HLU_stack_frame[512];
+            var ebpCount = mcn_load_stacktrace(buf, 512, t->stack_top);
 
             var curTransition = MixTrace.current;
             var managedId = 0;
@@ -58,7 +58,8 @@ namespace ModCore.Trace
 
             for (var i = 0; i < ebpCount; i++)
             {
-                var ebp = (nint)buf[i];
+                var ebp = buf[i].esp;
+                var eip = buf[i].eip;
                 if (curTransition != null)
                 {
                     if (ebp >= curTransition.esp ||
@@ -95,8 +96,7 @@ namespace ModCore.Trace
                         curTransition = curTransition.prev;
                     }
                 }
-                var eip = ((nint*)ebp)[1];
-                ebp = *(nint*)ebp;
+      
 
                 var m = HashlinkVM.Instance.Context->m;
 
@@ -119,14 +119,14 @@ namespace ModCore.Trace
                 }
 
                 var modNameLen = 512;
-                if (Native.mcn_get_sym((void*)eip,
+                if (mcn_get_sym((void*)eip,
                     symBuf,
                     out var symNameLen,
                     modNameBuf,
                     ref modNameLen,
                     out var fileName,
                     out var line) &&
-                    (symNameLen > 0 || fileName != null || line != 0))
+                    (fileName != null || line != 0))
                 {
 
                     frames.Add(new NativeStackFrame()

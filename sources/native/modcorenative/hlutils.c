@@ -25,6 +25,7 @@ EXTERNC EXPORT void* hlu_get_hl_bytecode_from_exe(const uchar* exePath, int* out
 
 EXTERNC EXPORT void* hlu_call_c2hl(void* f, hl_type* t, void** args, vdynamic* ret)
 {
+	
 	hl_trap_ctx_ex ctx;
 	vdynamic* exc;
 	hl_trap(ctx, exc, on_exception);

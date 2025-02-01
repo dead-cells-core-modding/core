@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>Hashlink</RootNamespace>
-    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

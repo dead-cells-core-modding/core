@@ -12,7 +12,6 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     
     <OutputPath>../../bin/core/host/</OutputPath>
-    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
