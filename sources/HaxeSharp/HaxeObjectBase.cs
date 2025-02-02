@@ -29,7 +29,7 @@ namespace Haxe
         {
             get;
         }
-        public nint HashlinkPointer => HashlinkObject.HashlinkPointer;
+        public nint HashlinkPointer => ((IHashlinkPointer)HashlinkObject).HashlinkPointer;
         public override string? ToString()
         {
             return HashlinkObject.ToString();

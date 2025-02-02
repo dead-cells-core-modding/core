@@ -1,7 +1,8 @@
 ﻿using ModCore.Events;
 using ModCore.Events.Interfaces;
+using Newtonsoft.Json;
 using Serilog;
-using System.Text.Json;
+
 
 namespace ModCore.Storage
 {
@@ -18,14 +19,12 @@ namespace ModCore.Storage
             get;
         }
 
-        public JsonSerializerOptions SerializerOptions
+        public JsonSerializerSettings SerializerOptions
         {
             get; set;
         } = new()
         {
-            WriteIndented = true,
-            IncludeFields = true,
-            AllowTrailingCommas = true,
+            Formatting = Formatting.Indented
         };
 
         private T? value;
@@ -59,7 +58,7 @@ namespace ModCore.Storage
             {
                 if (File.Exists(ConfigPath))
                 {
-                    value = JsonSerializer.Deserialize<T>(File.ReadAllText(ConfigPath), SerializerOptions);
+                    value = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigPath), SerializerOptions);
                 }
                 else
                 {
@@ -78,7 +77,7 @@ namespace ModCore.Storage
         {
             if (value != null)
             {
-                File.WriteAllText(ConfigPath, JsonSerializer.Serialize(value, SerializerOptions));
+                File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(value, SerializerOptions));
             }
         }
 

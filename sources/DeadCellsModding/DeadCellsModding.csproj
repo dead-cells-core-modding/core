@@ -9,6 +9,8 @@
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>false</SelfContained>
 
+    <PublishReadyToRun>true</PublishReadyToRun>
+
     <RollForward>LatestMajor</RollForward>
 
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>

@@ -3,10 +3,10 @@
 include_directories (../3rd/hashlink/src)
 file(GLOB SOURCES ./*.c)
 
-if(X86)
-set(ASM_HELPER_SRC ./asm_x86.asm)
+if(WIN32)
+set(ASM_HELPER_SRC ./win_x64.asm)
 else()
-set(ASM_HELPER_SRC ./asm_x64.asm)
+set(ASM_HELPER_SRC ./linux_x64.asm)
 endif()
 
 remove_definitions(-DLIBHL_EXPORTS)

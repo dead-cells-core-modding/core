@@ -93,7 +93,7 @@ namespace Hashlink.Marshaling
                 return false;
             }
             var type = ((HL_vdynamic*)ptr)->type;
-            return mcn_memory_readable(type) && type->kind is >= 0 and <= HL_type.TypeKind.HLAST;
+            return mcn_memory_readable(type) && type->kind is > 0 and <= HL_type.TypeKind.HLAST;
         }
 
         public static bool IsAllocatedHashlinkObject( void* ptr )

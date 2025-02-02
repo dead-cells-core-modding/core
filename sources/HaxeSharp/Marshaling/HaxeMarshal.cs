@@ -1,7 +1,11 @@
 ﻿using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
+using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.Objects;
+using Haxe.Event.Interfaces;
 using ModCore.Events;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +29,28 @@ namespace Haxe.Marshaling
             {
                 return obj;
             }
+
             
+            var result = EventSystem.BroadcastEvent<IOnConvertHashlinkObject, HashlinkObj, HaxeObjectBase>(value);
+            if (result.HasValue)
+            {
+                if (result.Value == null)
+                {
+                    throw new InvalidOperationException();
+                }
+                objMapping.TryAdd(value, result.Value);
+                return result.Value;
+            }
+
+            if (value is HashlinkClosure closure)
+            {
+                return new HaxeClosure(closure);
+            }
+            else if (value is HashlinkObject hobj)
+            {
+                return new HaxeObject(hobj);
+            }
+
             throw new NotImplementedException();
         }
 

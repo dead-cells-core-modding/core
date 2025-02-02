@@ -16,9 +16,9 @@ EXTERNC EXPORT void* mcn_get_esp()
 }
 
 #if WIN32
-static bool is_executable(void* ptr, hl_value_fat page_mask) {
+static bool is_executable(void* ptr, int64 page_mask) {
 	MEMORY_BASIC_INFORMATION meminfo = { 0 };
-	if (VirtualQuery((hl_value_fat)ptr & page_mask, &meminfo, sizeof(meminfo)) != 0) {
+	if (VirtualQuery((int64)ptr & page_mask, &meminfo, sizeof(meminfo)) != 0) {
 		if ((meminfo.Protect &
 			(PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)) != 0) {
 			return true;
@@ -28,8 +28,8 @@ static bool is_executable(void* ptr, hl_value_fat page_mask) {
 }
 #endif
 
-static int stack_frame_compare(hlu_stack_frame* a, hlu_stack_frame* b) {
-	return (DWORD64)a->esp - (DWORD64)b->esp;
+static int stack_frame_compare(const hlu_stack_frame* a, hlu_stack_frame* b) {
+	return (int64)a->esp - (int64)b->esp;
 }
 
 EXTERNC EXPORT int mcn_load_stacktrace(hlu_stack_frame* buf, int maxCount, void* bottom)
@@ -39,9 +39,9 @@ EXTERNC EXPORT int mcn_load_stacktrace(hlu_stack_frame* buf, int maxCount, void*
 	SYSTEM_INFO sysInfo = { 0 };
 	GetSystemInfo(&sysInfo);
 
-	hl_value_fat page_mask = ~((hl_value_fat)sysInfo.dwPageSize - 1);
+	int64 page_mask = ~((int64)sysInfo.dwPageSize - 1);
 #else
-	hl_value_fat page_mask = ~((hl_value_fat)sysconf(_SC_PAGESIZE) - 1);
+	int64 page_mask = ~((int64)sysconf(_SC_PAGESIZE) - 1);
 #endif
 	void** stack = &buf;
 	
@@ -82,24 +82,24 @@ EXTERNC EXPORT int mcn_get_sym(void* ptr, wchar_t* symNameBuf, int* symNameLen,
 #if WIN32
 	int maxNameLen = 256;
 
-	DWORD64  dwDisplacement = 0;
+	DWORD  dwDisplacement = 0;
 	{
 		
 		SYMBOL_INFOW* sym = (SYMBOL_INFO*)alloca(sizeof(SYMBOL_INFO) + maxNameLen * sizeof(TCHAR));
 		sym->SizeOfStruct = sizeof(SYMBOL_INFO);
 		sym->MaxNameLen = maxNameLen;
-		if (SymFromAddrW(GetCurrentProcess(), ptr, &dwDisplacement, sym))
+		if (SymFromAddrW(GetCurrentProcess(), (int64)ptr, &dwDisplacement, sym))
 		{
 			*symNameLen = sym->NameLen;
 			lstrcpyW(symNameBuf, sym->Name);
-			*moduleNameBufLen = GetModuleFileNameW(sym->ModBase, moduleNameBuf, *moduleNameBufLen);
+			*moduleNameBufLen = GetModuleFileNameW((HMODULE)sym->ModBase, moduleNameBuf, *moduleNameBufLen);
 		}
 	}
 	{
 		IMAGEHLP_LINE sym;
 		sym.SizeOfStruct = sizeof(IMAGEHLP_LINE);
 
-		if (SymGetLineFromAddr(GetCurrentProcess(), ptr, &dwDisplacement, &sym))
+		if (SymGetLineFromAddr(GetCurrentProcess(), (int64)ptr, &dwDisplacement, &sym))
 		{
 			*fileName = sym.FileName;
 			*line = sym.LineNumber;

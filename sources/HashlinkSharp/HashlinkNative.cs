@@ -90,7 +90,7 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial HL_vdynamic* hl_alloc_obj( HL_type* type );
         [LibraryImport(LIBHL)]
-        public static partial HL_enum* hl_alloc_enum( HL_type* type );
+        public static partial HL_enum* hl_alloc_enum( HL_type* type , int index );
         [LibraryImport(LIBHL)]
         public static partial HL_field_lookup* hl_lookup_find( HL_field_lookup* l, int size, int hash );
 
@@ -153,7 +153,7 @@ namespace Hashlink
         public static partial void* hl_code_read( void* data, int size, byte** errorMsg );
         public static void* callback_c2hl( void* f, HL_type* t, void** args, HL_vdynamic* ret )
         {
-            return Native.hlu_call_c2hl(f, t, args, ret);
+            return hlu_call_c2hl(f, t, args, ret);
         }
         [LibraryImport(LIBHL)]
         [return: MarshalAs(UnmanagedType.Bool)]

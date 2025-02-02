@@ -19,23 +19,38 @@ namespace Hashlink.Marshaling
         }
         public virtual object? TryReadData( void* target, HL_type.TypeKind? typeKind )
         {
-            return typeKind == null
-                ? null
-                : typeKind == HL_type.TypeKind.HBOOL
-                ? *(byte*)target == 1
-                : typeKind == HL_type.TypeKind.HUI8
-                    ? *(byte*)target
-                    : typeKind == HL_type.TypeKind.HUI16
-                                    ? *(ushort*)target
-                                    : typeKind == HL_type.TypeKind.HI32
-                                                    ? *(int*)target
-                                                    : typeKind == HL_type.TypeKind.HI64
-                                                                    ? *(long*)target
-                                                                    : typeKind == HL_type.TypeKind.HF32
-                                                                                    ? *(float*)target
-                                                                                    : typeKind == HL_type.TypeKind.HF64
-                                                                                                    ? *(double*)target
-                                                                                                    : typeKind?.IsPointer() ?? false ? HashlinkMarshal.ConvertHashlinkObject(*(void**)target) : (object?)null;
+            switch (typeKind)
+            {
+                case null:
+                    return null;
+                case HL_type.TypeKind.HBOOL:
+                    return (object?)(*(byte*)target == 1);
+                case HL_type.TypeKind.HUI8:
+                    return (object?)*(byte*)target;
+                case HL_type.TypeKind.HUI16:
+                    return (object?)*(ushort*)target;
+                case HL_type.TypeKind.HI32:
+                    return (object?)*(int*)target;
+                case HL_type.TypeKind.HI64:
+                    return (object?)*(long*)target;
+                case HL_type.TypeKind.HF32:
+                    return (object?)*(float*)target;
+                case HL_type.TypeKind.HF64:
+                    return (object?)*(double*)target;
+                case HL_type.TypeKind.HABSTRACT:
+                    return (object?)*(nint*)target;
+                case HL_type.TypeKind.HREF:
+                    return (object?)*(nint*)target;
+                default:
+                    if (typeKind?.IsPointer() ?? false)
+                    {
+                        return (object?)HashlinkMarshal.ConvertHashlinkObject(*(void**)target);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+            }
         }
 
         public virtual bool TryWriteData( void* target, object? value, HL_type.TypeKind? type )
@@ -99,6 +114,14 @@ namespace Hashlink.Marshaling
             {
                 *(byte*)target = (byte)(Utils.ForceUnbox<bool>(value) ? 1 : 0);
             }
+            else if (type is HL_type.TypeKind.HREF)
+            {
+                *(nint*)target = (nint)value;
+            }
+            else if (type is HL_type.TypeKind.HABSTRACT)
+            {
+                *(nint*)target = (nint)value;
+            }
             else if (type is HL_type.TypeKind.HBYTES)
             {
                 if (value is string str)
@@ -123,31 +146,24 @@ namespace Hashlink.Marshaling
 
             var kind = ptr.TypeKind;
 
-
-
-            return kind == HL_type.TypeKind.HUI8
-                ? new HashlinkTypedValue<byte>(ptr)
-                : kind == HL_type.TypeKind.HUI16
-                    ? new HashlinkTypedValue<ushort>(ptr)
-                    : kind == HL_type.TypeKind.HI32
-                                    ? new HashlinkTypedValue<int>(ptr)
-                                    : kind == HL_type.TypeKind.HI64
-                                                    ? new HashlinkTypedValue<long>(ptr)
-                                                    : kind == HL_type.TypeKind.HF32
-                                                                    ? new HashlinkTypedValue<float>(ptr)
-                                                                    : kind == HL_type.TypeKind.HF64
-                                                                                    ? new HashlinkTypedValue<double>(ptr)
-                                                                                    : kind == HL_type.TypeKind.HBOOL
-                                                                                                    ? new HashlinkTypedValue<bool>(ptr)
-                                                                                                    : kind == HL_type.TypeKind.HBYTES
-                                                                                                                    ? new HashlinkBytes(ptr)
-                                                                                                                    : kind == HL_type.TypeKind.HVIRTUAL
-                                                                                                                                    ? new HashlinkVirtual(ptr)
-                                                                                                                                    : kind == HL_type.TypeKind.HOBJ
-                                                                                                                                                    ? ptr.Type == NETExcepetionError.ErrorType ? new HashlinkNETExceptionObj(ptr) : new HashlinkObject(ptr)
-                                                                                                                                                    : kind == HL_type.TypeKind.HFUN
-                                                                                                                                                                    ? new HashlinkClosure(ptr)
-                                                                                                                                                                    : kind == HL_type.TypeKind.HREF ? (HashlinkObj)new HashlinkRef(ptr) : throw new InvalidOperationException($"Unrecognized type {kind}");
+            return kind switch
+            {
+                HL_type.TypeKind.HUI8 => new HashlinkTypedValue<byte>(ptr),
+                HL_type.TypeKind.HUI16 => new HashlinkTypedValue<ushort>(ptr),
+                HL_type.TypeKind.HI32 => new HashlinkTypedValue<int>(ptr),
+                HL_type.TypeKind.HI64 => new HashlinkTypedValue<long>(ptr),
+                HL_type.TypeKind.HF32 => new HashlinkTypedValue<float>(ptr),
+                HL_type.TypeKind.HF64 => new HashlinkTypedValue<double>(ptr),
+                HL_type.TypeKind.HBOOL => new HashlinkTypedValue<bool>(ptr),
+                HL_type.TypeKind.HBYTES => new HashlinkBytes(ptr),
+                HL_type.TypeKind.HVIRTUAL => new HashlinkVirtual(ptr),
+                HL_type.TypeKind.HOBJ => ptr.Type == NETExcepetionError.ErrorType ? new HashlinkNETExceptionObj(ptr) : new HashlinkObject(ptr),
+                HL_type.TypeKind.HABSTRACT => new HashlinkAbstract(ptr),
+                HL_type.TypeKind.HFUN => new HashlinkClosure(ptr),
+                HL_type.TypeKind.HREF => new HashlinkRef(ptr),
+                HL_type.TypeKind.HENUM => new HashlinkEnum(ptr),
+                _ => throw new InvalidOperationException($"Unrecognized type {kind}")
+            };
         }
     }
 }

@@ -49,10 +49,9 @@ namespace Hashlink.Brigde
 
             table->tret = retType;
 
-            table->retType = retType is HL_type.TypeKind.HF32 or
-                HL_type.TypeKind.HF64
+            table->retType = retType is HL_type.TypeKind.HF32 or HL_type.TypeKind.HF64
                 ? 1
-                : !Environment.Is64BitProcess && retType == HL_type.TypeKind.HI64 ? 2 : 0;
+                : 0;
 
             //
 
@@ -64,31 +63,14 @@ namespace Hashlink.Brigde
                 if (at is HL_type.TypeKind.HF32 or
                     HL_type.TypeKind.HF64)
                 {
+                    table->hasFloatArg = 1;
                     table->argFloatMarks |= 1;
-                    if (at == HL_type.TypeKind.HF64)
-                    {
-                        table->argSizeBitMarks |= 1;
-                    }
                 }
-                else
-                {
-                    if (at.IsPointer() && Environment.Is64BitProcess)
-                    {
-                        table->argSizeBitMarks |= 1;
-                    }
-                    else if (at == HL_type.TypeKind.HI64)
-                    {
-                        table->argSizeBitMarks |= 1;
-                    }
-                }
-
-                table->argSizeBitMarks <<= 1;
                 table->argFloatMarks <<= 1;
             }
 
             //
 
-            table->argSizeBitMarks = Utils.ReverseBits(table->argSizeBitMarks) >> (32 - table->argsCount);
             table->argFloatMarks = Utils.ReverseBits(table->argFloatMarks) >> (32 - table->argsCount);
 
 
@@ -144,8 +126,7 @@ namespace Hashlink.Brigde
         [StackTraceHidden]
         private static void CSEntry( NativeInfoTable* table, void* retVal, long* args, void** err )
         {
-            if (table->wrapperHandle == 0 ||
-                table->enabled == 0)
+            if (table->wrapperHandle == 0)
             {
                 throw new InvalidOperationException();
             }
@@ -182,12 +163,11 @@ namespace Hashlink.Brigde
         public struct NativeInfoTable
         {
             //The following fields should be consistent with the hl2c_table in modcorenative.h
-            public int retType; /* 2: return int64 in x86, 1: return float/double, 0: return ptr/int32/int16/byte/others */
-            public nint origFuncPtr;
-            public int enabled; //Invalid, reserved
-            public int argsCount;
-            public uint argSizeBitMarks; /* bit marks : 1 means the parameter is 8 bytes long, otherwise it is 4 bytes long */
+            public int retType; /* 1: return float/double, 0: return ptr/int32/int16/byte/others */
+            public int hasFloatArg; /* 1: Has float/double return value 0: hasn't */
             public uint argFloatMarks; /* bit marks : 1 means the parameter is float/double, otherwise it is int/ptr */
+            public nint origFuncPtr;
+            public int argsCount;
             public nint callback;
 
             //The following fields are not visible to the native layer

@@ -12,7 +12,6 @@ namespace ModCore.Events
         [Flags]
         public enum ExceptionHandingFlags
         {
-            None = 0,
             Default = 0,
 
             Continue = 1,
