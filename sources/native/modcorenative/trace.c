@@ -82,7 +82,7 @@ EXTERNC EXPORT int mcn_get_sym(void* ptr, wchar_t* symNameBuf, int* symNameLen,
 #if WIN32
 	int maxNameLen = 256;
 
-	DWORD  dwDisplacement = 0;
+	DWORD64  dwDisplacement = 0;
 	{
 		
 		SYMBOL_INFOW* sym = (SYMBOL_INFO*)alloca(sizeof(SYMBOL_INFO) + maxNameLen * sizeof(TCHAR));
