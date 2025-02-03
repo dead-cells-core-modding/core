@@ -7,9 +7,9 @@
   </ItemGroup>
   
   <ItemGroup>
-    <_MDK_ModAssembly_Pdb Include="$(AssemblyName->'$(OutputPath)/%(Identity).pdb')" />
-    <_MDK_ModAssembly_Dll Include="$(AssemblyName->'$(OutputPath)/%(Identity).dll')" />
-    <_MDK_OutFiles Include="@(_MDK_ModAssembly_Dll->Exists());@(_MDK_ModAssembly_Dll)" />
+    <_MDK_ModAssembly_Pdb Include="@(ModAssembly->'$(OutputPath)/%(Identity).pdb')" />
+    <_MDK_ModAssembly_Dll Include="@(ModAssembly->'$(OutputPath)/%(Identity).dll')" />
+    <OutputFiles Include="@(_MDK_ModAssembly_Pdb->Exists());@(_MDK_ModAssembly_Dll)" />
   </ItemGroup>
 
 
