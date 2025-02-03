@@ -4,7 +4,6 @@
 
     <RepositoryUrl>https://github.com/dead-cells-core-modding/core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Company>Dead Cells Core Modding</Company>
   </PropertyGroup>
 

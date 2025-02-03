@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决�
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleSimple", "SampleSimple\SampleSimple.csproj", "{D2445DC1-28ED-4838-B04C-615BC2E2B312}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryMod", "LibraryMod\LibraryMod.csproj", "{205EA21A-CE5F-40EF-B182-76A006A41187}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D2445DC1-28ED-4838-B04C-615BC2E2B312}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2445DC1-28ED-4838-B04C-615BC2E2B312}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2445DC1-28ED-4838-B04C-615BC2E2B312}.Release|Any CPU.Build.0 = Release|Any CPU
+		{205EA21A-CE5F-40EF-B182-76A006A41187}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{205EA21A-CE5F-40EF-B182-76A006A41187}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{205EA21A-CE5F-40EF-B182-76A006A41187}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{205EA21A-CE5F-40EF-B182-76A006A41187}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

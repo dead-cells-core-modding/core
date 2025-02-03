@@ -2,5 +2,5 @@
   <PropertyGroup>
     <MDKDefaultIsLibrary>true</MDKDefaultIsLibrary>
   </PropertyGroup>
-  <Import Project="./default/build.targets"/>
+  <Import Project="./mod/build.targets"/>
 </Project>

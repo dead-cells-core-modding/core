@@ -48,6 +48,10 @@ namespace ModCore.ModLoader.Default
             {
                 try
                 {
+                    if (v.LoadedAssemblies.Count == 0)
+                    {
+                        continue;
+                    }
                     Logger.Information("Loading mod: {name} {version}", v.Name, v.Version);
                     var mt = v.MainModType;
                     if (string.IsNullOrEmpty(mt))
@@ -86,7 +90,6 @@ namespace ModCore.ModLoader.Default
 
         void IOnRegisterModsType.OnRegisterModsType( IOnRegisterModsType.AddModType add )
         {
-            add("normal", typeof(DefaultModInfo));
             add("mod", typeof(DefaultModInfo));
             add("library", typeof(DefaultModInfo));
             add("default", typeof(DefaultModInfo));

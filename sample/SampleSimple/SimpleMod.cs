@@ -1,4 +1,5 @@
-﻿using ModCore.Mods;
+﻿using LibraryMod;
+using ModCore.Mods;
 
 namespace SampleSimple
 {
@@ -7,6 +8,8 @@ namespace SampleSimple
         public override void Initialize()
         {
             Logger.Information("Hello, World!");
+
+            HelloWorld.Say();
         }
     }
 }

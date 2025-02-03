@@ -14,7 +14,13 @@ namespace ModCore.Mods
         [JsonProperty("version")]
         public required string Version { get; set; }
         [JsonProperty("type")]
-        public required string Type {  get; set; }
+        public required string Type { get; set; }
+        [JsonProperty("dependencies")]
+        public List<string> Dependencies { get; set; } = [];
+        [JsonProperty("repositoryUrl")]
+        public string RepositoryUrl { get; set; } = "";
+        [JsonProperty("license")]
+        public string License { get; set; } = "";
 
         [JsonIgnore]
         public FolderInfo? ModRoot { get; set; }

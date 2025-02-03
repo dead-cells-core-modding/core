@@ -2,6 +2,9 @@
   <Import Project="../bin/core/mdk/build/build.props"/>
 
   <PropertyGroup>
+    <RepositoryUrl>https://github.com/dead-cells-core-modding/core</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    
     <AutoInstallMod>true</AutoInstallMod>
   </PropertyGroup>
 </Project>

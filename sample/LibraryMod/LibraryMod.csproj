@@ -1,18 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <ModType>mod</ModType>
-    <ModName>Simple</ModName>
-    <ModMain>SampleSimple.SimpleMod</ModMain>
+    <ModType>library</ModType>
+    <ModName>SampleLibrary</ModName>
   </PropertyGroup>
 
   <ItemGroup>
-    <ModDependency Include="SampleLibrary-1.0.0" />
-
-    <Reference Include="LibraryMod" />
+    
   </ItemGroup>
 
 </Project>
