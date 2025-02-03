@@ -1,5 +1,4 @@
-﻿
-using ModCore.Events;
+﻿using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Storage;
@@ -12,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Modules
+namespace ModCore.Modules.Internals
 {
     [CoreModule]
     internal unsafe class NativeModuleResolver : CoreModule<NativeModuleResolver>,
@@ -66,7 +65,7 @@ namespace ModCore.Modules
 
         void IOnCoreModuleInitializing.OnCoreModuleInitializing()
         {
-            
+
         }
 
 

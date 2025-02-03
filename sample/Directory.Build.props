@@ -1,0 +1,7 @@
+<Project>
+  <Import Project="../bin/core/mdk/build/build.props"/>
+
+  <PropertyGroup>
+    <AutoInstallMod>true</AutoInstallMod>
+  </PropertyGroup>
+</Project>

@@ -1,4 +1,4 @@
-﻿namespace ModCore.Events.Interfaces
+﻿namespace ModCore.Events.Interfaces.VM
 {
     [Event(true)]
     public interface IOnHashlinkVMReady

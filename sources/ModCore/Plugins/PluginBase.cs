@@ -11,4 +11,5 @@ namespace ModCore.Plugins
             Initialize();
         }
     }
+
 }

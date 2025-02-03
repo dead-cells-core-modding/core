@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+
+    <OutputPath></OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ModCore\ModCore.csproj" />
+  </ItemGroup>
+
+  <Target Name="CopyToOutput" AfterTargets="Build">
+    <MakeDir Directories="../../bin/plugins/ModCore.ModLoader.Default" />
+    <Copy SourceFiles="$(OutputPath)/ModCore.ModLoader.Default.dll" 
+          DestinationFolder="../../bin/plugins/ModCore.ModLoader.Default/" />
+    <Copy SourceFiles="$(OutputPath)/ModCore.ModLoader.Default.pdb"
+          DestinationFolder="../../bin/plugins/ModCore.ModLoader.Default/" />
+  </Target>
+
+</Project>

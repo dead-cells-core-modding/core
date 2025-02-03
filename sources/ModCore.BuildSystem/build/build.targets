@@ -1,0 +1,78 @@
+<Project>
+  <PropertyGroup>
+    <ModName Condition="'$(ModName)' == ''">$(AssemblyName)</ModName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Condition="$(NoModCore) != true" Include="$(_DCCM_Core_Host_Root)*.dll" />
+  </ItemGroup>
+  
+  <!--Find Mod Builder-->
+  <PropertyGroup>
+    <_MDK_ModBuild>$(_DCCM_MDK_BuildFileDir)types/$(ModType)/build.targets</_MDK_ModBuild>
+    <_MDK_ModBuild Condition="$([System.IO.File]::Exists('$(_MDK_ModBuild)')) == false">$(_DCCM_MDK_BuildFileDir)types/$(ModType).targets</_MDK_ModBuild>
+    <_MDK_ModBuild Condition="$([System.IO.File]::Exists('$(_MDK_ModBuild)')) == false">$(_DCCM_MDK_ModBuild_Root)$(ModType)/build.targets</_MDK_ModBuild>
+    <_MDK_ModBuild Condition="$([System.IO.File]::Exists('$(_MDK_ModBuild)')) == false">$(_DCCM_MDK_ModBuild_Root)$(ModType)/$(ModType).targets</_MDK_ModBuild>
+    <_MDK_ModBuild Condition="$([System.IO.File]::Exists('$(_MDK_ModBuild)')) == false">$(_DCCM_MDK_ModBuild_Root)$(ModType).targets</_MDK_ModBuild>
+  </PropertyGroup>
+
+  <Target Name="CheckModBuild" BeforeTargets="Build">
+    <Error Condition="$([System.IO.File]::Exists('$(_MDK_ModBuild)')) == false"
+           Text="Unknown mod type '$(ModType)' $(_MDK_ModBuild), please confirm whether the corresponding MDK has been installed"
+           />
+  </Target>
+
+  <!--Mod Info-->
+  <PropertyGroup>
+    <MDKBuildModInfo>$(MDKBuildModInfo);
+      name=$(ModName);
+      version=$(Version);
+      type=$(ModType)
+    </MDKBuildModInfo>
+  </PropertyGroup>
+
+  <Target Name="GenerateModInfo" BeforeTargets="CopyOutputFiles"
+          Condition="$(GenerateModInfo) == true">
+    <PropertyGroup>
+      <_MDK_ModInfo_Path>$(IntermediateOutputPath)modinfo.json</_MDK_ModInfo_Path>
+      <_MDK_ModInfo_Path>$([System.IO.Path]::GetFullPath('$(_MDK_ModInfo_Path)'))</_MDK_ModInfo_Path>
+
+      <MDKBuildModInfo>$([System.String]::Copy('$(MDKBuildModInfo)').Replace('&#x0D;', '').Replace('&#x0A;', ''))</MDKBuildModInfo>
+    </PropertyGroup>
+
+    <Message Importance="high" Text="Generating modinfo.json" />
+    
+    <Exec Command="$(_DCCM_Exec_BS) --build-modinfo &quot;$(ModInfoTemplate)&quot; &quot;$(_MDK_ModInfo_Path)&quot; &quot;$(MDKBuildModInfo)&quot;" />
+
+    <ItemGroup>
+      <_MDK_OutFiles Include="$(_MDK_ModInfo_Path)" />
+    </ItemGroup>
+  </Target>
+   
+  <!--Output-->
+  <Target Name="CopyOutputFiles" AfterTargets="Build">
+    <PropertyGroup>
+      <MDKOutputPath Condition="'$(MDKOutputPath)' == ''">$(OutputPath)mod/</MDKOutputPath>
+      
+    </PropertyGroup>
+    <ItemGroup>
+      <_MDK_OutFiles Include="@(OutputFiles)" />
+    </ItemGroup>
+    
+    <MakeDir Directories="$(MDKOutputPath)" />
+    <Copy SourceFiles="@(_MDK_OutFiles)" DestinationFolder="$(MDKOutputPath)%(RecursiveDir)" 
+          SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="InstallMod" AfterTargets="CopyOutputFiles" Condition="$(AutoInstallMod) == true">
+    <PropertyGroup>
+      <MDKModTargetPath>$(_DCCM_Mods_Root)$(ModName)/</MDKModTargetPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <MDKModFiles Include="$(MDKOutputPath)**/*" />
+    </ItemGroup>
+    <MakeDir Directories="$(MDKModTargetPath)" />
+    <Copy SourceFiles="@(MDKModFiles)" DestinationFolder="$(MDKModTargetPath)" />
+  </Target>
+
+  <Import Condition="$([System.IO.File]::Exists('$(_MDK_ModBuild)')) == true" Project="$(_MDK_ModBuild)" />
+</Project>

@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <MDKDefaultIsLibrary>true</MDKDefaultIsLibrary>
+  </PropertyGroup>
+  <Import Project="./default/build.targets"/>
+</Project>

@@ -6,7 +6,7 @@ namespace ModCore
     public abstract class Module<TModule> : Module where TModule : Module<TModule>
     {
         public static new ILogger Logger { get; } = Log.ForContext("SourceContext", typeof(TModule).Name);
-        internal Module()
+        public Module()
         {
             if (instance != null && instance != this)
             {
@@ -34,9 +34,10 @@ namespace ModCore
         {
             get; private set;
         }
-        internal Module()
+        public Module()
         {
             Logger = Log.ForContext("SourceContext", GetType().Name);
+            AddModule(this);
         }
 
         internal static void RemoveModule( Module module )

@@ -17,6 +17,7 @@
         public const int PluginLoader = -2000;
 
         public const int ModLoader = -50;
+
         public const int NativeModuleResolver = -100;
     }
 }

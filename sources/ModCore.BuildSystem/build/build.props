@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <_DCCM_MDK_BuildFileDir>$(MSBuildThisFileDirectory)</_DCCM_MDK_BuildFileDir>
+    <_DCCM_MDK_Root>$(MSBuildThisFileDirectory)../</_DCCM_MDK_Root>
+    <_DCCM_MDK_ModBuild_Root>$(_DCCM_MDK_Root)modbuild/</_DCCM_MDK_ModBuild_Root>
+    <_DCCM_Core_Root>$(_DCCM_MDK_Root)../</_DCCM_Core_Root>
+    <_DCCM_Root>$(_DCCM_Core_Root)../</_DCCM_Root>
+    <_DCCM_Mods_Root>$(_DCCM_Root)mods/</_DCCM_Mods_Root>
+    <_DCCM_Core_Host_Root>$(_DCCM_Core_Root)host/</_DCCM_Core_Host_Root>
+    <_DCCM_BS_DLL>$(_DCCM_MDK_Root)ModCore.BuildSystem.dll</_DCCM_BS_DLL>
+    <_DCCM_Exec_BS>dotnet "$(_DCCM_BS_DLL)" </_DCCM_Exec_BS>
+
+    <MDKTargetPath>$(_DCCM_MDK_BuildFileDir)build.targets</MDKTargetPath>
+
+    <ModInfoTemplate>$(MSBuildProjectDirectory)/modinfo.json</ModInfoTemplate>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GenerateModInfo>true</GenerateModInfo>
+    <NoModCore>false</NoModCore>
+  </PropertyGroup>
+
+ 
+</Project>

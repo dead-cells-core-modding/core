@@ -14,35 +14,38 @@ namespace ModCore.Modules
         void IOnCoreModuleInitializing.OnCoreModuleInitializing()
         {
             Logger.Information("Loading plugins");
-            foreach (var v in FolderInfo.Plugins.Info.GetFiles("*.dll"))
+            foreach (var dir in FolderInfo.Plugins.Info.GetDirectories("*"))
             {
-                try
+                foreach (var v in dir.GetFiles("*.dll"))
                 {
-                    Logger.Information("Loading {path}", v.Name);
-                    var asm = Assembly.LoadFrom(v.FullName);
-                    Logger.Information("Finding plugins");
-                    foreach (var t in asm.SafeGetAllTypes())
+                    try
                     {
-                        if (t?.IsAbstract ?? true)
+                        Logger.Information("Loading {path}", v.Name);
+                        var asm = Assembly.LoadFrom(v.FullName);
+                        Logger.Information("Finding plugins");
+                        foreach (var t in asm.SafeGetAllTypes())
                         {
-                            continue;
+                            if (t?.IsAbstract ?? true)
+                            {
+                                continue;
+                            }
+                            if (!t.IsSubclassOf(typeof(Module)))
+                            {
+                                continue;
+                            }
+                            var attr = t.GetCustomAttribute<PluginAttribute>();
+                            if (attr == null)
+                            {
+                                continue;
+                            }
+                            Logger.Information("Creating a new instance: {type}", t.FullName);
+                            Activator.CreateInstance(t);
                         }
-                        if (!t.IsSubclassOf(typeof(Module)))
-                        {
-                            continue;
-                        }
-                        var attr = t.GetCustomAttribute<PluginAttribute>();
-                        if (attr == null)
-                        {
-                            continue;
-                        }
-                        Logger.Information("Creating a new instance: {type}", t.FullName);
-                        Activator.CreateInstance(t);
                     }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex, "An exception occurred when loading plugin");
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex, "An exception occurred when loading plugin");
+                    }
                 }
             }
 

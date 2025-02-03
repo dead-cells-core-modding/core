@@ -5,6 +5,7 @@ echo "Building ModCore"
 cd $PSScriptRoot/sources
 
 dotnet build -c=Release ./ModCore
+dotnet build -c=Release ./ModCore.BuildSystem
 
 echo "Building Shell"
 dotnet publish -c=Release -r win-x64 ./DeadCellsModding

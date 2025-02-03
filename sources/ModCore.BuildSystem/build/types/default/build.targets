@@ -1,0 +1,17 @@
+<Project>
+  <ItemGroup>
+    <_MDK_OutFiles Include="$(OutputPath)/$(AssemblyName).dll;$(OutputPath)/$(AssemblyName).pdb" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <MDKBuildModInfo>
+      $(MDKBuildModInfo);
+      assemblies=#array;
+      assemblies.#add=$(AssemblyName).dll;
+    </MDKBuildModInfo>
+    <MDKBuildModInfo Condition="$(MDKDefaultIsLibrary) != true">
+      $(MDKBuildModInfo);
+      main=$(ModMain);
+    </MDKBuildModInfo>
+  </PropertyGroup>
+</Project>

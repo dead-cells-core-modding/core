@@ -69,6 +69,9 @@ namespace ModCore
 
             Log.Logger.Information("Runtime: {FrameworkDescription} {RuntimeIdentifier}",
                    RuntimeInformation.FrameworkDescription, RuntimeInformation.RuntimeIdentifier);
+            Log.Logger.Information("Core Version: {version}",
+                typeof(Core).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
+                "Unknown");
 
             Log.Logger.Information("Initalizing");
 
@@ -95,12 +98,7 @@ namespace ModCore
                     continue;
                 }
                 Log.Logger.Information("Loading core module: {type}", type.FullName);
-                var module = (Module?)Activator.CreateInstance(type);
-                if (module == null)
-                {
-                    continue;
-                }
-                Module.AddModule(module);
+                Activator.CreateInstance(type);
             }
 
             EventSystem.BroadcastEvent<IOnCoreModuleInitializing>();

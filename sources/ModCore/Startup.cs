@@ -1,6 +1,6 @@
 ﻿using Hashlink.Trace;
 using ModCore.Events;
-using ModCore.Events.Interfaces;
+using ModCore.Events.Interfaces.VM;
 using ModCore.Storage;
 using Serilog;
 using System.Diagnostics;

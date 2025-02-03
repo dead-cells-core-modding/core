@@ -22,6 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		..\.gitignore = ..\.gitignore
+		Directory.Build.props = Directory.Build.props
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
@@ -35,7 +36,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModCore.Common", "ModCore.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaxeSharp", "HaxeSharp\HaxeSharp.csproj", "{507214C4-FAED-45B1-BC58-08DB29E7FD04}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lib", "Lib", "{4457E291-2C8F-44D8-A1C3-C44DDE4B6F52}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{5B798BC5-E2B1-45F6-8AED-1F13FB1A4F76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModCore.ModLoader.Default", "ModCore.ModLoader.Default\ModCore.ModLoader.Default.csproj", "{157235D9-679C-439F-912C-0D54192CD06D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModCore.BuildSystem", "ModCore.BuildSystem\ModCore.BuildSystem.csproj", "{64A3489F-57AC-4D93-89FF-425D79FC0175}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +68,14 @@ Global
 		{507214C4-FAED-45B1-BC58-08DB29E7FD04}.Debug|x64.Build.0 = Debug|Any CPU
 		{507214C4-FAED-45B1-BC58-08DB29E7FD04}.Release|x64.ActiveCfg = Release|Any CPU
 		{507214C4-FAED-45B1-BC58-08DB29E7FD04}.Release|x64.Build.0 = Release|Any CPU
+		{157235D9-679C-439F-912C-0D54192CD06D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{157235D9-679C-439F-912C-0D54192CD06D}.Debug|x64.Build.0 = Debug|Any CPU
+		{157235D9-679C-439F-912C-0D54192CD06D}.Release|x64.ActiveCfg = Release|Any CPU
+		{157235D9-679C-439F-912C-0D54192CD06D}.Release|x64.Build.0 = Release|Any CPU
+		{64A3489F-57AC-4D93-89FF-425D79FC0175}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{64A3489F-57AC-4D93-89FF-425D79FC0175}.Debug|x64.Build.0 = Debug|Any CPU
+		{64A3489F-57AC-4D93-89FF-425D79FC0175}.Release|x64.ActiveCfg = Release|Any CPU
+		{64A3489F-57AC-4D93-89FF-425D79FC0175}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,6 +84,7 @@ Global
 		{830B172B-5973-4D6A-9B6B-0E9B3F084153} = {DC1795AE-F078-4556-816E-3B505DB22B10}
 		{148A63DD-1249-49B7-80D8-601BABA6F236} = {012C86DA-F634-4751-BE70-5DF884E4B18D}
 		{507214C4-FAED-45B1-BC58-08DB29E7FD04} = {012C86DA-F634-4751-BE70-5DF884E4B18D}
+		{157235D9-679C-439F-912C-0D54192CD06D} = {5B798BC5-E2B1-45F6-8AED-1F13FB1A4F76}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {36C830EB-D6DA-4C8E-8DF6-2989E881EB21}

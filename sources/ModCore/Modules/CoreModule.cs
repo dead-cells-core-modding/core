@@ -1,7 +1,7 @@
 ﻿namespace ModCore.Modules
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class CoreModuleAttribute : Attribute
+    internal class CoreModuleAttribute : Attribute
     {
         public SupportOS supportOS = (SupportOS)(-1);
         [Flags]
