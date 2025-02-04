@@ -25,7 +25,7 @@ namespace Hashlink.Reflection.Members.Object
         {
             return new HashlinkObjectProto(module, (HL_obj_proto*)ptr);
         }
-        public HashlinkFunc CreateFunc( HashlinkObjectType? obj = null )
+        public HashlinkFunc CreateFunc( HashlinkObjectType obj)
         {
             if (obj == null || !IsVirtual)
             {

@@ -1,4 +1,6 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Proxy.Clousre;
+using Hashlink.Reflection.Types;
 
 namespace Hashlink.Proxy.Objects
 {
@@ -17,6 +19,12 @@ namespace Hashlink.Proxy.Objects
                 return HasField(hl_hash_gen(pname, false));
             }
         }
+
+        public virtual HashlinkFunc? GetFunction( string name )
+        {
+            return ((HashlinkClosure?) GetFieldValue(name))?.Function;
+        }
+        
         public virtual object? GetFieldValue( int hashedName )
         {
             var ptr = hl_obj_lookup((HL_vdynamic*)HashlinkPointer, hashedName, out var ftype);
@@ -24,7 +32,7 @@ namespace Hashlink.Proxy.Objects
             {
                 ptr = hl_obj_lookup_extra((HL_vdynamic*)HashlinkPointer, hashedName);
                 return ptr != null
-                    ? (object)HashlinkMarshal.ConvertHashlinkObject(ptr)
+                    ? (object?)HashlinkMarshal.ConvertHashlinkObject(ptr)
                     : throw new MissingFieldException(new string(hl_type_str(NativeType)), new string(hl_field_name(hashedName)));
             }
             return HashlinkMarshal.ReadData(ptr, ftype->kind);

@@ -8,6 +8,7 @@ using ModCore.Events;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -23,8 +24,13 @@ namespace Haxe.Marshaling
             HashlinkMarshal.Initialize(module);
         }
 
-        public static HaxeObjectBase ConvertHashlinkObj( HashlinkObj value )
+        [return: NotNullIfNotNull(nameof(value))]
+        public static HaxeObjectBase? ConvertHashlinkObj( HashlinkObj? value )
         {
+            if (value == null)
+            {
+                return null;
+            }
             if (objMapping.TryGetValue(value, out var obj) && obj != null)
             {
                 return obj;
@@ -52,6 +58,19 @@ namespace Haxe.Marshaling
             }
 
             throw new NotImplementedException();
+        }
+
+        public static HaxeObjectBase AsHaxe( this HashlinkObj obj )
+        {
+            return ConvertHashlinkObj(obj);
+        }
+        public static HaxeObject AsHaxe( this HashlinkObject obj )
+        {
+            return (HaxeObject)ConvertHashlinkObj(obj);
+        }
+        public static HaxeClosure AsHaxe( this HashlinkClosure obj )
+        {
+            return (HaxeClosure)ConvertHashlinkObj(obj);
         }
 
 

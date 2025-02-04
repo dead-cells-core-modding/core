@@ -18,6 +18,25 @@ namespace Haxe
             result = HaxeMarshal.PostProcessValue(HashlinkObject.GetFieldValue(binder.Name));
             return true;
         }
+        public override bool TryInvokeMember( InvokeMemberBinder binder, object?[]? args, out object? result )
+        {
+            var name = binder.Name;
+            var func = HashlinkObject.GetFunction(name);
+            if (func == null)
+            {
+                result = null;
+                return false;
+            }
+            if (func.BindingThis == null)
+            {
+                result = HaxeMarshal.PostProcessValue(func.CallDynamic([this, .. args]));
+            }
+            else
+            {
+                result = HaxeMarshal.PostProcessValue(func.CallDynamic( args));
+            }
+            return true;
+        }
         public override bool TrySetMember( SetMemberBinder binder, object? value )
         {
             HashlinkObject.SetFieldValue(binder.Name, value);

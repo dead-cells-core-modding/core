@@ -44,7 +44,7 @@ namespace Hashlink.Marshaling
                 default:
                     if (typeKind?.IsPointer() ?? false)
                     {
-                        return (object?)HashlinkMarshal.ConvertHashlinkObject(*(void**)target);
+                        return HashlinkMarshal.ConvertHashlinkObject(*(void**)target);
                     }
                     else
                     {

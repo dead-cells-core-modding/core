@@ -1,4 +1,5 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Proxy.Objects;
 using Hashlink.Trace;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -92,6 +93,10 @@ namespace Hashlink
             {
                 PutArg<nint>(0, ctx);
             }
+            else if (val is string str)
+            {
+                PutArg(new HashlinkString(str), ctx);
+            }
             else
             {
                 throw new NotSupportedException();
@@ -99,20 +104,31 @@ namespace Hashlink
         }
 
         [WillCallHL]
-        private object? CallInternal()
+        private object? CallInternal(PutArgContext ctx)
         {
             HL_vdynamic result = new()
             {
                 type = hlfunction->ret
             };
+            var hlf = hlfunction;
+            if (IsClosure)
+            {
+                hlf = hlf->parent->data.func;
+            }
             HL_type funcType = new()
             {
                 kind = TypeKind.HFUN,
                 data =
                 {
-                    func = hlfunction
+                    func = hlf
                 }
             };
+
+            if (ctx.args != hlf->nargs)
+            {
+                throw new InvalidOperationException("Mismatched number of parameters");
+            }
+
             MixTrace.MarkEnteringHL();
             var ptrResult = callback_c2hl(hlfunc, &funcType, cached_args_ptr, &result);
             var retKind = result.type->kind;
@@ -141,20 +157,21 @@ namespace Hashlink
             hlfunc = ptr == null ? throw new ArgumentNullException(nameof(ptr)) : ptr;
         }
 
+        private HashlinkFunc? baseFunc;
 
         public void* FuncPointer => hlfunc;
         public HL_type_func* FuncType => hlfunction;
         public nint? BindingThis { get; set; } = null;
-
+        public bool IsClosure => hlfunction->parent != null;
         public object? Call()
         {
             if (next != null)
             {
                 return CallDynamic([]);
             }
-            InitArg(out _);
+            InitArg(out var arg);
 
-            return CallInternal();
+            return CallInternal(arg);
         }
         [StackTraceHidden]
         public object? CallDynamic( params object?[]? args )
@@ -177,7 +194,7 @@ namespace Hashlink
                     invoker(this, v, arg);
                 }
             }
-            return CallInternal();
+            return CallInternal(arg);
         }
         [StackTraceHidden]
         public object? Call<T1>( T1 arg1 )
@@ -190,7 +207,7 @@ namespace Hashlink
 
             PutArg(arg1, arg);
 
-            return CallInternal();
+            return CallInternal(arg);
         }
         [StackTraceHidden]
         public object? Call<T1, T2>( T1 arg1, T2 arg2 )
@@ -204,7 +221,7 @@ namespace Hashlink
             PutArg(arg1, arg);
             PutArg(arg2, arg);
 
-            return CallInternal();
+            return CallInternal(arg);
         }
         [StackTraceHidden]
         public object? Call<T1, T2, T3>( T1 arg1, T2 arg2, T3 arg3 )
@@ -219,7 +236,7 @@ namespace Hashlink
             PutArg(arg2, arg);
             PutArg(arg3, arg);
 
-            return CallInternal();
+            return CallInternal(arg);
         }
         [StackTraceHidden]
         public object? Call<T1, T2, T3, T4>( T1 arg1, T2 arg2, T3 arg3, T4 arg4 )
@@ -235,7 +252,7 @@ namespace Hashlink
             PutArg(arg3, arg);
             PutArg(arg4, arg);
 
-            return CallInternal();
+            return CallInternal(arg);
         }
         [StackTraceHidden]
         public object? Call<T1, T2, T3, T4, T5>( T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5 )
@@ -252,7 +269,7 @@ namespace Hashlink
             PutArg(arg4, arg);
             PutArg(arg5, arg);
 
-            return CallInternal();
+            return CallInternal(arg);
         }
         [StackTraceHidden]
         public object? Call<T1, T2, T3, T4, T5, T6>( T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6 )
@@ -270,7 +287,7 @@ namespace Hashlink
             PutArg(arg5, arg);
             PutArg(arg6, arg);
 
-            return CallInternal();
+            return CallInternal(arg);
         }
         [StackTraceHidden]
         public object? Call<T1, T2, T3, T4, T5, T6, T7>( T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7 )
@@ -289,7 +306,7 @@ namespace Hashlink
             PutArg(arg6, arg);
             PutArg(arg7, arg);
 
-            return CallInternal();
+            return CallInternal(arg);
         }
         [StackTraceHidden]
         public object? Call<T1, T2, T3, T4, T5, T6, T7, T8>( T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7,
@@ -310,7 +327,7 @@ namespace Hashlink
             PutArg(arg7, arg);
             PutArg(arg8, arg);
 
-            return CallInternal();
+            return CallInternal(arg);
         }
     }
 }

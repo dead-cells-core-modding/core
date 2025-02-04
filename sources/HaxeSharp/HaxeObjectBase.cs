@@ -1,6 +1,7 @@
 ﻿using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
+using Hashlink.Reflection.Types;
 using Haxe.Marshaling;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,9 @@ namespace Haxe
         {
             get;
         }
+        public HashlinkType Type => HashlinkObject.Type;
+
+        public dynamic Chain => this;
         public nint HashlinkPointer => ((IHashlinkPointer)HashlinkObject).HashlinkPointer;
         public override string? ToString()
         {

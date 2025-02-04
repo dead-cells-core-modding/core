@@ -143,6 +143,10 @@ namespace Hashlink.Brigde
             catch (Exception ex)
             {
                 *err = (void*)new HashlinkNETExceptionObj(ex).HashlinkPointer;
+                if (Debugger.IsAttached)
+                {
+                    throw;
+                }
             }
         }
 

@@ -101,29 +101,33 @@ namespace Hashlink.Marshaling
         {
             return hl_is_gc_ptr(ptr) && IsHashlinkObject(ptr);
         }
-        public static HashlinkObj ConvertHashlinkObject( HashlinkObjPtr target,
+        public static HashlinkObj? ConvertHashlinkObject( HashlinkObjPtr target,
             IHashlinkMarshaler? marshaler = null )
         {
             return ConvertHashlinkObject((void*)target.Pointer, marshaler);
         }
-        public static HashlinkObj ConvertHashlinkObject( void* target,
+        public static HashlinkObj? ConvertHashlinkObject( void* target,
             IHashlinkMarshaler? marshaler = null )
         {
+            if (target == null)
+            {
+                return null;
+            }
             marshaler ??= DefaultHashlinkMarshaler.Instance;
             var handle = HashlinkObjHandle.GetHandle(target);
             return handle != null && handle.Target != null
                 ? handle.Target
                 : marshaler.TryConvertHashlinkObject(target) ?? throw new InvalidOperationException();
         }
-        public static T ConvertHashlinkObject<T>( HashlinkObjPtr target,
+        public static T? ConvertHashlinkObject<T>( HashlinkObjPtr target,
            IHashlinkMarshaler? marshaler = null ) where T : HashlinkObj
         {
-            return (T)ConvertHashlinkObject((void*)target.Pointer, marshaler);
+            return (T?)ConvertHashlinkObject((void*)target.Pointer, marshaler);
         }
-        public static T ConvertHashlinkObject<T>( void* target,
+        public static T? ConvertHashlinkObject<T>( void* target,
            IHashlinkMarshaler? marshaler = null ) where T : HashlinkObj
         {
-            return (T)ConvertHashlinkObject(target, marshaler);
+            return (T?)ConvertHashlinkObject(target, marshaler);
         }
 
 

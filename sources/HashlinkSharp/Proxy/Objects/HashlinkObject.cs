@@ -1,4 +1,6 @@
-﻿namespace Hashlink.Proxy.Objects
+﻿using Hashlink.Reflection.Types;
+
+namespace Hashlink.Proxy.Objects
 {
     public unsafe class HashlinkObject( HashlinkObjPtr objPtr ) : HashlinkFieldObject<HL_vdynamic>(objPtr)
     {
@@ -7,5 +9,23 @@
 
         }
         public HL_runtime_obj* RuntimeObj => NativeType->data.obj->rt;
+        public override HashlinkFunc? GetFunction( string name )
+        {
+            var result = base.GetFunction(name);
+            if (result != null)
+            {
+                return result;
+            }
+            var ot = (HashlinkObjectType?)Type;
+            while (ot != null)
+            {
+                if (ot.TryFindProto(name, out var proto))
+                {
+                    return proto.CreateFunc(this);
+                }
+                ot = ot.Super;
+            }
+            return null;
+        }
     }
 }

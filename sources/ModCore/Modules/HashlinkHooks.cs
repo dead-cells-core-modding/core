@@ -14,24 +14,49 @@ namespace ModCore.Modules
     public unsafe class HashlinkHooks : CoreModule<HashlinkHooks>
     {
         private readonly Dictionary<nint, HashlinkHookManager> managers = [];
+        private readonly List<HookHandle> hooks = [];
 
         public class HookHandle
         {
-
+            internal HookHandle( Delegate hook, HashlinkHookManager manager )
+            {
+                Hook = hook;
+                Manager = manager;
+            }
+            internal HashlinkHookManager Manager
+            {
+                get;
+            }
+            public Delegate Hook
+            {
+                get;
+            }
+            public void Enable()
+            {
+                Manager.AddHook(Hook);
+            }
+            public void Disable()
+            {
+                Manager.RemoveHook( Hook );
+            }
         }
 
-        public HookHandle CreateHook(HashlinkFunction func, nint target = 0)
+        public HookHandle CreateHook(HashlinkFunction func, Delegate hook, nint entry = 0)
         {
-            if(target == 0)
+            ArgumentNullException.ThrowIfNull(func);
+            ArgumentNullException.ThrowIfNull(hook);
+            if (entry == 0)
             {
-                target = (nint) func.EntryPointer;
+                entry = (nint) func.EntryPointer;
             }
-            if(!managers.TryGetValue(target, out var manager))
+            if(!managers.TryGetValue(entry, out var manager))
             {
-                manager = new(target, func);
-                managers.Add(target, manager);
+                manager = new(entry, func);
+                managers.Add(entry, manager);
             }
-            throw new NotImplementedException();
+            var h = new HookHandle(hook, manager);
+            hooks.Add(h);
+            return h;
         }
     }
 }

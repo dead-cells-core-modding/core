@@ -25,7 +25,7 @@ namespace Haxe
                     return null;
                 }
                 return (HaxeObject)HaxeMarshal.ConvertHashlinkObj(
-                    HashlinkMarshal.ConvertHashlinkObject((void*)HashlinkObject.BindingThis!.Value)
+                    HashlinkMarshal.ConvertHashlinkObject((void*)HashlinkObject.BindingThis!.Value)!
                     );
             }
             set

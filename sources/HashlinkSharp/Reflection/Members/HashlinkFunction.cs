@@ -27,8 +27,10 @@ namespace Hashlink.Reflection.Members
         }
         public int FunctionIndex => func->findex;
         public void* EntryPointer => Module.NativeModule->functions_ptrs[
-             Module.NativeModule->functions_indexes[FunctionIndex]
+             FunctionIndex
             ];
+
+        public override string? Name => FuncType.Name;
 
         public HashlinkFuncType FuncType => cachedFuncType ??= GetMemberFrom<HashlinkFuncType>(func->type);
         public HashlinkFunc CreateFunc( void* entry = null )

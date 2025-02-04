@@ -24,21 +24,28 @@ get_esp:
 %endmacro
 
 asm_call_bridge_hl_to_cs:
-	mov rax, [rsp] ;Get Return EIP(Table)
+	pop rax ;Get Return EIP(Table)
 
 	;Call Orig
 	mov r10, [rax+0x10] ;Orig Func Ptr
 	jnz acbhtc_enabled
-	mov [rbp], r10
-	ret
+	jmp r10
 
 	acbhtc_enabled:
+		
+		pop r10 ;Orig Return Ptr
+		add rsp, 32 ;Remove Shadow Area
 
-		cmp dword [rax+0x4], 1 ;hasFloatArg
+		push r10 ;Return Ptr As arg6
+		push rax ;Table Ptr As arg5
+
+		sub rsp, 32 ;Restore Shadow Area
+
+		cmp dword [r10+0x4], 0 ;hasFloatArg
 		jz acbhtc_fc_r9
 
 		;Copy xxm args
-		mov r10, [rax+0x08] ;argFloatMarks
+		mov r10, [r10+0x08] ;argFloatMarks
 
 		acbhtc_copy_float 1, rcx, xmm0
 		acbhtc_copy_float 2, rdx, xmm1
@@ -49,16 +56,20 @@ asm_call_bridge_hl_to_cs:
 		lea rax, [rel c_call_bridge_hl_to_cs]
 		call rax
 
-		push rax
-		mov rax, [rsp+8]  ;Get Return EIP(Table)
-		cmp dword [rax], 0
+		add rsp, 32 ;Remove Shadow Area
+
+		pop r10 
+		pop r11
+
+		sub rsp, 32
+		push r11
+
+		cmp dword [r10], 0
 		jz acbhtc_return_rax
 
-		pop rax
+		pop r10
 		movq xmm0, rax
-		add rsp, 8
 		ret
 	acbhtc_return_rax:
-		pop rax
-		add rsp, 8 ;Remove ptr to table
+		pop r10
 		ret
