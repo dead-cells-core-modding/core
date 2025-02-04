@@ -28,7 +28,8 @@ asm_call_bridge_hl_to_cs:
 
 	;Call Orig
 	mov r10, [rax+0x10] ;Orig Func Ptr
-	jnz acbhtc_enabled
+	cmp r10, 0
+	jz acbhtc_enabled
 	jmp r10
 
 	acbhtc_enabled:
@@ -41,11 +42,11 @@ asm_call_bridge_hl_to_cs:
 
 		sub rsp, 32 ;Restore Shadow Area
 
-		cmp dword [r10+0x4], 0 ;hasFloatArg
+		cmp dword [rax+0x4], 0 ;hasFloatArg
 		jz acbhtc_fc_r9
 
 		;Copy xxm args
-		mov r10, [r10+0x08] ;argFloatMarks
+		mov r10, [rax+0x08] ;argFloatMarks
 
 		acbhtc_copy_float 1, rcx, xmm0
 		acbhtc_copy_float 2, rdx, xmm1
@@ -67,9 +68,7 @@ asm_call_bridge_hl_to_cs:
 		cmp dword [r10], 0
 		jz acbhtc_return_rax
 
-		pop r10
 		movq xmm0, rax
 		ret
 	acbhtc_return_rax:
-		pop r10
 		ret

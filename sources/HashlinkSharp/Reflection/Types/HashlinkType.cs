@@ -42,6 +42,8 @@ namespace Hashlink.Reflection.Types
                 TypeKind.HFUN => new HashlinkFuncType(module, type),
                 TypeKind.HARRAY => new HashlinkArrayType(module, type),
                 TypeKind.HVIRTUAL => new HashlinkVirtualType(module, type),
+                TypeKind.HABSTRACT => new HashlinkAbstractType(module, type),
+                TypeKind.HREF => new HashlinkRefType(module, type),
                 _ => new HashlinkType(module, type)
             };
         }

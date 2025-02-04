@@ -50,20 +50,34 @@ namespace ModCore.Modules
 
             win.set_title("Dead Cells with Core Modding");
 
+            EventSystem.BroadcastEvent<IOnGameInit>();
+
+            return ret;
+        }
+        private object? Hook_Boot_update( HashlinkFunc orig, HashlinkObject self, double dt )
+        {
+            var ret = orig.Call(self, dt);
+
+            EventSystem.BroadcastEvent<IOnFrameUpdate, double>(dt);
+
+            return ret;
+        }
+        private object? Hook_Boot_endInit( HashlinkFunc orig, HashlinkObject self)
+        {
+            var ret = orig.Call(self);
+
+            EventSystem.BroadcastEvent<IOnGameEndInit>();
+
             return ret;
         }
 
         void IOnHashlinkVMReady.OnHashlinkVMReady()
         {
-            unchecked
-            {
 
-                var m = HashlinkMarshal.Module;
-                var boot = (HashlinkObjectType)m.GetTypeByName("Boot");
-                var a = boot.FindProto("init");
-                var hook = HashlinkHooks.Instance.CreateHook(a!.Function, Hook_Boot_init);
-                hook.Enable();
-            }
+            HashlinkHooks.Instance.CreateHook("Boot", "endInit", Hook_Boot_endInit).Enable();
+            HashlinkHooks.Instance.CreateHook("Boot", "init", Hook_Boot_init).Enable();
+            HashlinkHooks.Instance.CreateHook("Boot", "update", Hook_Boot_update).Enable();
+
         }
     }
 }

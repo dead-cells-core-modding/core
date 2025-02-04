@@ -26,14 +26,14 @@ namespace Hashlink.Proxy.Values
             {
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(paramId, ParamCount);
                 return HashlinkMarshal.ReadData(ParamsData + CurrentConstruct->offsets[paramId],
-                    CurrentConstruct->@params[paramId]->kind);
+                     HashlinkMarshal.GetHashlinkType(CurrentConstruct->@params[paramId]));
             }
             set
             {
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(paramId, ParamCount);
                 HashlinkMarshal.WriteData(ParamsData + CurrentConstruct->offsets[paramId],
                     value,
-                    CurrentConstruct->@params[paramId]->kind);
+                    HashlinkMarshal.GetHashlinkType(CurrentConstruct->@params[paramId]));
             }
         }
         public int Index

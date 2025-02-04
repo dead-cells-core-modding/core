@@ -1,4 +1,5 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Reflection.Types;
 using System.Collections.Concurrent;
 
 namespace Hashlink.Brigde
@@ -11,6 +12,14 @@ namespace Hashlink.Brigde
         private static readonly ConcurrentDictionary<Type, Func<object[], object>> targetCaller = [];
         private readonly WrapperEntry target;
         private MethodWrapperFactory.EntryItem* entry;
+        public HashlinkType ReturnType
+        {
+            get;
+        }
+        public HashlinkType[] ArgTypes
+        {
+            get;
+        }
 
         public object? Data
         {
@@ -32,9 +41,11 @@ namespace Hashlink.Brigde
         internal MethodWrapperFactory.EntryItem* EntryHandle => entry;
 
         public MethodWrapper( WrapperEntry target,
-            TypeKind retType,
-            IEnumerable<TypeKind> argTypes )
+            HashlinkType retType,
+            HashlinkType[] argTypes )
         {
+            ReturnType = retType;
+            ArgTypes = argTypes;
             this.target = target;
             entry = MethodWrapperFactory.CreateWrapper(this, argTypes, retType);
         }
@@ -44,8 +55,7 @@ namespace Hashlink.Brigde
             var args = new object?[table->argsCount];
             for (var i = 0; i < table->argsCount; i++)
             {
-                var at = (TypeKind)table->targs[i];
-                args[i] = HashlinkMarshal.ReadData(argPtr + i, at);
+                args[i] = HashlinkMarshal.ReadData(argPtr + i, ArgTypes[i]);
             }
 
             var ret = target(this, args);
@@ -55,7 +65,7 @@ namespace Hashlink.Brigde
             }
             else
             {
-                HashlinkMarshal.WriteData(retVal, ret, (TypeKind)table->retType);
+                HashlinkMarshal.WriteData(retVal, ret, ReturnType);
             }
         }
 

@@ -64,7 +64,7 @@ namespace Hashlink.Reflection.Members
             NativePointer = ptr;
         }
 
-        public override string ToString()
+        public override string? ToString()
         {
             return Name;
         }

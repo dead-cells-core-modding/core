@@ -1,6 +1,7 @@
 ﻿using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection;
+using Hashlink.Reflection.Types;
 using ModCore;
 
 namespace Hashlink.Marshaling
@@ -15,39 +16,44 @@ namespace Hashlink.Marshaling
         {
             Module = new(module);
         }
-        public static TypeKind? GetTypeKind( Type type )
+        public static HashlinkType GetHashlinkType( HL_type* type )
         {
+            return Module.GetMemberFrom<HashlinkType>(type);
+        }
+        public static HashlinkType? GetHashlinkType( Type type )
+        {
+            var kt = Module.KnownTypes;
             if (type == typeof(int) || type == typeof(uint))
             {
-                return TypeKind.HI32;
+                return kt.I32;
             }
             else if (type == typeof(long) || type == typeof(ulong))
             {
-                return TypeKind.HI64;
+                return kt.I64;
             }
             else if (type == typeof(float))
             {
-                return TypeKind.HF32;
+                return kt.F32;
             }
             else if (type == typeof(double))
             {
-                return TypeKind.HF64;
+                return kt.F64;
             }
             else if (type == typeof(byte) || type == typeof(sbyte))
             {
-                return TypeKind.HUI8;
+                return kt.I8;
             }
             else if (type == typeof(bool))
             {
-                return TypeKind.HBOOL;
+                return kt.Bool;
             }
             else if (type == typeof(short) || type == typeof(ushort))
             {
-                return TypeKind.HUI16;
+                return kt.I16;
             }
             else if (type == typeof(void))
             {
-                return TypeKind.HVOID;
+                return kt.Void;
             }
             return null;
         }
@@ -62,7 +68,7 @@ namespace Hashlink.Marshaling
         public static void WriteData(
             void* target,
             object? val,
-            TypeKind? type,
+            HashlinkType? type,
             IHashlinkMarshaler? marshaler = null )
         {
             ArgumentNullException.ThrowIfNull(target, nameof(target));
@@ -76,7 +82,7 @@ namespace Hashlink.Marshaling
         }
         public static object? ReadData(
             void* target,
-            TypeKind? type,
+            HashlinkType? type,
             IHashlinkMarshaler? marshaler = null
             )
         {

@@ -22,12 +22,12 @@ namespace Hashlink.Proxy.Objects
             get
             {
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count, nameof(index));
-                return HashlinkMarshal.ReadData((void*)((nint)Data + (ElementSize * index)), NativeElementType->kind);
+                return HashlinkMarshal.ReadData((void*)((nint)Data + (ElementSize * index)), ElementType);
             }
             set
             {
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count, nameof(index));
-                HashlinkMarshal.WriteData((void*)((nint)Data + (ElementSize * index)), value, NativeElementType->kind);
+                HashlinkMarshal.WriteData((void*)((nint)Data + (ElementSize * index)), value, ElementType);
             }
         }
     }

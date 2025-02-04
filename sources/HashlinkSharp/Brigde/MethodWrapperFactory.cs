@@ -1,5 +1,6 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Proxy.Objects;
+using Hashlink.Reflection.Types;
 using Hashlink.Trace;
 using ModCore;
 using System.Diagnostics;
@@ -26,7 +27,7 @@ namespace Hashlink.Brigde
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static EntryItem* CreateWrapper( MethodWrapper wrapper,
-            IEnumerable<TypeKind> argTypes, TypeKind retType )
+            IEnumerable<HashlinkType> argTypes, HashlinkType retType )
         {
             if (freeEntries.Count == 0)
             {
@@ -47,9 +48,7 @@ namespace Hashlink.Brigde
 
             table->callback = (nint)csentry_ptr;
 
-            table->tret = retType;
-
-            table->retType = retType is TypeKind.HF32 or TypeKind.HF64
+            table->retType = retType.TypeKind is TypeKind.HF32 or TypeKind.HF64
                 ? 1
                 : 0;
 
@@ -57,10 +56,9 @@ namespace Hashlink.Brigde
 
             foreach (var at in argTypes)
             {
-                table->targs[table->argsCount] = (int)at;
                 table->argsCount++;
 
-                if (at is TypeKind.HF32 or
+                if (at.TypeKind is TypeKind.HF32 or
                     TypeKind.HF64)
                 {
                     table->hasFloatArg = 1;
@@ -68,6 +66,8 @@ namespace Hashlink.Brigde
                 }
                 table->argFloatMarks <<= 1;
             }
+
+            table->argFloatMarks >>= 1;
 
             //
 
@@ -175,9 +175,6 @@ namespace Hashlink.Brigde
             public nint callback;
 
             //The following fields are not visible to the native layer
-
-            public fixed int targs[32];
-            public TypeKind tret;
 
             public void* entryPtr;
             public nint wrapperHandle;

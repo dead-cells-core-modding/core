@@ -15,7 +15,7 @@ namespace Hashlink.Marshaling
         private static char* ExceptionToString( HL_vdynamic* vdy )
         {
             var ex = HashlinkMarshal.ConvertHashlinkObject<HashlinkNETExceptionObj>(vdy);
-            var str = ex.ToString()!;
+            var str = ex!.ToString()!;
 
             var result = (char*)hl_gc_alloc_gen(InternalTypes.hlt_bytes, (str.Length * 2) + 2,
                 HL_Alloc_Flags.MEM_KIND_NOPTR | HL_Alloc_Flags.MEM_ZERO);

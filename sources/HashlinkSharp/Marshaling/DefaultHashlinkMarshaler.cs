@@ -2,6 +2,7 @@
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
+using Hashlink.Reflection.Types;
 using System.Runtime.CompilerServices;
 
 namespace Hashlink.Marshaling
@@ -17,8 +18,9 @@ namespace Hashlink.Marshaling
         {
             this.ignoreCustomMarshaler = ignoreCustomMarshaler;
         }
-        public virtual object? TryReadData( void* target, TypeKind? typeKind )
+        public virtual object? TryReadData( void* target, HashlinkType? type )
         {
+            var typeKind = type?.TypeKind;
             switch (typeKind)
             {
                 case null:
@@ -38,9 +40,9 @@ namespace Hashlink.Marshaling
                 case TypeKind.HF64:
                     return (object?)*(double*)target;
                 case TypeKind.HABSTRACT:
-                    return (object?)*(nint*)target;
+                    return type is HashlinkAbstractType at ? new HashlinkUnboxAbstract(at.NativeType, *(void**)target) : (object?)*(nint*)target;
                 case TypeKind.HREF:
-                    return (object?)*(nint*)target;
+                    return type is HashlinkRefType rt ? new HashlinkUnboxRef(rt.NativeType, *(void**)target) : (object?)*(nint*)target;
                 default:
                     if (typeKind?.IsPointer() ?? false)
                     {
@@ -53,8 +55,9 @@ namespace Hashlink.Marshaling
             }
         }
 
-        public virtual bool TryWriteData( void* target, object? value, TypeKind? type )
+        public virtual bool TryWriteData( void* target, object? value, HashlinkType? type )
         {
+            
             if (!ignoreCustomMarshaler && value is IHashlinkCustomMarshaler customMarshaler)
             {
                 return customMarshaler.TryWriteData(target, type);
@@ -77,52 +80,53 @@ namespace Hashlink.Marshaling
             {
                 if (value is not null)
                 {
-                    type = HashlinkMarshal.GetTypeKind(value.GetType());
+                    type = HashlinkMarshal.GetHashlinkType(value.GetType());
                 }
             }
-            if (type is null || value is null)
+            var typeKind = type?.TypeKind;
+            if (typeKind is null || value is null)
             {
                 return false;
             }
 
 
-            if (type is TypeKind.HUI8)
+            if (typeKind is TypeKind.HUI8)
             {
                 *(byte*)target = Utils.ForceUnbox<byte>(value);
             }
-            else if (type is TypeKind.HUI16)
+            else if (typeKind is TypeKind.HUI16)
             {
                 *(ushort*)target = Utils.ForceUnbox<ushort>(value);
             }
-            else if (type is TypeKind.HI32)
+            else if (typeKind is TypeKind.HI32)
             {
                 *(int*)target = Utils.ForceUnbox<int>(value);
             }
-            else if (type is TypeKind.HI64)
+            else if (typeKind is TypeKind.HI64)
             {
                 *(long*)target = Utils.ForceUnbox<long>(value);
             }
-            else if (type is TypeKind.HF32)
+            else if (typeKind is TypeKind.HF32)
             {
                 *(float*)target = Utils.ForceUnbox<float>(value);
             }
-            else if (type is TypeKind.HF64)
+            else if (typeKind is TypeKind.HF64)
             {
                 *(double*)target = value is float floatVal ? (double)floatVal : Utils.ForceUnbox<double>(value);
             }
-            else if (type is TypeKind.HBOOL)
+            else if (typeKind is TypeKind.HBOOL)
             {
                 *(byte*)target = (byte)(Utils.ForceUnbox<bool>(value) ? 1 : 0);
             }
-            else if (type is TypeKind.HREF)
+            else if (typeKind is TypeKind.HREF)
             {
                 *(nint*)target = (nint)value;
             }
-            else if (type is TypeKind.HABSTRACT)
+            else if (typeKind is TypeKind.HABSTRACT)
             {
                 *(nint*)target = (nint)value;
             }
-            else if (type is TypeKind.HBYTES)
+            else if (typeKind is TypeKind.HBYTES)
             {
                 if (value is string str)
                 {

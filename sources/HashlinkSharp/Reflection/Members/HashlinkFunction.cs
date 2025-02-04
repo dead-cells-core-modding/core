@@ -31,7 +31,6 @@ namespace Hashlink.Reflection.Members
             ];
 
         public override string? Name => FuncType.Name;
-
         public HashlinkFuncType FuncType => cachedFuncType ??= GetMemberFrom<HashlinkFuncType>(func->type);
         public HashlinkFunc CreateFunc( void* entry = null )
         {

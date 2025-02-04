@@ -1,4 +1,5 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Reflection.Types;
 
 namespace Hashlink.Proxy.Values
 {
@@ -8,16 +9,16 @@ namespace Hashlink.Proxy.Values
         {
 
         }
-        public HL_type* TargetType => TypedRef->type->data.tparam;
+        public HashlinkType TargetType => ((HashlinkRefType)Type).RefType;
         public object? RefValue
         {
             get
             {
-                return HashlinkMarshal.ReadData(TypedRef->val.ptr, TargetType->kind);
+                return HashlinkMarshal.ReadData(TypedRef->val.ptr, TargetType);
             }
             set
             {
-                HashlinkMarshal.WriteData(TypedRef->val.ptr, value, TargetType->kind);
+                HashlinkMarshal.WriteData(TypedRef->val.ptr, value, TargetType);
             }
         }
     }

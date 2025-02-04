@@ -4,6 +4,7 @@ using Hashlink.Reflection.Types;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -133,17 +134,22 @@ namespace Hashlink.Reflection
         {
             return typeNameMapping[name];
         }
-
-        public T GetMemberFrom<T>( void* ptr ) where T : HashlinkMember, IHashlinkMemberGenerator
+        [return: NotNullIfNotNull(nameof(ptr))]
+        public T? GetMemberFrom<T>( void* ptr ) where T : HashlinkMember, IHashlinkMemberGenerator
         {
             return (T?)GetMemberFrom(ptr) ?? (T)T.GenerateFromPointer(this, ptr);
         }
-        public T GetMemberFrom<T>( void* ptr, Func<HashlinkModule, nint, T> factory ) where T : HashlinkMember
+        [return: NotNullIfNotNull(nameof(ptr))]
+        public T? GetMemberFrom<T>( void* ptr, Func<HashlinkModule, nint, T> factory ) where T : HashlinkMember
         {
             return (T?)GetMemberFrom(ptr) ?? factory(this, (nint)ptr);
         }
         public HashlinkMember? GetMemberFrom( void* ptr )
         {
+            if (ptr == null)
+            {
+                return null;
+            }
             var handle = GetHandle(ptr);
             if (handle?.Member != null)
             {

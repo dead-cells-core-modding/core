@@ -1,6 +1,8 @@
 ﻿using Hashlink;
 using Hashlink.Brigde;
+using Hashlink.Marshaling;
 using Hashlink.Reflection.Members;
+using Hashlink.Reflection.Types;
 using ModCore.Hooks;
 using System;
 using System.Collections.Generic;
@@ -40,7 +42,13 @@ namespace ModCore.Modules
                 Manager.RemoveHook( Hook );
             }
         }
-
+        public HookHandle CreateHook( string typeName, string protoName, Delegate hook, nint entry = 0 )
+        {
+            var type = (HashlinkObjectType) HashlinkMarshal.Module.GetTypeByName(typeName);
+            var proto = type.FindProto(protoName) ?? throw new InvalidOperationException();
+            var func = proto.Function;
+            return CreateHook(func, hook, entry);
+        }
         public HookHandle CreateHook(HashlinkFunction func, Delegate hook, nint entry = 0)
         {
             ArgumentNullException.ThrowIfNull(func);

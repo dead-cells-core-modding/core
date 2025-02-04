@@ -35,7 +35,7 @@ namespace Hashlink.Proxy.Objects
                     ? (object?)HashlinkMarshal.ConvertHashlinkObject(ptr)
                     : throw new MissingFieldException(new string(hl_type_str(NativeType)), new string(hl_field_name(hashedName)));
             }
-            return HashlinkMarshal.ReadData(ptr, ftype->kind);
+            return HashlinkMarshal.ReadData(ptr, HashlinkMarshal.GetHashlinkType(ftype));
         }
         public virtual object? GetFieldValue( string name )
         {
@@ -52,7 +52,7 @@ namespace Hashlink.Proxy.Objects
             {
                 throw new MissingFieldException(new string(hl_type_str(NativeType)), new string(hl_field_name(hashedName)));
             }
-            HashlinkMarshal.WriteData(ptr, value, ftype->kind);
+            HashlinkMarshal.WriteData(ptr, value, HashlinkMarshal.GetHashlinkType(ftype));
         }
         public virtual void SetFieldValue( string name, object? value )
         {

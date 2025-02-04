@@ -1,5 +1,6 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Proxy.Objects;
+using Hashlink.Reflection.Types;
 using Hashlink.Trace;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -131,10 +132,14 @@ namespace Hashlink
 
             MixTrace.MarkEnteringHL();
             var ptrResult = callback_c2hl(hlfunc, &funcType, cached_args_ptr, &result);
-            var retKind = result.type->kind;
-            return retKind == TypeKind.HVOID
+            var retType = HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(result.type);
+            if (retType.IsPointer)
+            {
+                result.val.ptr = ptrResult;
+            }
+            return retType.TypeKind == TypeKind.HVOID
                 ? null
-                : retKind.IsPointer() ? HashlinkMarshal.ConvertHashlinkObject(ptrResult) : HashlinkMarshal.ReadData(&result.val, retKind);
+                :  HashlinkMarshal.ReadData(&result.val, retType);
         }
         internal HashlinkFunc( Delegate[] next, HL_type_func* func, void* ptr = null ) : this(next, 0, func, ptr)
         {

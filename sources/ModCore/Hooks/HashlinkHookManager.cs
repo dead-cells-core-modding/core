@@ -1,6 +1,7 @@
 ﻿using Hashlink;
 using Hashlink.Brigde;
 using Hashlink.Reflection.Members;
+using Hashlink.Reflection.Types;
 using ModCore.Modules;
 using System;
 using System.Collections.Generic;
@@ -14,20 +15,15 @@ namespace ModCore.Hooks
     {
         public readonly NativeHooks.HookHandle hook;
         public readonly MethodWrapper wrapper;
-        public readonly HashlinkFunction function;
+        public readonly HashlinkFuncType function;
 
         private readonly List<Delegate> hooks = [];
         public HashlinkHookManager(nint target, HashlinkFunction func)
         {
-            function = func;
-            var f = func.FuncType.TypeData;
-            var targ = new TypeKind[f->nargs];
-            for (int i = 0; i < f->nargs; i++)
-            {
-                targ[i] = f->args[i]->kind;
-            }
-            wrapper = new(HookEntry, f->ret->kind,
-                targ);
+            function = func.FuncType.BaseFunc;
+
+            wrapper = new(HookEntry, function.ReturnType,
+                function.ArgTypes);
             hook = NativeHooks.Instance.CreateHook(target, wrapper.EntryPointer, true);
             wrapper.RedirectTarget = hook.Original;
  
@@ -54,7 +50,7 @@ namespace ModCore.Hooks
 
         private object? HookEntry(MethodWrapper wrapper, object?[] args)
         {
-            var func = new HashlinkFunc([..hooks], 1, function.FuncType.TypeData, (void*)hook.Original);
+            var func = new HashlinkFunc([..hooks], 1, function.TypeData, (void*)hook.Original);
             return hooks[0].DynamicInvoke([func, .. args]);
         }
     }

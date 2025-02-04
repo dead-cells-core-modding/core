@@ -13,6 +13,11 @@ namespace Hashlink.Reflection.Types
         private HashlinkType? cachedReturnType;
         private HashlinkFunction? cachedFunction;
         private HashlinkType[]? cachedArgTypes;
+        private HashlinkFuncType? cachedRealFunc;
+
+        public bool IsClosureType => TypeData->parent != null;
+        public HashlinkFuncType BaseFunc => cachedRealFunc ??= !IsClosureType ? this : GetMemberFrom<HashlinkFuncType>(TypeData->parent);
+
         public HashlinkType ReturnType => cachedReturnType ??= GetMemberFrom<HashlinkType>(TypeData->ret);
         public HashlinkType[] ArgTypes
         {
@@ -23,7 +28,7 @@ namespace Hashlink.Reflection.Types
                     cachedArgTypes = new HashlinkType[TypeData->nargs];
                     for (int i = 0; i < TypeData->nargs; i++)
                     {
-                        cachedArgTypes[i] = GetMemberFrom<HashlinkType>(TypeData->args + i);
+                        cachedArgTypes[i] = GetMemberFrom<HashlinkType>(TypeData->args[i]);
                     }
                 }
                 return cachedArgTypes;
