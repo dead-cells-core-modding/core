@@ -5,7 +5,7 @@ namespace Hashlink.Proxy
     public readonly unsafe struct HashlinkObjPtr
     {
         public HL_type* Type => *(HL_type**)Pointer;
-        public HL_type.TypeKind TypeKind => Type->kind;
+        public TypeKind TypeKind => Type->kind;
         public bool IsNull => Pointer == 0;
         public nint Pointer
         {

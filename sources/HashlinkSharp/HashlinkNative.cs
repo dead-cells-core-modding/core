@@ -16,7 +16,7 @@ namespace Hashlink
             private static readonly nint hLibhl = NativeLibrary.Load(LIBHL);
 
             private static readonly Dictionary<Type, nint> net2hltype = [];
-            private static readonly Dictionary<HL_type.TypeKind, Type> hltype2net = [];
+            private static readonly Dictionary<TypeKind, Type> hltype2net = [];
 
             public static readonly HL_type* hlt_void = GetType(typeof(void));
             public static readonly HL_type* hlt_i32 = GetType(typeof(int));
@@ -40,7 +40,7 @@ namespace Hashlink
                 return ptr;
             }
 
-            public static Type? GetFrom( HL_type.TypeKind type )
+            public static Type? GetFrom( TypeKind type )
             {
                 return hltype2net.TryGetValue(type, out var result) ? result : null;
             }

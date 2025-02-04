@@ -1,4 +1,5 @@
-﻿using ModCore.Events.Interfaces.VM;
+﻿using ModCore.Events.Interfaces;
+using ModCore.Events.Interfaces.VM;
 using System.Runtime.InteropServices;
 
 namespace ModCore.Modules
@@ -23,7 +24,7 @@ namespace ModCore.Modules
 
             if (!Core.Config.Value.AllowCloseConsole)
             {
-                NativeHook.Instance.CreateHook(freeconsole, (FreeConsole_handler)FreeConsole);
+                NativeHooks.Instance.CreateHook(freeconsole, (FreeConsole_handler)FreeConsole);
             }
 
             NativeLibrary.Free(kernel32);

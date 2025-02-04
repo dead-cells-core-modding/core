@@ -1,6 +1,8 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
+using ModCore.Events;
 using ModCore.Events.Interfaces;
+using ModCore.Events.Interfaces.Game;
 
 namespace ModCore.Modules
 {
@@ -29,6 +31,7 @@ namespace ModCore.Modules
         {
             if (ev.EventId == IOnNativeEvent.EventId.HL_EV_START_GAME)
             {
+                EventSystem.BroadcastEvent<IOnBeforeGameStart>();
                 StartGame();
             }
         }

@@ -13,7 +13,7 @@ namespace Hashlink.Proxy.Values
         {
             
         }
-        public HL_type_enum* EnumType => Type->data.tenum;
+        public HL_type_enum* EnumType => NativeType->data.tenum;
         public HL_enum_construct* CurrentConstruct => EnumType->constructs + Index;
 
         public int ParamCount => CurrentConstruct->nparams;

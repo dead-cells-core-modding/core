@@ -27,6 +27,19 @@ namespace Hashlink
             get;
         }
 
+        public static bool InAllocBlock( HL_alloc_block* first, void* ptr )
+        {
+            while (first != null)
+            {
+                if (ptr >= first && ptr <= first->p)
+                {
+                    return true;
+                }
+                first = first->next;
+            }
+            return false;
+        }
+
         public static ref T ForceUnbox<T>( object obj ) where T : struct
         {
             return ref Unsafe.Unbox<T>(obj);

@@ -26,7 +26,7 @@ namespace Hashlink.Brigde
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static EntryItem* CreateWrapper( MethodWrapper wrapper,
-            IEnumerable<HL_type.TypeKind> argTypes, HL_type.TypeKind retType )
+            IEnumerable<TypeKind> argTypes, TypeKind retType )
         {
             if (freeEntries.Count == 0)
             {
@@ -49,7 +49,7 @@ namespace Hashlink.Brigde
 
             table->tret = retType;
 
-            table->retType = retType is HL_type.TypeKind.HF32 or HL_type.TypeKind.HF64
+            table->retType = retType is TypeKind.HF32 or TypeKind.HF64
                 ? 1
                 : 0;
 
@@ -60,8 +60,8 @@ namespace Hashlink.Brigde
                 table->targs[table->argsCount] = (int)at;
                 table->argsCount++;
 
-                if (at is HL_type.TypeKind.HF32 or
-                    HL_type.TypeKind.HF64)
+                if (at is TypeKind.HF32 or
+                    TypeKind.HF64)
                 {
                     table->hasFloatArg = 1;
                     table->argFloatMarks |= 1;
@@ -173,7 +173,7 @@ namespace Hashlink.Brigde
             //The following fields are not visible to the native layer
 
             public fixed int targs[32];
-            public HL_type.TypeKind tret;
+            public TypeKind tret;
 
             public void* entryPtr;
             public nint wrapperHandle;

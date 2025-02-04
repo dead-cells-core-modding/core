@@ -7,7 +7,7 @@ using HookInfo = MonoMod.Core.ICoreNativeDetour;
 namespace ModCore.Modules
 {
     [CoreModule]
-    public unsafe class NativeHook : CoreModule<NativeHook>
+    public unsafe class NativeHooks : CoreModule<NativeHooks>
     {
         public override int Priority => ModulePriorities.NativeHook;
 
@@ -17,9 +17,9 @@ namespace ModCore.Modules
         public class HookHandle
         {
             internal readonly HookInfo? hook;
-            private readonly NativeHook manager;
+            private readonly NativeHooks manager;
 
-            internal HookHandle( HookInfo info, NativeHook manager )
+            internal HookHandle( HookInfo info, NativeHooks manager )
             {
                 hook = info;
                 this.manager = manager;
@@ -30,16 +30,15 @@ namespace ModCore.Modules
             public void Disable() => manager.DisableHook(this);
         }
 
-        public NativeHook()
+        public NativeHooks()
         {
 
         }
 
-        public HookHandle CreateHook( nint target, nint detour )
+        public HookHandle CreateHook( nint target, nint detour, bool applyByDefault = true )
         {
             HookHandle result;
-            result = new HookHandle(detourFactory.CreateNativeDetour(target, detour, true), this);
-            result.Enable();
+            result = new HookHandle(detourFactory.CreateNativeDetour(target, detour, applyByDefault), this);
             return result;
         }
 

@@ -6,6 +6,6 @@
         {
 
         }
-        public HL_runtime_obj* RuntimeObj => Type->data.obj->rt;
+        public HL_runtime_obj* RuntimeObj => NativeType->data.obj->rt;
     }
 }

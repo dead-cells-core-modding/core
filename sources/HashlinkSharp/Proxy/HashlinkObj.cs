@@ -1,4 +1,5 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Reflection.Types;
 
 namespace Hashlink.Proxy
 {
@@ -13,8 +14,9 @@ namespace Hashlink.Proxy
                 Handle.Target = this;
             }
             HashlinkPointer = ptr;
-            Type = *(HL_type**)ptr;
-            TypeKind = Type->kind;
+            NativeType = *(HL_type**)ptr;
+            Type = HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(NativeType);
+            TypeKind = NativeType->kind;
         }
         public override string? ToString()
         {
@@ -24,11 +26,15 @@ namespace Hashlink.Proxy
         {
             get;
         }
-        public HL_type.TypeKind TypeKind
+        public TypeKind TypeKind
         {
             get;
         }
-        public HL_type* Type
+        public HashlinkType Type
+        {
+            get;
+        }
+        public HL_type* NativeType
         {
             get;
         }

@@ -29,7 +29,7 @@ namespace Hashlink.Marshaling
         private static HL_type* GenerateErrorType()
         {
             var type = (HL_type*)NativeMemory.AllocZeroed((nuint)sizeof(HL_type));
-            type->kind = HL_type.TypeKind.HOBJ;
+            type->kind = TypeKind.HOBJ;
             type->mark_bits = null;
             var tobj = (HL_type_obj*)NativeMemory.AllocZeroed((nuint)sizeof(HL_type_obj));
             type->data.obj = tobj;

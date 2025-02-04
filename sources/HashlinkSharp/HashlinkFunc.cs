@@ -107,7 +107,7 @@ namespace Hashlink
             };
             HL_type funcType = new()
             {
-                kind = HL_type.TypeKind.HFUN,
+                kind = TypeKind.HFUN,
                 data =
                 {
                     func = hlfunction
@@ -116,7 +116,7 @@ namespace Hashlink
             MixTrace.MarkEnteringHL();
             var ptrResult = callback_c2hl(hlfunc, &funcType, cached_args_ptr, &result);
             var retKind = result.type->kind;
-            return retKind == HL_type.TypeKind.HVOID
+            return retKind == TypeKind.HVOID
                 ? null
                 : retKind.IsPointer() ? HashlinkMarshal.ConvertHashlinkObject(ptrResult) : HashlinkMarshal.ReadData(&result.val, retKind);
         }

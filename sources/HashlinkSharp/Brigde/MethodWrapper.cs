@@ -32,8 +32,8 @@ namespace Hashlink.Brigde
         internal MethodWrapperFactory.EntryItem* EntryHandle => entry;
 
         public MethodWrapper( WrapperEntry target,
-            HL_type.TypeKind retType,
-            IEnumerable<HL_type.TypeKind> argTypes )
+            TypeKind retType,
+            IEnumerable<TypeKind> argTypes )
         {
             this.target = target;
             entry = MethodWrapperFactory.CreateWrapper(this, argTypes, retType);
@@ -44,7 +44,7 @@ namespace Hashlink.Brigde
             var args = new object?[table->argsCount];
             for (var i = 0; i < table->argsCount; i++)
             {
-                var at = (HL_type.TypeKind)table->targs[i];
+                var at = (TypeKind)table->targs[i];
                 args[i] = HashlinkMarshal.ReadData(argPtr + i, at);
             }
 
@@ -55,7 +55,7 @@ namespace Hashlink.Brigde
             }
             else
             {
-                HashlinkMarshal.WriteData(retVal, ret, (HL_type.TypeKind)table->retType);
+                HashlinkMarshal.WriteData(retVal, ret, (TypeKind)table->retType);
             }
         }
 

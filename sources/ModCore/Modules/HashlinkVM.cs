@@ -53,7 +53,7 @@ namespace ModCore.Modules
             try
             {
                 var st = new MixStackTrace(0, true);
-                var result = new HashlinkArray(InternalTypes.hlt_bytes, st.FrameCount);
+                var result = new HashlinkArray(HashlinkMarshal.Module.KnownTypes.Bytes, st.FrameCount);
                 for (var i = 0; i < st.FrameCount; i++)
                 {
                     var f = st.GetFrame(i);
@@ -121,7 +121,7 @@ namespace ModCore.Modules
 
             Logger.Information("Hooking functions");
 
-            orig_hl_exception_stack = NativeHook.Instance.CreateHook<hl_exception_stack_handler>(
+            orig_hl_exception_stack = NativeHooks.Instance.CreateHook<hl_exception_stack_handler>(
                 NativeLibrary.GetExport(LibhlHandle, "hl_exception_stack"), Hook_hl_exception_stack);
         }
 

@@ -1,4 +1,5 @@
-﻿using ModCore.Events.Interfaces.Mods;
+﻿using ModCore.Events.Interfaces.Game;
+using ModCore.Events.Interfaces.Mods;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Mods;
 using ModCore.Plugins;
@@ -16,7 +17,7 @@ namespace ModCore.ModLoader.Default
     internal class DefaultModLoader : Module<DefaultModLoader>,
         IOnRegisterModsType,
         IOnCollectedModInfo,
-        IOnHashlinkVMReady
+        IOnBeforeGameStart
     {
         private readonly List<DefaultModInfo> mods = [];
         void IOnCollectedModInfo.OnCollectedModInfo( ModInfo info )
@@ -41,7 +42,7 @@ namespace ModCore.ModLoader.Default
             }
         }
 
-        void IOnHashlinkVMReady.OnHashlinkVMReady()
+        void IOnBeforeGameStart.OnBeforeGameStart()
         {
 
             foreach (var v in mods)

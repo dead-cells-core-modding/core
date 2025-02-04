@@ -2,6 +2,6 @@
 {
     public unsafe interface IHashlinkCustomMarshaler
     {
-        public bool TryWriteData( void* target, HL_type.TypeKind? typeKind );
+        public bool TryWriteData( void* target, TypeKind? typeKind );
     }
 }

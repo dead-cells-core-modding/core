@@ -1,15 +1,19 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Reflection.Types;
 
 namespace Hashlink.Proxy.Objects
 {
     public unsafe class HashlinkArray( HashlinkObjPtr objPtr ) : HashlinkTypedObj<HL_array>(objPtr)
     {
-        public HashlinkArray( HL_type* type, int size ) : this(HashlinkObjPtr.GetUnsafe(hl_alloc_array(type, size)))
+        public HashlinkArray( HashlinkType type, int size ) : 
+            this(HashlinkObjPtr.GetUnsafe(hl_alloc_array(type.NativeType, size)))
         {
 
         }
-        public HL_type* ElementType => TypedRef->at;
-        public int ElementSize => hl_type_size(ElementType);
+        private HashlinkType? cachedElementType;
+        public HashlinkType ElementType => cachedElementType ??= HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(NativeElementType);
+        public HL_type* NativeElementType => TypedRef->at;
+        public int ElementSize => hl_type_size(NativeElementType);
         public int Count => TypedRef->size;
         public void* Data => TypedRef + 1;
 
@@ -18,12 +22,12 @@ namespace Hashlink.Proxy.Objects
             get
             {
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count, nameof(index));
-                return HashlinkMarshal.ReadData((void*)((nint)Data + (ElementSize * index)), ElementType->kind);
+                return HashlinkMarshal.ReadData((void*)((nint)Data + (ElementSize * index)), NativeElementType->kind);
             }
             set
             {
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count, nameof(index));
-                HashlinkMarshal.WriteData((void*)((nint)Data + (ElementSize * index)), value, ElementType->kind);
+                HashlinkMarshal.WriteData((void*)((nint)Data + (ElementSize * index)), value, NativeElementType->kind);
             }
         }
     }

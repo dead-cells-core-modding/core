@@ -1,7 +1,21 @@
-﻿namespace Hashlink.Proxy.Objects
+﻿using Hashlink.Marshaling;
+
+namespace Hashlink.Proxy.Objects
 {
     public unsafe class HashlinkString( HashlinkObjPtr objPtr ) : HashlinkObject(objPtr), IHashlinkValue
     {
+        public HashlinkString() : this(
+            HashlinkObjPtr.GetUnsafe(
+                hl_alloc_obj(HashlinkMarshal.Module.KnownTypes.String.NativeType)
+                )
+            )
+        {
+            
+        }
+        public HashlinkString( string val ) : this()
+        {
+            TypedValue = val;
+        }
         public string? TypedValue
         {
             get

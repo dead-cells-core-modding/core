@@ -1,67 +1,68 @@
 ﻿using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
+using Hashlink.Reflection;
 using ModCore;
 
 namespace Hashlink.Marshaling
 {
     public static unsafe class HashlinkMarshal
     {
-        public static HL_module* Module
+        public static HashlinkModule Module
         {
             get; private set;
-        }
+        } = null!;
         internal static void Initialize( HL_module* module )
         {
-            Module = module;
+            Module = new(module);
         }
-        public static HL_type.TypeKind? GetTypeKind( Type type )
+        public static TypeKind? GetTypeKind( Type type )
         {
             if (type == typeof(int) || type == typeof(uint))
             {
-                return HL_type.TypeKind.HI32;
+                return TypeKind.HI32;
             }
             else if (type == typeof(long) || type == typeof(ulong))
             {
-                return HL_type.TypeKind.HI64;
+                return TypeKind.HI64;
             }
             else if (type == typeof(float))
             {
-                return HL_type.TypeKind.HF32;
+                return TypeKind.HF32;
             }
             else if (type == typeof(double))
             {
-                return HL_type.TypeKind.HF64;
+                return TypeKind.HF64;
             }
             else if (type == typeof(byte) || type == typeof(sbyte))
             {
-                return HL_type.TypeKind.HUI8;
+                return TypeKind.HUI8;
             }
             else if (type == typeof(bool))
             {
-                return HL_type.TypeKind.HBOOL;
+                return TypeKind.HBOOL;
             }
             else if (type == typeof(short) || type == typeof(ushort))
             {
-                return HL_type.TypeKind.HUI16;
+                return TypeKind.HUI16;
             }
             else if (type == typeof(void))
             {
-                return HL_type.TypeKind.HVOID;
+                return TypeKind.HVOID;
             }
             return null;
         }
 
         public static IHashlinkMarshaler DefaultMarshaler { get; set; } = DefaultHashlinkMarshaler.Instance;
 
-        public static bool IsPointer( this HL_type.TypeKind type )
+        public static bool IsPointer( this TypeKind type )
         {
-            return type >= HL_type.TypeKind.HBYTES;
+            return type >= TypeKind.HBYTES;
         }
 
         public static void WriteData(
             void* target,
             object? val,
-            HL_type.TypeKind? type,
+            TypeKind? type,
             IHashlinkMarshaler? marshaler = null )
         {
             ArgumentNullException.ThrowIfNull(target, nameof(target));
@@ -75,7 +76,7 @@ namespace Hashlink.Marshaling
         }
         public static object? ReadData(
             void* target,
-            HL_type.TypeKind? type,
+            TypeKind? type,
             IHashlinkMarshaler? marshaler = null
             )
         {
@@ -93,7 +94,7 @@ namespace Hashlink.Marshaling
                 return false;
             }
             var type = ((HL_vdynamic*)ptr)->type;
-            return mcn_memory_readable(type) && type->kind is > 0 and <= HL_type.TypeKind.HLAST;
+            return mcn_memory_readable(type) && type->kind is > 0 and <= TypeKind.HLAST;
         }
 
         public static bool IsAllocatedHashlinkObject( void* ptr )
