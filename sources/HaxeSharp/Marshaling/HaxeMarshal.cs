@@ -24,7 +24,6 @@ namespace Haxe.Marshaling
             HashlinkMarshal.Initialize(module);
         }
 
-        [return: NotNullIfNotNull(nameof(value))]
         public static HaxeObjectBase? ConvertHashlinkObj( HashlinkObj? value )
         {
             if (value == null)
@@ -57,20 +56,20 @@ namespace Haxe.Marshaling
                 return new HaxeObject(hobj);
             }
 
-            throw new NotImplementedException();
+            return null; 
         }
 
         public static HaxeObjectBase AsHaxe( this HashlinkObj obj )
         {
-            return ConvertHashlinkObj(obj);
+            return ConvertHashlinkObj(obj) ?? throw new InvalidOperationException();
         }
         public static HaxeObject AsHaxe( this HashlinkObject obj )
         {
-            return (HaxeObject)ConvertHashlinkObj(obj);
+            return (HaxeObject?)ConvertHashlinkObj(obj) ?? throw new InvalidOperationException();
         }
         public static HaxeClosure AsHaxe( this HashlinkClosure obj )
         {
-            return (HaxeClosure)ConvertHashlinkObj(obj);
+            return (HaxeClosure?)ConvertHashlinkObj(obj) ?? throw new InvalidOperationException();
         }
 
 
@@ -79,7 +78,7 @@ namespace Haxe.Marshaling
 
             if (value is HashlinkObj obj)
             {
-                return ConvertHashlinkObj(obj);
+                return ConvertHashlinkObj(obj) ?? value;
             }
             return value;
         }
