@@ -15,6 +15,7 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 ## Requirement
 
 - .NET 9 runtime or higher
+- Microsoft Visual C++ Redistributable package (2015-2022)
 
 ## Installation
 
