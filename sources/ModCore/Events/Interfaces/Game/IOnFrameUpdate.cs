@@ -3,6 +3,6 @@
     [Event]
     public interface IOnFrameUpdate
     {
-        public void OnFrameUpdate( float dt );
+        public void OnFrameUpdate( double dt );
     }
 }

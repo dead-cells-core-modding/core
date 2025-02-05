@@ -33,6 +33,7 @@ if(MSVC)
     get_filename_component(MSVC_REDIST_DIR "${CMAKE_CXX_COMPILER}" DIRECTORY)
     set(VC_REDIST_DLLS
         "${MSVC_REDIST_DIR}/vcruntime140.dll"
+        "${MSVC_REDIST_DIR}/vcruntime140_1.dll"
         "${MSVC_REDIST_DIR}/msvcp140.dll"
         "${MSVC_REDIST_DIR}/concrt140.dll"
     )

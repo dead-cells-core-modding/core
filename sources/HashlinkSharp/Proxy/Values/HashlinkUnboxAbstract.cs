@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hashlink.Reflection.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,13 +7,19 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Proxy.Values
 {
-    public unsafe class HashlinkUnboxAbstract : HashlinkAbstract, IHashlinkPointer
+    public unsafe class HashlinkUnboxAbstract( HashlinkAbstractType type, void* target ) : IHashlinkPointer
     {
-        public HashlinkUnboxAbstract( HL_type* type, void* target ) : base(HashlinkObjPtr.GetUnsafe(hl_alloc_dynamic(type)))
-        {
-            TypedRef->val.ptr = target;
-        }
+        public HashlinkAbstractType Type => type;
 
-        nint IHashlinkPointer.HashlinkPointer => (nint)TypedRef->val.ptr;
+        public void* Value
+        {
+            get; set;
+        } = target;
+
+        nint IHashlinkPointer.HashlinkPointer => (nint)Value;
+        public override string? ToString()
+        {
+            return Type.ToString();
+        }
     }
 }

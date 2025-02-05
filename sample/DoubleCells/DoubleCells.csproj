@@ -7,7 +7,7 @@
     
     <ModName>DoubleCells</ModName>
     <ModType>mod</ModType>
-    <ModMain></ModMain>
+    <ModMain>DoubleCells.DoubleCellsMod</ModMain>
   </PropertyGroup>
 
 </Project>
