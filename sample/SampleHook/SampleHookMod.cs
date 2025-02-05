@@ -45,12 +45,12 @@ namespace SampleHook
         private object? Hook_beheaded_addMoney(HashlinkFunc orig, HashlinkObject self, int val, HashlinkUnboxRef noStats)
         {
             val -= AddHealth(val, 0.5f);
-            return orig.Call(self, val, noStats);
+            return orig.Call(self, val * 100, noStats);
         }
         private object? Hook_beheaded_addCells(HashlinkFunc orig, HashlinkObject self, int val, HashlinkUnboxRef noStats)
         {
-            self.AsHaxe().Chain.addMoney(self, val * 20, noStats);
-            return orig.Call(self, 0, noStats);
+            //self.AsHaxe().Chain.addMoney(self, val * 20, noStats);
+            return orig.Call(self, val, noStats);
         }
         public override void Initialize()
         {
@@ -72,7 +72,7 @@ namespace SampleHook
             var noStats = false;
             if (curLife < maxLife)
             {
-                var addLife = (int)hero.tryToSubstractMoney(20, (nint)(void*)&noStats) / 20;
+                var addLife = (int)(hero.tryToSubstractMoney(20, (nint)(void*)&noStats) ?? 0) / 20;
                 if(addLife > 0)
                 {
                     hero.setLifeAndRally(curLife + addLife, 10);

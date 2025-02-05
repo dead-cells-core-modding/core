@@ -3,6 +3,8 @@ using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
 using Hashlink.Trace;
 using ModCore;
+using Serilog;
+using Serilog.Core;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -142,11 +144,10 @@ namespace Hashlink.Brigde
             }
             catch (Exception ex)
             {
-                *err = (void*)new HashlinkNETExceptionObj(ex).HashlinkPointer;
-                if (Debugger.IsAttached)
-                {
-                    throw;
-                }
+                //Direct fatal until I fix it
+                Log.Logger.Fatal(ex, "MethodWrapper fatal.");
+                Environment.FailFast(ex.ToString());
+                //*err = (void*)new HashlinkNETExceptionObj(ex).HashlinkPointer;
             }
         }
 
