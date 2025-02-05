@@ -48,6 +48,8 @@ namespace ModCore.Modules
 
         private delegate HL_array* hl_exception_stack_handler();
         private static hl_exception_stack_handler orig_hl_exception_stack = null!;
+
+
         private static HL_array* Hook_hl_exception_stack()
         {
             try
@@ -121,8 +123,8 @@ namespace ModCore.Modules
 
             Logger.Information("Hooking functions");
 
-            orig_hl_exception_stack = NativeHooks.Instance.CreateHook<hl_exception_stack_handler>(
-                NativeLibrary.GetExport(LibhlHandle, "hl_exception_stack"), Hook_hl_exception_stack);
+            //orig_hl_exception_stack = NativeHooks.Instance.CreateHook<hl_exception_stack_handler>(
+            //    NativeLibrary.GetExport(LibhlHandle, "hl_exception_stack"), Hook_hl_exception_stack);
         }
 
         void IOnHashlinkVMReady.OnHashlinkVMReady()

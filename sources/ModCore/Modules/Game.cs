@@ -3,10 +3,12 @@ using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
+using Haxe;
 using Haxe.Marshaling;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
+using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Events.Interfaces.VM;
 
 namespace ModCore.Modules
@@ -60,6 +62,11 @@ namespace ModCore.Modules
 
             EventSystem.BroadcastEvent<IOnFrameUpdate, double>(dt);
 
+            if (HeroInstance != null)
+            {
+                EventSystem.BroadcastEvent<IOnHeroUpdate, double>(dt);
+            }
+
             return ret;
         }
         private object? Hook_Boot_endInit( HashlinkFunc orig, HashlinkObject self)
@@ -71,6 +78,24 @@ namespace ModCore.Modules
             return ret;
         }
 
+        public HaxeObject? HeroInstance
+        {
+            get; private set;
+        }
+        private object? Hook_hero_init( HashlinkFunc orig, HashlinkObject self )
+        {
+            HeroInstance = self.AsHaxe();
+            EventSystem.BroadcastEvent<IOnHeroInit>();
+            return orig.Call(self);
+        }
+        private object? Hook_hero_dispose( HashlinkFunc orig, HashlinkObject self )
+        {
+            EventSystem.BroadcastEvent<IOnHeroUpdate>();
+            HeroInstance = null;
+            return orig.Call(self);
+        }
+
+
         void IOnHashlinkVMReady.OnHashlinkVMReady()
         {
 
@@ -78,6 +103,8 @@ namespace ModCore.Modules
             HashlinkHooks.Instance.CreateHook("Boot", "init", Hook_Boot_init).Enable();
             HashlinkHooks.Instance.CreateHook("Boot", "update", Hook_Boot_update).Enable();
 
+            HashlinkHooks.Instance.CreateHook("en.Hero", "init", Hook_hero_init).Enable();
+            HashlinkHooks.Instance.CreateHook("en.Hero", "dispose", Hook_hero_dispose).Enable();
         }
     }
 }

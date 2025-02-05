@@ -21,7 +21,9 @@ namespace Hashlink.Proxy.Objects
             {
                 if (ot.TryFindProto(name, out var proto))
                 {
-                    return proto.CreateFunc(this);
+                    var func = proto.CreateFunc(this);
+                    func.BindingThis = HashlinkPointer;
+                    return func;
                 }
                 ot = ot.Super;
             }

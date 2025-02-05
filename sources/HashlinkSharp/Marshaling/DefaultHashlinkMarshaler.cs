@@ -43,6 +43,7 @@ namespace Hashlink.Marshaling
                     return type is HashlinkAbstractType at ? new HashlinkUnboxAbstract(at, *(void**)target) : (object?)*(nint*)target;
                 case TypeKind.HREF:
                     return type is HashlinkRefType rt ? new HashlinkUnboxRef(rt, *(void**)target) : (object?)*(nint*)target;
+                case TypeKind.HNULL:
                 default:
                     if (typeKind?.IsPointer() ?? false)
                     {
@@ -108,11 +109,25 @@ namespace Hashlink.Marshaling
             }
             else if (typeKind is TypeKind.HF32)
             {
-                *(float*)target = Utils.ForceUnbox<float>(value);
+                if (value is not float)
+                {
+                    *(float*)target = ((IConvertible)value).ToSingle(null);
+                }
+                else
+                {
+                    *(float*)target = (float)value;
+                }
             }
             else if (typeKind is TypeKind.HF64)
             {
-                *(double*)target = value is float floatVal ? (double)floatVal : Utils.ForceUnbox<double>(value);
+                if (value is not double)
+                {
+                    *(double*)target = ((IConvertible)value).ToDouble(null);
+                }
+                else
+                {
+                    *(double*)target = (double)value;
+                }
             }
             else if (typeKind is TypeKind.HBOOL)
             {
@@ -166,6 +181,17 @@ namespace Hashlink.Marshaling
                 TypeKind.HFUN => new HashlinkClosure(ptr),
                 TypeKind.HREF => new HashlinkRef(ptr),
                 TypeKind.HENUM => new HashlinkEnum(ptr),
+                TypeKind.HNULL => ptr.Type->data.tparam->kind switch
+                {
+                    TypeKind.HUI8 => new HashlinkTypedNullValue<byte>(ptr),
+                    TypeKind.HUI16 => new HashlinkTypedNullValue<ushort>(ptr),
+                    TypeKind.HI32 => new HashlinkTypedNullValue<int>(ptr),
+                    TypeKind.HI64 => new HashlinkTypedNullValue<long>(ptr),
+                    TypeKind.HF32 => new HashlinkTypedNullValue<float>(ptr),
+                    TypeKind.HF64 => new HashlinkTypedNullValue<double>(ptr),
+                    TypeKind.HBOOL => new HashlinkTypedNullValue<bool>(ptr),
+                    _ => throw new InvalidOperationException($"Unrecognized null type {ptr.Type->data.tparam->kind}")
+                },
                 _ => throw new InvalidOperationException($"Unrecognized type {kind}")
             };
         }

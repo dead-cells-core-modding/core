@@ -11,7 +11,6 @@ namespace Hashlink.Reflection.Types
     public unsafe class HashlinkFuncType(HashlinkModule module, HL_type* type) : HashlinkSpecialType<HL_type_func>(module, type)
     {
         private HashlinkType? cachedReturnType;
-        private HashlinkFunction? cachedFunction;
         private HashlinkType[]? cachedArgTypes;
         private HashlinkFuncType? cachedRealFunc;
 

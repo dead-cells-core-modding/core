@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <ModName>SampleHook</ModName>
+    <ModType>mod</ModType>
+    <ModMain>SampleHook.SampleHookMod</ModMain>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AutoInstallMod>true</AutoInstallMod>
+  </PropertyGroup>
+
+</Project>

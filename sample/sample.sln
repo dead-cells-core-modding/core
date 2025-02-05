@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryMod", "LibraryMod\Li
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoubleCells", "DoubleCells\DoubleCells.csproj", "{E5F09225-F441-4E13-A30C-CFBD20339301}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleHook", "SampleHook\SampleHook.csproj", "{BE1E07A7-ADE1-4B06-9DAF-37BA5C5BECF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{E5F09225-F441-4E13-A30C-CFBD20339301}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5F09225-F441-4E13-A30C-CFBD20339301}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5F09225-F441-4E13-A30C-CFBD20339301}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE1E07A7-ADE1-4B06-9DAF-37BA5C5BECF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE1E07A7-ADE1-4B06-9DAF-37BA5C5BECF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE1E07A7-ADE1-4B06-9DAF-37BA5C5BECF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE1E07A7-ADE1-4B06-9DAF-37BA5C5BECF6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

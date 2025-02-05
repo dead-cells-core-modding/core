@@ -72,12 +72,6 @@ namespace Hashlink
         [DoesNotReturn]
         public static partial void hl_throw( HL_vdynamic* v );
 
-
-        [LibraryImport(LIBHL)]
-        public static partial void hl_add_root( void* ptr );
-        [LibraryImport(LIBHL)]
-        public static partial void hl_remove_root( void* ptr );
-
         [LibraryImport(LIBHL)]
         public static partial void hl_add_root_2( void* ptr );
         [LibraryImport(LIBHL)]

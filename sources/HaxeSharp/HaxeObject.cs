@@ -27,14 +27,7 @@ namespace Haxe
                 result = null;
                 return false;
             }
-            if (func.BindingThis == null)
-            {
-                result = HaxeMarshal.PostProcessValue(func.CallDynamic([this, .. args]));
-            }
-            else
-            {
-                result = HaxeMarshal.PostProcessValue(func.CallDynamic( args));
-            }
+            result = HaxeMarshal.PostProcessValue(func.CallDynamic( args));
             return true;
         }
         public override bool TrySetMember( SetMemberBinder binder, object? value )

@@ -13,6 +13,10 @@ namespace Hashlink.Proxy
             {
                 Handle.Target = this;
             }
+            if (!HashlinkMarshal.IsHashlinkObject((void*)ptr))
+            {
+                throw new InvalidOperationException();
+            }
             HashlinkPointer = ptr;
             NativeType = *(HL_type**)ptr;
             Type = HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(NativeType);

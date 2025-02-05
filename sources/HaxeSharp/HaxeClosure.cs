@@ -6,6 +6,7 @@ using Hashlink.Proxy.Objects;
 using Haxe.Marshaling;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ namespace Haxe
                 {
                     return null;
                 }
-                return (HaxeObject)HaxeMarshal.ConvertHashlinkObj(
+                return (HaxeObject?)HaxeMarshal.ConvertHashlinkObj(
                     HashlinkMarshal.ConvertHashlinkObject((void*)HashlinkObject.BindingThis!.Value)!
                     );
             }
@@ -40,6 +41,11 @@ namespace Haxe
                 }
                 cached_this = value;
             }
+        }
+        public override bool TryInvoke( InvokeBinder binder, object?[]? args, out object? result )
+        {
+            result = HaxeMarshal.PostProcessValue(Function.CallDynamic(args));
+            return true;
         }
     }
 }

@@ -162,8 +162,6 @@ namespace Hashlink
             hlfunc = ptr == null ? throw new ArgumentNullException(nameof(ptr)) : ptr;
         }
 
-        private HashlinkFunc? baseFunc;
-
         public void* FuncPointer => hlfunc;
         public HL_type_func* FuncType => hlfunction;
         public nint? BindingThis { get; set; } = null;

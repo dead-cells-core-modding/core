@@ -44,6 +44,7 @@ namespace Hashlink.Reflection.Types
                 TypeKind.HVIRTUAL => new HashlinkVirtualType(module, type),
                 TypeKind.HABSTRACT => new HashlinkAbstractType(module, type),
                 TypeKind.HREF => new HashlinkRefType(module, type),
+                TypeKind.HNULL => new HashlinkNullType(module, type),
                 _ => new HashlinkType(module, type)
             };
         }
