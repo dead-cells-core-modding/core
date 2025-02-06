@@ -1,4 +1,6 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Reflection.Members.Enum;
+using Hashlink.Reflection.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +11,13 @@ namespace Hashlink.Proxy.Values
 {
     public unsafe class HashlinkEnum(HashlinkObjPtr objPtr) : HashlinkTypedObj<HL_enum>(objPtr)
     {
-        public HashlinkEnum( HL_type* type, int index ) : this(HashlinkObjPtr.GetUnsafe(hl_alloc_enum(type, index)))
+        public HashlinkEnum( HashlinkEnumType type, int index ) : 
+            this(HashlinkObjPtr.GetUnsafe(hl_alloc_enum(type.NativeType, index)))
         {
             
         }
-        public HL_type_enum* EnumType => NativeType->data.tenum;
-        public HL_enum_construct* CurrentConstruct => EnumType->constructs + Index;
-
-        public int ParamCount => CurrentConstruct->nparams;
+        public HashlinkEnumType EnumType => (HashlinkEnumType)Type;
+        public HashlinkEnumConstruct CurrentConstruct => EnumType.Constructs[Index];
 
         public byte* ParamsData => (byte*)(TypedRef + 1);
 
@@ -24,16 +25,16 @@ namespace Hashlink.Proxy.Values
         {
             get
             {
-                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(paramId, ParamCount);
-                return HashlinkMarshal.ReadData(ParamsData + CurrentConstruct->offsets[paramId],
-                     HashlinkMarshal.GetHashlinkType(CurrentConstruct->@params[paramId]));
+                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(paramId, CurrentConstruct.ParamsCount);
+                return HashlinkMarshal.ReadData(ParamsData + CurrentConstruct.ParamOffsets[paramId],
+                     CurrentConstruct.Params[paramId]);
             }
             set
             {
-                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(paramId, ParamCount);
-                HashlinkMarshal.WriteData(ParamsData + CurrentConstruct->offsets[paramId],
+                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(paramId, CurrentConstruct.ParamsCount);
+                HashlinkMarshal.WriteData(ParamsData + CurrentConstruct.ParamOffsets[paramId],
                     value,
-                    HashlinkMarshal.GetHashlinkType(CurrentConstruct->@params[paramId]));
+                    CurrentConstruct.Params[paramId]);
             }
         }
         public int Index

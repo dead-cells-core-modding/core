@@ -5,8 +5,8 @@ namespace Hashlink.Proxy.Objects
 {
     public unsafe class HashlinkArray( HashlinkObjPtr objPtr ) : HashlinkTypedObj<HL_array>(objPtr)
     {
-        public HashlinkArray( HashlinkType type, int size ) : 
-            this(HashlinkObjPtr.GetUnsafe(hl_alloc_array(type.NativeType, size)))
+        public HashlinkArray( HashlinkType elementType, int size ) : 
+            this(HashlinkObjPtr.GetUnsafe(hl_alloc_array(elementType.NativeType, size)))
         {
 
         }

@@ -5,7 +5,7 @@ namespace Hashlink.Proxy.Values
 {
     public unsafe class HashlinkRef( HashlinkObjPtr objPtr ) : HashlinkTypedValue<nint>(objPtr)
     {
-        public HashlinkRef( HL_type* type ) : this(HashlinkObjPtr.GetUnsafe(hl_alloc_dynamic(type)))
+        public HashlinkRef( HashlinkRefType type ) : this(HashlinkObjPtr.GetUnsafe(hl_alloc_dynamic(type.NativeType)))
         {
 
         }

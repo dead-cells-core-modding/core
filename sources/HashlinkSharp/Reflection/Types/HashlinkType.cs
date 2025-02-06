@@ -45,6 +45,7 @@ namespace Hashlink.Reflection.Types
                 TypeKind.HABSTRACT => new HashlinkAbstractType(module, type),
                 TypeKind.HREF => new HashlinkRefType(module, type),
                 TypeKind.HNULL => new HashlinkNullType(module, type),
+                TypeKind.HENUM => new HashlinkEnumType(module, type),
                 _ => new HashlinkType(module, type)
             };
         }

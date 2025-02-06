@@ -29,7 +29,7 @@ namespace Hashlink.Reflection.Types
         public override string Name => cachedName ??= new(TypeData->name);
         public override HashlinkObj CreateInstance()
         {
-            return new HashlinkObject(NativeType);
+            return new HashlinkObject(this);
         }
 
         public HashlinkObjectProto[] Protos

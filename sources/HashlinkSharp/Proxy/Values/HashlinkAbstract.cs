@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hashlink.Reflection.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,13 +10,13 @@ namespace Hashlink.Proxy.Values
 {
     public unsafe class HashlinkAbstract( HashlinkObjPtr objPtr ) : HashlinkTypedValue<nint>(objPtr)
     {
-        public HashlinkAbstract() : this(HashlinkObjPtr.GetUnsafe(
-           hl_alloc_dynamic(InternalTypes.hlt_abstract)
+        public HashlinkAbstract( HashlinkAbstractType type ) : this(HashlinkObjPtr.GetUnsafe(
+           hl_alloc_dynamic(type.NativeType)
            ))
         {
 
         }
-        public HashlinkAbstract( nint value ) : this()
+        public HashlinkAbstract( HashlinkAbstractType type, nint value ) : this(type)
         {
             Value = value;
         }

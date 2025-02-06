@@ -45,11 +45,11 @@ namespace SampleHook
         private object? Hook_beheaded_addMoney(HashlinkFunc orig, HashlinkObject self, int val, HashlinkUnboxRef noStats)
         {
             val -= AddHealth(val, 0.5f);
-            return orig.Call(self, val * 100, noStats);
+            return orig.Call(self, val * 10, noStats);
         }
         private object? Hook_beheaded_addCells(HashlinkFunc orig, HashlinkObject self, int val, HashlinkUnboxRef noStats)
         {
-            //self.AsHaxe().Chain.addMoney(self, val * 20, noStats);
+            self.AsHaxe().Chain.addMoney(val * 20, noStats);
             return orig.Call(self, val, noStats);
         }
         public override void Initialize()

@@ -6,7 +6,7 @@ namespace Hashlink.Proxy.Values
     public unsafe class HashlinkTypedNullValue<TValue>( HashlinkObjPtr val ) : HashlinkValue(val)
         where TValue : unmanaged
     {
-        private static HashlinkType nullType = HashlinkMarshal.Module.GetTypeByName($"null<" +
+        private readonly static HashlinkType nullType = HashlinkMarshal.Module.GetTypeByName($"null<" +
             InternalTypes.GetFrom(typeof(TValue))->TypeName + ">");
         public HashlinkTypedNullValue() : this(HashlinkObjPtr.GetUnsafe(
             hl_alloc_dynamic(
