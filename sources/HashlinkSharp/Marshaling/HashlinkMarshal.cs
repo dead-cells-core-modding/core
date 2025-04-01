@@ -1,4 +1,5 @@
 ﻿using Hashlink.Proxy;
+using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection;
 using Hashlink.Reflection.Types;
@@ -85,7 +86,10 @@ namespace Hashlink.Marshaling
         {
             return type >= TypeKind.HBYTES;
         }
-
+        public static HashlinkObj? GetGlobal( string name )
+        {
+            return ((HashlinkObjectType)Module.GetTypeByName(name)).GlobalValue;
+        }
         public static void WriteData(
             void* target,
             object? val,
@@ -161,7 +165,11 @@ namespace Hashlink.Marshaling
         {
             return ConvertHashlinkObject(HashlinkObjPtr.GetUnsafe(ptr), null);
         }
-        public static nint AsPointer( object obj )
+        public static nint AsPointer( object obj, int typeIdx )
+        {
+            return AsPointerWithType(obj, Module.Types[typeIdx]);
+        }
+        public static nint AsPointerWithType( object obj, HashlinkType type )
         {
             if (obj is IHashlinkPointer ptr)
             {
@@ -174,6 +182,14 @@ namespace Hashlink.Marshaling
             else if (obj == null)
             {
                 return 0;
+            }
+            else if (obj is Delegate dt)
+            {
+                return new HashlinkClosure((HashlinkFuncType)type, dt).HashlinkPointer;
+            }
+            else if (type is HashlinkRefType && obj is nint refptr)
+            {
+                return refptr;
             }
             else
             {

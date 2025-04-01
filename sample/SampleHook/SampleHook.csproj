@@ -9,7 +9,7 @@
     <ModType>mod</ModType>
     <ModMain>SampleHook.SampleHookMod</ModMain>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AutoInstallMod>true</AutoInstallMod>
+    
   </PropertyGroup>
 
 </Project>

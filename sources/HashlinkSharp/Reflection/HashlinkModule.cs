@@ -108,6 +108,7 @@ namespace Hashlink.Reflection
             {
                 var type = GetMemberFrom<HashlinkType>(NativeCode->types + i);
                 Types[i] = type;
+                type.TypeIndex = i;
                 if (type.Name != null)
                 {
                     typeNameMapping[type.Name] = type;

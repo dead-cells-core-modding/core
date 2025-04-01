@@ -8,6 +8,8 @@ using Hashlink.Wrapper;
 using Hashlink.Wrapper.Callbacks;
 using ModCore.Modules;
 using MonoMod.Utils;
+using Serilog;
+using Serilog.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -114,10 +116,22 @@ namespace ModCore.Hooks
 
         private object? HookEntry(object?[] args)
         {
-            return hooks[0].DynamicInvoke([
-                new HashlinkClosure(function, hook.Original, 0),
-                ..args
-                ]);
+            try
+            {
+                HashlinkClosure prev = new HashlinkClosure(function, hook.Original, 0);
+                for (int i = 0; i < hooks.Count; i++)
+                {
+                    prev = new HashlinkClosure(function,
+                        hooks[i].Bind(prev));
+                }
+                return prev.DynamicInvoke(args);
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Unhandled exception!");
+                Environment.FailFast(ex.ToString());
+                throw;
+            }
         }
     }
 }

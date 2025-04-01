@@ -64,5 +64,11 @@ namespace Hashlink.Reflection.Types
         public virtual bool IsDyn => TypeKind == TypeKind.HDYN;
         public virtual bool IsArray => TypeKind == TypeKind.HARRAY;
         public virtual bool IsEnum => TypeKind == TypeKind.HENUM;
+
+        public int TypeIndex
+        {
+            get;
+            internal set;
+        } = -1;
     }
 }

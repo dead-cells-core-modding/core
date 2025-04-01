@@ -1,5 +1,6 @@
 ﻿using Hashlink;
 using Hashlink.Proxy;
+using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
 using Haxe;
@@ -15,25 +16,25 @@ namespace DoubleCells
     {
         private double timeDelt = 0;
         private HaxeObject? hero;
-        private object? Hook_hero_init(HashlinkFunc orig, HashlinkObject self)
+        private object? Hook_hero_init(HashlinkClosure orig, HashlinkObject self)
         {
             hero = self.AsHaxe();
-            return orig.Call(self);
+            return orig.DynamicInvoke(self);
         }
-        private object? Hook_hero_dispose(HashlinkFunc orig, HashlinkObject self)
+        private object? Hook_hero_dispose(HashlinkClosure orig, HashlinkObject self)
         {
             hero = null;
-            return orig.Call(self);
+            return orig.DynamicInvoke(self);
         }
-        private object? Hook_beheaded_addMoney(HashlinkFunc orig, HashlinkObject self, int val, HashlinkUnboxRef noStats)
+        private object? Hook_beheaded_addMoney(HashlinkClosure orig, HashlinkObject self, int val, nint noStats)
         {
             val *= 200;
-            return orig.Call(self, val, noStats);
+            return orig.DynamicInvoke(self, val, noStats);
         }
-        private object? Hook_beheaded_addCells(HashlinkFunc orig, HashlinkObject self, int val, HashlinkUnboxRef noStats)
+        private object? Hook_beheaded_addCells(HashlinkClosure orig, HashlinkObject self, int val, nint noStats)
         {
             val *= 200;
-            return orig.Call(self, val, noStats);
+            return orig.DynamicInvoke(self, val, noStats);
         }
         public override void Initialize()
         {

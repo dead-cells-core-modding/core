@@ -1,4 +1,6 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Reflection.Members;
+using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper.Callbacks;
 using System;
@@ -14,7 +16,7 @@ namespace Hashlink.Wrapper
 {
     internal static class HashlinkWrapperFactory
     {
-        private static readonly ConcurrentDictionary<HlFuncSign, MethodInfo> hl_wrapper_cache = [];
+        private static readonly ConcurrentDictionary<HashlinkFuncType, MethodInfo> hl_wrapper_cache = [];
         private static readonly FieldInfo FI_wrapperInfo_target = typeof(WrapperInfo)
             .GetField(nameof(WrapperInfo.target))!;
         private static readonly MethodInfo MI_HashlinkMarshal_AsPointer = typeof(HashlinkMarshal)
@@ -38,9 +40,9 @@ namespace Hashlink.Wrapper
             }
             return typeof(object);
         }
-        private static MethodInfo CreateWrapper( HlFuncSign sign )
+        private static MethodInfo CreateWrapper( HashlinkFuncType func )
         {
-            var args = sign.ArgTypes;
+            var args = func.ArgTypes;
 
             var targs = new Type[args.Length + 1];
             var dargs = new Type[args.Length];
@@ -49,32 +51,33 @@ namespace Hashlink.Wrapper
 
             for (int i = 0; i < args.Length; i++)
             {
-                dargs[i] = GetNativeType(args[i].Kind);
-                targs[i + 1] = GetManageType(args[i].Kind);
+                dargs[i] = GetNativeType(args[i].TypeKind);
+                targs[i + 1] = GetManageType(args[i].TypeKind);
             }
 
             targs[0] = typeof(WrapperInfo);
 
-            var dm = new DynamicMethod("<Wrapper>+" + sign.GetHashCode(),
-                GetManageType(sign.ReturnType),
+            var dm = new DynamicMethod("<Wrapper>+" + func.GetHashCode(),
+                GetManageType(func.ReturnType.TypeKind),
                 targs);
             var ilg = dm.GetILGenerator();
 
             for (int i = 0; i < args.Length; i++)
             {
                 var t = args[i];
-                var k = t.Kind;
+                var k = t.TypeKind;
 
                 ilg.Emit(OpCodes.Ldarg, i + 1);
-                if (k == TypeKind.HREF)
+                if (t is HashlinkRefType rt)
                 {
-                    if (!t.KindEx.IsValueType())
+                    if (!rt.RefType.TypeKind.IsValueType())
                     {
                         objRefs ??= [];
                         var l = ilg.DeclareLocal(typeof(nint));
 
                         ilg.Emit(OpCodes.Ldind_I);
 
+                        ilg.Emit(OpCodes.Ldc_I4, t.TypeIndex);
                         ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_AsPointer);
                         ilg.Emit(OpCodes.Stloc, l);
                         ilg.Emit(OpCodes.Ldloca, l);
@@ -83,6 +86,7 @@ namespace Hashlink.Wrapper
                 }
                 else if (!k.IsValueType())
                 {
+                    ilg.Emit(OpCodes.Ldc_I4, t.TypeIndex);
                     ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_AsPointer);
                 }
             }
@@ -91,7 +95,7 @@ namespace Hashlink.Wrapper
             ilg.Emit(OpCodes.Ldfld, FI_wrapperInfo_target);
 
             ilg.EmitCalli(OpCodes.Calli, System.Runtime.InteropServices.CallingConvention.Cdecl,
-                GetNativeType(sign.ReturnType), dargs);
+                GetNativeType(func.ReturnType.TypeKind), dargs);
 
             if (objRefs != null)
             {
@@ -104,7 +108,7 @@ namespace Hashlink.Wrapper
                 }
             }
 
-            if(!sign.ReturnType.IsValueType())
+            if(!func.ReturnType.TypeKind.IsValueType())
             {
                 ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_GetObjectFromPtr);
             }
@@ -115,11 +119,11 @@ namespace Hashlink.Wrapper
         }
 
         public static Delegate GetWrapper(
-            HlFuncSign sign,
+            HashlinkFuncType func,
             nint target,
             Type? targetType = null )
         {
-            var mi = hl_wrapper_cache.GetOrAdd(sign, CreateWrapper);
+            var mi = hl_wrapper_cache.GetOrAdd(func, CreateWrapper);
             var info = new WrapperInfo()
             {
                 target = target,

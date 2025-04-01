@@ -40,9 +40,9 @@ namespace Hashlink.Marshaling
                 case TypeKind.HF64:
                     return (object?)*(double*)target;
                 case TypeKind.HABSTRACT:
-                    return type is HashlinkAbstractType at ? new HashlinkUnboxAbstract(at, *(void**)target) : (object?)*(nint*)target;
+                    return (object?)*(nint*)target;
                 case TypeKind.HREF:
-                    return type is HashlinkRefType rt ? new HashlinkUnboxRef(rt, *(void**)target) : (object?)*(nint*)target;
+                    return (object?)*(nint*)target;
                 case TypeKind.HNULL:
                 default:
                     if (typeKind?.IsPointer() ?? false)

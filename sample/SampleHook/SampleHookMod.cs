@@ -7,6 +7,7 @@ using ModCore.Modules;
 using Haxe.Marshaling;
 using Haxe;
 using Hashlink.Reflection.Types;
+using Hashlink.Proxy.Clousre;
 
 namespace SampleHook
 {
@@ -42,15 +43,15 @@ namespace SampleHook
             hero.setLifeAndRally(curLife, 5);
             return used;
         }
-        private object? Hook_beheaded_addMoney(HashlinkFunc orig, HashlinkObject self, int val, HashlinkUnboxRef noStats)
+        private object? Hook_beheaded_addMoney(HashlinkClosure orig, HashlinkObject self, int val, HashlinkUnboxRef noStats)
         {
             val -= AddHealth(val, 0.5f);
-            return orig.Call(self, val * 10, noStats);
+            return orig.DynamicInvoke(self, val * 10, noStats);
         }
-        private object? Hook_beheaded_addCells(HashlinkFunc orig, HashlinkObject self, int val, HashlinkUnboxRef noStats)
+        private object? Hook_beheaded_addCells(HashlinkClosure orig, HashlinkObject self, int val, HashlinkUnboxRef noStats)
         {
             self.AsHaxe().Chain.addMoney(val * 20, noStats);
-            return orig.Call(self, val, noStats);
+            return orig.DynamicInvoke(self, val, noStats);
         }
         public override void Initialize()
         {

@@ -8,6 +8,8 @@
     <ModName>DoubleCells</ModName>
     <ModType>mod</ModType>
     <ModMain>DoubleCells.DoubleCellsMod</ModMain>
+
+    <AutoInstallMod>true</AutoInstallMod>
   </PropertyGroup>
 
 </Project>

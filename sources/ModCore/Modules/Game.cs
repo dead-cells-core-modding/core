@@ -2,6 +2,7 @@
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
+using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Types;
 using Haxe;
 using Haxe.Marshaling;
@@ -10,6 +11,7 @@ using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Events.Interfaces.VM;
+using System.Diagnostics;
 
 namespace ModCore.Modules
 {
@@ -18,6 +20,8 @@ namespace ModCore.Modules
         IOnHashlinkVMReady
     {
         public override int Priority => ModulePriorities.Game;
+
+        
 
         private void StartGame()
         {
@@ -58,6 +62,40 @@ namespace ModCore.Modules
                 EventSystem.BroadcastEvent<IOnHeroUpdate, double>(dt);
             }
         }
+        private void Hook_LogoSplash_update( HashlinkClosure orig, HashlinkObject self )
+        {
+            
+            var s = self.AsHaxe().Chain;
+
+            ((HashlinkObjectType)HashlinkMarshal.Module.GetTypeByName("Assets")).GlobalValue!.AsHaxe().Chain.preInit();
+
+            s.secondLogo = true;
+            s.ready = true;
+            s.next(null);
+        }
+
+        private object? Hook_TitleMenu_addMenu( HashlinkClosure orig, HashlinkObject self,
+            HashlinkObject str, HashlinkClosure cb, HashlinkObject help, object? isEnabled,
+            object? color )
+        {
+            var s = self.AsHaxe().Chain;
+            var menuItems = s.menuItems;
+            if (menuItems.length == 3)
+            {
+                orig.DynamicInvoke(
+                    self, GetText.Instance.GetString("About Core Modding"), () =>
+                    {
+                        Logger.Information("Open https://github.com/dead-cells-core-modding/core");
+                        Process.Start(new ProcessStartInfo()
+                        {
+                            UseShellExecute = true,
+                            FileName = "https://github.com/dead-cells-core-modding/core"
+                        });
+                    }, null, null, null
+                    );
+            }
+            return orig.DynamicInvoke(self, str, cb, help, isEnabled, color);
+        }
         private void Hook_Boot_endInit( HashlinkClosure orig, HashlinkObject self)
         {
             orig.DynamicInvoke(self);
@@ -92,6 +130,13 @@ namespace ModCore.Modules
 
             HashlinkHooks.Instance.CreateHook("en.Hero", "init", Hook_hero_init).Enable();
             HashlinkHooks.Instance.CreateHook("en.Hero", "dispose", Hook_hero_dispose).Enable();
+
+            HashlinkHooks.Instance.CreateHook("pr.TitleScreen", "addMenu", Hook_TitleMenu_addMenu).Enable();
+
+            if (Core.Config.Value.SkipLogoSplash)
+            {
+                HashlinkHooks.Instance.CreateHook("pr.LogoSplashscreen", "update", Hook_LogoSplash_update).Enable();
+            }
         }
     }
 }

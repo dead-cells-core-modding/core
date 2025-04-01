@@ -2,6 +2,7 @@
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace Hashlink.Marshaling
 {
@@ -129,6 +130,7 @@ namespace Hashlink.Marshaling
             {
                 if (obj != null)
                 {
+                    Debugger.Break();
                     throw new InvalidOperationException();
                 }
                 obj = value;

@@ -135,12 +135,14 @@ namespace Hashlink.Wrapper.Callbacks
                 {
                     ilg.Emit(OpCodes.Ldarg, pid);
                     ilg.Emit(OpCodes.Ldloc, loc);
+                    ilg.Emit(OpCodes.Ldc_I4_0);
                     ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_AsPointer);
                     ilg.Emit(OpCodes.Stind_I);
                 }
             }
             if (!sign.ReturnType.IsValueType())
             {
+                ilg.Emit(OpCodes.Ldc_I4_0);
                 ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_AsPointer);
             }
             

@@ -44,9 +44,7 @@ namespace Hashlink.Proxy.Clousre
         private void CheckWrapper()
         {
             cachedWrapper ??= HashlinkWrapperFactory.GetWrapper(
-                        HlFuncSign.Create(
-                            ((HashlinkFuncType)Type).BaseFunc
-                            ),
+                            ((HashlinkFuncType)Type).BaseFunc,
                         FunctionPtr);
         }
 

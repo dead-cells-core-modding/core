@@ -43,7 +43,7 @@ namespace Hashlink.Reflection.Members
         public Delegate CreateDelegate( Type type )
         {
             return HashlinkWrapperFactory.GetWrapper(
-                HlFuncSign.Create(FuncType), EntryPointer, type );
+                FuncType, EntryPointer, type );
         }
         public T CreateDelegate<T>( ) where T : Delegate
         {

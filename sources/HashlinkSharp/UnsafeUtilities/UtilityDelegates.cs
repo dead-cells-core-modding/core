@@ -130,7 +130,8 @@ namespace Hashlink.UnsafeUtilities
             {
                 return typeof(Action);
             }
-            var dtype = anonymousGenericDelegates.GetOrAdd(ptypes.Length << 1 | (hasRet ? 1 : 0), CreateGenericDelegate);
+            var dtype = anonymousGenericDelegates.GetOrAdd(
+                pcount << 1 | (hasRet ? 1 : 0), CreateGenericDelegate);
             return dtype.MakeGenericType(ptypes);
         }
         private static Type CreateMethodDelegateNoGeneric( MethodInfo m )
@@ -230,10 +231,10 @@ namespace Hashlink.UnsafeUtilities
         {
             var invoke = type.GetMethod("Invoke")!;
             var ps = invoke.GetParameters();
-            Type[] ts = [.. ps.Select(x => x.ParameterType)];
+            Type[] ts = [.. ps.Skip(1).Select(x => x.ParameterType)];
 
             var dm = new DynamicMethod("BindDelegate+" + type.Name, invoke.ReturnType,
-                [typeof(DelegateInfo), .. ts], true);
+                [typeof(ClosureInfo), .. ts], true);
             var ilg = dm.GetILGenerator();
 
             ilg.Emit(OpCodes.Ldarg_0);
@@ -243,7 +244,7 @@ namespace Hashlink.UnsafeUtilities
             ilg.Emit(OpCodes.Ldarg_0);
             ilg.Emit(OpCodes.Ldfld, ClosureInfo.FI_first);
 
-            for (int i = 1; i < ts.Length; i++)
+            for (int i = 0; i < ts.Length; i++)
             {
                 ilg.Emit(OpCodes.Ldarg, i + 1);
             }
@@ -251,18 +252,28 @@ namespace Hashlink.UnsafeUtilities
             ilg.Emit(OpCodes.Ldarg_0);
             ilg.Emit(OpCodes.Ldfld, ClosureInfo.FI_target);
             ilg.Emit(OpCodes.Ldfld, DelegateInfo.FI_invokePtr);
-            ilg.EmitCalli(OpCodes.Calli, CallingConventions.HasThis, invoke.ReturnType, ts, null);
+            ilg.EmitCalli(OpCodes.Calli, CallingConventions.HasThis, invoke.ReturnType,
+                [ps[0].ParameterType, ..ts], 
+                null);
             ilg.Emit(OpCodes.Ret);
             return dm;
         }
-        public static Delegate Bind( this Delegate target, object? self, Type targetType )
+        public static Delegate Bind( this Delegate target, object? self, Type? targetType = null )
         {
-            return closureDelegates.GetOrAdd(targetType, CreateClosureDelegate).CreateDelegate(
-                targetType, new ClosureInfo()
-                {
-                    first = self,
-                    target = new(target)
-                });
+            var cd = closureDelegates.GetOrAdd(target.GetType(), CreateClosureDelegate);
+            var ci = new ClosureInfo()
+            {
+                first = self,
+                target = new(target)
+            };
+            if (targetType != null)
+            {
+                return cd.CreateDelegate(targetType, ci);
+            }
+            else
+            {
+                return cd.CreateAnonymousDelegate(ci);
+            }
         }
         public static T Bind<T>( this Delegate target, object? self) where T : Delegate
         {
