@@ -167,6 +167,14 @@ namespace Hashlink.Marshaling
             {
                 return ptr.HashlinkPointer;
             }
+            else if (obj is string str)
+            {
+                return new HashlinkString(str).HashlinkPointer;
+            }
+            else if (obj == null)
+            {
+                return 0;
+            }
             else
             {
                 throw new NotSupportedException();

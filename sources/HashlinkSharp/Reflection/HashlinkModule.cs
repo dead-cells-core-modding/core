@@ -174,6 +174,10 @@ namespace Hashlink.Reflection
             ];
         internal HashlinkMemberHandle? GetHandle( void* ptr )
         {
+            if (cachedHandles.TryGetValue((nint)ptr, out var result))
+            {
+                return result;
+            }
             if (!
                 (   
                     Array.IndexOf(internalTypes, (nint)ptr) != -1 ||

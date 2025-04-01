@@ -33,10 +33,13 @@ namespace Hashlink.Reflection.Types
                 return cachedArgTypes;
             }
         }
-
-        public HashlinkClosure CreateClosure( void* entry )
+        public HashlinkClosure CreateClosure( Delegate target )
         {
-            return new HashlinkClosure(NativeType, entry, null);
+            return new HashlinkClosure(this, target);
+        }
+        public HashlinkClosure CreateClosure( nint entry )
+        {
+            return new HashlinkClosure(this, entry, 0);
         }
     }
 }

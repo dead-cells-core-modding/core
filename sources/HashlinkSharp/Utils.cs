@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Hashlink.Proxy;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Hashlink
@@ -43,6 +44,15 @@ namespace Hashlink
         public static ref T ForceUnbox<T>( object obj ) where T : struct
         {
             return ref Unsafe.Unbox<T>(obj);
+        }
+
+        public static TTo SafeCast<TFrom, TTo>( TFrom from )
+        {
+            if (from is IExtendData ed)
+            {
+                return ed.GetData<TTo>();
+            }
+            return (TTo)(object) from!;
         }
 
         static Utils()

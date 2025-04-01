@@ -10,13 +10,13 @@ namespace Hashlink.Wrapper.Callbacks
     public class HlCallback
     {
         private readonly nint routerPtr;
-        private readonly Delegate router;
+        private readonly Delegate callback;
         private readonly HlCallbackInfo info;
-        internal HlCallback(Delegate router, HlCallbackInfo info)
+        internal HlCallback(Delegate callback, HlCallbackInfo info)
         {
-            this.router = router;
+            this.callback = callback;
             this.info = info;
-            routerPtr = Marshal.GetFunctionPointerForDelegate(router);
+            routerPtr = Marshal.GetFunctionPointerForDelegate(callback);
         }
 
         public nint RedirectTarget
@@ -30,7 +30,7 @@ namespace Hashlink.Wrapper.Callbacks
             get => info.entry?.self;
             set => info.entry = new(value);
         }
-        public nint RouterPointer => routerPtr;
-        public Delegate RouterDelegate => router;
+        public nint NativePointer => routerPtr;
+        public Delegate CallbackDelegate => callback;
     }
 }

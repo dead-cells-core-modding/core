@@ -24,7 +24,7 @@ namespace ModCore.Modules
             var entry = (HashlinkClosure)HashlinkMarshal.ConvertHashlinkObject(
                     &HashlinkVM.Instance.Context->c
                     )!;
-            entry.DynamicInvoke();
+            entry.CreateDelegate<Action>()();
         }
 
         void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )
@@ -36,21 +36,19 @@ namespace ModCore.Modules
             }
         }
 
-        private object? Hook_Boot_init( HashlinkClosure orig, HashlinkObject self)
+        private void Hook_Boot_init( HashlinkClosure orig, HashlinkObject self)
         {
             var win = self.AsHaxe().Chain.engine.window.window;
             
-            var ret = orig.DynamicInvoke(self);
+            orig.DynamicInvoke(self);
 
             win.set_title("Dead Cells with Core Modding");
 
             EventSystem.BroadcastEvent<IOnGameInit>();
-
-            return ret;
         }
-        private object? Hook_Boot_update( HashlinkClosure orig, HashlinkObject self, double dt )
+        private void Hook_Boot_update( HashlinkClosure orig, HashlinkObject self, double dt )
         {
-            var ret = orig.DynamicInvoke(self, dt);
+            orig.DynamicInvoke(self, dt);
 
             EventSystem.BroadcastEvent<IOnFrameUpdate, double>(dt);
 
@@ -58,16 +56,12 @@ namespace ModCore.Modules
             {
                 EventSystem.BroadcastEvent<IOnHeroUpdate, double>(dt);
             }
-
-            return ret;
         }
-        private object? Hook_Boot_endInit( HashlinkClosure orig, HashlinkObject self)
+        private void Hook_Boot_endInit( HashlinkClosure orig, HashlinkObject self)
         {
-            var ret = orig.DynamicInvoke(self);
+            orig.DynamicInvoke(self);
 
             EventSystem.BroadcastEvent<IOnGameEndInit>();
-
-            return ret;
         }
 
         public HaxeObject? HeroInstance

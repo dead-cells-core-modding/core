@@ -5,6 +5,7 @@ using Hashlink.Trace;
 using Hashlink.UnsafeUtilities;
 using ModCore;
 using MonoMod.Utils;
+using MonoMod.Utils.Cil;
 using Serilog;
 using Serilog.Core;
 using System.Collections.Concurrent;

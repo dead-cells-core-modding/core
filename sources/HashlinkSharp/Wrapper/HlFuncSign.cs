@@ -9,9 +9,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
+#nullable disable
+
 namespace Hashlink.Wrapper
 {
-    public unsafe struct HlFuncSign
+    public unsafe class HlFuncSign
     {
         public struct ArgSign
         {
@@ -29,24 +31,20 @@ namespace Hashlink.Wrapper
                 set => t2 = (byte)value;
             }
         }
-        private const int MAX_ARG_COUNT = 32;
-        private const int ARG_TYPES_SIZE = MAX_ARG_COUNT * 2;
-        private fixed byte argTypes[ARG_TYPES_SIZE];
-        private int argCount;
 
-        public readonly TypeKind ReturnType
+        private ArgSign[] argTypes;
+
+        public TypeKind ReturnType
         {
             get; init;
         }
-        public Span<ArgSign> ArgTypes => MemoryMarshal.CreateSpan(
-            ref Unsafe.As<byte, ArgSign>(ref argTypes[0])
-            , argCount);
+        public ReadOnlySpan<ArgSign> ArgTypes => argTypes;
 
         public static HlFuncSign Create( TypeKind ret, params ReadOnlySpan<TypeKind> args )
         {
             var sign = new HlFuncSign
             {
-                argCount = args.Length,
+                argTypes = new ArgSign[args.Length],
                 ReturnType = ret
             };
             for (var i = 0; i < args.Length; i++)
@@ -55,7 +53,7 @@ namespace Hashlink.Wrapper
                 {
                     throw new InvalidOperationException();
                 }
-                sign.ArgTypes[i].Kind = args[i];
+                sign.argTypes[i].Kind = args[i];
             }
             return sign;
         }
@@ -67,21 +65,21 @@ namespace Hashlink.Wrapper
         {
             var sign = new HlFuncSign
             {
-                argCount = args.Length,
+                argTypes = new ArgSign[args.Length],
                 ReturnType = ret.TypeKind
             };
             for (var i = 0; i < args.Length; i++)
             {
                 var t = args[i];
                 var k = t.TypeKind;
-                sign.ArgTypes[i].Kind = k;
+                sign.argTypes[i].Kind = k;
                 if (t is HashlinkRefType rt)
                 {
-                    sign.ArgTypes[i].KindEx = rt.RefType.TypeKind;
+                    sign.argTypes[i].KindEx = rt.RefType.TypeKind;
                 }
                 else if (t is HashlinkNullType nt)
                 {
-                    sign.ArgTypes[i].KindEx = nt.ValueType.TypeKind;
+                    sign.argTypes[i].KindEx = nt.ValueType.TypeKind;
                 }
 
             }
@@ -90,31 +88,31 @@ namespace Hashlink.Wrapper
 
 
 
-        public readonly override bool Equals( [NotNullWhen(true)] object? obj )
+        public override bool Equals( [NotNullWhen(true)] object? obj )
         {
             if (obj is not HlFuncSign sign)
             {
                 return false;
             }
-            if (sign.argCount != argCount ||
+            if (sign.argTypes.Length != sign.argTypes.Length ||
                 sign.ReturnType != ReturnType)
             {
                 return false;
             }
-            return MemoryMarshal.CreateReadOnlySpan(in argTypes[0], ARG_TYPES_SIZE).SequenceEqual(
-                MemoryMarshal.CreateReadOnlySpan(in sign.argTypes[0], ARG_TYPES_SIZE)
+            return argTypes.SequenceEqual(
+                sign.argTypes
                 );
         }
 
-        public readonly override int GetHashCode()
+        public override int GetHashCode()
         {
             unchecked
             {
-                var hash = 17 + argCount;
+                var hash = 17 + argTypes.Length;;
                 hash = hash * 31 + (byte)ReturnType;
-                for (var i = 0; i < ARG_TYPES_SIZE; i++)
+                for (var i = 0; i < argTypes.Length; i++)
                 {
-                    hash = hash * 31 + argTypes[i];
+                    hash = hash * 31 + ((int)argTypes[i].Kind << 8 | (int)argTypes[i].KindEx);
                 }
                 return hash;
             }

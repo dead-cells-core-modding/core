@@ -29,21 +29,21 @@ namespace Hashlink.Reflection.Members
             }
         }
         public int FunctionIndex => func->findex;
-        public void* EntryPointer => Module.NativeModule->functions_ptrs[
+        public nint EntryPointer => (nint)Module.NativeModule->functions_ptrs[
              FunctionIndex
             ];
 
         public override string? Name => FuncType.Name;
         public HashlinkFuncType FuncType => cachedFuncType ??= GetMemberFrom<HashlinkFuncType>(func->type);
 
-        public HashlinkClosure CreateClosure( void* entry = null )
+        public HashlinkClosure CreateClosure( nint entry = 0 )
         {
-            return FuncType.CreateClosure(entry == null ? EntryPointer : entry);
+            return FuncType.CreateClosure(entry == 0 ? EntryPointer : entry);
         }
         public Delegate CreateDelegate( Type type )
         {
             return HashlinkWrapperFactory.GetWrapper(
-                HlFuncSign.Create(FuncType), (nint) EntryPointer, type );
+                HlFuncSign.Create(FuncType), EntryPointer, type );
         }
         public T CreateDelegate<T>( ) where T : Delegate
         {

@@ -18,6 +18,7 @@ namespace Hashlink.UnsafeUtilities
         private static readonly MethodInfo MI_generalDelegateFunc_Invoke = typeof(Func<object?[], object?>).GetMethod("Invoke")!;
 
         private static readonly ConcurrentDictionary<int, Type> anonymousGenericDelegates = [];
+        private static readonly ConcurrentDictionary<MethodInfo, Type> anonymousGenericInstDelegates = [];
         private static readonly ConcurrentDictionary<MethodInfo, Type> anonymousDelegateTypes = [];
         private static readonly ConcurrentDictionary<Type, MethodInfo> adaptDelegatesEx = [];
         private static readonly ConcurrentDictionary<Type, MethodInfo> adaptDelegates = [];
@@ -25,6 +26,7 @@ namespace Hashlink.UnsafeUtilities
 
         private static Type CreateGenericDelegate( int argCount )
         {
+            var s = argCount;
             var hasRet = (argCount & 1) == 1;
             argCount >>= 1;
 
@@ -39,7 +41,7 @@ namespace Hashlink.UnsafeUtilities
             }
 
             var typeBuilder = moduleBuilder.DefineType(
-            "AnonymousDelegate",
+            "AnonymousDelegate" + s,
             TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed,
             typeof(MulticastDelegate));
 
@@ -109,7 +111,7 @@ namespace Hashlink.UnsafeUtilities
             typeBuilder.DefineMethod(
               "EndInvoke",
               MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
-              typeof(void),
+              ret,
               [typeof(IAsyncResult)]
               ).
               SetImplementationFlags(MethodImplAttributes.Runtime | MethodImplAttributes.Managed);
@@ -148,7 +150,7 @@ namespace Hashlink.UnsafeUtilities
             }
             else
             {
-                return info.CreateDelegate(anonymousDelegateTypes.GetOrAdd(
+                return info.CreateDelegate(anonymousGenericInstDelegates.GetOrAdd(
                     info, CreateMethodDelegate
                     ), target);
             }
@@ -220,9 +222,9 @@ namespace Hashlink.UnsafeUtilities
             return adaptDelegates.GetOrAdd(targetType, CreateAdaptDelegate).CreateDelegate(
                 targetType, new DelegateInfo(target));
         }
-        public static T CreateAdaptDelegate<T>( this Delegate target, Type targetType ) where T : Delegate
+        public static T CreateAdaptDelegate<T>( this Delegate target) where T : Delegate
         {
-            return (T) target.CreateAdaptDelegate(targetType);
+            return (T) target.CreateAdaptDelegate(typeof(T));
         }
         private static MethodInfo CreateClosureDelegate( Type type )
         {

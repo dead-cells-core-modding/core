@@ -91,7 +91,7 @@ namespace Hashlink.Wrapper
             ilg.Emit(OpCodes.Ldfld, FI_wrapperInfo_target);
 
             ilg.EmitCalli(OpCodes.Calli, System.Runtime.InteropServices.CallingConvention.Cdecl,
-                GetManageType(sign.ReturnType), dargs);
+                GetNativeType(sign.ReturnType), dargs);
 
             if (objRefs != null)
             {
@@ -103,7 +103,8 @@ namespace Hashlink.Wrapper
                     ilg.Emit(OpCodes.Stind_I);
                 }
             }
-            if (!sign.ReturnType.IsValueType())
+
+            if(!sign.ReturnType.IsValueType())
             {
                 ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_GetObjectFromPtr);
             }
@@ -123,7 +124,7 @@ namespace Hashlink.Wrapper
             {
                 target = target,
             };
-            return targetType == null ? mi.CreateAnonymousDelegate(info) :
+            return targetType == null ? mi.CreateAnonymousDelegate(info, true) :
                                         mi.CreateDelegate(targetType, info);
         }
     }

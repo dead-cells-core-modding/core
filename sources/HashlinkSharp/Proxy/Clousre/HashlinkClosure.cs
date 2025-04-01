@@ -3,12 +3,14 @@ using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper;
+using Hashlink.Wrapper.Callbacks;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Hashlink.Proxy.Clousre
 {
     public unsafe class HashlinkClosure( HashlinkObjPtr objPtr ) : HashlinkTypedObj<HL_vclosure>(objPtr)
     {
+        private HlCallback? callback;
         private Delegate? cachedWrapper;
         private HashlinkObj? cachedThis;
 
@@ -16,6 +18,24 @@ namespace Hashlink.Proxy.Clousre
             this(HashlinkObjPtr.GetUnsafe(hl_alloc_closure_ptr(funcType, funcPtr, self)))
         {
 
+        }
+        public HashlinkClosure( HashlinkFuncType funcType, nint funcPtr, nint self ) :
+            this(HashlinkObjPtr.GetUnsafe(self != 0 ?
+                hl_alloc_closure_ptr(funcType.NativeType, (void*)funcPtr, (void*) self) :
+                hl_alloc_closure_void(funcType.NativeType, (void*)funcPtr)))
+        {
+
+        }
+
+        public HashlinkClosure( HashlinkFuncType funcType, Delegate target )
+            : this(funcType, 0, 0)
+        {
+            callback = HlCallbackFactory.GetHlCallback(
+                HlFuncSign.Create(funcType)
+                );
+            callback.Target = target;
+            TypedRef->fun = (void*)callback.NativePointer;
+            TypedRef->hasValue = 0;
         }
 
         public nint FunctionPtr => (nint)TypedRef->fun;
@@ -25,23 +45,35 @@ namespace Hashlink.Proxy.Clousre
         {
             cachedWrapper ??= HashlinkWrapperFactory.GetWrapper(
                         HlFuncSign.Create(
-                            (HashlinkFuncType)HashlinkMarshal.GetHashlinkType(TypedRef->type)
+                            ((HashlinkFuncType)Type).BaseFunc
                             ),
                         FunctionPtr);
         }
 
-        public object? DynamicInvoke( params ReadOnlySpan<object?> args )
+        public object? DynamicInvoke( params object?[]? args )
         {
             CheckWrapper();
-            return cachedWrapper.DynamicInvoke(TypedRef->hasValue > 0 ? [
-                BindingThis,
-                ..args
-                ] : [..args]);
+            if (callback != null)
+            {
+                return callback.Target!.DynamicInvoke(args);
+            }
+            args ??= [];
+            return cachedWrapper.DynamicInvoke(
+                BindingThis != null ?
+                [
+                    BindingThis,
+                    ..args
+                ] : args
+                );
         }
 
         public Delegate CreateDelegate(Type type)
         {
             CheckWrapper();
+            if (callback != null)
+            {
+                return callback.Target!.CreateAdaptDelegate(type);
+            }
             if (TypedRef->hasValue > 0)
             {
                 return cachedWrapper.Bind(BindingThis, type);

@@ -144,11 +144,10 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial HL_vclosure* hl_alloc_closure_ptr( HL_type* fullt, void* fvalue, void* v );
         [LibraryImport(LIBHL)]
+        public static partial HL_vclosure* hl_alloc_closure_void( HL_type* fullt, void* fvalue );
+        [LibraryImport(LIBHL)]
         public static partial void* hl_code_read( void* data, int size, byte** errorMsg );
-        public static void* callback_c2hl( void* f, HL_type* t, void** args, HL_vdynamic* ret )
-        {
-            return hlu_call_c2hl(f, t, args, ret);
-        }
+
         [LibraryImport(LIBHL)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static partial bool module_resolve_pos( HL_module* m, void* addr, out int fidx, out int fpos );

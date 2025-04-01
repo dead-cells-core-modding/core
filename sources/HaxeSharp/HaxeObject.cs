@@ -1,4 +1,5 @@
 ﻿using Hashlink.Proxy;
+using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
 using Haxe.Marshaling;
@@ -24,16 +25,15 @@ namespace Haxe
         }
         public override bool TryInvokeMember( InvokeMemberBinder binder, object?[]? args, out object? result )
         {
-            /*var name = binder.Name;
-            var func = HashlinkObject.GetFunction(name);
+            var name = binder.Name;
+            var func = HashlinkObject.GetFieldValue(name);
             if (func == null)
             {
                 result = null;
                 return false;
             }
-            result = HaxeMarshal.PostProcessValue(func.CallDynamic( args));
-            return true;*/
-            throw new NotImplementedException();
+            result = HaxeMarshal.PostProcessValue(((HashlinkClosure) func).DynamicInvoke( args ));
+            return true;
         }
         public override bool TrySetMember( SetMemberBinder binder, object? value )
         {
