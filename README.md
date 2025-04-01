@@ -1,4 +1,4 @@
-
+﻿
 # Dead Cells Core Modding (WIP)
 
 ![GitHub License](https://img.shields.io/github/license/dead-cells-core-modding/core) 
@@ -11,6 +11,15 @@ A Dead Cells Modding API/loader.
 > This project is under active development. Breaking changes may be made to APIs with zero notice.
 
 Download the latest build [here](https://nightly.link/dead-cells-core-modding/core/workflows/build/main)
+
+## Roadmap
+
+- [x] Simple Hook
+- [x] Basic interoperability
+- [ ] Game object proxy objects in .NET
+- [ ] Edit game bytecode dynamically
+- [ ] More convenient BuildSystem
+- [ ] Linux platform support
 
 ## Requirement
 

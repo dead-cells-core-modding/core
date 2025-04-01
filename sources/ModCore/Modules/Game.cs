@@ -48,7 +48,8 @@ namespace ModCore.Modules
         }
         private void Hook_Boot_update( HashlinkClosure orig, HashlinkObject self, double dt )
         {
-            orig.DynamicInvoke(self, dt);
+            var u = orig.CreateDelegate<Action<HashlinkObject, double>>();
+            u.Invoke(self, dt);
 
             EventSystem.BroadcastEvent<IOnFrameUpdate, double>(dt);
 
