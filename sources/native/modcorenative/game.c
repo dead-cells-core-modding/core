@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C)2015-2016 Haxe Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -100,14 +100,19 @@ void log_printf_handler(const char* source, int level, const char* format, va_li
 	free(buf);
 }
 
+EXTERNC EXPORT void hlu_init_handlers() {
+	hl_event_set_handler(csapi_OnHLEvent);
+	hl_log_set_handler(log_printf_handler);
+}
+
 
 EXTERNC EXPORT int hlu_start_game(hl_code* code) {
 	char *error_msg = NULL;
 	bool isExc = false;
 	main_context ctx;
 
-	hl_event_set_handler(csapi_OnHLEvent);
-	hl_log_set_handler(log_printf_handler);
+	hlu_init_handlers();
+	
 	hl_sys_init((void**)"", 0, "hlboot.dat");
 	hl_register_thread(&ctx);
 	ctx.file = NULL;

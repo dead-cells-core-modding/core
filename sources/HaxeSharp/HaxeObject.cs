@@ -24,7 +24,7 @@ namespace Haxe
         }
         public override bool TryInvokeMember( InvokeMemberBinder binder, object?[]? args, out object? result )
         {
-            var name = binder.Name;
+            /*var name = binder.Name;
             var func = HashlinkObject.GetFunction(name);
             if (func == null)
             {
@@ -32,7 +32,8 @@ namespace Haxe
                 return false;
             }
             result = HaxeMarshal.PostProcessValue(func.CallDynamic( args));
-            return true;
+            return true;*/
+            throw new NotImplementedException();
         }
         public override bool TrySetMember( SetMemberBinder binder, object? value )
         {

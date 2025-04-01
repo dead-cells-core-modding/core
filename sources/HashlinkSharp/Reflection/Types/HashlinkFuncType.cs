@@ -34,10 +34,6 @@ namespace Hashlink.Reflection.Types
             }
         }
 
-        public HashlinkFunc CreateFunc( void* entry )
-        {
-            return new HashlinkFunc(TypeData, entry);
-        }
         public HashlinkClosure CreateClosure( void* entry )
         {
             return new HashlinkClosure(NativeType, entry, null);

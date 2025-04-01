@@ -25,38 +25,6 @@ namespace Hashlink.Reflection.Members.Object
         {
             return new HashlinkObjectProto(module, (HL_obj_proto*)ptr);
         }
-        public HashlinkFunc CreateFunc( HashlinkObjectType obj)
-        {
-            if (obj == null || !IsVirtual)
-            {
-                return Function.CreateFunc();
-            }
-            return Function.CreateFunc(obj.NativeType->vobj_proto[ProtoIndex]);
-        }
-        public HashlinkFunc CreateFunc( HashlinkObject? obj = null )
-        {
-            if (obj == null || !IsVirtual)
-            {
-                return Function.CreateFunc();
-            }
-            return Function.CreateFunc(obj.NativeType->vobj_proto[ProtoIndex]);
-        }
-        public HashlinkClosure CreateClosure( HashlinkObject? obj = null )
-        {
-            HashlinkClosure closure;
-            if (obj == null || !IsVirtual)
-            {
-                closure = Function.CreateClosure();
-            }
-            else
-            {
-                closure = Function.CreateClosure(obj.NativeType->vobj_proto[ProtoIndex]);
-            }
-            if (obj != null)
-            {
-                closure.BindingThis = obj.HashlinkPointer;
-            }
-            return closure;
-        }
+       
     }
 }

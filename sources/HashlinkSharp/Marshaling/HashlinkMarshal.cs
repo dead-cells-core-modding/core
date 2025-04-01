@@ -60,6 +60,27 @@ namespace Hashlink.Marshaling
 
         public static IHashlinkMarshaler DefaultMarshaler { get; set; } = DefaultHashlinkMarshaler.Instance;
 
+        public static Dictionary<TypeKind, Type> PrimitiveTypes
+        {
+            get;
+        } = new()
+        {
+            [TypeKind.HI32] = typeof(int),
+            [TypeKind.HI64] = typeof(long),
+            [TypeKind.HUI16] = typeof(ushort),
+            [TypeKind.HUI8] = typeof(byte),
+            [TypeKind.HF32] = typeof(float),
+            [TypeKind.HF64] = typeof(double),
+            [TypeKind.HBYTES] = typeof(nint),
+            [TypeKind.HBOOL] = typeof(bool),
+            [TypeKind.HVOID] = typeof(void),
+            [TypeKind.HREF] = typeof(nint)
+        };
+
+        public static bool IsValueType( this TypeKind type )
+        {
+            return type < TypeKind.HBYTES || type == TypeKind.HREF;
+        }
         public static bool IsPointer( this TypeKind type )
         {
             return type >= TypeKind.HBYTES;
@@ -136,6 +157,21 @@ namespace Hashlink.Marshaling
             return (T?)ConvertHashlinkObject(target, marshaler);
         }
 
+        public static object? GetObjectFromPtr( nint ptr )
+        {
+            return ConvertHashlinkObject(HashlinkObjPtr.GetUnsafe(ptr), null);
+        }
+        public static nint AsPointer( object obj )
+        {
+            if (obj is IHashlinkPointer ptr)
+            {
+                return ptr.HashlinkPointer;
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+        }
 
     }
 }

@@ -1,7 +1,8 @@
 ﻿using Hashlink;
-using Hashlink.Brigde;
 using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Types;
+using Hashlink.Wrapper;
+using Hashlink.Wrapper.Callbacks;
 using ModCore.Modules;
 using System;
 using System.Collections.Generic;
@@ -14,18 +15,19 @@ namespace ModCore.Hooks
     internal unsafe class HashlinkHookManager
     {
         public readonly NativeHooks.HookHandle hook;
-        public readonly MethodWrapper wrapper;
+        public readonly HlCallback router;
         public readonly HashlinkFuncType function;
 
         private readonly List<Delegate> hooks = [];
         public HashlinkHookManager(nint target, HashlinkFunction func)
         {
             function = func.FuncType.BaseFunc;
-
-            wrapper = new(HookEntry, function.ReturnType,
-                function.ArgTypes);
-            hook = NativeHooks.Instance.CreateHook(target, wrapper.EntryPointer, true);
-            wrapper.RedirectTarget = hook.Original;
+            router = HlCallbackFactory.GetHlCallback(
+                HlFuncSign.Create(func.FuncType)
+                );
+            
+            hook = NativeHooks.Instance.CreateHook(target, router.RouterPointer, true);
+            router.RedirectTarget = hook.Original;
  
         }
 
@@ -36,7 +38,7 @@ namespace ModCore.Hooks
             {
                 hooks.Add(hook);
             }
-            wrapper.RedirectTarget = 0;
+            //router.RedirectTarget = 0;
         }
         public void RemoveHook( Delegate hook )
         {
@@ -44,14 +46,15 @@ namespace ModCore.Hooks
             hooks.Remove(hook);
             if (hooks.Count == 0)
             {
-                wrapper.RedirectTarget = this.hook.Original;
+                router.RedirectTarget = this.hook.Original;
             }
         }
 
-        private object? HookEntry(MethodWrapper wrapper, object?[] args)
+        private object? HookEntry(object?[] args)
         {
-            var func = new HashlinkFunc([..hooks], 1, function.TypeData, (void*)hook.Original);
-            return hooks[0].DynamicInvoke([func, .. args]);
+            throw new NotImplementedException();
+            //var func = new HashlinkFunc([..hooks], 1, function.TypeData, (void*)hook.Original);
+            //return hooks[0].DynamicInvoke([func, .. args]);
         }
     }
 }

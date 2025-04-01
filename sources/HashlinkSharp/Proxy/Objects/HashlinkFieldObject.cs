@@ -19,11 +19,6 @@ namespace Hashlink.Proxy.Objects
                 return HasField(hl_hash_gen(pname, false));
             }
         }
-
-        public virtual HashlinkFunc? GetFunction( string name )
-        {
-            return ((HashlinkClosure?) GetFieldValue(name))?.Function;
-        }
         
         public virtual object? GetFieldValue( int hashedName )
         {

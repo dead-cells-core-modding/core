@@ -15,7 +15,6 @@ namespace Haxe
 {
     public unsafe class HaxeClosure( HashlinkClosure closure ) : HaxeSpecializedObjectBase<HashlinkClosure>(closure)
     {
-        public HashlinkFunc Function => HashlinkObject.Function;
         private object? cached_this;
         public HaxeObject? This
         {
@@ -26,25 +25,14 @@ namespace Haxe
                     return null;
                 }
                 return (HaxeObject?)HaxeMarshal.ConvertHashlinkObj(
-                    HashlinkMarshal.ConvertHashlinkObject((void*)HashlinkObject.BindingThis!.Value)!
+                    HashlinkObject.BindingThis
                     );
             }
-            set
-            {
-                if (value is HaxeObjectBase hobj)
-                {
-                    HashlinkObject.BindingThis = hobj.HashlinkObject.HashlinkPointer;
-                }
-                else
-                {
-                    HashlinkObject.BindingThis = null;
-                }
-                cached_this = value;
-            }
+            
         }
         public override bool TryInvoke( InvokeBinder binder, object?[]? args, out object? result )
         {
-            result = HaxeMarshal.PostProcessValue(Function.CallDynamic(args));
+            result = HaxeMarshal.PostProcessValue(HashlinkObject.DynamicInvoke(args ?? []));
             return true;
         }
     }

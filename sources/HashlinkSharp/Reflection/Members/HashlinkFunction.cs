@@ -1,8 +1,11 @@
 ﻿using Hashlink.Proxy.Clousre;
 using Hashlink.Reflection.Types;
+using Hashlink.Wrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,13 +35,19 @@ namespace Hashlink.Reflection.Members
 
         public override string? Name => FuncType.Name;
         public HashlinkFuncType FuncType => cachedFuncType ??= GetMemberFrom<HashlinkFuncType>(func->type);
-        public HashlinkFunc CreateFunc( void* entry = null )
-        {
-            return FuncType.CreateFunc(entry == null ? EntryPointer : entry);
-        }
+
         public HashlinkClosure CreateClosure( void* entry = null )
         {
             return FuncType.CreateClosure(entry == null ? EntryPointer : entry);
+        }
+        public Delegate CreateDelegate( Type type )
+        {
+            return HashlinkWrapperFactory.GetWrapper(
+                HlFuncSign.Create(FuncType), (nint) EntryPointer, type );
+        }
+        public T CreateDelegate<T>( ) where T : Delegate
+        {
+            return (T)CreateDelegate(typeof(T));
         }
         static HashlinkMember IHashlinkMemberGenerator.GenerateFromPointer( HashlinkModule module, void* ptr )
         {

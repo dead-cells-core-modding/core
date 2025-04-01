@@ -21,18 +21,10 @@ namespace ModCore.Modules
 
         private void StartGame()
         {
-            try
-            {
-                var entry = (HashlinkClosure)HashlinkMarshal.ConvertHashlinkObject(
-                        &HashlinkVM.Instance.Context->c
-                        )!;
-                entry.Function.Call();
-            }
-            catch (Exception ex)
-            {
-                Logger.Fatal(ex, "Uncaught exception.");
-                Environment.Exit(-1);
-            }
+            var entry = (HashlinkClosure)HashlinkMarshal.ConvertHashlinkObject(
+                    &HashlinkVM.Instance.Context->c
+                    )!;
+            entry.DynamicInvoke();
         }
 
         void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )
@@ -44,11 +36,11 @@ namespace ModCore.Modules
             }
         }
 
-        private object? Hook_Boot_init(HashlinkFunc orig, HashlinkObject self)
+        private object? Hook_Boot_init( HashlinkClosure orig, HashlinkObject self)
         {
             var win = self.AsHaxe().Chain.engine.window.window;
             
-            var ret = orig.Call(self);
+            var ret = orig.DynamicInvoke(self);
 
             win.set_title("Dead Cells with Core Modding");
 
@@ -56,9 +48,9 @@ namespace ModCore.Modules
 
             return ret;
         }
-        private object? Hook_Boot_update( HashlinkFunc orig, HashlinkObject self, double dt )
+        private object? Hook_Boot_update( HashlinkClosure orig, HashlinkObject self, double dt )
         {
-            var ret = orig.Call(self, dt);
+            var ret = orig.DynamicInvoke(self, dt);
 
             EventSystem.BroadcastEvent<IOnFrameUpdate, double>(dt);
 
@@ -69,9 +61,9 @@ namespace ModCore.Modules
 
             return ret;
         }
-        private object? Hook_Boot_endInit( HashlinkFunc orig, HashlinkObject self)
+        private object? Hook_Boot_endInit( HashlinkClosure orig, HashlinkObject self)
         {
-            var ret = orig.Call(self);
+            var ret = orig.DynamicInvoke(self);
 
             EventSystem.BroadcastEvent<IOnGameEndInit>();
 
@@ -82,17 +74,17 @@ namespace ModCore.Modules
         {
             get; private set;
         }
-        private object? Hook_hero_init( HashlinkFunc orig, HashlinkObject self )
+        private object? Hook_hero_init( HashlinkClosure orig, HashlinkObject self )
         {
             HeroInstance = self.AsHaxe();
             EventSystem.BroadcastEvent<IOnHeroInit>();
-            return orig.Call(self);
+            return orig.DynamicInvoke(self);
         }
-        private object? Hook_hero_dispose( HashlinkFunc orig, HashlinkObject self )
+        private object? Hook_hero_dispose( HashlinkClosure orig, HashlinkObject self )
         {
             EventSystem.BroadcastEvent<IOnHeroUpdate>();
             HeroInstance = null;
-            return orig.Call(self);
+            return orig.DynamicInvoke(self);
         }
 
 
