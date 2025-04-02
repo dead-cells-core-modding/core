@@ -42,8 +42,15 @@ namespace Hashlink.Wrapper
             {
                 throw new InvalidOperationException();
             }
+            
             nint result = 0;
             HashlinkMarshal.WriteData(&result, obj, type);
+            if (result != 0 && 
+                hl_is_gc_ptr((void*)result) &&
+                !hl_ptr_is_alive((void*)result))
+            {
+                throw new InvalidProgramException();
+            }
             return result;
         }
     }

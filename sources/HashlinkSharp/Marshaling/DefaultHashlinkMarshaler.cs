@@ -3,6 +3,7 @@ using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Types;
+using Hashlink.Reflection.Types.Special;
 using System.Runtime.CompilerServices;
 
 namespace Hashlink.Marshaling
@@ -155,6 +156,13 @@ namespace Hashlink.Marshaling
                     vt.NativeType
                     );
                 HashlinkMarshal.WriteData(&dptr->val, value, vt);
+            }
+            else if (typeKind is TypeKind.HNULL)
+            {
+                var dptr = hl_alloc_dynamic(
+                    type!.NativeType
+                    );
+                HashlinkMarshal.WriteData(&dptr->val, value, ((HashlinkNullType)type!).ValueType);
             }
             else if (typeKind is TypeKind.HABSTRACT)
             {

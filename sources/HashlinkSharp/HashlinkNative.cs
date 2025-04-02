@@ -162,5 +162,8 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         [return: MarshalAs(UnmanagedType.I1)]
         public static partial bool hl_is_gc_ptr( void* ptr );
+        [LibraryImport(LIBHL)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static partial bool hl_ptr_is_alive( void* ptr );
     }
 }

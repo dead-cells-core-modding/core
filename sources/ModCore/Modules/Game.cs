@@ -75,7 +75,7 @@ namespace ModCore.Modules
         {
             var s = self.AsHaxe().Chain;
             var menuItems = s.menuItems;
-            if (menuItems.length == 3)
+            if (menuItems.length == 3 && s.isMainMenu)
             {
                 orig.DynamicInvoke(
                     self, GetText.Instance.GetString("About Core Modding"), () =>

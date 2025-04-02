@@ -43,12 +43,12 @@ namespace SampleHook
             hero.setLifeAndRally(curLife, 5);
             return used;
         }
-        private object? Hook_beheaded_addMoney(HashlinkClosure orig, HashlinkObject self, int val, HashlinkUnboxRef noStats)
+        private object? Hook_beheaded_addMoney(HashlinkClosure orig, HashlinkObject self, int val, nint noStats)
         {
             val -= AddHealth(val, 0.5f);
             return orig.DynamicInvoke(self, val * 10, noStats);
         }
-        private object? Hook_beheaded_addCells(HashlinkClosure orig, HashlinkObject self, int val, HashlinkUnboxRef noStats)
+        private object? Hook_beheaded_addCells(HashlinkClosure orig, HashlinkObject self, int val, nint noStats)
         {
             self.AsHaxe().Chain.addMoney(val * 20, noStats);
             return orig.DynamicInvoke(self, val, noStats);

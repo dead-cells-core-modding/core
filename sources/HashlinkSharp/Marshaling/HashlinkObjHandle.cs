@@ -67,6 +67,10 @@ namespace Hashlink.Marshaling
             {
                 target = ptr;
                 handle = new(this);
+                if (!hl_ptr_is_alive(ptr))
+                {
+                    throw new InvalidProgramException();
+                }
                 hl_add_root_2(ptr);
             }
             ~HandleInternal()
@@ -79,6 +83,10 @@ namespace Hashlink.Marshaling
             if (!HashlinkMarshal.IsAllocatedHashlinkObject(ptr))
             {
                 return null;
+            }
+            if (!hl_ptr_is_alive(ptr))
+            {
+                throw new InvalidProgramException();
             }
             gcLock.EnterUpgradeableReadLock();
             try
@@ -128,7 +136,7 @@ namespace Hashlink.Marshaling
             get => obj;
             set
             {
-                if (obj != null)
+                if (obj != null && obj.TypeKind != TypeKind.HFUN /*Too bad*/)
                 {
                     Debugger.Break();
                     throw new InvalidOperationException();
