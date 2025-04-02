@@ -13,6 +13,7 @@ namespace ModCore.Modules
     public class GetText : CoreModule<GetText>,
         IOnGameInit
     {
+        public override int Priority => ModulePriorities.Game;
         private dynamic? gettext;
         void IOnGameInit.OnGameInit()
         {

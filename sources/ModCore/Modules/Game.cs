@@ -21,8 +21,6 @@ namespace ModCore.Modules
     {
         public override int Priority => ModulePriorities.Game;
 
-        
-
         private void StartGame()
         {
             var entry = (HashlinkClosure)HashlinkMarshal.ConvertHashlinkObject(
@@ -35,7 +33,7 @@ namespace ModCore.Modules
         {
             if (ev.EventId == IOnNativeEvent.EventId.HL_EV_START_GAME)
             {
-                EventSystem.BroadcastEvent<IOnBeforeGameStart>();
+                EventSystem.BroadcastEvent<IOnBeforeGameInit>();
                 StartGame();
             }
         }
@@ -52,9 +50,7 @@ namespace ModCore.Modules
         }
         private void Hook_Boot_update( HashlinkClosure orig, HashlinkObject self, double dt )
         {
-            var u = orig.CreateDelegate<Action<HashlinkObject, double>>();
-            u.Invoke(self, dt);
-
+            orig.DynamicInvoke(self, dt);
             EventSystem.BroadcastEvent<IOnFrameUpdate, double>(dt);
 
             if (HeroInstance != null)
@@ -64,10 +60,9 @@ namespace ModCore.Modules
         }
         private void Hook_LogoSplash_update( HashlinkClosure orig, HashlinkObject self )
         {
-            
             var s = self.AsHaxe().Chain;
 
-            ((HashlinkObjectType)HashlinkMarshal.Module.GetTypeByName("Assets")).GlobalValue!.AsHaxe().Chain.preInit();
+            HashlinkMarshal.GetGlobal("Assets")!.AsHaxe().Chain.preInit();
 
             s.secondLogo = true;
             s.ready = true;
@@ -119,11 +114,16 @@ namespace ModCore.Modules
             HeroInstance = null;
             return orig.DynamicInvoke(self);
         }
+        private void Hook_Boot_main( HashlinkClosure orig, HashlinkObject self )
+        {
+            EventSystem.BroadcastEvent<IOnBeforeGameInit>();
+            orig.DynamicInvoke(self);
+        }
 
 
         void IOnHashlinkVMReady.OnHashlinkVMReady()
         {
-
+            HashlinkHooks.Instance.CreateHook("$Boot", "main", Hook_Boot_main);
             HashlinkHooks.Instance.CreateHook("Boot", "endInit", Hook_Boot_endInit).Enable();
             HashlinkHooks.Instance.CreateHook("Boot", "init", Hook_Boot_init).Enable();
             HashlinkHooks.Instance.CreateHook("Boot", "update", Hook_Boot_update).Enable();

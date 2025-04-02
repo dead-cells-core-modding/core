@@ -17,7 +17,7 @@ namespace ModCore.ModLoader.Default
     internal class DefaultModLoader : Module<DefaultModLoader>,
         IOnRegisterModsType,
         IOnCollectedModInfo,
-        IOnBeforeGameStart
+        IOnBeforeGameInit
     {
         private readonly List<DefaultModInfo> mods = [];
         void IOnCollectedModInfo.OnCollectedModInfo( ModInfo info )
@@ -42,7 +42,7 @@ namespace ModCore.ModLoader.Default
             }
         }
 
-        void IOnBeforeGameStart.OnBeforeGameStart()
+        void IOnBeforeGameInit.OnBeforeGameInit()
         {
 
             foreach (var v in mods)

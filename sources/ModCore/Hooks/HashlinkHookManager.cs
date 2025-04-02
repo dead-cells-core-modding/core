@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,7 +36,7 @@ namespace ModCore.Hooks
         {
             function = func.FuncType.BaseFunc;
             callback = HlCallbackFactory.GetHlCallback(
-                HlFuncSign.Create(func.FuncType)
+                func.FuncType
                 );
             hook = NativeHooks.Instance.CreateHook(target, callback.NativePointer, true);
             callback.RedirectTarget = hook.Original;
@@ -114,7 +115,7 @@ namespace ModCore.Hooks
             }
         }
 
-        private object? HookEntry(object?[] args)
+        private object? HookEntry( object?[] args )
         {
             try
             {
@@ -126,10 +127,9 @@ namespace ModCore.Hooks
                 }
                 return prev.DynamicInvoke(args);
             }
-            catch (Exception ex)
+            catch (TargetInvocationException ex)
             {
-                Log.Fatal(ex, "Unhandled exception!");
-                Environment.FailFast(ex.ToString());
+                ExceptionDispatchInfo.Capture(ex.InnerException!).Throw();
                 throw;
             }
         }

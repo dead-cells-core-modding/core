@@ -16,7 +16,7 @@ namespace Haxe
     public unsafe class HaxeClosure( HashlinkClosure closure ) : HaxeSpecializedObjectBase<HashlinkClosure>(closure)
     {
         private object? cached_this;
-        public HaxeObject? This
+        public object? This
         {
             get
             {
@@ -24,7 +24,7 @@ namespace Haxe
                 {
                     return null;
                 }
-                return (HaxeObject?)HaxeMarshal.ConvertHashlinkObj(
+                return cached_this ??= HaxeMarshal.PostProcessValue(
                     HashlinkObject.BindingThis
                     );
             }

@@ -19,15 +19,17 @@ namespace Hashlink.Wrapper.Callbacks
 {
     public static unsafe class HlCallbackFactory
     {
-        private static readonly ConcurrentDictionary<HlFuncSign, MethodInfo> hl_callback_cache = [];
+        private static readonly ConcurrentDictionary<HashlinkFuncType, MethodInfo> hl_callback_cache = [];
         private static readonly FieldInfo FI_hlrouterinfo_entry = typeof(HlCallbackInfo)
             .GetField(nameof(HlCallbackInfo.entry))!;
         private static readonly FieldInfo FI_hlrouterinfo_directRoute = typeof(HlCallbackInfo)
             .GetField(nameof(HlCallbackInfo.directRoute))!;
-        private static readonly MethodInfo MI_HashlinkMarshal_AsPointer = typeof(HashlinkMarshal)
-            .GetMethod(nameof(HashlinkMarshal.AsPointer))!;
-        private static readonly MethodInfo MI_HashlinkMarshal_GetObjectFromPtr = typeof(HashlinkMarshal)
-            .GetMethod(nameof(HashlinkMarshal.GetObjectFromPtr))!;
+        private static readonly MethodInfo MI_WrapperHelper_AsPointer = typeof(WrapperHelper)
+            .GetMethod(nameof(WrapperHelper.AsPointer))!;
+        private static readonly MethodInfo MI_WrapperHelper_GetObjectFromPtr = typeof(WrapperHelper)
+            .GetMethod(nameof(WrapperHelper.GetObjectFromPtr))!;
+        private static readonly MethodInfo MI_WrapperHelper_ThrowNETException = typeof(WrapperHelper)
+            .GetMethod(nameof(WrapperHelper.ThrowNetException))!;
 
         private static Type GetNativeType( TypeKind kind )
         {
@@ -46,27 +48,30 @@ namespace Hashlink.Wrapper.Callbacks
             return typeof(object);
         }
 
-        private static MethodInfo CreateHlCallback( HlFuncSign sign )
+        private static MethodInfo CreateHlCallback( HashlinkFuncType sign )
         {
             var args = sign.ArgTypes;
 
             var targs = new Type[args.Length + 1];
             var dargs = new Type[args.Length];
    
-            List<(int, LocalBuilder)>? objRefs = null;
+            List<(int pid, LocalBuilder loc, int tid)>? objRefs = null;
 
             targs[0] = typeof(HlCallbackInfo);
 
             for (var i = 0; i < args.Length; i++)
             {
-                dargs[i] = GetManageType(args[i].Kind);
-                targs[i + 1] = GetNativeType(args[i].Kind);
+                dargs[i] = GetManageType(args[i].TypeKind);
+                targs[i + 1] = GetNativeType(args[i].TypeKind);
             }
 
             var md = new DynamicMethod("hl_router_" + sign.GetHashCode(),
-                GetNativeType(sign.ReturnType), targs, true);
+                GetNativeType(sign.ReturnType.TypeKind), targs, true);
 
             var ilg = md.GetILGenerator();
+
+            var resultLoc = md.ReturnType == typeof(void) ? null : ilg.DeclareLocal(md.ReturnType);
+            var endOfMethod = ilg.DefineLabel();
 
             ilg.Emit(OpCodes.Ldarg_0);
             ilg.Emit(OpCodes.Ldfld, FI_hlrouterinfo_directRoute);
@@ -92,6 +97,8 @@ namespace Hashlink.Wrapper.Callbacks
 
             ilg.Emit(OpCodes.Nop);
 
+            ilg.BeginExceptionBlock();
+
             ilg.Emit(OpCodes.Ldarg_0);
             ilg.Emit(OpCodes.Ldfld, FI_hlrouterinfo_entry);
             ilg.Emit(OpCodes.Ldfld, DelegateInfo.FI_self);
@@ -100,24 +107,24 @@ namespace Hashlink.Wrapper.Callbacks
             {
                 
                 ilg.Emit(OpCodes.Ldarg, i + 1);
-                var k = args[i].Kind;
-                if (k == TypeKind.HREF)
+                var k = args[i].TypeKind;
+                if (args[i] is HashlinkRefType rtype)
                 {
-                    if (!args[i].KindEx.IsValueType())
+                    if (!rtype.RefType.IsValueType)
                     {
                         objRefs ??= [];
                         var l = ilg.DeclareLocal(typeof(object));
                         ilg.Emit(OpCodes.Ldind_I);
 
-                        ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_GetObjectFromPtr);
+                        ilg.Emit(OpCodes.Call, MI_WrapperHelper_GetObjectFromPtr);
                         ilg.Emit(OpCodes.Stloc, l);
                         ilg.Emit(OpCodes.Ldloca, l);
-                        objRefs.Add((i + 1, l));
+                        objRefs.Add((i + 1, l, rtype.TypeIndex));
                     }
                 }
-                else if (!args[i].Kind.IsValueType())
+                else if (!k.IsValueType())
                 {
-                    ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_GetObjectFromPtr);
+                    ilg.Emit(OpCodes.Call, MI_WrapperHelper_GetObjectFromPtr);
                 }
                 
             }
@@ -127,31 +134,53 @@ namespace Hashlink.Wrapper.Callbacks
             ilg.Emit(OpCodes.Ldfld, DelegateInfo.FI_invokePtr);
             
             ilg.EmitCalli(OpCodes.Calli, CallingConventions.HasThis,
-                GetManageType(sign.ReturnType), dargs, null);
+                GetManageType(sign.ReturnType.TypeKind), dargs, null);
 
             if (objRefs != null)
             {
-                foreach ((var pid, var loc) in objRefs)
+                foreach ((var pid, var loc, var tid) in objRefs)
                 {
                     ilg.Emit(OpCodes.Ldarg, pid);
                     ilg.Emit(OpCodes.Ldloc, loc);
-                    ilg.Emit(OpCodes.Ldc_I4_0);
-                    ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_AsPointer);
+                    ilg.Emit(OpCodes.Ldc_I4, tid);
+                    ilg.Emit(OpCodes.Call, MI_WrapperHelper_AsPointer);
                     ilg.Emit(OpCodes.Stind_I);
                 }
             }
-            if (!sign.ReturnType.IsValueType())
+
+            if (resultLoc != null)
             {
-                ilg.Emit(OpCodes.Ldc_I4_0);
-                ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_AsPointer);
+                if (!sign.ReturnType.IsValueType)
+                {
+                    ilg.Emit(OpCodes.Ldc_I4, sign.ReturnType.TypeIndex);
+                    ilg.Emit(OpCodes.Call, MI_WrapperHelper_AsPointer);
+                }
+                ilg.Emit(OpCodes.Stloc, resultLoc);
             }
+
+            ilg.Emit(OpCodes.Leave, endOfMethod);
             
+
+            ilg.BeginCatchBlock(typeof(Exception));
+
+            ilg.Emit(OpCodes.Call, MI_WrapperHelper_ThrowNETException);
+            ilg.Emit(OpCodes.Ldnull);
+            ilg.Emit(OpCodes.Throw);
+
+            ilg.EndExceptionBlock();
+
+            ilg.MarkLabel(endOfMethod);
+
+            if (resultLoc != null)
+            {
+                ilg.Emit(OpCodes.Ldloc, resultLoc);
+            }
             ilg.Emit(OpCodes.Ret);
 
             return md;
         }
 
-        public static HlCallback GetHlCallback( HlFuncSign sign )
+        public static HlCallback GetHlCallback( HashlinkFuncType sign )
         {
             var mi = hl_callback_cache.GetOrAdd(sign, CreateHlCallback);
             var info = new HlCallbackInfo();

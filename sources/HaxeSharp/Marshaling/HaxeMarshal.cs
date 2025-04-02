@@ -30,6 +30,7 @@ namespace Haxe.Marshaling
             {
                 return null;
             }
+            
             if (objMapping.TryGetValue(value, out var obj) && obj != null)
             {
                 return obj;

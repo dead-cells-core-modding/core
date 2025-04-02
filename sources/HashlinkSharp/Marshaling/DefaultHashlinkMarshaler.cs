@@ -45,7 +45,7 @@ namespace Hashlink.Marshaling
                     return (object?)*(nint*)target;
                 case TypeKind.HNULL:
                 default:
-                    if (typeKind?.IsPointer() ?? false)
+                    if (type?.IsPointer ?? false)
                     {
                         return HashlinkMarshal.ConvertHashlinkObject(*(void**)target);
                     }
@@ -90,6 +90,17 @@ namespace Hashlink.Marshaling
                 return false;
             }
 
+
+            if (value is Delegate del && type is HashlinkFuncType ft)
+            {
+                *(nint*)target = new HashlinkClosure(ft, del).HashlinkPointer;
+                return true;
+            }
+            else if (value is string str && typeKind is not TypeKind.HBYTES)
+            {
+                *(nint*)target = new HashlinkString(str).HashlinkPointer;
+                return true;
+            }
 
             if (typeKind is TypeKind.HUI8)
             {
@@ -137,20 +148,21 @@ namespace Hashlink.Marshaling
             {
                 *(nint*)target = (nint)value;
             }
+            else if (typeKind is TypeKind.HDYN)
+            {
+                var vt = HashlinkMarshal.GetHashlinkType(value.GetType()) ?? throw new InvalidOperationException();
+                var dptr = hl_alloc_dynamic(
+                    vt.NativeType
+                    );
+                HashlinkMarshal.WriteData(&dptr->val, value, vt);
+            }
             else if (typeKind is TypeKind.HABSTRACT)
             {
                 *(nint*)target = (nint)value;
             }
             else if (typeKind is TypeKind.HBYTES)
             {
-                if (value is string str)
-                {
-                    return TryWriteData(target, new HashlinkBytes(str).Value, type);
-                }
-                else
-                {
-                    *(nint*)target = Utils.ForceUnbox<nint>(value);
-                }
+                *(nint*)target = Utils.ForceUnbox<nint>(value);
             }
             else
             {
@@ -159,7 +171,7 @@ namespace Hashlink.Marshaling
             return true;
         }
 
-        public virtual HashlinkObj? TryConvertHashlinkObject( void* target )
+        public virtual object? TryConvertHashlinkObject( void* target )
         {
             var ptr = HashlinkObjPtr.Get(target);
 
@@ -167,31 +179,18 @@ namespace Hashlink.Marshaling
 
             return kind switch
             {
-                TypeKind.HUI8 => new HashlinkTypedValue<byte>(ptr),
-                TypeKind.HUI16 => new HashlinkTypedValue<ushort>(ptr),
-                TypeKind.HI32 => new HashlinkTypedValue<int>(ptr),
-                TypeKind.HI64 => new HashlinkTypedValue<long>(ptr),
-                TypeKind.HF32 => new HashlinkTypedValue<float>(ptr),
-                TypeKind.HF64 => new HashlinkTypedValue<double>(ptr),
-                TypeKind.HBOOL => new HashlinkTypedValue<bool>(ptr),
-                TypeKind.HBYTES => new HashlinkBytes(ptr),
+                <= TypeKind.HBYTES => HashlinkMarshal.ReadData(
+                    &((HL_vdynamic*)target)->val, HashlinkMarshal.GetHashlinkType(ptr.Type)
+                    ),
                 TypeKind.HVIRTUAL => new HashlinkVirtual(ptr),
                 TypeKind.HOBJ => ptr.Type == NETExcepetionError.ErrorType ? new HashlinkNETExceptionObj(ptr) : new HashlinkObject(ptr),
-                TypeKind.HABSTRACT => new HashlinkAbstract(ptr),
+                TypeKind.HABSTRACT => (nint)((HL_vdynamic*)target)->val.ptr,
                 TypeKind.HFUN => new HashlinkClosure(ptr),
-                TypeKind.HREF => new HashlinkRef(ptr),
+                TypeKind.HREF => (nint)((HL_vdynamic*)target)->val.ptr,
                 TypeKind.HENUM => new HashlinkEnum(ptr),
-                TypeKind.HNULL => ptr.Type->data.tparam->kind switch
-                {
-                    TypeKind.HUI8 => new HashlinkTypedNullValue<byte>(ptr),
-                    TypeKind.HUI16 => new HashlinkTypedNullValue<ushort>(ptr),
-                    TypeKind.HI32 => new HashlinkTypedNullValue<int>(ptr),
-                    TypeKind.HI64 => new HashlinkTypedNullValue<long>(ptr),
-                    TypeKind.HF32 => new HashlinkTypedNullValue<float>(ptr),
-                    TypeKind.HF64 => new HashlinkTypedNullValue<double>(ptr),
-                    TypeKind.HBOOL => new HashlinkTypedNullValue<bool>(ptr),
-                    _ => throw new InvalidOperationException($"Unrecognized null type {ptr.Type->data.tparam->kind}")
-                },
+                TypeKind.HNULL => HashlinkMarshal.ReadData(
+                    &((HL_vdynamic*)target)->val, HashlinkMarshal.GetHashlinkType(ptr.Type->data.tparam)
+                    ),
                 _ => throw new InvalidOperationException($"Unrecognized type {kind}")
             };
         }

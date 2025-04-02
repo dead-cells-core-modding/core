@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 namespace ModCore.Events.Interfaces.Game
 {
     [Event]
-    public interface IOnBeforeGameStart
+    public interface IOnBeforeGameInit
     {
-        void OnBeforeGameStart();
+        void OnBeforeGameInit();
     }
 }

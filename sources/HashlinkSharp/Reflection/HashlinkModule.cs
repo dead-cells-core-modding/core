@@ -103,6 +103,7 @@ namespace Hashlink.Reflection
         public HashlinkModule( HL_module* module )
         {
             NativeModule = module;
+
             Types = new HashlinkType[NativeCode->ntypes];
             for (int i = 0; i < NativeCode->ntypes; i++)
             {

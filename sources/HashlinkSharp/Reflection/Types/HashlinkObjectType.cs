@@ -21,11 +21,14 @@ namespace Hashlink.Reflection.Types
         private string? cachedName;
         private HashlinkObjectField[]? cachedFields;
         private HashlinkObjectProto[]? cachedProtos;
+        private HashlinkObjectBinding[]? cachedBindings;
         private HashlinkObject? cachedGlobalValue;
 
         private readonly ConcurrentDictionary<string, HashlinkObjectField?> cachedFieldLookup = [];
         private readonly ConcurrentDictionary<string, HashlinkObjectProto?> cachedProtoLookup = [];
-        public HashlinkObjectType? Super => cachedSuper ??= GetMemberFrom<HashlinkObjectType>(TypeData->super);
+        public HashlinkObjectType? Super => TypeData->super != null ?
+            cachedSuper ??= GetMemberFrom<HashlinkObjectType>(TypeData->super) :
+            null;
         public override string Name => cachedName ??= new(TypeData->name);
         public override HashlinkObj CreateInstance()
         {
@@ -45,6 +48,21 @@ namespace Hashlink.Reflection.Types
                     }
                 }
                 return cachedProtos;
+            }
+        }
+        public HashlinkObjectBinding[] Bindings
+        {
+            get
+            {
+                if (cachedBindings == null)
+                {
+                    cachedBindings = new HashlinkObjectBinding[TypeData->nbindings];
+                    for (int i = 0; i < TypeData->nbindings; i++)
+                    {
+                        cachedBindings[i] = new(Module, TypeData->bindings + i * 2, this);
+                    }
+                }
+                return cachedBindings;
             }
         }
         public HashlinkObjectField[] Fields
@@ -78,7 +96,29 @@ namespace Hashlink.Reflection.Types
             {
                 return Fields.FirstOrDefault(x => x.Name == name);
             });
+            if (field == null && Super != null)
+            {
+                return Super.TryFindField(name, out field);
+            }
             return field != null;
+        }
+
+        private HashlinkObjectField? FindFieldByIdImpl( ref int idx )
+        {
+            Super?.FindFieldByIdImpl(ref idx);
+            if (idx < Fields.Length)
+            {
+                return Fields[idx];
+            }
+            else
+            {
+                idx -= Fields.Length;
+                return null;
+            }
+        }
+        public HashlinkObjectField? FindFieldById( int idx )
+        {
+            return FindFieldByIdImpl(ref idx);
         }
 
         public bool HasProto( string name )
@@ -95,6 +135,10 @@ namespace Hashlink.Reflection.Types
             {
                 return Protos.FirstOrDefault(x => x.Name == name);
             });
+            if (field == null && Super != null)
+            {
+                return Super.TryFindProto(name, out field);
+            }
             return field != null;
         }
         

@@ -40,6 +40,7 @@ namespace Hashlink.Reflection.Types
             {
                 TypeKind.HOBJ => ParseObjType(module,type),
                 TypeKind.HFUN => new HashlinkFuncType(module, type),
+                TypeKind.HMETHOD => new HashlinkFuncType(module, type),
                 TypeKind.HARRAY => new HashlinkArrayType(module, type),
                 TypeKind.HVIRTUAL => new HashlinkVirtualType(module, type),
                 TypeKind.HABSTRACT => new HashlinkAbstractType(module, type),
@@ -56,7 +57,7 @@ namespace Hashlink.Reflection.Types
         public override string? Name => cachedName ??= NativeType->TypeName;
         public TypeKind TypeKind => NativeType->kind;
         public virtual bool IsPointer => TypeKind.IsPointer();
-        public virtual bool IsValue => !TypeKind.IsPointer();
+        public virtual bool IsValueType => TypeKind.IsValueType();
         public virtual bool IsObject => TypeKind == TypeKind.HOBJ;
         public virtual bool IsVirtual => TypeKind == TypeKind.HVIRTUAL;
         public virtual bool IsAbstract => TypeKind == TypeKind.HABSTRACT;
@@ -64,6 +65,8 @@ namespace Hashlink.Reflection.Types
         public virtual bool IsDyn => TypeKind == TypeKind.HDYN;
         public virtual bool IsArray => TypeKind == TypeKind.HARRAY;
         public virtual bool IsEnum => TypeKind == TypeKind.HENUM;
+        public virtual bool IsRef => TypeKind == TypeKind.HREF;
+        public virtual bool IsNull => TypeKind == TypeKind.HNULL;
 
         public int TypeIndex
         {

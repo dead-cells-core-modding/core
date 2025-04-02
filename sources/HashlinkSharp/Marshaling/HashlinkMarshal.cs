@@ -86,7 +86,7 @@ namespace Hashlink.Marshaling
         {
             return type >= TypeKind.HBYTES;
         }
-        public static HashlinkObj? GetGlobal( string name )
+        public static HashlinkObject? GetGlobal( string name )
         {
             return ((HashlinkObjectType)Module.GetTypeByName(name)).GlobalValue;
         }
@@ -132,12 +132,12 @@ namespace Hashlink.Marshaling
         {
             return hl_is_gc_ptr(ptr) && IsHashlinkObject(ptr);
         }
-        public static HashlinkObj? ConvertHashlinkObject( HashlinkObjPtr target,
+        public static object? ConvertHashlinkObject( HashlinkObjPtr target,
             IHashlinkMarshaler? marshaler = null )
         {
             return ConvertHashlinkObject((void*)target.Pointer, marshaler);
         }
-        public static HashlinkObj? ConvertHashlinkObject( void* target,
+        public static object? ConvertHashlinkObject( void* target,
             IHashlinkMarshaler? marshaler = null )
         {
             if (target == null)
@@ -161,41 +161,7 @@ namespace Hashlink.Marshaling
             return (T?)ConvertHashlinkObject(target, marshaler);
         }
 
-        public static object? GetObjectFromPtr( nint ptr )
-        {
-            return ConvertHashlinkObject(HashlinkObjPtr.GetUnsafe(ptr), null);
-        }
-        public static nint AsPointer( object obj, int typeIdx )
-        {
-            return AsPointerWithType(obj, Module.Types[typeIdx]);
-        }
-        public static nint AsPointerWithType( object obj, HashlinkType type )
-        {
-            if (obj is IHashlinkPointer ptr)
-            {
-                return ptr.HashlinkPointer;
-            }
-            else if (obj is string str)
-            {
-                return new HashlinkString(str).HashlinkPointer;
-            }
-            else if (obj == null)
-            {
-                return 0;
-            }
-            else if (obj is Delegate dt)
-            {
-                return new HashlinkClosure((HashlinkFuncType)type, dt).HashlinkPointer;
-            }
-            else if (type is HashlinkRefType && obj is nint refptr)
-            {
-                return refptr;
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
-        }
+        
 
     }
 }

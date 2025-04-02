@@ -12,7 +12,7 @@ namespace Hashlink.Proxy.Clousre
     {
         private HlCallback? callback;
         private Delegate? cachedWrapper;
-        private HashlinkObj? cachedThis;
+        private object? cachedThis;
 
         public HashlinkClosure( HL_type* funcType, void* funcPtr, void* self ) :
             this(HashlinkObjPtr.GetUnsafe(hl_alloc_closure_ptr(funcType, funcPtr, self)))
@@ -31,7 +31,7 @@ namespace Hashlink.Proxy.Clousre
             : this(funcType, 0, 0)
         {
             callback = HlCallbackFactory.GetHlCallback(
-                HlFuncSign.Create(funcType)
+                funcType
                 );
             callback.Target = target;
             TypedRef->fun = (void*)callback.NativePointer;
@@ -87,7 +87,7 @@ namespace Hashlink.Proxy.Clousre
             return (T)CreateDelegate(typeof(T));
         }
 
-        public HashlinkObj? BindingThis
+        public object? BindingThis
         {
             get
             {

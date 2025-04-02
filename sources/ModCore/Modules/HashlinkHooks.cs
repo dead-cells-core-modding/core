@@ -44,8 +44,8 @@ namespace ModCore.Modules
         public HookHandle CreateHook( string typeName, string protoName, Delegate hook, nint entry = 0 )
         {
             var type = (HashlinkObjectType) HashlinkMarshal.Module.GetTypeByName(typeName);
-            var proto = type.FindProto(protoName) ?? throw new InvalidOperationException();
-            var func = proto.Function;
+            var func = type.FindProto(protoName)?.Function ??
+                type.Bindings.First(x => x.Name == protoName).Function;
             return CreateHook(func, hook, entry);
         }
         public HookHandle CreateHook(HashlinkFunction func, Delegate hook, nint entry = 0)

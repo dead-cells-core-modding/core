@@ -19,10 +19,10 @@ namespace Hashlink.Wrapper
         private static readonly ConcurrentDictionary<HashlinkFuncType, MethodInfo> hl_wrapper_cache = [];
         private static readonly FieldInfo FI_wrapperInfo_target = typeof(WrapperInfo)
             .GetField(nameof(WrapperInfo.target))!;
-        private static readonly MethodInfo MI_HashlinkMarshal_AsPointer = typeof(HashlinkMarshal)
-            .GetMethod(nameof(HashlinkMarshal.AsPointer))!;
-        private static readonly MethodInfo MI_HashlinkMarshal_GetObjectFromPtr = typeof(HashlinkMarshal)
-            .GetMethod(nameof(HashlinkMarshal.GetObjectFromPtr))!;
+        private static readonly MethodInfo MI_WrapperHelper_AsPointer = typeof(WrapperHelper)
+            .GetMethod(nameof(WrapperHelper.AsPointer))!;
+        private static readonly MethodInfo MI_WrapperHelper_GetObjectFromPtr = typeof(WrapperHelper)
+            .GetMethod(nameof(WrapperHelper.GetObjectFromPtr))!;
 
         private static Type GetNativeType( TypeKind kind )
         {
@@ -78,7 +78,7 @@ namespace Hashlink.Wrapper
                         ilg.Emit(OpCodes.Ldind_I);
 
                         ilg.Emit(OpCodes.Ldc_I4, t.TypeIndex);
-                        ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_AsPointer);
+                        ilg.Emit(OpCodes.Call, MI_WrapperHelper_AsPointer);
                         ilg.Emit(OpCodes.Stloc, l);
                         ilg.Emit(OpCodes.Ldloca, l);
                         objRefs.Add((i + 1, l));
@@ -87,7 +87,7 @@ namespace Hashlink.Wrapper
                 else if (!k.IsValueType())
                 {
                     ilg.Emit(OpCodes.Ldc_I4, t.TypeIndex);
-                    ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_AsPointer);
+                    ilg.Emit(OpCodes.Call, MI_WrapperHelper_AsPointer);
                 }
             }
 
@@ -103,14 +103,14 @@ namespace Hashlink.Wrapper
                 {
                     ilg.Emit(OpCodes.Ldarg, pid);
                     ilg.Emit(OpCodes.Ldloc, loc);
-                    ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_GetObjectFromPtr);
+                    ilg.Emit(OpCodes.Call, MI_WrapperHelper_GetObjectFromPtr);
                     ilg.Emit(OpCodes.Stind_I);
                 }
             }
 
             if(!func.ReturnType.TypeKind.IsValueType())
             {
-                ilg.Emit(OpCodes.Call, MI_HashlinkMarshal_GetObjectFromPtr);
+                ilg.Emit(OpCodes.Call, MI_WrapperHelper_GetObjectFromPtr);
             }
 
             ilg.Emit(OpCodes.Ret);
