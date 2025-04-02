@@ -4,11 +4,11 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
-    <ModName>SampleHook</ModName>
+    
+    <ModName>DebugMod</ModName>
     <ModType>mod</ModType>
-    <ModMain>SampleHook.SampleHookMod</ModMain>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ModMain>DebugMod.DebugModMod</ModMain>
+    
     <AutoInstallMod>true</AutoInstallMod>
   </PropertyGroup>
 

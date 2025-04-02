@@ -43,6 +43,7 @@ namespace Hashlink.Proxy.Clousre
         [MemberNotNull(nameof(cachedWrapper))]
         private void CheckWrapper()
         {
+            CheckValidity();
             cachedWrapper ??= HashlinkWrapperFactory.GetWrapper(
                             ((HashlinkFuncType)Type).BaseFunc,
                         FunctionPtr);
@@ -91,6 +92,7 @@ namespace Hashlink.Proxy.Clousre
         {
             get
             {
+                CheckValidity();
                 return TypedRef->hasValue > 0 ? (
                     cachedThis ??= HashlinkMarshal.ConvertHashlinkObject(TypedRef->value)
                     ) : null;

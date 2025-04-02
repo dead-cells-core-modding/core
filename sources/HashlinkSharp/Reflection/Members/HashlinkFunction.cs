@@ -16,6 +16,7 @@ namespace Hashlink.Reflection.Members
     {
         private HashlinkObjectType? cachedDeclaringType;
         private HashlinkFuncType? cachedFuncType;
+        private Delegate? cachedDynInvoke;
 
         public override HashlinkType? DeclaringType
         {
@@ -48,6 +49,12 @@ namespace Hashlink.Reflection.Members
         public T CreateDelegate<T>( ) where T : Delegate
         {
             return (T)CreateDelegate(typeof(T));
+        }
+        public object? DynamicInvoke( params object?[]? args )
+        {
+            cachedDynInvoke ??= HashlinkWrapperFactory.GetWrapper(
+                FuncType, EntryPointer );
+            return cachedDynInvoke.DynamicInvoke(args);
         }
         static HashlinkMember IHashlinkMemberGenerator.GenerateFromPointer( HashlinkModule module, void* ptr )
         {

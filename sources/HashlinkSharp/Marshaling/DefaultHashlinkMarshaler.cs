@@ -179,6 +179,18 @@ namespace Hashlink.Marshaling
             return true;
         }
 
+        private object GetObjectFromPtr( HashlinkObjPtr ptr )
+        {
+            if (ptr.Type == NETExcepetionError.ErrorType)
+            {
+                return new HashlinkNETExceptionObj(ptr);
+            }
+            else if (ptr.Type == HashlinkMarshal.Module.KnownTypes.String.NativeType)
+            {
+                return new HashlinkString(ptr);
+            }
+            return new HashlinkObject(ptr);
+        }
         public virtual object? TryConvertHashlinkObject( void* target )
         {
             var ptr = HashlinkObjPtr.Get(target);
@@ -191,7 +203,7 @@ namespace Hashlink.Marshaling
                     &((HL_vdynamic*)target)->val, HashlinkMarshal.GetHashlinkType(ptr.Type)
                     ),
                 TypeKind.HVIRTUAL => new HashlinkVirtual(ptr),
-                TypeKind.HOBJ => ptr.Type == NETExcepetionError.ErrorType ? new HashlinkNETExceptionObj(ptr) : new HashlinkObject(ptr),
+                TypeKind.HOBJ => GetObjectFromPtr(ptr),
                 TypeKind.HABSTRACT => (nint)((HL_vdynamic*)target)->val.ptr,
                 TypeKind.HFUN => new HashlinkClosure(ptr),
                 TypeKind.HREF => (nint)((HL_vdynamic*)target)->val.ptr,

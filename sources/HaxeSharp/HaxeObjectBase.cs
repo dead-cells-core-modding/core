@@ -31,8 +31,9 @@ namespace Haxe
             get;
         }
         public HashlinkType Type => HashlinkObject.Type;
-
+        [Obsolete]
         public dynamic Chain => this;
+        public dynamic Dynamic => this;
         public nint HashlinkPointer => ((IHashlinkPointer)HashlinkObject).HashlinkPointer;
         public override string? ToString()
         {

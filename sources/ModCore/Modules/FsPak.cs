@@ -21,10 +21,10 @@ namespace ModCore.Modules
         private HaxeObject fsPak = null!;
         private HaxeObject Hook_Reader_readHeader( HashlinkClosure orig, HashlinkObject self )
         {
-            HashlinkMarshal.GetGlobal("hxd.fmt.pak.FileSystem")!.AsHaxe().Chain.PAK_STAMP_HASH = null;
+            HashlinkMarshal.GetGlobal("hxd.fmt.pak.FileSystem")!.AsHaxe().Dynamic.PAK_STAMP_HASH = null;
 
             var data = ((HashlinkObject) orig.DynamicInvoke(self)!).AsHaxe();
-            data.Chain.stampHash = null;
+            data.Dynamic.stampHash = null;
             return data;
         }
         private void Hook_FileSystem_loadPak( HashlinkClosure orig, HashlinkObject self, HashlinkObject path )

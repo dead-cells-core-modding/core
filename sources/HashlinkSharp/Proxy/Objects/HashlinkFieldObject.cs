@@ -10,10 +10,12 @@ namespace Hashlink.Proxy.Objects
     {
         public virtual bool HasField( int hashedName )
         {
+            CheckValidity();
             return hl_obj_has_field((HL_vdynamic*)HashlinkPointer, hashedName);
         }
         public virtual bool HasField( string name )
         {
+            CheckValidity();
             fixed (char* pname = name)
             {
                 return HasField(hl_hash_gen(pname, false));
@@ -22,6 +24,7 @@ namespace Hashlink.Proxy.Objects
         
         public virtual object? GetFieldValue( int hashedName )
         {
+            CheckValidity();
             var ptr = hl_obj_lookup((HL_vdynamic*)HashlinkPointer, hashedName, out var ftype);
             if (ptr == null)
             {
@@ -34,6 +37,7 @@ namespace Hashlink.Proxy.Objects
         }
         public virtual object? GetFieldValue( string name )
         {
+            CheckValidity();
             fixed (char* pname = name)
             {
                 return GetFieldValue(hl_hash_gen(pname, false));
@@ -42,6 +46,7 @@ namespace Hashlink.Proxy.Objects
 
         public virtual void SetFieldValue( int hashedName, object? value )
         {
+            CheckValidity();
             var ptr = hl_obj_lookup((HL_vdynamic*)HashlinkPointer, hashedName, out var ftype);
             if (ptr == null)
             {
@@ -51,6 +56,7 @@ namespace Hashlink.Proxy.Objects
         }
         public virtual void SetFieldValue( string name, object? value )
         {
+            CheckValidity();
             fixed (char* pname = name)
             {
                 SetFieldValue(hl_hash_gen(pname, false), value);

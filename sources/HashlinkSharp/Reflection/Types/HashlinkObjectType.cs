@@ -105,7 +105,11 @@ namespace Hashlink.Reflection.Types
 
         private HashlinkObjectField? FindFieldByIdImpl( ref int idx )
         {
-            Super?.FindFieldByIdImpl(ref idx);
+            var result = Super?.FindFieldByIdImpl(ref idx);
+            if (result != null)
+            {
+                return result;
+            }
             if (idx < Fields.Length)
             {
                 return Fields[idx];

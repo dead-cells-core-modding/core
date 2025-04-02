@@ -136,11 +136,7 @@ namespace Hashlink.Marshaling
             get => obj;
             set
             {
-                if (obj != null && obj.TypeKind != TypeKind.HFUN /*Too bad*/)
-                {
-                    Debugger.Break();
-                    throw new InvalidOperationException();
-                }
+                obj?.SetDestroyed();
                 obj = value;
             }
         }

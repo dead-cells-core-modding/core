@@ -40,7 +40,7 @@ namespace ModCore.Modules
 
         private void Hook_Boot_init( HashlinkClosure orig, HashlinkObject self)
         {
-            var win = self.AsHaxe().Chain.engine.window.window;
+            var win = self.AsHaxe().Dynamic.engine.window.window;
             
             orig.DynamicInvoke(self);
 
@@ -60,9 +60,9 @@ namespace ModCore.Modules
         }
         private void Hook_LogoSplash_update( HashlinkClosure orig, HashlinkObject self )
         {
-            var s = self.AsHaxe().Chain;
+            var s = self.AsHaxe().Dynamic;
 
-            HashlinkMarshal.GetGlobal("Assets")!.AsHaxe().Chain.preInit();
+            HashlinkMarshal.GetGlobal("Assets")!.AsHaxe().Dynamic.preInit();
 
             s.secondLogo = true;
             s.ready = true;
@@ -73,7 +73,7 @@ namespace ModCore.Modules
             HashlinkObject str, HashlinkClosure cb, HashlinkObject help, object? isEnabled,
             object? color )
         {
-            var s = self.AsHaxe().Chain;
+            var s = self.AsHaxe().Dynamic;
             var menuItems = s.menuItems;
             if (menuItems.length == 3 && s.isMainMenu)
             {

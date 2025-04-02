@@ -17,7 +17,7 @@ namespace ModCore.Modules
         private dynamic? gettext;
         void IOnGameInit.OnGameInit()
         {
-            gettext = HashlinkMarshal.GetGlobal("Lang")!.AsHaxe().Chain.t;
+            gettext = HashlinkMarshal.GetGlobal("Lang")!.AsHaxe().Dynamic.t;
         }
 
         public string GetString( string str )
