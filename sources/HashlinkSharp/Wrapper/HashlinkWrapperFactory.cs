@@ -57,7 +57,7 @@ namespace Hashlink.Wrapper
 
             targs[0] = typeof(WrapperInfo);
 
-            var dm = new DynamicMethod("<Wrapper>+" + func.GetHashCode(),
+            var dm = new DynamicMethod("<Wrapper>+" + func.ToString(),
                 GetManageType(func.ReturnType.TypeKind),
                 targs);
             var ilg = dm.GetILGenerator();

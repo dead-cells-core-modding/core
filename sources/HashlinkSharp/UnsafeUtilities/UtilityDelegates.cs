@@ -220,6 +220,10 @@ namespace Hashlink.UnsafeUtilities
         }
         public static Delegate CreateAdaptDelegate( this Delegate target, Type targetType )
         {
+            if (targetType.IsAssignableFrom(target.GetType()))
+            {
+                return target;
+            }
             return adaptDelegates.GetOrAdd(targetType, CreateAdaptDelegate).CreateDelegate(
                 targetType, new DelegateInfo(target));
         }

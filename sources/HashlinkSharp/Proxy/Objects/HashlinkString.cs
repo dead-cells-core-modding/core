@@ -5,7 +5,7 @@ namespace Hashlink.Proxy.Objects
     public unsafe class HashlinkString( HashlinkObjPtr objPtr ) : HashlinkObject(objPtr), IHashlinkValue
     {
         public HashlinkString() : this(
-            HashlinkObjPtr.GetUnsafe(
+            HashlinkObjPtr.Get(
                 hl_alloc_obj(HashlinkMarshal.Module.KnownTypes.String.NativeType)
                 )
             )

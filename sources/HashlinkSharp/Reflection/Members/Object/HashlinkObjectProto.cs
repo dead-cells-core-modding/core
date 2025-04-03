@@ -16,7 +16,7 @@ namespace Hashlink.Reflection.Members.Object
         private HashlinkFunction? cachedFunction;
 
         public override string? Name => cachedName ??= new(proto->name);
-        public HashlinkFunction Function => cachedFunction ??= Module.GetFunctionByFIndex(FunctionIndex);
+        public HashlinkFunction Function => cachedFunction ??= (HashlinkFunction)Module.GetFunctionByFIndex(FunctionIndex);
         public int FunctionIndex => proto->findex;
         public int ProtoIndex => proto->pindex;
         public bool IsVirtual => ProtoIndex >= 0;

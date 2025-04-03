@@ -165,5 +165,16 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         [return: MarshalAs(UnmanagedType.I1)]
         public static partial bool hl_ptr_is_alive( void* ptr );
+
+        [LibraryImport(LIBHL)]
+        public static partial void* hl_jit_alloc( );
+        [LibraryImport(LIBHL)]
+        public static partial void hl_jit_init( void* ctx, HL_module* m );
+        [LibraryImport(LIBHL)]
+        public static partial int hl_jit_function( void* ctx, HL_module* m, HL_function* f, long* uConstants );
+        [LibraryImport(LIBHL)]
+        public static partial void hl_jit_free( void* ctx, [MarshalAs(UnmanagedType.I1)] bool can_reset );
+        [LibraryImport(LIBHL)]
+        public static partial void* hl_jit_code( void* ctx, HL_module* m, int* codesize, void** debug, void* previous );
     }
 }

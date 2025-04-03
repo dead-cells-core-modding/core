@@ -8,7 +8,7 @@ namespace Hashlink.Proxy.Objects
         {
             get; set;
         }
-        public HashlinkNETExceptionObj( Exception ex ) : this(HashlinkObjPtr.GetUnsafe(
+        public HashlinkNETExceptionObj( Exception ex ) : this(HashlinkObjPtr.Get(
             hl_alloc_obj(NETExcepetionError.ErrorType)
             ))
         {

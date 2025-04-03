@@ -11,7 +11,7 @@ namespace Hashlink.Proxy
             public List<object> data = [];
         }
 
-        internal void SetDestroyed()
+        internal protected virtual void SetDestroyed()
         {
             if (IsDestroyed)
             {
@@ -99,7 +99,7 @@ namespace Hashlink.Proxy
         {
             get; private set;
         }
-        public nint HashlinkPointer
+        public virtual nint HashlinkPointer
         {
             get; private set;
         }

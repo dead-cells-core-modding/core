@@ -65,7 +65,7 @@ namespace Hashlink.Wrapper.Callbacks
                 targs[i + 1] = GetNativeType(args[i].TypeKind);
             }
 
-            var md = new DynamicMethod("hl_router_" + sign.GetHashCode(),
+            var md = new DynamicMethod("hl_router+" + sign.ToString(),
                 GetNativeType(sign.ReturnType.TypeKind), targs, true);
 
             var ilg = md.GetILGenerator();

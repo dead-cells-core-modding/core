@@ -1,4 +1,5 @@
-﻿using Hashlink.Proxy.Clousre;
+﻿using Hashlink.Patch.Reader;
+using Hashlink.Proxy.Clousre;
 using Hashlink.Reflection.Types;
 using Hashlink.Wrapper;
 using System;
@@ -12,8 +13,10 @@ using System.Threading.Tasks;
 namespace Hashlink.Reflection.Members
 {
     public unsafe class HashlinkFunction(HashlinkModule module, HL_function* func ) : HashlinkMember(module, func),
-        IHashlinkMemberGenerator
+        IHashlinkMemberGenerator,
+        IHashlinkFunc
     {
+        private HashlinkType[]? cachedLocalRegs;
         private HashlinkObjectType? cachedDeclaringType;
         private HashlinkFuncType? cachedFuncType;
         private Delegate? cachedDynInvoke;
@@ -29,6 +32,21 @@ namespace Hashlink.Reflection.Members
                 return cachedDeclaringType;
             }
         }
+        public HashlinkType[] LocalRegisters
+        {
+            get
+            {
+                if (cachedLocalRegs == null)
+                {
+                    cachedLocalRegs = new HashlinkType[func->nregs];
+                    for (int i = 0; i < func->nregs; i++)
+                    {
+                        cachedLocalRegs[i] = GetMemberFrom<HashlinkType>(func->regs[i]);
+                    }
+                }
+                return cachedLocalRegs;
+            }
+        }
         public int FunctionIndex => func->findex;
         public nint EntryPointer => (nint)Module.NativeModule->functions_ptrs[
              FunctionIndex
@@ -36,6 +54,11 @@ namespace Hashlink.Reflection.Members
 
         public override string? Name => FuncType.Name;
         public HashlinkFuncType FuncType => cachedFuncType ??= GetMemberFrom<HashlinkFuncType>(func->type);
+
+        public HlNativeOpCodeReader CreateOpCodeReader()
+        {
+            return new(func->ops, func->nops);
+        }
 
         public HashlinkClosure CreateClosure( nint entry = 0 )
         {

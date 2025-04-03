@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using static Hashlink.Reflection.HashlinkModule;
@@ -22,7 +23,23 @@ namespace Hashlink.Reflection
         {
             get;
         }
-        public HashlinkFunction[] Functions
+        public IHashlinkFunc[] Functions
+        {
+            get;
+        }
+        public int[] Ints
+        {
+            get;
+        }
+        public double[] Floats
+        {
+            get;
+        }
+        public string[] Strings
+        {
+            get;
+        }
+        public HashlinkGlobal[] Globals
         {
             get;
         }
@@ -104,6 +121,15 @@ namespace Hashlink.Reflection
         {
             NativeModule = module;
 
+            Ints = new ReadOnlySpan<int>(NativeCode->ints, NativeCode->nints).ToArray();
+            Floats = new ReadOnlySpan<double>(NativeCode->floats, NativeCode->nfloats).ToArray();
+
+            Strings = new string[NativeCode->nstrings];
+            for (int i = 0; i < NativeCode->nstrings; i++)
+            {
+                Strings[i] = Marshal.PtrToStringUTF8((nint)NativeCode->strings[i], NativeCode->strings_lens[i])!;
+            }
+
             Types = new HashlinkType[NativeCode->ntypes];
             for (int i = 0; i < NativeCode->ntypes; i++)
             {
@@ -114,22 +140,34 @@ namespace Hashlink.Reflection
                 {
                     typeNameMapping[type.Name] = type;
                 }
-                
+            }
+
+            Globals = new HashlinkGlobal[NativeCode->nglobals];
+            for (int i = 0; i < NativeCode->nglobals; i++)
+            {
+                Globals[i] = new(
+                    this, GetMemberFrom<HashlinkType>(NativeCode->globals[i]), i);
             }
 
             KnownTypes = new(this);
 
-            Functions = new HashlinkFunction[NativeCode->nfunctions];
+            Functions = new IHashlinkFunc[NativeCode->nfunctions + NativeCode->nnatives];
             for (int i = 0; i < NativeCode->nfunctions; i++)
             {
-                Functions[i] = GetMemberFrom<HashlinkFunction>(NativeCode->functions + i);
+                var f = NativeCode->functions + i;
+                Functions[f->findex] = GetMemberFrom<HashlinkFunction>(f);
+            }
+            for(int i = 0; i < NativeCode->nnatives; i++)
+            {
+                var f = NativeCode->natives + i;
+                Functions[f->findex] = GetMemberFrom<HashlinkNativeFunction>(f);
             }
         }
 
-        public HashlinkFunction GetFunctionByFIndex( int findex )
+        public IHashlinkFunc GetFunctionByFIndex( int findex )
         {
             return Functions[
-                NativeModule->functions_indexes[findex]
+                findex
                 ];
         }
         public HashlinkType GetTypeByName( string name )

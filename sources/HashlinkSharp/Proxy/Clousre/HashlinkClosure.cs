@@ -10,17 +10,17 @@ namespace Hashlink.Proxy.Clousre
 {
     public unsafe class HashlinkClosure( HashlinkObjPtr objPtr ) : HashlinkTypedObj<HL_vclosure>(objPtr)
     {
-        private HlCallback? callback;
+        private readonly HlCallback? callback;
         private Delegate? cachedWrapper;
         private object? cachedThis;
 
         public HashlinkClosure( HL_type* funcType, void* funcPtr, void* self ) :
-            this(HashlinkObjPtr.GetUnsafe(hl_alloc_closure_ptr(funcType, funcPtr, self)))
+            this(HashlinkObjPtr.Get(hl_alloc_closure_ptr(funcType, funcPtr, self)))
         {
 
         }
         public HashlinkClosure( HashlinkFuncType funcType, nint funcPtr, nint self ) :
-            this(HashlinkObjPtr.GetUnsafe(self != 0 ?
+            this(HashlinkObjPtr.Get(self != 0 ?
                 hl_alloc_closure_ptr(funcType.NativeType, (void*)funcPtr, (void*) self) :
                 hl_alloc_closure_void(funcType.NativeType, (void*)funcPtr)))
         {
@@ -38,7 +38,8 @@ namespace Hashlink.Proxy.Clousre
             TypedRef->hasValue = 0;
         }
 
-        public nint FunctionPtr => (nint)TypedRef->fun;
+        public nint FunctionPtr => 
+            (nint)TypedRef->fun;
 
         [MemberNotNull(nameof(cachedWrapper))]
         private void CheckWrapper()

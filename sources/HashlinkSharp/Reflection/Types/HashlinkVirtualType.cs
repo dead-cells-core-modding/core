@@ -1,5 +1,4 @@
 ﻿using Hashlink.Reflection.Members.Object;
-using Hashlink.Reflection.Members.Virtual;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,18 +12,19 @@ namespace Hashlink.Reflection.Types
     public unsafe class HashlinkVirtualType(HashlinkModule module, HL_type* type) : 
         HashlinkSpecialType<HL_type_virtual>(module, type)
     {
-        private HashlinkVirtualField[]? cachedFields;
-        private readonly ConcurrentDictionary<string, HashlinkVirtualField?> cachedFieldLookup = [];
-        public HashlinkVirtualField[] Fields
+        private HashlinkObjectField[]? cachedFields;
+        private readonly ConcurrentDictionary<string, HashlinkObjectField?> cachedFieldLookup = [];
+        public HashlinkObjectField[] Fields
         {
             get
             {
                 if (cachedFields == null)
                 {
-                    cachedFields = new HashlinkVirtualField[TypeData->nfields];
+                    cachedFields = new HashlinkObjectField[TypeData->nfields];
                     for (int i = 0; i < TypeData->nfields; i++)
                     {
-                        cachedFields[i] = GetMemberFrom<HashlinkVirtualField>(TypeData->fields + i);
+                        cachedFields[i] = GetMemberFrom<HashlinkObjectField>(TypeData->fields + i);
+                        cachedFields[i].Index = i;
                     }
                 }
                 return cachedFields;
@@ -35,11 +35,11 @@ namespace Hashlink.Reflection.Types
         {
             return TryFindField(name, out _);
         }
-        public HashlinkVirtualField? FindField( string name )
+        public HashlinkObjectField? FindField( string name )
         {
             return TryFindField(name, out var field) ? field : null;
         }
-        public bool TryFindField( string name, [NotNullWhen(true)] out HashlinkVirtualField? field )
+        public bool TryFindField( string name, [NotNullWhen(true)] out HashlinkObjectField? field )
         {
             field = cachedFieldLookup.GetOrAdd(name, name =>
             {

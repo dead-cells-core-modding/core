@@ -13,7 +13,7 @@ namespace Hashlink.Reflection.Members.Object
         public HashlinkObjectBinding(HashlinkModule module, int* ptr,  HashlinkObjectType type) : base(module, ptr)
         {
             Field = type.FindFieldById(ptr[0])!;
-            Function = module.GetFunctionByFIndex(ptr[1]);
+            Function = (HashlinkFunction)module.GetFunctionByFIndex(ptr[1]);
         }
 
         public HashlinkField Field

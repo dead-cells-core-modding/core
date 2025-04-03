@@ -16,6 +16,10 @@ namespace Hashlink.Reflection.Members.Object
         public override HashlinkType FieldType => cachedFieldType ??= GetMemberFrom<HashlinkType>(ptr->t);
         public override int HashedName => ptr->hashed_name;
         public override string Name => cachedName ??= new(ptr->name);
+        public int Index
+        {
+            get; set;
+        }
 
         static HashlinkMember IHashlinkMemberGenerator.GenerateFromPointer( HashlinkModule module, void* ptr )
         {

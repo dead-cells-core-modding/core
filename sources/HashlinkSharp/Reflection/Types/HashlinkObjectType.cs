@@ -3,7 +3,6 @@ using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Members.Object;
-using Hashlink.Reflection.Members.Virtual;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -18,6 +17,8 @@ namespace Hashlink.Reflection.Types
         HashlinkSpecialType<HL_type_obj>(module, type)
     {
         private HashlinkObjectType? cachedSuper;
+        private int? cachedFieldsCount;
+        private int? cachedProtosCount;
         private string? cachedName;
         private HashlinkObjectField[]? cachedFields;
         private HashlinkObjectProto[]? cachedProtos;
@@ -35,6 +36,7 @@ namespace Hashlink.Reflection.Types
             return new HashlinkObject(this);
         }
 
+        public int TotalPrototsCount => cachedProtosCount ??= (Super?.TotalPrototsCount ?? 0) + TypeData->nproto;
         public HashlinkObjectProto[] Protos
         {
             get
@@ -65,6 +67,7 @@ namespace Hashlink.Reflection.Types
                 return cachedBindings;
             }
         }
+        public int TotalFieldsCount => cachedFieldsCount ??= (Super?.TotalFieldsCount ?? 0) + TypeData->nfields;
         public HashlinkObjectField[] Fields
         {
             get
@@ -75,6 +78,7 @@ namespace Hashlink.Reflection.Types
                     for (int i = 0; i < TypeData->nfields; i++)
                     {
                         cachedFields[i] = GetMemberFrom<HashlinkObjectField>(TypeData->fields + i);
+                        cachedFields[i].Index = (Super?.TotalFieldsCount ?? 0) + i;
                     }
                 }
                 return cachedFields;
@@ -123,6 +127,28 @@ namespace Hashlink.Reflection.Types
         public HashlinkObjectField? FindFieldById( int idx )
         {
             return FindFieldByIdImpl(ref idx);
+        }
+
+        private HashlinkObjectProto? FindProtodByIdImpl( ref int idx )
+        {
+            var result = Super?.FindProtodByIdImpl(ref idx);
+            if (result != null)
+            {
+                return result;
+            }
+            if (idx < Protos.Length)
+            {
+                return Protos[idx];
+            }
+            else
+            {
+                idx -= Protos.Length;
+                return null;
+            }
+        }
+        public HashlinkObjectProto? FindProtoById( int idx )
+        {
+            return FindProtodByIdImpl(ref idx);
         }
 
         public bool HasProto( string name )

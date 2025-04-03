@@ -27,11 +27,11 @@ namespace Hashlink.Proxy
             }
             return GetUnsafe((nint)ptr);
         }
-        internal static HashlinkObjPtr GetUnsafe( nint ptr )
+        private static HashlinkObjPtr GetUnsafe( nint ptr )
         {
             return new(ptr);
         }
-        internal static HashlinkObjPtr GetUnsafe( void* ptr )
+        private static HashlinkObjPtr GetUnsafe( void* ptr )
         {
             return new((nint)ptr);
         }

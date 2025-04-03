@@ -120,7 +120,10 @@ namespace Hashlink
             ORefOffset,
             ONop,
             //  
-            OLast
+            OLast,
+            ODCCM_Helper_Start,
+
+            ORealLast
         }
         public OpCodes op;
         public int p1;

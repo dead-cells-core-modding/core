@@ -2,6 +2,7 @@
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection;
+using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Types;
 using ModCore;
 
@@ -16,6 +17,13 @@ namespace Hashlink.Marshaling
         internal static void Initialize( HL_module* module )
         {
             Module = new(module);
+        }
+
+        public static HashlinkFunction FindFunction( string typeName, string funcName )
+        {
+            var type = (HashlinkObjectType)Module.GetTypeByName(typeName);
+            return type.FindProto(funcName)?.Function ??
+                type.Bindings.First(x => x.Name == funcName).Function;
         }
         public static HashlinkType GetHashlinkType( HL_type* type )
         {

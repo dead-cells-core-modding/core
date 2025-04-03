@@ -1,5 +1,6 @@
 ﻿using Hashlink;
 using Hashlink.Marshaling;
+using Hashlink.Patch;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
@@ -123,6 +124,13 @@ namespace ModCore.Modules
 
         void IOnHashlinkVMReady.OnHashlinkVMReady()
         {
+           /* var h = new HlFunctionDefinition();
+            h.ReadFrom(HashlinkMarshal.FindFunction("$Boot", "initRes"));
+            var hc = h.Compile();
+            var of = HashlinkMarshal.FindFunction("$Boot", "initRes").EntryPointer;
+            NativeHooks.Instance.CreateHook(
+                of, hc, true);*/
+
             HashlinkHooks.Instance.CreateHook("$Boot", "main", Hook_Boot_main);
             HashlinkHooks.Instance.CreateHook("Boot", "endInit", Hook_Boot_endInit).Enable();
             HashlinkHooks.Instance.CreateHook("Boot", "init", Hook_Boot_init).Enable();
