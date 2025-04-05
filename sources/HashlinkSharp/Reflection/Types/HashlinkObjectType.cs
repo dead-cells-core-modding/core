@@ -18,7 +18,6 @@ namespace Hashlink.Reflection.Types
     {
         private HashlinkObjectType? cachedSuper;
         private int? cachedFieldsCount;
-        private int? cachedProtosCount;
         private string? cachedName;
         private HashlinkObjectField[]? cachedFields;
         private HashlinkObjectProto[]? cachedProtos;
@@ -36,7 +35,6 @@ namespace Hashlink.Reflection.Types
             return new HashlinkObject(this);
         }
 
-        public int TotalPrototsCount => cachedProtosCount ??= (Super?.TotalPrototsCount ?? 0) + TypeData->nproto;
         public HashlinkObjectProto[] Protos
         {
             get
@@ -129,26 +127,9 @@ namespace Hashlink.Reflection.Types
             return FindFieldByIdImpl(ref idx);
         }
 
-        private HashlinkObjectProto? FindProtodByIdImpl( ref int idx )
-        {
-            var result = Super?.FindProtodByIdImpl(ref idx);
-            if (result != null)
-            {
-                return result;
-            }
-            if (idx < Protos.Length)
-            {
-                return Protos[idx];
-            }
-            else
-            {
-                idx -= Protos.Length;
-                return null;
-            }
-        }
         public HashlinkObjectProto? FindProtoById( int idx )
         {
-            return FindProtodByIdImpl(ref idx);
+            return Protos.FirstOrDefault(x => x.ProtoIndex == idx) ?? Super?.FindProtoById(idx);
         }
 
         public bool HasProto( string name )

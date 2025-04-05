@@ -124,8 +124,9 @@ namespace ModCore.Modules
 
         void IOnHashlinkVMReady.OnHashlinkVMReady()
         {
-           /* var h = new HlFunctionDefinition();
+           /*var h = new HlFunctionDefinition();
             h.ReadFrom(HashlinkMarshal.FindFunction("$Boot", "initRes"));
+            h.VerifyOpCodes();
             var hc = h.Compile();
             var of = HashlinkMarshal.FindFunction("$Boot", "initRes").EntryPointer;
             NativeHooks.Instance.CreateHook(

@@ -40,7 +40,7 @@ namespace DeadCellsModding
 
             var core = Assembly.LoadFrom(modcore);
             var startup = core.GetType("ModCore.Startup");
-            startup!.GetMethod("StartGame")!.Invoke(null, null);
+            startup!.GetMethod("StartGame")!.CreateDelegate<Func<int>>()();
         }
         private static void Main( string[] args )
         {

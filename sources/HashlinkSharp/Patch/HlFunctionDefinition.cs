@@ -58,7 +58,7 @@ namespace Hashlink.Patch
             List<(HlInstruction ins, int pId, int offset)> jumpFix = [];
             while (!reader.IsEmpty)
             {
-                var op = HlOpCodes.OpCodes[reader.Read()];
+                var op = HlOpCodes.OpCodes[reader.Read(-1)];
                 var epCount = 0;
                 var tProvider = -1;
                 int fixReflect = -1;
@@ -74,21 +74,24 @@ namespace Hashlink.Patch
 
                 for (int i = 0; i < op.Payloads.Length; i++)
                 {
-                    if (i >= 3)
-                    {
-                        break;
-                    }
-                    buffer.Add(reader.Read());
+                    buffer.Add(reader.Read(
+                        op.VariablePayload != null ? -1 : op.Payloads.Length
+                        ));
                     var pk = op.Payloads[i];
                     if (pk.HasFlag(PK.VariableCount))
                     {
-                        epCount = buffer[i];
+                        epCount = buffer[i] - op.Payloads.Length + 3;
                     }
+                }
+
+                if (op.OpCode == OP.OCall2)
+                {
+                    _ = op;
                 }
 
                 for (int i = 0; i < epCount; i++)
                 {
-                    buffer.Add(reader.Read());
+                    buffer.Add(reader.Read(-1));
                 }
 
                 for (int i = 0; i < buffer.Count; i++)
@@ -242,6 +245,13 @@ namespace Hashlink.Patch
                 ins.Operands[pId] = Instructions[offset];
             }
         }
+        private void FixInstructionId()
+        {
+            for (int i = 0; i < Instructions.Count; i++)
+            {
+                Instructions[i].Index = i;
+            }
+        }
         private void FixRegisterId()
         {
             for (int i = 0; i < Parameters.Count; i++)
@@ -251,6 +261,67 @@ namespace Hashlink.Patch
             for (int i = 0; i < LocalRegisters.Count; i++)
             {
                 LocalRegisters[i].Index = i + Parameters.Count;
+            }
+        }
+        public void VerifyOpCodes()
+        {
+            FixInstructionId();
+            FixRegisterId();
+            for (int i = 0; i < Instructions.Count; i++)
+            {
+                var ins = Instructions[i];
+                var op = ins.OpCode;
+                if (ins.Operands.Length != op.Payloads.Length)
+                {
+                    if (ins.Operands.Length < op.Payloads.Length || op.VariablePayload == null)
+                    {
+
+                        throw new InvalidProgramException($"Number of operands does not match in {ins}");
+                    }
+                }
+                if (op.OpCode >= OP.OCall0 && op.OpCode <= OP.OCall4)
+                {
+                    if (ins.Operands.Length != (op.OpCode - OP.OCall0 + 2))
+                    {
+                        throw new InvalidProgramException($"Number of operands does not match in {ins}");
+                    }
+                }
+                if (op.OpCode == OP.OCallN)
+                {
+                    var f = ins.Operands[1] as IHashlinkFunc ?? throw new InvalidProgramException($"The operand type does not match, it should be IHashlinkFunc in {ins}");
+                    if (ins.Operands.Length != (f.FuncType.ArgTypes.Length + 3))
+                    {
+                        throw new InvalidProgramException($"Number of operands does not match in {ins}");
+                    }
+                }
+                if (op.OpCode == OP.OCallMethod || op.OpCode == OP.OCallThis)
+                {
+                    HashlinkFuncType ft;
+                    if (ins.Operands[1] is HashlinkObjectProto p)
+                    {
+                        ft = p.Function.FuncType;
+                    }
+                    else if (ins.Operands[1] is HashlinkObjectField f && f.FieldType is HashlinkFuncType fft)
+                    {
+                        ft = fft;
+                    }
+                    else
+                    {
+                        throw new InvalidProgramException($"The operand type does not match, it should be HashlinkObjectProto or HashlinkObjectField in {ins}");
+                    }
+                    if (ins.Operands.Length != (ft.ArgTypes.Length + 3 + OP.OCallMethod - op.OpCode))
+                    {
+                        throw new InvalidProgramException($"Number of operands does not match in {ins}");
+                    }
+                }
+                for (int j = 0; j < ins.Operands.Length; j++)
+                {
+                    var ope = ins.Operands[j];
+                    if (ope == null)
+                    {
+                        throw new InvalidProgramException();
+                    }
+                }
             }
         }
         public void ReadFrom( HashlinkFunction from )
@@ -346,6 +417,10 @@ namespace Hashlink.Patch
                         {
                             val = type.TypeIndex;
                         }
+                        else if (ope is HlInstruction tins)
+                        {
+                            val = tins.Index - i - 1;
+                        }
                         else if (ope is HashlinkGlobal glob)
                         {
                             val = glob.Index;
@@ -374,6 +449,7 @@ namespace Hashlink.Patch
         public nint Compile()
         {
             FixRegisterId();
+            FixInstructionId();
 
             //Collect Constants
 

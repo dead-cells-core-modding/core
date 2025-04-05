@@ -22,16 +22,20 @@ namespace Hashlink.Patch.Reader
             return true;
         }
 
-        public override int Read()
+        public override int Read(int operandCount)
         {
             var cur = opcodes;
+            if (operandCount >= 0)
+            {
+                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(pIndex, operandCount + 1);
+            }
             return pIndex++ switch
             {
                 0 => (int) cur->op,
                 1 => cur->p1,
                 2 => cur->p2,
                 3 => cur->p3,
-                > 3 => cur->extra[pIndex - 3],
+                > 3 => operandCount == 4 ? (int)cur->extra : cur->extra[pIndex - 3],
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

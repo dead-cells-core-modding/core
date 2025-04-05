@@ -13,6 +13,6 @@ namespace Hashlink.Patch.Reader
             get;
         }
         public abstract bool MoveNext();
-        public abstract int Read();
+        public abstract int Read( int operandCount );
     }
 }
