@@ -67,6 +67,7 @@ namespace Hashlink.Marshaling
 
             if (value is IHashlinkPointer hlptr)
             {
+                HashlinkMarshal.MarkUsed(hlptr);
                 Unsafe.WriteUnaligned(target, hlptr.HashlinkPointer);
                 return true;
             }

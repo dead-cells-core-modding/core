@@ -45,18 +45,6 @@ namespace Hashlink.Wrapper
             
             nint result = 0;
             HashlinkMarshal.WriteData(&result, obj, type);
-            if (result == -1)
-            {
-                Debugger.Break();
-                throw new InvalidOperationException();
-            }
-            if (result != 0 && 
-                hl_is_gc_ptr((void*)result) &&
-                !hl_ptr_is_alive((void*)result))
-            {
-                Debugger.Break();
-                throw new InvalidProgramException();
-            }
             return result;
         }
     }

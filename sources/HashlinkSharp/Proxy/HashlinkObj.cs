@@ -11,19 +11,7 @@ namespace Hashlink.Proxy
             public List<object> data = [];
         }
 
-        internal protected virtual void SetDestroyed()
-        {
-            if (IsDestroyed)
-            {
-                return;
-            }
-            IsDestroyed = true;
-            Handle = null;
-            HashlinkPointer = -1;
-            Type = null!;
-            NativeType = null;
-            extendData = null!;
-        }
+      
         public HashlinkObj( HashlinkObjPtr objPtr )
         {
             var ptr = objPtr.Pointer;
@@ -42,20 +30,10 @@ namespace Hashlink.Proxy
         }
         public override string? ToString()
         {
-            CheckValidity();
             return new(hl_to_string((HL_vdynamic*)HashlinkPointer));
-        }
-        internal protected void CheckValidity()
-        {
-            if (IsDestroyed)
-            {
-                throw new ObjectDisposedException(GetType().FullName, 
-                    "The address pointed to by this object is duplicated on the Hashlink side, which should not happen.");
-            }
         }
         void IExtendData.AddData( object data )
         {
-            CheckValidity();
             if (extendData == null)
             {
                 extendData = data;
@@ -74,7 +52,6 @@ namespace Hashlink.Proxy
 
         T IExtendData.GetData<T>()
         {
-            CheckValidity();
             if (this is T)
             {
                 return (T)(object)this;
@@ -88,24 +65,20 @@ namespace Hashlink.Proxy
 
         public HashlinkObjHandle? Handle
         {
-            get; private set;
+            get; 
         }
         public TypeKind TypeKind => Type.TypeKind;
         public HashlinkType Type
         {
-            get; private set;
+            get; 
         }
         public HL_type* NativeType
         {
-            get; private set;
+            get; 
         }
         public virtual nint HashlinkPointer
         {
-            get; private set;
+            get; 
         }
-        public bool IsDestroyed
-        {
-            get; private set;
-        } = false;
     }
 }

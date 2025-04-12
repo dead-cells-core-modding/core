@@ -97,10 +97,9 @@ namespace Hashlink.Marshaling
             {
                 return null;
             }
-            if (!hl_ptr_is_alive(ptr))
-            {
-                throw new InvalidProgramException();
-            }
+
+            Debug.Assert(hl_ptr_is_alive(ptr));
+
             gcLock.EnterUpgradeableReadLock();
             try
             {
@@ -133,9 +132,9 @@ namespace Hashlink.Marshaling
         {
             return GetInternalHandle(ptr)?.handle;
         }
-        public static void MarkUsed( void* ptr )
+        public static void MarkUsed( nint ptr )
         {
-            _ = GetInternalHandle(ptr);
+            _ = GetInternalHandle((void*)ptr);
         }
 
         private HashlinkObj? obj;
@@ -149,7 +148,6 @@ namespace Hashlink.Marshaling
             get => obj;
             set
             {
-                obj?.SetDestroyed();
                 obj = value;
             }
         }

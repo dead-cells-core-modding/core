@@ -17,7 +17,6 @@ namespace Hashlink.Proxy.Objects
 
         public override string ToString()
         {
-            CheckValidity();
             return Exception == null ? "" : $"[.NET Exception] {Exception}";
         }
     }

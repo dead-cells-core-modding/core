@@ -20,12 +20,10 @@ namespace Hashlink.Proxy.Objects
         {
             get
             {
-                CheckValidity();
                 return new(((HL_vstring*)HashlinkPointer)->bytes);
             }
             set
             {
-                CheckValidity();
                 ArgumentNullException.ThrowIfNull(value, nameof(value));
                 var str = (HL_vstring*)HashlinkPointer;
                 str->bytes = (char*)hl_gc_alloc_gen(InternalTypes.hlt_bytes, (value.Length * 2) + 2, HL_Alloc_Flags.MEM_KIND_NOPTR |

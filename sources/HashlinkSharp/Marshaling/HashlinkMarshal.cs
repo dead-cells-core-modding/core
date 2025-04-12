@@ -168,6 +168,9 @@ namespace Hashlink.Marshaling
         {
             return (T?)ConvertHashlinkObject(target, marshaler);
         }
-
+        public static void MarkUsed( IHashlinkPointer ptr )
+        {
+            HashlinkObjHandle.MarkUsed(ptr.HashlinkPointer);
+        }
     }
 }

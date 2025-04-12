@@ -25,14 +25,12 @@ namespace Hashlink.Proxy.Values
         {
             get
             {
-                CheckValidity();
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(paramId, CurrentConstruct.ParamsCount);
                 return HashlinkMarshal.ReadData(ParamsData + CurrentConstruct.ParamOffsets[paramId],
                      CurrentConstruct.Params[paramId]);
             }
             set
             {
-                CheckValidity();
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(paramId, CurrentConstruct.ParamsCount);
                 HashlinkMarshal.WriteData(ParamsData + CurrentConstruct.ParamOffsets[paramId],
                     value,
