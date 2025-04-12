@@ -3,6 +3,6 @@
     [Event(true)]
     public interface IOnCodeLoading
     {
-        public void OnCodeLoading( ref Span<byte> data );
+        public void OnCodeLoading( ref ReadOnlySpan<byte> data );
     }
 }

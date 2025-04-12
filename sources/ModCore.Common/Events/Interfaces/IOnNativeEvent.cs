@@ -1,4 +1,6 @@
-﻿namespace ModCore.Events.Interfaces
+﻿using System.Runtime.InteropServices;
+
+namespace ModCore.Events.Interfaces
 {
     [Event]
     public unsafe interface IOnNativeEvent
@@ -15,8 +17,16 @@
             HL_EV_GC_CS_NO_MARKED = 8,
             HL_EV_ERR_NET_CAUGHT = 9,
             HL_EV_START_GAME = 10,
-            HL_EV_RESOLVE_NATIVE = 11
+            HL_EV_RESOLVE_NATIVE = 11,
+            HL_EV_GC_SEARCH_ROOT = 12
         }
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Event_gc_roots
+        {
+            public void** roots;
+            public int nroots;
+        }
+        
         public record class Event( EventId EventId, nint Data );
         public void OnNativeEvent( Event ev );
     }

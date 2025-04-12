@@ -28,8 +28,8 @@ namespace ModCore
             logger.Information("Finding hlboot.dat");
             if (File.Exists(hlbootPath))
             {
-                var mmf = MemoryMappedFile.CreateFromFile(hlbootPath);
-                var view = mmf.CreateViewAccessor();
+                var mmf = MemoryMappedFile.CreateFromFile(hlbootPath, FileMode.Open, null, 0, MemoryMappedFileAccess.Read);
+                var view = mmf.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
                 view.SafeMemoryMappedViewHandle.AcquirePointer(ref hlboot);
                 hlbootSize = (int)view.SafeMemoryMappedViewHandle.ByteLength;
             }
@@ -52,9 +52,9 @@ namespace ModCore
 
             hl_global_init();
 
-            var codeData = new Span<byte>(hlboot, hlbootSize);
+            var codeData = new ReadOnlySpan<byte>(hlboot, hlbootSize);
 
-            EventSystem.BroadcastEvent<IOnCodeLoading, Span<byte>>(ref codeData);
+            EventSystem.BroadcastEvent<IOnCodeLoading, ReadOnlySpan<byte>>(ref codeData);
 
             void* code;
             fixed (byte* data = codeData)
