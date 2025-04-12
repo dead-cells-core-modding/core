@@ -13,6 +13,6 @@ namespace Hashlink.Patch.Reader
             get;
         }
         public abstract bool MoveNext();
-        public abstract int Read( int operandCount );
+        public abstract int Read( HlOpCode.PayloadKind kind = HlOpCode.PayloadKind.None );
     }
 }

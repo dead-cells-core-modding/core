@@ -16,11 +16,15 @@ using System.Runtime.CompilerServices;
 using Hashlink.Reflection.Members.Object;
 using Hashlink.Reflection;
 using Hashlink.UnsafeUtilities;
+using Hashlink.Patch.Writer;
+using Hashlink.Proxy.Objects;
+using System.Collections.Concurrent;
 
 namespace Hashlink.Patch
 {
     public unsafe class HlFunctionDefinition
     {
+        private static readonly ConcurrentBag<IHashlinkPointer> funcConstants = [];
         public List<HlFunctionReg> Parameters
         {
             get; set;
@@ -58,7 +62,7 @@ namespace Hashlink.Patch
             List<(HlInstruction ins, int pId, int offset)> jumpFix = [];
             while (!reader.IsEmpty)
             {
-                var op = HlOpCodes.OpCodes[reader.Read(-1)];
+                var op = HlOpCodes.OpCodes[reader.Read(PK.None)];
                 var epCount = 0;
                 var tProvider = -1;
                 int fixReflect = -1;
@@ -74,24 +78,20 @@ namespace Hashlink.Patch
 
                 for (int i = 0; i < op.Payloads.Length; i++)
                 {
-                    buffer.Add(reader.Read(
-                        op.VariablePayload != null ? -1 : op.Payloads.Length
-                        ));
                     var pk = op.Payloads[i];
+                    buffer.Add(reader.Read(
+                        pk
+                        ));
+                    
                     if (pk.HasFlag(PK.VariableCount))
                     {
                         epCount = buffer[i] - op.Payloads.Length + 3;
                     }
                 }
 
-                if (op.OpCode == OP.OCall2)
-                {
-                    _ = op;
-                }
-
                 for (int i = 0; i < epCount; i++)
                 {
-                    buffer.Add(reader.Read(-1));
+                    buffer.Add(reader.Read(op.VariablePayload!.Value));
                 }
 
                 for (int i = 0; i < buffer.Count; i++)
@@ -174,13 +174,14 @@ namespace Hashlink.Patch
                     }
                     else if (k.HasFlag(PK.GlobalIndex))
                     {
-                        operands.Add(HashlinkMarshal.Module.Globals[val]);
+                        var gv = HashlinkMarshal.Module.Globals[val];
+                        operands.Add(gv);
                         continue;
                     }
                     else if (k.HasFlag(PK.BytesIndex))
                     {
                         operands.Add(
-                            (nint)HashlinkMarshal.Module.NativeModule->code->bytes + 
+                            (nint)HashlinkMarshal.Module.NativeModule->code->bytes +
                             HashlinkMarshal.Module.NativeModule->code->bytes_pos[val]);
                         continue;
                     }
@@ -344,106 +345,66 @@ namespace Hashlink.Patch
         }
 
         private List<CustomHashlinkFunction> customFunctions = [];
-        private void WriteOpCode( HL_opcode* op, int val, 
-            ref int idx, 
-            MemoryBlock<int> extra)
+
+        public void WriteOpCodes( HlOpCodeWriter writer, Dictionary<object, int> constantsLookup )
         {
-            if (idx == 0)
+            for (int i = 0; i < Instructions.Count; i++)
             {
-                op->p1 = val;
-            }
-            else if (idx == 1)
-            {
-                op->p2 = val;
-            }
-            else if (idx == 2)
-            {
-                op->p3 = val;
-            }
-            else
-            {
-                if (op->extra == null)
+                var ins = Instructions[i];
+                writer.MoveNext(ins.OpCode.OpCode);
+
+                for (int j = 0; j < ins.Operands.Length; j++)
                 {
-                    op->extra = extra.Alloc(4);
-                }
-                else
-                {
-                    var os = extra.GetSize(op->extra);
-                    if (os <= idx)
+                    var ope = ins.Operands[j];
+                    var k = j < ins.OpCode.Payloads.Length ? ins.OpCode.Payloads[j] : ins.OpCode.VariablePayload!.Value;
+                    var val = 0;
+                    if (ope is HlFunctionReg reg)
                     {
-                        op->extra = extra.Expand(op->extra, os << 1);
+                        val = reg.Index;
                     }
-                }
-                op->extra[idx - 3] = val;
-            }
-            idx++;
-        }
-        private (IMemoryOwner<HL_opcode>, MemoryBlock<int>) WriteOpCodes( Dictionary<object, int> constantsLookup )
-        {
-            var opO = MemoryPool<HL_opcode>.Shared.Rent(Instructions.Count);
-            MemoryBlock<int> extra = new();
-
-            fixed (void* opp = opO.Memory.Span)
-            {
-                HL_opcode* op = (HL_opcode*)opp;
-                for (int i = 0; i < Instructions.Count; i++)
-                {
-                    int idx = 0;
-                    var ins = Instructions[i];
-                    op->op = ins.OpCode.OpCode;
-
-                    for (int j = 0; j < ins.Operands.Length; j++)
+                    else if (ope is HashlinkObjectField of)
                     {
-                        var ope = ins.Operands[j];
-                        var k = j < ins.OpCode.Payloads.Length ? ins.OpCode.Payloads[j] : ins.OpCode.VariablePayload!.Value;
-                        var val = 0;
-                        if (ope is HlFunctionReg reg)
-                        {
-                            val = reg.Index;
-                        }
-                        else if (ope is HashlinkObjectField of)
-                        {
-                            val = of.Index;
-                        }
-                        else if (ope is HashlinkObjectProto hop)
-                        {
-                            val = hop.ProtoIndex;
-                        }
-                        else if (ope is IHashlinkFunc func)
-                        {
-                            val = func.FunctionIndex;
-                        }
-                        else if (ope is HashlinkType type)
-                        {
-                            val = type.TypeIndex;
-                        }
-                        else if (ope is HlInstruction tins)
-                        {
-                            val = tins.Index - i - 1;
-                        }
-                        else if (ope is HashlinkGlobal glob)
-                        {
-                            val = glob.Index;
-                        }
-                        else if (k.HasFlag(PK.VariableCount))
-                        {
-                            val = ins.Operands.Length - 3;
-                        }
-                        else if (k.HasFlag(PK.Impl))
-                        {
-                            val = (int)ope;
-                        }
-                        else if (k.HasFlag(PK.IndexedConstants))
-                        {
-                            val = constantsLookup[ope];
-                        }
-                        WriteOpCode(op, val, ref idx, extra);
+                        val = of.Index;
                     }
-                    op++;
+                    else if (ope is HashlinkObjectProto hop)
+                    {
+                        val = hop.ProtoIndex;
+                    }
+                    else if (ope is IHashlinkFunc func)
+                    {
+                        val = func.FunctionIndex;
+                    }
+                    else if (ope is HashlinkType type)
+                    {
+                        val = type.TypeIndex;
+                    }
+                    else if (ope is HlInstruction tins)
+                    {
+                        val = tins.Index - i - 1;
+                    }
+                    else if (ope is HashlinkGlobal glob)
+                    {
+                        val = glob.Index;
+                    }
+                    else if (k.HasFlag(PK.VariableCount))
+                    {
+                        val = ins.Operands.Length - 3;
+                    }
+                    else if (k.HasFlag(PK.Impl))
+                    {
+                        val = (int)ope;
+                    }
+                    else if (k.HasFlag(PK.IndexedConstants))
+                    {
+                        val = constantsLookup[ope];
+                    }
+                    else if (ins.OpCode == HlOpCodes.OGetGlobal) // Not HashlinkGlobal
+                    {
+                        val = (int)((uint)constantsLookup[ope] | 0x80000000);
+                    }
+                    writer.Write(val, k);
                 }
             }
-
-            return (opO, extra);
         }
 
         public nint Compile()
@@ -457,19 +418,26 @@ namespace Hashlink.Patch
             foreach (var v in Instructions)
             {
                 (var pt, var idx) = v.OpCode.Payloads.Select(( x, i ) => (x, i)).FirstOrDefault(x => x.x.HasFlag(PK.IndexedConstants));
+                if (pt.HasFlag(PK.GlobalIndex))
+                {
+                    if (v.Operands[idx] is not HashlinkGlobal)
+                    {
+                        constantsSet.Add(v.Operands[idx]);
+                    }
+                }
                 if (pt.HasFlag(PK.IndexedConstants))
                 {
                     constantsSet.Add(v.Operands[idx]);
                 }
             }
 
-            using var fptrs = MemoryPool<nint>.Shared.Rent(
-                HashlinkMarshal.Module.Functions.Length + customFunctions.Count
+            var fptrs = GC.AllocateArray<nint>(
+                HashlinkMarshal.Module.Functions.Length + customFunctions.Count, true
                 );
-            using var constantsOwner = MemoryPool<long>.Shared.Rent(
-                constantsSet.Count
+            var constantsOwner = GC.AllocateArray<long>(
+                constantsSet.Count + 1
                 );
-            fixed (long* constants = constantsOwner.Memory.Span)
+            fixed (long* constants = constantsOwner)
             {
 
                 Dictionary<object, int> constantsLookup = [];
@@ -498,6 +466,12 @@ namespace Hashlink.Patch
                             *(nint*)(constants + cid) = Marshal.StringToHGlobalUni(str);
                             constantsLookup.Add(v, cid);
                         }
+                        else if (v is IHashlinkPointer hstr)
+                        {
+                            *(nint*)(constants + cid) = hstr.HashlinkPointer;
+                            funcConstants.Add(hstr);
+                            constantsLookup.Add(v, cid);
+                        }
                         cid++;
                     }
                 }
@@ -513,11 +487,12 @@ namespace Hashlink.Patch
                     hasdebug = false
                 };
 
-                var opcodes = WriteOpCodes(constantsLookup);
+                var writer = new HlNativeOpCodeWriter(Instructions.Count);
 
-                var fptrsS = fptrs.Memory.Span;
+                WriteOpCodes(writer, constantsLookup);
+
                 new ReadOnlySpan<nint>(
-                    HashlinkMarshal.Module.NativeModule->functions_ptrs, HashlinkMarshal.Module.Functions.Length).CopyTo(fptrsS);
+                    HashlinkMarshal.Module.NativeModule->functions_ptrs, HashlinkMarshal.Module.Functions.Length).CopyTo(fptrs);
 
                 Span<nint> regs = stackalloc nint[Parameters.Count + LocalRegisters.Count];
                 for (int i = 0; i < Parameters.Count; i++)
@@ -529,7 +504,7 @@ namespace Hashlink.Patch
                     regs[i + Parameters.Count] = (nint)LocalRegisters[i].Type.NativePointer;
                 }
 
-                fixed (void* pfptrs = fptrsS)
+                fixed (void* pfptrs = fptrs)
                 {
                     HL_module fmodule = *HashlinkMarshal.Module.NativeModule with
                     {
@@ -552,7 +527,7 @@ namespace Hashlink.Patch
                         nregs = regs.Length,
                         type = &t,
                         nops = Instructions.Count,
-                        ops = (HL_opcode*) Unsafe.AsPointer(ref opcodes.Item1.Memory.Span.GetPinnableReference()),
+                        ops = (HL_opcode*) Unsafe.AsPointer(ref writer.opcodes[0]),
                         regs = (HL_type**) Unsafe.AsPointer(ref regs.GetPinnableReference())
                     };
                     var ctx = hl_jit_alloc();
@@ -560,7 +535,6 @@ namespace Hashlink.Patch
                     nint result = hl_jit_function(ctx, &fmodule, &func, constants);
                     var basePtr = (nint)hl_jit_code(ctx, &fmodule, &fmodule.codesize, (void**) &fmodule.jit_debug, null);
                     hl_jit_free(ctx, false);
-                    opcodes.Item2.Dispose();
                     return result + basePtr;
                 }
             }

@@ -1,5 +1,6 @@
 ﻿
 using MonoMod.Core;
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 
 using HookInfo = MonoMod.Core.ICoreNativeDetour;
@@ -12,6 +13,7 @@ namespace ModCore.Modules
         public override int Priority => ModulePriorities.NativeHook;
 
         private readonly Dictionary<Delegate, HookHandle> delegate2handle = [];
+        private readonly ConcurrentBag<HookHandle> hooks = [];
         private static readonly IDetourFactory detourFactory = DetourFactory.Current;
 
         public class HookHandle
@@ -39,6 +41,7 @@ namespace ModCore.Modules
         {
             HookHandle result;
             result = new HookHandle(detourFactory.CreateNativeDetour(target, detour, applyByDefault), this);
+            hooks.Add(result);
             return result;
         }
 

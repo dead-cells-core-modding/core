@@ -20,6 +20,16 @@ namespace Hashlink.Patch
         {
             get; set;
         }
+
+        public HlInstruction()
+        {
+        
+        }
+        public HlInstruction( HlOpCode opcode, params object[] operands )
+        {
+            OpCode = opcode;
+            Operands = operands;
+        }
         public override string ToString()
         {
             var sb = new StringBuilder();

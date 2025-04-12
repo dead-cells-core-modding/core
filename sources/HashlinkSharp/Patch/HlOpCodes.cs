@@ -207,7 +207,7 @@ namespace Hashlink.Patch
                 HlOpCode.PayloadKind.Register,
                 HlOpCode.PayloadKind.Function,
                 HlOpCode.PayloadKind.Register,
-                HlOpCode.PayloadKind.Register,
+                HlOpCode.PayloadKind.Register | HlOpCode.PayloadKind.ExtraParamPointer,
             ]
             );
         public readonly static HlOpCode OCall3 = new(

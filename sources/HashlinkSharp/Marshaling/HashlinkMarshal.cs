@@ -169,7 +169,5 @@ namespace Hashlink.Marshaling
             return (T?)ConvertHashlinkObject(target, marshaler);
         }
 
-        
-
     }
 }

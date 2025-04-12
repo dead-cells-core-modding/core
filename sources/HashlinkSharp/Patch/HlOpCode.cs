@@ -38,7 +38,8 @@ namespace Hashlink.Patch
             TypeProvider = 1 << 16,
             DeclaringOnThis = 1 << 17,
             RequestTypeInfo = 1 << 18,
-            IndexedConstants = 1 << 19
+            IndexedConstants = 1 << 19,
+            ExtraParamPointer = 1 << 20,
         }
         public HL_opcode.OpCodes OpCode
         {

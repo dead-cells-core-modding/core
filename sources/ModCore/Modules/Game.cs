@@ -34,7 +34,6 @@ namespace ModCore.Modules
         {
             if (ev.EventId == IOnNativeEvent.EventId.HL_EV_START_GAME)
             {
-                EventSystem.BroadcastEvent<IOnBeforeGameInit>();
                 StartGame();
             }
         }
@@ -115,24 +114,15 @@ namespace ModCore.Modules
             HeroInstance = null;
             return orig.DynamicInvoke(self);
         }
-        private void Hook_Boot_main( HashlinkClosure orig, HashlinkObject self )
+        private void Hook_Boot_main( HashlinkClosure orig)
         {
             EventSystem.BroadcastEvent<IOnBeforeGameInit>();
-            orig.DynamicInvoke(self);
+            orig.DynamicInvoke();
         }
-
 
         void IOnHashlinkVMReady.OnHashlinkVMReady()
         {
-           /*var h = new HlFunctionDefinition();
-            h.ReadFrom(HashlinkMarshal.FindFunction("$Boot", "initRes"));
-            h.VerifyOpCodes();
-            var hc = h.Compile();
-            var of = HashlinkMarshal.FindFunction("$Boot", "initRes").EntryPointer;
-            NativeHooks.Instance.CreateHook(
-                of, hc, true);*/
-
-            HashlinkHooks.Instance.CreateHook("$Boot", "main", Hook_Boot_main);
+            HashlinkHooks.Instance.CreateHook("$Boot", "main", Hook_Boot_main).Enable();
             HashlinkHooks.Instance.CreateHook("Boot", "endInit", Hook_Boot_endInit).Enable();
             HashlinkHooks.Instance.CreateHook("Boot", "init", Hook_Boot_init).Enable();
             HashlinkHooks.Instance.CreateHook("Boot", "update", Hook_Boot_update).Enable();

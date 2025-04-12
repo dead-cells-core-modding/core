@@ -19,6 +19,7 @@ using System.Reflection.Emit;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ModCore.Hooks
 {
@@ -26,7 +27,8 @@ namespace ModCore.Hooks
     {
         public readonly NativeHooks.HookHandle hook;
         public readonly HlCallback callback;
-        public readonly HashlinkFuncType function;
+        public readonly HashlinkFuncType funcType;
+        public readonly HashlinkFunction function;
 
         private readonly List<Delegate> hooks = [];
         private readonly static MethodInfo MI_HookEntry = typeof(HashlinkHookManager).GetMethod(
@@ -34,33 +36,36 @@ namespace ModCore.Hooks
 
         public HashlinkHookManager(nint target, HashlinkFunction func)
         {
-            function = func.FuncType.BaseFunc;
+            function = func;
+            funcType = func.FuncType.BaseFunc;
             callback = HlCallbackFactory.GetHlCallback(
                 func.FuncType
                 );
-            hook = NativeHooks.Instance.CreateHook(target, callback.NativePointer, true);
+            hook = NativeHooks.Instance.CreateHook(
+                target + 16, 
+                callback.NativePointer, true);
             callback.RedirectTarget = hook.Original;
             callback.Target = CreateDelegateAdapt().CreateAnonymousDelegate(this);
         }
 
         private DynamicMethod CreateDelegateAdapt(  )
         {
-            var targs = new Type[function.ArgTypes.Length + 1];
+            var targs = new Type[funcType.ArgTypes.Length + 1];
             targs[0] = typeof(HashlinkHookManager);
-            if (!HashlinkMarshal.PrimitiveTypes.TryGetValue(function.ReturnType.TypeKind, out var retType))
+            if (!HashlinkMarshal.PrimitiveTypes.TryGetValue(funcType.ReturnType.TypeKind, out var retType))
             {
                 retType = typeof(object);
             }
 
-            for (int i = 0; i < function.ArgTypes.Length; i++)
+            for (int i = 0; i < funcType.ArgTypes.Length; i++)
             {
-                var t = function.ArgTypes[i];
+                var t = funcType.ArgTypes[i];
                 if (!HashlinkMarshal.PrimitiveTypes.TryGetValue(t.TypeKind, out targs[i + 1]!))
                 {
                     targs[i + 1] = typeof(object);
                 }
             }
-            var dm = new DynamicMethod("<HookAdapt>" + function.ToString(),
+            var dm = new DynamicMethod($"<HookAdapt><f:{function.FunctionIndex}> {funcType}",
                 retType,
                 targs,
                 true
@@ -119,10 +124,10 @@ namespace ModCore.Hooks
         {
             try
             {
-                HashlinkClosure prev = new HashlinkClosure(function, hook.Original, 0);
+                HashlinkClosure prev = new HashlinkClosure(funcType, hook.Original, 0);
                 for (int i = 0; i < hooks.Count; i++)
                 {
-                    prev = new HashlinkClosure(function,
+                    prev = new HashlinkClosure(funcType,
                         hooks[i].Bind(prev));
                 }
                 return prev.DynamicInvoke(args);

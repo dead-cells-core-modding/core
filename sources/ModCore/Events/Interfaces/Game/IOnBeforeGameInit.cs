@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ModCore.Events.Interfaces.Game
 {
-    [Event]
+    [Event(true)]
     public interface IOnBeforeGameInit
     {
         void OnBeforeGameInit();

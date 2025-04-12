@@ -22,22 +22,20 @@ namespace Hashlink.Patch.Reader
             return true;
         }
 
-        public override int Read(int operandCount)
+        public override int Read(HlOpCode.PayloadKind kind )
         {
             var cur = opcodes;
-            if (operandCount >= 0)
-            {
-                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(pIndex, operandCount + 1);
-            }
-            return pIndex++ switch
+            var result = pIndex switch
             {
                 0 => (int) cur->op,
                 1 => cur->p1,
                 2 => cur->p2,
                 3 => cur->p3,
-                > 3 => operandCount == 4 ? (int)cur->extra : cur->extra[pIndex - 3],
+                > 3 => kind.HasFlag(HlOpCode.PayloadKind.ExtraParamPointer) ? (int)cur->extra : cur->extra[pIndex - 3],
                 _ => throw new ArgumentOutOfRangeException()
             };
+            pIndex++;
+            return result;
         }
     }
 }

@@ -41,18 +41,20 @@ namespace ModCore.Modules
                 Manager.RemoveHook( Hook );
             }
         }
-        public HookHandle CreateHook( string typeName, string protoName, Delegate hook, nint entry = 0 )
+        [Obsolete]
+        private HookHandle CreateHook( string typeName, string protoName, Delegate hook, nint entry )
         {
-            return CreateHook(HashlinkMarshal.FindFunction(typeName, protoName), hook, entry);
+            return CreateHook(typeName, protoName, hook);
         }
-        public HookHandle CreateHook(HashlinkFunction func, Delegate hook, nint entry = 0)
+        public HookHandle CreateHook( string typeName, string protoName, Delegate hook, bool enableByDefault = true)
+        {
+            return CreateHook(HashlinkMarshal.FindFunction(typeName, protoName), hook, enableByDefault);
+        }
+        public HookHandle CreateHook(HashlinkFunction func, Delegate hook, bool enableByDefault = true )
         {
             ArgumentNullException.ThrowIfNull(func);
             ArgumentNullException.ThrowIfNull(hook);
-            if (entry == 0)
-            {
-                entry = (nint) func.EntryPointer;
-            }
+            nint entry = func.EntryPointer;
             if(!managers.TryGetValue(entry, out var manager))
             {
                 manager = new(entry, func);
@@ -60,6 +62,10 @@ namespace ModCore.Modules
             }
             var h = new HookHandle(hook, manager);
             hooks.Add(h);
+            if (enableByDefault)
+            {
+                h.Enable();
+            }
             return h;
         }
     }
