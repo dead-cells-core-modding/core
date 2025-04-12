@@ -17,7 +17,7 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 - [x] Simple Hook
 - [x] Basic interoperability
 - [ ] Game object proxy objects in .NET
-- [ ] Edit game bytecode dynamically
+- [x] Edit game bytecode dynamically
 - [ ] More convenient BuildSystem
 - [ ] Linux platform support
 
