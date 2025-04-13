@@ -41,10 +41,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{5B79
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModCore.ModLoader.Default", "ModCore.ModLoader.Default\ModCore.ModLoader.Default.csproj", "{157235D9-679C-439F-912C-0D54192CD06D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModCore.BuildSystem.MSBuild", "ModCore.BuildSystem\ModCore.BuildSystem.MSBuild.csproj", "{64A3489F-57AC-4D93-89FF-425D79FC0175}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "buildsystem", "buildsystem", "{B9FD5C92-D7D0-4FEA-BB75-A6B1063F89A9}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -75,10 +71,6 @@ Global
 		{157235D9-679C-439F-912C-0D54192CD06D}.Debug|x64.Build.0 = Debug|Any CPU
 		{157235D9-679C-439F-912C-0D54192CD06D}.Release|x64.ActiveCfg = Release|Any CPU
 		{157235D9-679C-439F-912C-0D54192CD06D}.Release|x64.Build.0 = Release|Any CPU
-		{64A3489F-57AC-4D93-89FF-425D79FC0175}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{64A3489F-57AC-4D93-89FF-425D79FC0175}.Debug|x64.Build.0 = Debug|Any CPU
-		{64A3489F-57AC-4D93-89FF-425D79FC0175}.Release|x64.ActiveCfg = Release|Any CPU
-		{64A3489F-57AC-4D93-89FF-425D79FC0175}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,7 +80,6 @@ Global
 		{148A63DD-1249-49B7-80D8-601BABA6F236} = {012C86DA-F634-4751-BE70-5DF884E4B18D}
 		{507214C4-FAED-45B1-BC58-08DB29E7FD04} = {012C86DA-F634-4751-BE70-5DF884E4B18D}
 		{157235D9-679C-439F-912C-0D54192CD06D} = {5B798BC5-E2B1-45F6-8AED-1F13FB1A4F76}
-		{64A3489F-57AC-4D93-89FF-425D79FC0175} = {B9FD5C92-D7D0-4FEA-BB75-A6B1063F89A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {36C830EB-D6DA-4C8E-8DF6-2989E881EB21}

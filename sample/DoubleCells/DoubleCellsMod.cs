@@ -53,7 +53,7 @@ namespace DoubleCells
             {
                 return;
             }
-            var hero = this.hero.Chain;
+            var hero = this.hero.Dynamic;
             var curLife = (int)hero.life;
             var maxLife = (int)hero.maxLife;
             if (curLife < maxLife)

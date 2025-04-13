@@ -35,4 +35,8 @@
       <Static>true</Static>
     </Using>
   </ItemGroup>
+
+  <Target Name="WriteModCoreVersionFile" AfterTargets="Build">
+    <WriteLinesToFile File="$(OutputPath)../../ModCoreVersion.txt" Lines="$(Version)" />
+  </Target>
 </Project>

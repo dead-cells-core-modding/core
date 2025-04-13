@@ -16,7 +16,7 @@ namespace SampleHook
     {
         private int AddHealth(int count, double ratio)
         {
-            var hero = Game.Instance.HeroInstance?.Chain;
+            var hero = Game.Instance.HeroInstance?.Dynamic;
             if (hero == null)
             {
                 return 0;
@@ -50,7 +50,7 @@ namespace SampleHook
         }
         private object? Hook_beheaded_addCells(HashlinkClosure orig, HashlinkObject self, int val, nint noStats)
         {
-            self.AsHaxe().Chain.addMoney(val * 20, noStats);
+            self.AsHaxe().Dynamic.addMoney(val * 20, noStats);
             return orig.DynamicInvoke(self, val, noStats);
         }
         public override void Initialize()
@@ -61,7 +61,7 @@ namespace SampleHook
         double timeDelt = 0;
         unsafe void IOnHeroUpdate.OnHeroUpdate(double dt)
         {
-            var hero = Game.Instance.HeroInstance!.Chain;
+            var hero = Game.Instance.HeroInstance!.Dynamic;
             timeDelt += dt;
 
             if (timeDelt < 0.1f)

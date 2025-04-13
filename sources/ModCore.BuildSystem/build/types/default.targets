@@ -1,3 +1,0 @@
-<Project>
-  <Import Project="./mod/build.targets"/>
-</Project>

@@ -1,10 +1,6 @@
-<Project>
-  <Import Project="../bin/core/mdk/build/build.props"/>
-
+﻿<Project>
   <PropertyGroup>
     <RepositoryUrl>https://github.com/dead-cells-core-modding/core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    
-
   </PropertyGroup>
 </Project>

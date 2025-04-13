@@ -10,4 +10,8 @@
     <ModMain>DoubleCells.DoubleCellsMod</ModMain>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="DeadCellsCoreModding.MDK" Version="1.0.1" />
+  </ItemGroup>
+
 </Project>

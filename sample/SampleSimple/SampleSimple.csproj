@@ -15,4 +15,8 @@
     <Reference Include="LibraryMod" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="DeadCellsCoreModding.MDK" Version="1.0.1" />
+  </ItemGroup>
+
 </Project>

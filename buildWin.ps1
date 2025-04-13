@@ -1,8 +1,13 @@
+﻿
+cd $PSScriptRoot
 
+echo "Building MDK"
+dotnet build -c=Release ./mdk
+Get-ChildItem -Path "./mdk/bin" | Copy-Item -Destination "./bin/core/mdk"
 
 echo "Building ModCore"
 
-cd $PSScriptRoot/sources
+cd sources
 
 dotnet build -c=Release ./ModCore
 dotnet build -c=Release ./ModCore.BuildSystem
@@ -15,6 +20,7 @@ echo "Building Native"
 cd native
 cmake . --preset=win-x64-release
 cmake --build ./out/build/win-x64-release
+
 
 echo "Copying 3rd library"
 
