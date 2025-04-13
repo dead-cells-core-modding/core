@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,6 +21,7 @@ namespace Hashlink.Proxy.DynamicAccess
         public HashlinkType Type => HashlinkObject.Type;
         public nint HashlinkPointer => ((IHashlinkPointer)HashlinkObject).HashlinkPointer;
 
+        private readonly MethodInfo iextenddata_getdata = typeof(IExtendData).GetMethod(nameof(IExtendData.GetData))!;
         public static object Create( HashlinkObj obj )
         {
             if (obj is HashlinkObject hobj)
@@ -49,6 +51,12 @@ namespace Hashlink.Proxy.DynamicAccess
                 result = ToString();
                 return true;
             }
+            if (binder.Type.IsAssignableTo(typeof(IExtendDataItem)))
+            {
+                var m = iextenddata_getdata.MakeGenericMethod(binder.Type);
+                result = m.Invoke(HashlinkObject, null);
+                return true;
+            }
             return base.TryConvert( binder, out result );
         }
 
@@ -56,7 +64,7 @@ namespace Hashlink.Proxy.DynamicAccess
         {
             return HashlinkObject.ToString();
         }
-
+        public dynamic AsDynamic => this;
         T IExtendData.GetData<T>()
         {
             return ((IExtendData)HashlinkObject).GetData<T>();

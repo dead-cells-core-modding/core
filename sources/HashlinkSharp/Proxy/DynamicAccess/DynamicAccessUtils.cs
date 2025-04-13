@@ -9,7 +9,7 @@ namespace Hashlink.Proxy.DynamicAccess
 {
     public static class DynamicAccessUtils
     {
-        [return: NotNullIfNotNull("obj")]
+        [return: NotNullIfNotNull(nameof(obj))]
         public static dynamic? AsDynamic( this HashlinkObj? obj )
         {
             if (obj == null)
@@ -18,7 +18,7 @@ namespace Hashlink.Proxy.DynamicAccess
             }
             return HashlinkObjDynamicAccess.Create( obj );
         }
-        [return: NotNullIfNotNull("obj")]
+        [return: NotNullIfNotNull(nameof(obj))]
         public static dynamic? AsDynamic( object? obj )
         {
             if (obj is HashlinkObj hobj)

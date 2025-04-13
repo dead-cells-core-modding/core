@@ -99,7 +99,7 @@ namespace ModCore.Modules
             EventSystem.BroadcastEvent<IOnGameEndInit>();
         }
 
-        public dynamic? HeroInstance
+        public HashlinkObjDynamicAccess? HeroInstance
         {
             get; private set;
         }

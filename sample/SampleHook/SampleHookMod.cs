@@ -17,7 +17,7 @@ namespace SampleHook
     {
         private int AddHealth(int count, double ratio)
         {
-            var hero = Game.Instance.HeroInstance?.Dynamic;
+            var hero = Game.Instance.HeroInstance?.AsDynamic;
             if (hero == null)
             {
                 return 0;
@@ -69,15 +69,15 @@ namespace SampleHook
             {
                 return;
             }
-            var curLife = (int)hero.life;
-            var maxLife = (int)hero.maxLife;
+            var curLife = (int)hero.AsDynamic.life;
+            var maxLife = (int)hero.AsDynamic.maxLife;
             var noStats = false;
             if (curLife < maxLife)
             {
-                var addLife = (int)(hero.tryToSubstractMoney(20, (nint)(void*)&noStats) ?? 0) / 20;
+                var addLife = (int)(hero.AsDynamic.tryToSubstractMoney(20, (nint)(void*)&noStats) ?? 0) / 20;
                 if(addLife > 0)
                 {
-                    hero.setLifeAndRally(curLife + addLife, 10);
+                    hero.AsDynamic.setLifeAndRally(curLife + addLife, 10);
                 }
             }
             timeDelt = 0;
