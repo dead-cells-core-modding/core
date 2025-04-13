@@ -116,7 +116,7 @@ Start the game from `<DeadCellsGameRoot>/coremod/core/host/startup/DeadCellsModd
 
 ### Mods Installation
 
-1. Create a `<DeadCellsGameRoot>/coremod/mod` folder if it does not exist.
+1. Create `<DeadCellsGameRoot>/coremod/mods` folder if it does not exist.
 2. Move the mods files into the `mods` folder. The folder structure should look like this:
 ```txt
 mods
