@@ -23,7 +23,9 @@ namespace DeadCellsModding
             while (!string.IsNullOrEmpty(gameRoot))
             {
                 modcore = CombineModCore(gameRoot);
+#if DEBUG
                 Console.WriteLine("Try find ModCore in " + modcore);
+#endif
                 if (File.Exists(modcore))
                 {
                     break;

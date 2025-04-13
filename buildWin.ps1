@@ -3,7 +3,7 @@ cd $PSScriptRoot
 
 echo "Building MDK"
 dotnet build -c=Release ./mdk
-Get-ChildItem -Path "./mdk/bin" | Copy-Item -Destination "./bin/core/mdk"
+Get-ChildItem -Path "./mdk/bin" | Copy-Item -Destination "./bin/core/mdk" -Force -Recurse
 
 echo "Building ModCore"
 
