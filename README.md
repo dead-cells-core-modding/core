@@ -32,7 +32,7 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 2. Unzip it to the game root directory
 
 The folder structure should be similar to the following
-```
+```txt
 <DeadCellsGameRoot>
 |
 +- coremod
@@ -40,6 +40,14 @@ The folder structure should be similar to the following
 |  +- core
 |  |  |
 |  |  +- native
+|  |  |  |
+|  |  |  +- ...
+|  |  |
+|  |  +- mdk
+|  |  |	 |
+|  |  |  +- install.ps1
+|  |  |  |
+|  |  |  +- uninstall.ps1
 |  |  |  |
 |  |  |  +- ...
 |  |  |
@@ -61,18 +69,75 @@ The folder structure should be similar to the following
 +- ...
 ```
 
+## Mods Development
+
+Here are some [examples](https://github.com/dead-cells-core-modding/core/tree/main/sample).
+
+### Preparation
+
+1. Install .NET SDK 9
+2. Install Dead Cells Core Modding as above
+3. Run `<DeadCellsGameRoot>/coremod/core/mdk/install.ps1` to configure the environment
+
+### Create a mod project
+
+1. Create a library project based on .NET 9
+2. Add package reference `DeadCellsCoreModding.MDK`
+3. Add the following to your csproj file
+```xml
+<PropertyGroup>
+	<!--Enter the mod name here-->
+	<ModName>$(AssemblyName)</ModName>
+
+	<!--
+	Enter mod type here
+
+	Available values:
+		mod: Normal mod
+		library: Library
+	-->
+	<ModType>mod</ModType>
+
+	<!--Enter the full name of the mod's main type here-->
+	<ModMain>ModNamespace.MainModClass</ModMain>
+</PropertyGroup>
+```
+
+### Build
+
+Build the mod using `dotnet build`.
+The default output directory is `$(OutputPath)/output/`
+
 ## Usage
 
 ### Startup
 
 Start the game from `<DeadCellsGameRoot>/coremod/core/host/startup/DeadCellsModding.exe`
 
+### Mods Installation
+
+1. Create a `<DeadCellsGameRoot>/coremod/mod` folder if it does not exist.
+2. Move the mods files into the `mods` folder. The folder structure should look like this:
+```txt
+mods
+|
++- <ModName>
+|  |
+|  +- modinfo.json
+|  |
+|  +- ...
+|
++- ...
+```
+
+> [!WARNING]
+> `<ModName>` must be exactly the same as the `name` property in `modinfo.json`, otherwise the mods loader will refuse to load the mods
+
 ## Development
 
 ### Requirement
 
-- .NET 9 SDK
-- NASM
+- .NET SDK 9
 - CMake
 
 ### Build
