@@ -6,8 +6,6 @@ using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Types;
-using Haxe;
-using Haxe.Marshaling;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;

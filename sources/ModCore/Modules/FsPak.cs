@@ -2,8 +2,6 @@
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
-using Haxe;
-using Haxe.Marshaling;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.VM;
 using System;

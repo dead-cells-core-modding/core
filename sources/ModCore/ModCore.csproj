@@ -25,7 +25,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HashlinkSharp\HashlinkSharp.csproj" />
-    <ProjectReference Include="..\HaxeSharp\HaxeSharp.csproj" />
     <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
 
     <Using Include="Hashlink.HashlinkNative">
