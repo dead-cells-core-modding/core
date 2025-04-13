@@ -35,6 +35,18 @@ namespace Hashlink.Marshaling
                 else if (ev.EventId == IOnNativeEvent.EventId.HL_EV_AFTER_GC)
                 {
                     gcLock.ExitWriteLock();
+
+                    var cur = cachedHandles[0];
+                    if (alivePtr != null)
+                    {
+                        for (int i = 0; i < cur.Count; i++)
+                        {
+                            if (alivePtr[i] == 0)
+                            {
+                                cur[i] = null;
+                            }
+                        }
+                    }
                 }
                 else if (ev.EventId == IOnNativeEvent.EventId.HL_EV_GC_SEARCH_ROOT)
                 {
@@ -65,10 +77,6 @@ namespace Hashlink.Marshaling
                     var r = (IOnNativeEvent.Event_gc_roots*)ev.Data;
                     r->nroots = cur.Count;
                     r->roots = (void**) Unsafe.AsPointer(ref alivePtr[0]);
-                }
-                else if (ev.EventId == IOnNativeEvent.EventId.HL_EV_GC_CS_NO_MARKED)
-                {
-                    cachedHandles[0][(int)ev.Data] = null;
                 }
             }
         }

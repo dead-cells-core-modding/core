@@ -63,7 +63,7 @@ namespace ModCore
         {
             if (!knownLogSources.TryGetValue(source, out var sourceStr))
             {
-                if (source < 0xff || !mcn_memory_readable((void*)source))
+                if (source < 0xff)
                 {
                     sourceStr = "Native";
                 }

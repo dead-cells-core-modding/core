@@ -3,7 +3,6 @@ using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
-using Haxe.Event.Interfaces;
 using ModCore.Events;
 using Serilog;
 using System;
@@ -16,14 +15,17 @@ using System.Threading.Tasks;
 
 namespace Haxe.Marshaling
 {
+    [Obsolete]
     public static unsafe class HaxeMarshal
     {
+        [Obsolete]
         internal static readonly ConditionalWeakTable<HashlinkObj, HaxeObjectBase> objMapping = [];
+        [Obsolete]
         internal static void Initialize(HL_module* module)
         {
             HashlinkMarshal.Initialize(module);
         }
-
+        [Obsolete]
         public static HaxeObjectBase? ConvertHashlinkObj( HashlinkObj? value )
         {
             if (value == null)
@@ -34,18 +36,6 @@ namespace Haxe.Marshaling
             if (objMapping.TryGetValue(value, out var obj) && obj != null)
             {
                 return obj;
-            }
-
-            
-            var result = EventSystem.BroadcastEvent<IOnConvertHashlinkObject, HashlinkObj, HaxeObjectBase>(value);
-            if (result.HasValue)
-            {
-                if (result.Value == null)
-                {
-                    throw new InvalidOperationException();
-                }
-                objMapping.TryAdd(value, result.Value);
-                return result.Value;
             }
 
             if (value is HashlinkClosure closure)
@@ -59,21 +49,23 @@ namespace Haxe.Marshaling
 
             return null; 
         }
-
-        public static HaxeObjectBase AsHaxe( this HashlinkObj obj )
+        [Obsolete]
+        public static HaxeObjectBase AsHaxe( HashlinkObj obj )
         {
             return ConvertHashlinkObj(obj) ?? throw new InvalidOperationException();
         }
-        public static HaxeObject AsHaxe( this HashlinkObject obj )
+        [Obsolete]
+        public static HaxeObject AsHaxe( HashlinkObject obj )
         {
             return (HaxeObject?)ConvertHashlinkObj(obj) ?? throw new InvalidOperationException();
         }
-        public static HaxeClosure AsHaxe( this HashlinkClosure obj )
+        [Obsolete]
+        public static HaxeClosure AsHaxe( HashlinkClosure obj )
         {
             return (HaxeClosure?)ConvertHashlinkObj(obj) ?? throw new InvalidOperationException();
         }
 
-
+        [Obsolete]
         public static object? PostProcessValue( object? value )
         {
 

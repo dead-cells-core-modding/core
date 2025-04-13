@@ -10,9 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ModDependency Include="SampleLibrary-1.0.0" />
 
-    <Reference Include="LibraryMod" />
   </ItemGroup>
 
   <ItemGroup>

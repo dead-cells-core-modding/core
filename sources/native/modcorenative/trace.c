@@ -1,19 +1,9 @@
-
+﻿
 #include "modcorenative.h"
 
 #if WIN32
 #include <DbgHelp.h>
 #endif
-
-EXTERNC EXPORT void* mcn_get_ebp()
-{
-	return get_ebp();
-}
-
-EXTERNC EXPORT void* mcn_get_esp()
-{
-	return get_esp();
-}
 
 #if WIN32
 static bool is_executable(void* ptr, int64 page_mask) {

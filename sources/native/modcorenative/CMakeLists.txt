@@ -3,16 +3,10 @@
 include_directories (../3rd/hashlink/src)
 file(GLOB SOURCES ./*.c)
 
-if(WIN32)
-set(ASM_HELPER_SRC ./win_x64.asm)
-else()
-set(ASM_HELPER_SRC ./linux_x64.asm)
-endif()
-
 remove_definitions(-DLIBHL_EXPORTS)
 
 
-add_library (modcorenative SHARED ${SOURCES} ${ASM_HELPER_SRC} ${PLATFORM_SOURCES})
+add_library (modcorenative SHARED ${SOURCES} ${PLATFORM_SOURCES})
 
 if (WIN32)
 target_link_libraries(modcorenative dbghelp)

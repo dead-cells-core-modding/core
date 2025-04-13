@@ -2,6 +2,7 @@
 using Hashlink.Marshaling;
 using Hashlink.Patch;
 using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Types;
@@ -40,7 +41,7 @@ namespace ModCore.Modules
 
         private void Hook_Boot_init( HashlinkClosure orig, HashlinkObject self)
         {
-            var win = self.AsHaxe().Dynamic.engine.window.window;
+            var win = self.AsDynamic().engine.window.window;
             
             orig.DynamicInvoke(self);
 
@@ -60,9 +61,9 @@ namespace ModCore.Modules
         }
         private void Hook_LogoSplash_update( HashlinkClosure orig, HashlinkObject self )
         {
-            var s = self.AsHaxe().Dynamic;
+            var s = self.AsDynamic();
 
-            HashlinkMarshal.GetGlobal("Assets")!.AsHaxe().Dynamic.preInit();
+            HashlinkMarshal.GetGlobal("Assets")!.AsDynamic().preInit();
 
             s.secondLogo = true;
             s.ready = true;
@@ -73,7 +74,7 @@ namespace ModCore.Modules
             HashlinkObject str, HashlinkClosure cb, HashlinkObject help, object? isEnabled,
             object? color )
         {
-            var s = self.AsHaxe().Dynamic;
+            var s = self.AsDynamic();
             var menuItems = s.menuItems;
             if (menuItems.length == 3 && s.isMainMenu)
             {
@@ -98,13 +99,13 @@ namespace ModCore.Modules
             EventSystem.BroadcastEvent<IOnGameEndInit>();
         }
 
-        public HaxeObject? HeroInstance
+        public dynamic? HeroInstance
         {
             get; private set;
         }
         private object? Hook_hero_init( HashlinkClosure orig, HashlinkObject self )
         {
-            HeroInstance = self.AsHaxe();
+            HeroInstance = self.AsDynamic();
             EventSystem.BroadcastEvent<IOnHeroInit>();
             return orig.DynamicInvoke(self);
         }

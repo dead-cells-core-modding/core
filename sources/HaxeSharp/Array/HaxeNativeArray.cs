@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Haxe.Array
 {
+    [Obsolete]
     public class HaxeNativeArray( HashlinkArray array ) : HaxeArray(array)
     {
         public override object? this[int index]

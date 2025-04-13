@@ -12,10 +12,12 @@ using System.Threading.Tasks;
 
 namespace Haxe
 {
+    [Obsolete]
     public class HaxeSpecializedObjectBase<THashlink>(THashlink obj ) : HaxeObjectBase(obj) where THashlink : HashlinkObj
     {
         public new THashlink HashlinkObject => (THashlink)((HaxeObjectBase)this).HashlinkObject;
     }
+    [Obsolete]
     public class HaxeObjectBase: DynamicObject, IHashlinkPointer
     {
         public HaxeObjectBase(HashlinkObj obj)

@@ -8,6 +8,7 @@ using Haxe.Marshaling;
 using Haxe;
 using Hashlink.Reflection.Types;
 using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.DynamicAccess;
 
 namespace SampleHook
 {
@@ -50,7 +51,7 @@ namespace SampleHook
         }
         private object? Hook_beheaded_addCells(HashlinkClosure orig, HashlinkObject self, int val, nint noStats)
         {
-            self.AsHaxe().Dynamic.addMoney(val * 20, noStats);
+            self.AsDynamic().addMoney(val * 20, noStats);
             return orig.DynamicInvoke(self, val, noStats);
         }
         public override void Initialize()
@@ -61,7 +62,7 @@ namespace SampleHook
         double timeDelt = 0;
         unsafe void IOnHeroUpdate.OnHeroUpdate(double dt)
         {
-            var hero = Game.Instance.HeroInstance!.Dynamic;
+            var hero = Game.Instance.HeroInstance!;
             timeDelt += dt;
 
             if (timeDelt < 0.1f)

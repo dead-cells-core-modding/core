@@ -18,13 +18,6 @@ namespace Hashlink.Proxy
         }
         public static HashlinkObjPtr Get( void* ptr )
         {
-            if (ptr != null)
-            {
-                if (!HashlinkMarshal.IsHashlinkObject(ptr))
-                {
-                    throw new InvalidOperationException();
-                }
-            }
             return GetUnsafe((nint)ptr);
         }
         private static HashlinkObjPtr GetUnsafe( nint ptr )

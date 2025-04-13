@@ -11,16 +11,11 @@ namespace ModCore
             public nint esp;
         }
         private const string MODCORE_NATIVE_NAME = "modcorenative";
-        [LibraryImport(MODCORE_NATIVE_NAME)]
-        [return: MarshalAs(UnmanagedType.I4)]
-        public static partial bool mcn_memory_readable( void* ptr );
+
         #region Stack Trace
         [LibraryImport(MODCORE_NATIVE_NAME)]
         public static partial int mcn_load_stacktrace( HLU_stack_frame* buf, int maxCount, void* stackBottom );
-        [LibraryImport(MODCORE_NATIVE_NAME)]
-        public static partial void* mcn_get_ebp();
-        [LibraryImport(MODCORE_NATIVE_NAME)]
-        public static partial void* mcn_get_esp();
+
         [LibraryImport(MODCORE_NATIVE_NAME)]
         [return: MarshalAs(UnmanagedType.I4)]
         public static partial bool mcn_get_sym( void* ptr, char* symNameBuf, out int symNameLen,
@@ -36,12 +31,6 @@ namespace ModCore
         [LibraryImport(MODCORE_NATIVE_NAME)]
         public static partial int hlu_start_game( void* code );
 
-        #endregion
-        #region HL CS Interop
-        [LibraryImport(MODCORE_NATIVE_NAME)]
-        public static partial void* get_asm_call_bridge_hl_to_cs();
-        [LibraryImport(MODCORE_NATIVE_NAME)]
-        public static partial void* hlu_call_c2hl( void* f, void* t, void** args, void* ret );
         #endregion
     }
 }

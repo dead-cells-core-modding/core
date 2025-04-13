@@ -135,7 +135,7 @@ namespace ModCore.Modules
 
             Logger.Information("Initializing Haxe Utils Utils");
 
-            Haxe.Marshaling.HaxeMarshal.Initialize(Context->m);
+            HashlinkMarshal.Initialize(Context->m);
         }
 
         void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )

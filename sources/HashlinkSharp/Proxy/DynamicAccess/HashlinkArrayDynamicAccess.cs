@@ -1,5 +1,4 @@
-﻿using Hashlink.Proxy;
-using Hashlink.Proxy.Objects;
+﻿using Hashlink.Proxy.Objects;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,16 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Haxe.Array
+namespace Hashlink.Proxy.DynamicAccess
 {
-    [Obsolete]
-    public abstract class HaxeArray( HashlinkObj obj ) : HaxeObjectBase(obj),
+    internal class HashlinkArrayDynamicAccess( HashlinkArray array ) : HashlinkObjDynamicAccess(array),
         ICollection
     {
-        public abstract int Count
-        {
-            get;
-        }
+        public int Count => array.Count;
 
         public virtual bool IsSynchronized => throw new NotImplementedException();
 
@@ -43,7 +38,7 @@ namespace Haxe.Array
             return true;
         }
 
-        public virtual void CopyTo( System.Array array, int index )
+        public virtual void CopyTo( Array array, int index )
         {
             for (int i = 0; i < Count; i++)
             {
@@ -59,6 +54,16 @@ namespace Haxe.Array
             }
         }
 
-        public abstract object? this[int index] { get; set; }
+        public object? this[int index]
+        {
+            get
+            {
+                return DynamicAccessUtils.AsDynamic(array[index]);
+            }
+            set
+            {
+                array[index] = value;
+            }
+        }
     }
 }

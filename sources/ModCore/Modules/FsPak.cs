@@ -1,5 +1,6 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Haxe;
 using Haxe.Marshaling;
@@ -18,20 +19,20 @@ namespace ModCore.Modules
         IOnBeforeGameInit
     {
         public override int Priority => ModulePriorities.Game;
-        private HaxeObject fsPak = null!;
-        private HaxeObject Hook_Reader_readHeader( HashlinkClosure orig, HashlinkObject self )
+        private dynamic fsPak = null!;
+        private dynamic Hook_Reader_readHeader( HashlinkClosure orig, HashlinkObject self )
         {
-            HashlinkMarshal.GetGlobal("hxd.fmt.pak.FileSystem")!.AsHaxe().Dynamic.PAK_STAMP_HASH = null;
+            HashlinkMarshal.GetGlobal("hxd.fmt.pak.FileSystem")!.AsDynamic().PAK_STAMP_HASH = null;
 
-            var data = ((HashlinkObject) orig.DynamicInvoke(self)!).AsHaxe();
-            data.Dynamic.stampHash = null;
+            var data = ((HashlinkObject) orig.DynamicInvoke(self)!).AsDynamic();
+            data.stampHash = null;
             return data;
         }
         private void Hook_FileSystem_loadPak( HashlinkClosure orig, HashlinkObject self, HashlinkObject path )
         {
             if (fsPak == null)
             {
-                fsPak = self.AsHaxe();
+                fsPak = self.AsDynamic();
             }
             Logger.Information("Loading pak from {path}", path.ToString());
             orig.DynamicInvoke(self, path);

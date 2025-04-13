@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace Haxe
 {
+    [Obsolete]
     public unsafe class HaxeClosure( HashlinkClosure closure ) : HaxeSpecializedObjectBase<HashlinkClosure>(closure)
     {
         private object? cached_this;

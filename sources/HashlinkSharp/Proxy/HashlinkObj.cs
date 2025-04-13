@@ -20,10 +20,7 @@ namespace Hashlink.Proxy
             {
                 Handle.Target = this;
             }
-            if (!HashlinkMarshal.IsHashlinkObject((void*)ptr))
-            {
-                throw new InvalidOperationException();
-            }
+
             HashlinkPointer = ptr;
             NativeType = *(HL_type**)ptr;
             Type = HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(NativeType);
@@ -32,23 +29,6 @@ namespace Hashlink.Proxy
         {
             return new(hl_to_string((HL_vdynamic*)HashlinkPointer));
         }
-        void IExtendData.AddData( object data )
-        {
-            if (extendData == null)
-            {
-                extendData = data;
-                return;
-            }
-
-            if (extendData is not ManyExtendData med)
-            {
-                med = new();
-                med.data.Add(extendData);
-                extendData = med;
-            }
-
-            med.data.Add(data);
-        }
 
         T IExtendData.GetData<T>()
         {
@@ -56,11 +36,40 @@ namespace Hashlink.Proxy
             {
                 return (T)(object)this;
             }
-            if (extendData is not ManyExtendData med)
+            if (extendData is T t)
             {
-                return (T)extendData! ?? throw new InvalidCastException();
+                return t;
             }
-            return med.data.OfType<T>().First();
+            T? result = null;
+            if (extendData is ManyExtendData med)
+            {
+                result = med.data.OfType<T>().FirstOrDefault();
+            }
+
+            if (result == null)
+            {
+                lock (this)
+                {
+                    result = (T)T.Create(this);
+
+                    if (extendData == null)
+                    {
+                        extendData = result;
+                    }
+                    else
+                    {
+                        if (extendData is not ManyExtendData med2)
+                        {
+                            med2 = new();
+                            med2.data.Add(extendData);
+                            extendData = med2;
+                        }
+
+                        med2.data.Add(result);
+                    }
+                }
+            }
+            return result;
         }
 
         public HashlinkObjHandle? Handle

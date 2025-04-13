@@ -1,4 +1,5 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Proxy.DynamicAccess;
 using Haxe.Marshaling;
 using ModCore.Events.Interfaces.Game;
 using System;
@@ -17,7 +18,7 @@ namespace ModCore.Modules
         private dynamic? gettext;
         void IOnGameInit.OnGameInit()
         {
-            gettext = HashlinkMarshal.GetGlobal("Lang")!.AsHaxe().Dynamic.t;
+            gettext = HashlinkMarshal.GetGlobal("Lang")!.AsDynamic().t;
         }
 
         public string GetString( string str )

@@ -1,6 +1,7 @@
 ﻿using Hashlink;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
 using Haxe;
@@ -15,10 +16,10 @@ namespace DoubleCells
         IOnFrameUpdate
     {
         private double timeDelt = 0;
-        private HaxeObject? hero;
+        private dynamic? hero;
         private object? Hook_hero_init(HashlinkClosure orig, HashlinkObject self)
         {
-            hero = self.AsHaxe();
+            hero = self.AsDynamic();
             return orig.DynamicInvoke(self);
         }
         private object? Hook_hero_dispose(HashlinkClosure orig, HashlinkObject self)
@@ -53,7 +54,7 @@ namespace DoubleCells
             {
                 return;
             }
-            var hero = this.hero.Dynamic;
+            var hero = this.hero!;
             var curLife = (int)hero.life;
             var maxLife = (int)hero.maxLife;
             if (curLife < maxLife)

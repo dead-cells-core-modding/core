@@ -126,19 +126,9 @@ namespace Hashlink.Marshaling
             return marshaler.TryReadData(target, type);
         }
 
-        public static bool IsHashlinkObject( void* ptr )
-        {
-            if (!mcn_memory_readable(ptr))
-            {
-                return false;
-            }
-            var type = ((HL_vdynamic*)ptr)->type;
-            return mcn_memory_readable(type) && type->kind is > 0 and <= TypeKind.HLAST;
-        }
-
         public static bool IsAllocatedHashlinkObject( void* ptr )
         {
-            return hl_is_gc_ptr(ptr) && IsHashlinkObject(ptr);
+            return hl_is_gc_ptr(ptr);
         }
         public static object? ConvertHashlinkObject( HashlinkObjPtr target,
             IHashlinkMarshaler? marshaler = null )

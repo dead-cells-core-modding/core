@@ -16,8 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "loader", "loader", "{DC1795
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HashlinkSharp", "HashlinkSharp\HashlinkSharp.csproj", "{148A63DD-1249-49B7-80D8-601BABA6F236}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VM", "VM", "{012C86DA-F634-4751-BE70-5DF884E4B18D}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0A4D46B9-FD22-476F-9451-F3C17380253E}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -77,8 +75,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{830B172B-5973-4D6A-9B6B-0E9B3F084153} = {DC1795AE-F078-4556-816E-3B505DB22B10}
-		{148A63DD-1249-49B7-80D8-601BABA6F236} = {012C86DA-F634-4751-BE70-5DF884E4B18D}
-		{507214C4-FAED-45B1-BC58-08DB29E7FD04} = {012C86DA-F634-4751-BE70-5DF884E4B18D}
 		{157235D9-679C-439F-912C-0D54192CD06D} = {5B798BC5-E2B1-45F6-8AED-1F13FB1A4F76}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

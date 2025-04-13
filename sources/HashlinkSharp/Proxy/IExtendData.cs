@@ -8,7 +8,10 @@ namespace Hashlink.Proxy
 {
     public interface IExtendData
     {
-        public void AddData( object data);
-        public T GetData<T>();
+        public T GetData<T>() where T : class, IExtendDataItem;
+    }
+    public interface IExtendDataItem
+    {
+        public static abstract object Create(HashlinkObj obj);
     }
 }

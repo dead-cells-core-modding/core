@@ -29,11 +29,6 @@ typedef struct
 	void* esp;
 } hlu_stack_frame;
 
-EXTERNC void* get_ebp();
-EXTERNC void* get_esp();
-
-EXTERNC void debug_break();
-
 
 EXTERNC extern void* call_jit_c2hl;
 EXTERNC extern void* call_jit_hl2c;

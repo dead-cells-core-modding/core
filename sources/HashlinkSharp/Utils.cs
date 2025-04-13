@@ -46,15 +46,6 @@ namespace Hashlink
             return ref Unsafe.Unbox<T>(obj);
         }
 
-        public static TTo SafeCast<TFrom, TTo>( TFrom from )
-        {
-            if (from is IExtendData ed)
-            {
-                return ed.GetData<TTo>();
-            }
-            return (TTo)(object) from!;
-        }
-
         static Utils()
         {
             {
