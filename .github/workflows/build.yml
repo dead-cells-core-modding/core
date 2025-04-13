@@ -1,4 +1,4 @@
-
+﻿
 name: Build
 
 on:
@@ -8,6 +8,24 @@ on:
     branches: [ "*" ]
 
 jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build-win-x64
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with: 
+        name: build-win-x64
+        path: win-x64
+    - name: Pack
+      run: |
+        zip -r win-x64.zip ./win-x64/*
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+         files: win-x64.zip
+
   build-win-x64:
     runs-on: windows-latest
 
@@ -15,8 +33,6 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
-    - name: Setup NASM
-      uses: ilammy/setup-nasm@v1
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
