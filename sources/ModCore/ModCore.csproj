@@ -36,6 +36,8 @@
   </ItemGroup>
 
   <Target Name="WriteModCoreVersionFile" AfterTargets="Build">
-    <WriteLinesToFile File="$(OutputPath)../../ModCoreVersion.txt" Lines="$(Version)" />
+    <WriteLinesToFile File="$(OutputPath)../../ModCoreVersion.txt" 
+                      Lines="$(Version)"
+                      Overwrite="true"/>
   </Target>
 </Project>
