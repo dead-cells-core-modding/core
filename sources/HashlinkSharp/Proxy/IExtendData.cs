@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Proxy
 {
-    public interface IExtendData
+    internal interface IExtendData
     {
         public T GetData<T>() where T : class, IExtendDataItem;
     }

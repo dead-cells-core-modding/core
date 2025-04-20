@@ -32,6 +32,18 @@ namespace Hashlink.Wrapper
         {
             return HashlinkMarshal.ConvertHashlinkObject(HashlinkObjPtr.Get(ptr), null);
         }
+        public static T GetObjectFrom<T>( object obj ) where T : class, IExtendDataItem
+        {
+            if (obj is T result)
+            {
+                return result;
+            }
+            if (obj is IExtendData ied)
+            {
+                return ied.GetData<T>();
+            }
+            return (T)(dynamic)obj;
+        }
         public static nint AsPointer( object obj, int typeIdx )
         {
             return AsPointerWithType(obj, HashlinkMarshal.Module.Types[typeIdx]);

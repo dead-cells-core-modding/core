@@ -85,7 +85,7 @@ namespace Hashlink.Proxy.Clousre
 
         public T CreateDelegate<T>() where T : Delegate
         {
-            return (T)CreateDelegate(typeof(T));
+            return ((IExtendData)this).GetData<DelegateCache<T>>().Value;
         }
 
         public object? BindingThis

@@ -4,13 +4,9 @@ using Hashlink.Reflection.Types;
 
 namespace Hashlink.Proxy
 {
-    public abstract unsafe class HashlinkObj : IHashlinkPointer, IExtendData
+    public abstract unsafe partial class HashlinkObj : IHashlinkPointer
     {
-        private object? extendData;
-        private class ManyExtendData
-        {
-            public List<object> data = [];
-        }
+        
 
       
         public HashlinkObj( HashlinkObjPtr objPtr )
@@ -29,48 +25,6 @@ namespace Hashlink.Proxy
         public override string? ToString()
         {
             return new(hl_to_string((HL_vdynamic*)HashlinkPointer));
-        }
-
-        T IExtendData.GetData<T>()
-        {
-            if (this is T)
-            {
-                return (T)(object)this;
-            }
-            if (extendData is T t)
-            {
-                return t;
-            }
-            T? result = null;
-            if (extendData is ManyExtendData med)
-            {
-                result = med.data.OfType<T>().FirstOrDefault();
-            }
-
-            if (result == null)
-            {
-                lock (this)
-                {
-                    result = (T)T.Create(this);
-
-                    if (extendData == null)
-                    {
-                        extendData = result;
-                    }
-                    else
-                    {
-                        if (extendData is not ManyExtendData med2)
-                        {
-                            med2 = new();
-                            med2.data.Add(extendData);
-                            extendData = med2;
-                        }
-
-                        med2.data.Add(result);
-                    }
-                }
-            }
-            return result;
         }
 
         public HashlinkObjHandle? Handle
