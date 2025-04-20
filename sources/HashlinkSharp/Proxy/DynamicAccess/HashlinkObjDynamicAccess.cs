@@ -21,7 +21,7 @@ namespace Hashlink.Proxy.DynamicAccess
         public HashlinkType Type => HashlinkObject.Type;
         public nint HashlinkPointer => ((IHashlinkPointer)HashlinkObject).HashlinkPointer;
 
-        private readonly MethodInfo iextenddata_getdata = typeof(IExtendData).GetMethod(nameof(IExtendData.GetData))!;
+        private static readonly MethodInfo iextenddata_getdata = typeof(IExtendData).GetMethod(nameof(IExtendData.GetData))!;
         public static object Create( HashlinkObj obj )
         {
             if (obj is HashlinkObject hobj)

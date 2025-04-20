@@ -3,6 +3,9 @@ name: Build
 
 on: [push, pull_request]
 
+permissions:
+  contents: write
+
 jobs:
   publish-release:
     runs-on: ubuntu-latest

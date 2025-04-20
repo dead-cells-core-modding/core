@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Hashlink.UnsafeUtilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,14 +11,13 @@ namespace Hashlink.Wrapper.Callbacks
 {
     public class HlCallback
     {
-        private readonly nint routerPtr;
-        private readonly Delegate callback;
-        private readonly HlCallbackInfo info;
-        internal HlCallback(Delegate callback, HlCallbackInfo info)
+        private nint routerPtr;
+        private Delegate? callback;
+        private readonly MethodInfo callbackMI;
+        private readonly HlCallbackInfo info = new();
+        internal HlCallback(MethodInfo callbackMI)
         {
-            this.callback = callback;
-            this.info = info;
-            routerPtr = Marshal.GetFunctionPointerForDelegate(callback);
+            this.callbackMI = callbackMI;
         }
 
         public nint RedirectTarget
@@ -30,7 +31,17 @@ namespace Hashlink.Wrapper.Callbacks
             get => info.entry?.self;
             set => info.entry = new(value);
         }
-        public nint NativePointer => routerPtr;
-        public Delegate CallbackDelegate => callback;
+        public nint NativePointer
+        {
+            get
+            {
+                if (routerPtr == 0)
+                {
+                    callback = callbackMI.CreateAnonymousDelegate(info, true);
+                    routerPtr = Marshal.GetFunctionPointerForDelegate(callback);
+                }
+                return routerPtr;
+            }
+        }
     }
 }

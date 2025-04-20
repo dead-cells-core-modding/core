@@ -25,8 +25,8 @@ namespace Hashlink.Marshaling.ObjHandle
         private static readonly List<ObjHandle[]> handlePages = [ 
             [], new ObjHandle[1]
             ]; // 0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...
-        private static ObjHandle[] currentHandlePage = handlePages[0];
-        private static int currentHandlePageIndex = 0;
+        private static ObjHandle[] currentHandlePage = handlePages[1];
+        private static int currentHandlePageIndex = 1;
         private static int currentPageStartIndex = 0;
         private static int currentIndex = 0;
 

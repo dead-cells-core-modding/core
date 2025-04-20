@@ -262,6 +262,17 @@ namespace Hashlink.UnsafeUtilities
             ilg.Emit(OpCodes.Ret);
             return dm;
         }
+        public static Delegate Bind( this MethodInfo target, object? self, Type? targetType = null )
+        {
+            if (targetType != null)
+            {
+                return target.CreateDelegate(targetType, self);
+            }
+            else
+            {
+                return target.CreateAnonymousDelegate(self);
+            }
+        }
         public static Delegate Bind( this Delegate target, object? self, Type? targetType = null )
         {
             var cd = closureDelegates.GetOrAdd(target.GetType(), CreateClosureDelegate);

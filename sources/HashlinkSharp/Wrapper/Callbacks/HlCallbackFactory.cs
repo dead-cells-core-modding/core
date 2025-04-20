@@ -183,8 +183,7 @@ namespace Hashlink.Wrapper.Callbacks
         public static HlCallback GetHlCallback( HashlinkFuncType sign )
         {
             var mi = hl_callback_cache.GetOrAdd(sign, CreateHlCallback);
-            var info = new HlCallbackInfo();
-            return new HlCallback( mi.CreateAnonymousDelegate(info, true), info);
+            return new HlCallback( mi );
         }
     }
 }
