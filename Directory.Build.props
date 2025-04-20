@@ -1,6 +1,6 @@
-<Project>
+﻿<Project>
   <PropertyGroup>
-    <Version>35.1.0</Version>
+    <Version>35.1.1</Version>
 
     <RepositoryUrl>https://github.com/dead-cells-core-modding/core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
