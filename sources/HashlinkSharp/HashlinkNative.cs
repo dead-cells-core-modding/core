@@ -156,9 +156,11 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial void* hl_alloc_executable_memory( int size );
         [LibraryImport(LIBHL)]
+        [SuppressGCTransition]
         [return: MarshalAs(UnmanagedType.I1)]
         public static partial bool hl_is_gc_ptr( void* ptr );
         [LibraryImport(LIBHL)]
+        [SuppressGCTransition]
         [return: MarshalAs(UnmanagedType.I1)]
         public static partial bool hl_ptr_is_alive( void* ptr );
 
@@ -172,5 +174,8 @@ namespace Hashlink
         public static partial void hl_jit_free( void* ctx, [MarshalAs(UnmanagedType.I1)] bool can_reset );
         [LibraryImport(LIBHL)]
         public static partial void* hl_jit_code( void* ctx, HL_module* m, int* codesize, void** debug, void* previous );
+        [LibraryImport(LIBHL)]
+        [SuppressGCTransition]
+        public static partial int hl_gc_get_memsize( void* ptr );
     }
 }

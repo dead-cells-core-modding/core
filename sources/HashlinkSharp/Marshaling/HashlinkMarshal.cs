@@ -1,4 +1,5 @@
-﻿using Hashlink.Proxy;
+﻿using Hashlink.Marshaling.ObjHandle;
+using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection;
@@ -143,7 +144,7 @@ namespace Hashlink.Marshaling
                 return null;
             }
             marshaler ??= DefaultHashlinkMarshaler.Instance;
-            var handle = HashlinkObjHandle.GetHandle(target);
+            var handle = HashlinkObjManager.GetHandle((nint)target);
             return handle != null && handle.Target != null
                 ? handle.Target
                 : marshaler.TryConvertHashlinkObject(target) ?? throw new InvalidOperationException();
@@ -160,7 +161,7 @@ namespace Hashlink.Marshaling
         }
         public static void MarkUsed( IHashlinkPointer ptr )
         {
-            HashlinkObjHandle.MarkUsed(ptr.HashlinkPointer);
+            _ = HashlinkObjManager.GetHandle(ptr.HashlinkPointer);
         }
     }
 }

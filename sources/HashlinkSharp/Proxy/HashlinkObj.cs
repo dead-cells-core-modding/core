@@ -1,4 +1,5 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Marshaling.ObjHandle;
 using Hashlink.Reflection.Types;
 
 namespace Hashlink.Proxy
@@ -15,7 +16,7 @@ namespace Hashlink.Proxy
         public HashlinkObj( HashlinkObjPtr objPtr )
         {
             var ptr = objPtr.Pointer;
-            Handle = HashlinkObjHandle.GetHandle((void*)ptr);
+            Handle = HashlinkObjManager.GetHandle(ptr);
             if (Handle != null)
             {
                 Handle.Target = this;
