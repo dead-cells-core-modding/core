@@ -141,8 +141,17 @@ namespace Hashlink.UnsafeUtilities
                     ..m.GetParameters().Skip(m is DynamicMethod ? 1 : 0).Select(x => x.ParameterType)
                 ]);
         }
-        public static Delegate CreateAnonymousDelegate( this MethodInfo info, object? target, bool noGeneric = false )
+        public static Delegate CreateAnonymousDelegate( this MethodInfo info, object? target, 
+            bool noGeneric = false )
         {
+
+            foreach (var v in info.GetParameters())
+            {
+                if (v.ParameterType.IsByRefLike())
+                {
+                    noGeneric = true;
+                }
+            }
             if (noGeneric)
             {
                 return info.CreateDelegate(anonymousDelegateTypes.GetOrAdd(

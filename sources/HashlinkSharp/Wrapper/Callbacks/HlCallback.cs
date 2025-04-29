@@ -13,6 +13,7 @@ namespace Hashlink.Wrapper.Callbacks
     {
         private nint routerPtr;
         private Delegate? callback;
+        private Delegate? target;
         private readonly MethodInfo callbackMI;
         private readonly HlCallbackInfo info = new();
         internal HlCallback(MethodInfo callbackMI)
@@ -28,8 +29,8 @@ namespace Hashlink.Wrapper.Callbacks
 
         public Delegate? Target
         {
-            get => info.entry?.self;
-            set => info.entry = new(value);
+            get => target;
+            set => info.entry = new(target = value);
         }
         public nint NativePointer
         {

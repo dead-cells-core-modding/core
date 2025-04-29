@@ -53,21 +53,9 @@ namespace ModCore.Modules.Internals
         {
             return 1;
         }
-        [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-        private static int NativeOpenALGetError()
-        {
-            [DllImport("OpenAL32", EntryPoint = "alGetError")]
-            static extern int AlGetError();
-            var errorCode = AlGetError();
-            if (errorCode != 0)
-            {
-                Logger.Error("OpenAL has error: {code:x}", errorCode);
-            }
-            return errorCode;
-        }
+
         private static readonly delegate* unmanaged[Cdecl]< int > ptr_NativeReturnFalse = &NativeReturnFalse;
         private static readonly delegate* unmanaged[Cdecl]< int > ptr_NativeReturnTrue = &NativeReturnTrue;
-        private static readonly delegate* unmanaged[Cdecl]< int > ptr_NativeOpenALGetError = &NativeOpenALGetError;
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
         private static void NativeNotImplemented()
         {
@@ -90,16 +78,17 @@ namespace ModCore.Modules.Internals
                 //Not Support
                 return (nint)ptr_NativeReturnFalse;
             }
-            if (info.libname == "openal")
-            {
-                if (info.name == "al_get_error")
-                {
-                    return (nint)ptr_NativeOpenALGetError;
-                }
-            }
             if (info.libname == "steam")
             {
                 if (info.name == "is_user_logged_in")
+                {
+                    return (nint)ptr_NativeReturnTrue;
+                }
+                else if (info.name == "get_achievement")
+                {
+                    return (nint)ptr_NativeReturnTrue;
+                }
+                else if (info.name == "set_achievement")
                 {
                     return (nint)ptr_NativeReturnTrue;
                 }

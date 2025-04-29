@@ -60,13 +60,6 @@ namespace ModCore
             _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("libhl"));
             _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("modcorenative"));
 
-
-            Initialize2();
-        }
-
-        private static void Initialize2()
-        {
-
             Log.Logger.Information("Runtime: {FrameworkDescription} {RuntimeIdentifier}",
                    RuntimeInformation.FrameworkDescription, RuntimeInformation.RuntimeIdentifier);
             Log.Logger.Information("Core Version: {version}",

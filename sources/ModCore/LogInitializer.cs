@@ -6,7 +6,6 @@ namespace ModCore
 {
     internal static class LogInitializer
     {
-        [ModuleInitializer]
         internal static void InitializeLog()
         {
             Log.Logger = new LoggerConfiguration()

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,18 +10,32 @@ using System.Threading.Tasks;
 
 namespace Hashlink.UnsafeUtilities
 {
-    internal class DelegateInfo
+    public class DelegateInfo
     {
-        internal static FieldInfo FI_self = typeof(DelegateInfo).GetField(nameof(self));
-        internal static FieldInfo FI_invokePtr = typeof(DelegateInfo).GetField(nameof(invokePtr));
+        public static readonly FieldInfo FI_self = typeof(DelegateInfo).GetField(nameof(self));
+        public static readonly FieldInfo FI_invokePtr = typeof(DelegateInfo).GetField(nameof(invokePtr));
 
-        public Delegate self;
+        public object self;
         public nint invokePtr;
+        public DelegateInfo( object self, nint invokePtr)
+        {
+            this.self = self;
+            this.invokePtr = invokePtr;
+        }
+
 
         public DelegateInfo( Delegate target )
         {
-            self = target;
-            invokePtr = target.GetType().GetMethod("Invoke").MethodHandle.GetFunctionPointer();
+            if (target.HasSingleTarget && target.Target != null)
+            {
+                self = target.Target;
+                invokePtr = target.Method.MethodHandle.GetFunctionPointer();
+            }
+            else
+            {
+                self = target;
+                invokePtr = target.GetType().GetMethod("Invoke").MethodHandle.GetFunctionPointer();
+            }
         }
     }
 }

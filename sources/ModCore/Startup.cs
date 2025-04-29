@@ -11,9 +11,14 @@ namespace ModCore
 {
     internal static unsafe class Startup
     {
-        [WillCallHL]
-        private static int AfterCoreLoaded()
+
+        public static int StartGame()
         {
+            LogInitializer.InitializeLog();
+
+            Console.Title = "Dead Cells with Core Modding";
+            Core.Initialize();
+
             var logger = Log.Logger.ForContext(typeof(Startup));
             var useOpenGL = Environment.GetEnvironmentVariable("GAME_OPENGL")?.ToLower() == "true";
             //Load hlboot.dat
@@ -23,15 +28,12 @@ namespace ModCore
                 hlbootPath = FolderInfo.GameRoot.GetFilePath("hlboot.dat");
             }
 
-            byte* hlboot = null;
-            var hlbootSize = 0;
+            ReadOnlySpan<byte> codeData;
+
             logger.Information("Finding hlboot.dat");
             if (File.Exists(hlbootPath))
             {
-                var mmf = MemoryMappedFile.CreateFromFile(hlbootPath, FileMode.Open, null, 0, MemoryMappedFileAccess.Read);
-                var view = mmf.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
-                view.SafeMemoryMappedViewHandle.AcquirePointer(ref hlboot);
-                hlbootSize = (int)view.SafeMemoryMappedViewHandle.ByteLength;
+                codeData = File.ReadAllBytes(hlbootPath);
             }
             else
             {
@@ -39,20 +41,24 @@ namespace ModCore
                 {
                     var exeName = useOpenGL ? "deadcells_gl.exe" : "deadcells.exe";
                     logger.Information("Loading hlboot.dat from {name}", exeName);
-                    hlboot = (byte*)hlu_get_hl_bytecode_from_exe(FolderInfo.GameRoot.GetFilePath(exeName),
+                    var hlbootSize = 0;
+                    var hlboot = (byte*)hlu_get_hl_bytecode_from_exe(FolderInfo.GameRoot.GetFilePath(exeName),
                         &hlbootSize);
+                    if (hlboot == null)
+                    {
+                        throw new FileNotFoundException(null, "hlboot.dat");
+                    }
+                    codeData = new(hlboot, hlbootSize);
                 }
-            }
-            if (hlboot == null)
-            {
-                throw new FileNotFoundException(null, "hlboot.dat");
+                else
+                {
+                    throw new FileNotFoundException(null, "hlboot.dat");
+                }
             }
             byte* err = null;
             logger.Information("Reading hl bytecode");
 
             hl_global_init();
-
-            var codeData = new ReadOnlySpan<byte>(hlboot, hlbootSize);
 
             EventSystem.BroadcastEvent<IOnCodeLoading, ReadOnlySpan<byte>>(ref codeData);
 
@@ -77,14 +83,6 @@ namespace ModCore
                 logger.Fatal(ex, "Uncaught .NET Exception");
                 throw;
             }
-        }
-
-        public static int StartGame()
-        {
-            Console.Title = "Dead Cells with Core Modding";
-            Core.Initialize();
-
-            return AfterCoreLoaded();
         }
     }
 }

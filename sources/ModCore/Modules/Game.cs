@@ -119,6 +119,11 @@ namespace ModCore.Modules
             orig.DynamicInvoke();
         }
 
+        private bool Hook_ServerApi_canSaveScore( HashlinkClosure orig, HashlinkObject self )
+        {
+            return false;
+        }
+
         void IOnHashlinkVMReady.OnHashlinkVMReady()
         {
             HashlinkHooks.Instance.CreateHook("$Boot", "main", Hook_Boot_main).Enable();
@@ -130,6 +135,8 @@ namespace ModCore.Modules
             HashlinkHooks.Instance.CreateHook("en.Hero", "dispose", Hook_hero_dispose).Enable();
 
             HashlinkHooks.Instance.CreateHook("pr.TitleScreen", "addMenu", Hook_TitleMenu_addMenu).Enable();
+
+            HashlinkHooks.Instance.CreateHook("tool.$ServerApi", "canSaveScore", Hook_ServerApi_canSaveScore).Enable();
 
             if (Core.Config.Value.SkipLogoSplash)
             {
