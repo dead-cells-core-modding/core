@@ -1,41 +1,81 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-
-#nullable disable
 
 namespace Hashlink.UnsafeUtilities
 {
     public class DelegateInfo
     {
-        public static readonly FieldInfo FI_self = typeof(DelegateInfo).GetField(nameof(self));
-        public static readonly FieldInfo FI_invokePtr = typeof(DelegateInfo).GetField(nameof(invokePtr));
+        private static readonly ConcurrentDictionary<Type, nint> cachedInvokePtr = [];
 
-        public object self;
+        public static readonly FieldInfo FI_self = typeof(DelegateInfo).GetField(nameof(self))!;
+        public static readonly FieldInfo FI_invokePtr = typeof(DelegateInfo).GetField(nameof(invokePtr))!;
+
+        public object? self;
+        public MethodInfo? method;
         public nint invokePtr;
-        public DelegateInfo( object self, nint invokePtr)
+        public DelegateInfo( nint invokePtr)
         {
-            this.self = self;
             this.invokePtr = invokePtr;
         }
 
+        public DelegateInfo( object self, MethodInfo method )
+        {
+            this.self = self;
+            this.method = method;
+            if (method is DynamicMethod dm)
+            {
+                invokePtr = dm.GetDynamicMethodHandle().GetFunctionPointer();
+            }
+            else
+            {
+                invokePtr = method.MethodHandle.GetFunctionPointer();
+            }
+        }
 
         public DelegateInfo( Delegate target )
         {
-            if (target.HasSingleTarget && target.Target != null)
+            method = target.Method;
+            if (target.HasSingleTarget && 
+                target.Target != null)
             {
                 self = target.Target;
-                invokePtr = target.Method.MethodHandle.GetFunctionPointer();
+                invokePtr = target.Method is DynamicMethod dm ? dm.GetDynamicMethodHandle().GetFunctionPointer() :
+                    target.Method.MethodHandle.GetFunctionPointer();
             }
             else
             {
                 self = target;
-                invokePtr = target.GetType().GetMethod("Invoke").MethodHandle.GetFunctionPointer();
+                invokePtr = cachedInvokePtr.GetOrAdd(target.GetType(),
+                    type => type.GetMethod("Invoke")!.MethodHandle.GetFunctionPointer());
             }
+        }
+
+        public Delegate CreateDelegate( Type type )
+        {
+            if (self is Delegate d)
+            {
+                return d.CreateAdaptDelegate(type);
+            }
+            if (method != null)
+            {
+                return Delegate.CreateDelegate(type, self, method);
+            }
+            if (self != null)
+            {
+                throw new NotSupportedException();
+            }
+            return Marshal.GetDelegateForFunctionPointer(invokePtr, type);
+        }
+        public T CreateDelegate<T>() where T : Delegate
+        {
+            return (T)CreateDelegate(typeof(T));
         }
     }
 }

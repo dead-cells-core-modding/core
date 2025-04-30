@@ -1,10 +1,11 @@
-﻿{
+{
   "profiles": {
     "DeadCellsModding": {
       "commandName": "Project",
       "workingDirectory": "E:\\SteamLibrary\\steamapps\\common\\Dead Cells",
       "environmentVariables": {
-        "DEAD_CELLS_GAME_PATH": "E:\\SteamLibrary\\steamapps\\common\\Dead Cells"
+        "DEAD_CELLS_GAME_PATH": "E:\\SteamLibrary\\steamapps\\common\\Dead Cells",
+        "DCCM_DEBUG_OPTION_CACHE_INVALID": "false"
       },
       "nativeDebugging": true
     }

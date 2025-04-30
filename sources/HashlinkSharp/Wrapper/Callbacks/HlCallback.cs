@@ -30,7 +30,7 @@ namespace Hashlink.Wrapper.Callbacks
         public Delegate? Target
         {
             get => target;
-            set => info.entry = new(target = value);
+            set => info.entry = new(target = value!);
         }
         public nint NativePointer
         {

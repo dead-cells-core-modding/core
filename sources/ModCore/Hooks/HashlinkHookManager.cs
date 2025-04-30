@@ -42,7 +42,7 @@ namespace ModCore.Hooks
                 func.FuncType
                 );
             hook = NativeHooks.Instance.CreateHook(
-                target + 16, 
+                target + HashlinkFunction.FS_OFFSET_HASHLINK_HOOK, 
                 callback.NativePointer, true);
             callback.RedirectTarget = hook.Original;
             callback.Target = CreateDelegateAdapt().CreateAnonymousDelegate(this);

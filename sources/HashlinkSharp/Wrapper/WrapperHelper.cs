@@ -44,6 +44,7 @@ namespace Hashlink.Wrapper
             }
             return (T)(dynamic)obj;
         }
+        
         public static nint AsPointer( object obj, int typeIdx )
         {
             return AsPointerWithType(obj, HashlinkMarshal.Module.Types[typeIdx]);

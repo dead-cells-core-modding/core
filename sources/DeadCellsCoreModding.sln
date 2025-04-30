@@ -5,6 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeadCellsModding", "DeadCellsModding\DeadCellsModding.csproj", "{830B172B-5973-4D6A-9B6B-0E9B3F084153}"
 	ProjectSection(ProjectDependencies) = postProject
+		{157235D9-679C-439F-912C-0D54192CD06D} = {157235D9-679C-439F-912C-0D54192CD06D}
 		{798EC443-C229-4F22-86B4-8BDE18266DBA} = {798EC443-C229-4F22-86B4-8BDE18266DBA}
 	EndProjectSection
 EndProject
@@ -37,6 +38,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{5B79
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModCore.ModLoader.Default", "ModCore.ModLoader.Default\ModCore.ModLoader.Default.csproj", "{157235D9-679C-439F-912C-0D54192CD06D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hxproxy", "hxproxy", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaxeProxy", "HaxeProxy\HaxeProxy.csproj", "{9BF8F14B-B1E7-4E5E-9999-B9E10C0C3AEF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashlinkNET.Bytecode", "HashlinkNET.Bytecode\HashlinkNET.Bytecode.csproj", "{68A8591F-4537-2612-F3FF-3441D64E2ACC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashlinkNET.Compiler", "HashlinkNET.Compiler\HashlinkNET.Compiler.csproj", "{E40ED484-C37F-BD1B-418B-2A51BF16AAF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -63,6 +72,18 @@ Global
 		{157235D9-679C-439F-912C-0D54192CD06D}.Debug|x64.Build.0 = Debug|Any CPU
 		{157235D9-679C-439F-912C-0D54192CD06D}.Release|x64.ActiveCfg = Release|Any CPU
 		{157235D9-679C-439F-912C-0D54192CD06D}.Release|x64.Build.0 = Release|Any CPU
+		{9BF8F14B-B1E7-4E5E-9999-B9E10C0C3AEF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9BF8F14B-B1E7-4E5E-9999-B9E10C0C3AEF}.Debug|x64.Build.0 = Debug|Any CPU
+		{9BF8F14B-B1E7-4E5E-9999-B9E10C0C3AEF}.Release|x64.ActiveCfg = Release|Any CPU
+		{9BF8F14B-B1E7-4E5E-9999-B9E10C0C3AEF}.Release|x64.Build.0 = Release|Any CPU
+		{68A8591F-4537-2612-F3FF-3441D64E2ACC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{68A8591F-4537-2612-F3FF-3441D64E2ACC}.Debug|x64.Build.0 = Debug|Any CPU
+		{68A8591F-4537-2612-F3FF-3441D64E2ACC}.Release|x64.ActiveCfg = Release|Any CPU
+		{68A8591F-4537-2612-F3FF-3441D64E2ACC}.Release|x64.Build.0 = Release|Any CPU
+		{E40ED484-C37F-BD1B-418B-2A51BF16AAF6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E40ED484-C37F-BD1B-418B-2A51BF16AAF6}.Debug|x64.Build.0 = Debug|Any CPU
+		{E40ED484-C37F-BD1B-418B-2A51BF16AAF6}.Release|x64.ActiveCfg = Release|Any CPU
+		{E40ED484-C37F-BD1B-418B-2A51BF16AAF6}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +91,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{830B172B-5973-4D6A-9B6B-0E9B3F084153} = {DC1795AE-F078-4556-816E-3B505DB22B10}
 		{157235D9-679C-439F-912C-0D54192CD06D} = {5B798BC5-E2B1-45F6-8AED-1F13FB1A4F76}
+		{9BF8F14B-B1E7-4E5E-9999-B9E10C0C3AEF} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{68A8591F-4537-2612-F3FF-3441D64E2ACC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{E40ED484-C37F-BD1B-418B-2A51BF16AAF6} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {36C830EB-D6DA-4C8E-8DF6-2989E881EB21}

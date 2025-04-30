@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <NoWarn>$(NoWarn);SYSLIB1054</NoWarn>
 
+    <NoWarn>$(NoWarn);SYSLIB1054</NoWarn>
+    
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    
+
     <OutputPath>../../bin/core/host/</OutputPath>
   </PropertyGroup>
 
@@ -24,8 +24,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HashlinkNET.Compiler\HashlinkNET.Compiler.csproj" />
     <ProjectReference Include="..\HashlinkSharp\HashlinkSharp.csproj" />
+    <ProjectReference Include="..\HaxeProxy\HaxeProxy.csproj" />
     <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
+
+    <Reference Include="..\..\bin\core\mdk\ref\GameProxy.dll" />
 
     <Using Include="Hashlink.HashlinkNative">
       <Static>True</Static>
@@ -36,8 +40,6 @@
   </ItemGroup>
 
   <Target Name="WriteModCoreVersionFile" AfterTargets="Build">
-    <WriteLinesToFile File="$(OutputPath)../../ModCoreVersion.txt" 
-                      Lines="$(Version)"
-                      Overwrite="true"/>
+    <WriteLinesToFile File="$(OutputPath)../../ModCoreVersion.txt" Lines="$(Version)" Overwrite="true" />
   </Target>
 </Project>

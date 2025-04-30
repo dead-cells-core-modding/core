@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HashlinkSharp\HashlinkSharp.csproj" />
+    <ProjectReference Include="..\ModCore\ModCore.csproj" />
+
+    
+  </ItemGroup>
+
+</Project>

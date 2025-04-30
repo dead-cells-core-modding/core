@@ -42,6 +42,34 @@ namespace ModCore
             Environment.SetEnvironmentVariable(envName, val);
         }
 
+        public static void LoadCoreModules(Assembly asm)
+        {
+            var os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                   ? CoreModuleAttribute.SupportOS.Windows
+                   : CoreModuleAttribute.SupportOS.Linux;
+            foreach (var type in asm.SafeGetAllTypes())
+            {
+                if (type == null)
+                {
+                    continue;
+                }
+                if (!type.IsSubclassOf(typeof(Module)) || type.IsAbstract)
+                {
+                    continue;
+                }
+                var attr = type.GetCustomAttribute<CoreModuleAttribute>();
+                if (attr == null)
+                {
+                    continue;
+                }
+                if ((attr.supportOS & os) != os)
+                {
+                    continue;
+                }
+                Log.Logger.Information("Loading core module: {type}", type.FullName);
+                Activator.CreateInstance(type);
+            }
+        }
 
         internal static void Initialize()
         {
@@ -72,27 +100,7 @@ namespace ModCore
 
             Log.Logger.Information("Loading core modules");
 
-            var os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? CoreModuleAttribute.SupportOS.Windows
-                : CoreModuleAttribute.SupportOS.Linux;
-            foreach (var type in typeof(Core).Assembly.GetTypes())
-            {
-                if (!type.IsSubclassOf(typeof(Module)) || type.IsAbstract)
-                {
-                    continue;
-                }
-                var attr = type.GetCustomAttribute<CoreModuleAttribute>();
-                if (attr == null)
-                {
-                    continue;
-                }
-                if ((attr.supportOS & os) != os)
-                {
-                    continue;
-                }
-                Log.Logger.Information("Loading core module: {type}", type.FullName);
-                Activator.CreateInstance(type);
-            }
+            LoadCoreModules(typeof(Core).Assembly);
 
             EventSystem.BroadcastEvent<IOnCoreModuleInitializing>();
 

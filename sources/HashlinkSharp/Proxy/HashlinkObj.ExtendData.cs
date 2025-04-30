@@ -13,8 +13,7 @@ namespace Hashlink.Proxy
         private object? extendData;
         private readonly ReaderWriterLockSlim dataLock = new();
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        T IExtendData.GetData<T>()
+        T IExtendData.GetOrCreateData<T>( Func<HashlinkObj, object> factory )
         {
             
             if (this is T)
@@ -39,7 +38,7 @@ namespace Hashlink.Proxy
                     goto _RETRY;
                 }
 
-                t = (T)T.Create(this);
+                t = (T)factory(this);
                 extendData = t;
 
                 dataLock.ExitWriteLock();
@@ -69,7 +68,7 @@ namespace Hashlink.Proxy
                 goto _RETRY;
             }
 
-            t = (T)T.Create(this);
+            t = (T)factory(this);
             list.Add(t);
 
             dataLock.ExitWriteLock();

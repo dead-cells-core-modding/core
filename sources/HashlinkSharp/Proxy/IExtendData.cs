@@ -8,7 +8,8 @@ namespace Hashlink.Proxy
 {
     internal interface IExtendData
     {
-        public T GetData<T>() where T : class, IExtendDataItem;
+        public T GetOrCreateData<T>(Func<HashlinkObj, object> factory) where T : class;
+        public T GetData<T>() where T : class, IExtendDataItem => GetOrCreateData<T>(T.Create);
     }
     public interface IExtendDataItem
     {

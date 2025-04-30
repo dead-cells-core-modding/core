@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HashlinkSharp\HashlinkSharp.csproj" />
+    <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
+  </ItemGroup>
+
+</Project>

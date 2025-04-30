@@ -22,9 +22,9 @@ namespace Hashlink.Proxy
             NativeType = *(HL_type**)ptr;
             Type = HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(NativeType);
         }
-        public override string? ToString()
+        public override string ToString()
         {
-            return new(hl_to_string((HL_vdynamic*)HashlinkPointer));
+            return new string(hl_to_string((HL_vdynamic*)HashlinkPointer)) ?? Type.Name ?? "";
         }
 
         public HashlinkObjHandle? Handle

@@ -35,7 +35,7 @@ namespace ModCore.Modules
             def.VerifyOpCodes();
             var ptr = def.Compile();
 
-            NativeHooks.Instance.CreateHook(function.EntryPointer + 48, ptr, true).Enable();
+            NativeHooks.Instance.CreateHook(function.EntryPointer + HashlinkFunction.FS_OFFSET_REAL_ENTRY, ptr, true).Enable();
         }
     }
 }

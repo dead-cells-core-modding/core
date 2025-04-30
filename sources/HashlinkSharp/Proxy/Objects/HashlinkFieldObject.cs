@@ -27,7 +27,7 @@ namespace Hashlink.Proxy.Objects
             {
                 ptr = hl_obj_lookup_extra((HL_vdynamic*)HashlinkPointer, hashedName);
                 return ptr != null
-                    ? (object?)HashlinkMarshal.ConvertHashlinkObject(ptr)
+                    ? HashlinkMarshal.ConvertHashlinkObject(ptr)
                     : throw new MissingFieldException(new string(hl_type_str(NativeType)), new string(hl_field_name(hashedName)));
             }
             return HashlinkMarshal.ReadData(ptr, HashlinkMarshal.GetHashlinkType(ftype));

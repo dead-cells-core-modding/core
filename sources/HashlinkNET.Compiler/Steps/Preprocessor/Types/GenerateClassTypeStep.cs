@@ -1,0 +1,37 @@
+﻿using HashlinkNET.Bytecode;
+using HashlinkNET.Compiler.Data;
+using Mono.Cecil;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
+{
+    internal class GenerateClassTypeStep : GenerateTypeCompileStep
+    {
+        public override bool Filter( HlType type )
+        {
+            return type.Kind == HlTypeKind.Obj;
+        }
+        public override void Execute( IDataContainer container,
+            HlCode code, GlobalData gdata,
+            RuntimeImports rdata, HlType type )
+        {
+            var objType = (HlTypeWithObj)type;
+
+            Utils.ParseHlTypeName(objType.Obj.Name, out var np, out var name);
+            var td = new TypeDefinition(np, name, TypeAttributes.Class | TypeAttributes.Public);
+            addedTypes.Add(new(td, type.TypeIndex));
+
+            container.AddData(type, td, new ObjClassData()
+            {
+                TypeDef = td,
+                TypeRef = td,
+                TypeIndex = type.TypeIndex
+            });
+        }
+    }
+}

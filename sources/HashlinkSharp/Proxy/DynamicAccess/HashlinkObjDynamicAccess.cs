@@ -65,9 +65,10 @@ namespace Hashlink.Proxy.DynamicAccess
             return HashlinkObject.ToString();
         }
         public dynamic AsDynamic => this;
-        T IExtendData.GetData<T>()
+
+        T IExtendData.GetOrCreateData<T>( Func<HashlinkObj, object> factory ) where T : class
         {
-            return ((IExtendData)HashlinkObject).GetData<T>();
+            return ((IExtendData)HashlinkObject).GetOrCreateData<T>(factory);
         }
     }
 }

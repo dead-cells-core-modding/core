@@ -28,6 +28,11 @@ namespace Hashlink.Marshaling
         }
         public static HashlinkType GetHashlinkType( HL_type* type )
         {
+            var tindex = ((nint)type - (nint)Module.NativeCode->types) / sizeof(HL_type);
+            if (tindex < Module.NativeCode->ntypes)
+            {
+                return Module.Types[tindex];
+            }
             return Module.GetMemberFrom<HashlinkType>(type);
         }
         public static HashlinkType? GetHashlinkType( Type type )

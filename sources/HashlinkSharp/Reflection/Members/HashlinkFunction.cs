@@ -16,9 +16,15 @@ namespace Hashlink.Reflection.Members
         IHashlinkMemberGenerator,
         IHashlinkFunc
     {
+        public const int FS_OFFSET_NATIVE_HOOK = 0;
+        public const int FS_OFFSET_HASHLINK_HOOK = 12;
+        public const int FS_OFFSET_MONOMOD_HOOK = 40;
+        public const int FS_OFFSET_REAL_ENTRY = 52;
+
         private HashlinkType[]? cachedLocalRegs;
         private HashlinkObjectType? cachedDeclaringType;
         private HashlinkFuncType? cachedFuncType;
+
         private Delegate? cachedDynInvoke;
 
         public override HashlinkType? DeclaringType

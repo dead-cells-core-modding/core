@@ -4,8 +4,6 @@ using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
-using Haxe;
-using Haxe.Marshaling;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Mods;
 using ModCore.Modules;

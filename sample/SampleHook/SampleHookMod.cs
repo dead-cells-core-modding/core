@@ -4,11 +4,12 @@ using Hashlink;
 using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Mods;
 using ModCore.Modules;
-using Haxe.Marshaling;
-using Haxe;
 using Hashlink.Reflection.Types;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
+using ModCore.Modules.AdvancedModules;
+using HaxeProxy.Runtime;
+using dc.en;
 
 namespace SampleHook
 {
@@ -17,13 +18,13 @@ namespace SampleHook
     {
         private int AddHealth(int count, double ratio)
         {
-            var hero = Game.Instance.HeroInstance?.AsDynamic;
+            var hero = Game.Instance.HeroInstance;
             if (hero == null)
             {
                 return 0;
             }
-            var curLife = (int)hero.life;
-            var maxLife = (int)hero.maxLife;
+            var curLife = hero.life;
+            var maxLife = hero.maxLife;
             var life = maxLife - curLife;
             if(life <= 0)
             {
@@ -51,7 +52,8 @@ namespace SampleHook
         }
         private object? Hook_beheaded_addCells(HashlinkClosure orig, HashlinkObject self, int val, nint noStats)
         {
-            self.AsDynamic().addMoney(val * 20, noStats);
+            bool b = false;
+            self.AsHaxe<Hero>().addMoney(val * 20, new(ref b));
             return orig.DynamicInvoke(self, val, noStats);
         }
         public override void Initialize()
@@ -69,15 +71,15 @@ namespace SampleHook
             {
                 return;
             }
-            var curLife = (int)hero.AsDynamic.life;
-            var maxLife = (int)hero.AsDynamic.maxLife;
+            var curLife = hero.life;
+            var maxLife = hero.maxLife;
             var noStats = false;
             if (curLife < maxLife)
             {
-                var addLife = (int)(hero.AsDynamic.tryToSubstractMoney(20, (nint)(void*)&noStats) ?? 0) / 20;
+                var addLife = hero.tryToSubstractMoney(20, new(ref noStats)) / 20;
                 if(addLife > 0)
                 {
-                    hero.AsDynamic.setLifeAndRally(curLife + addLife, 10);
+                    hero.setLifeAndRally(curLife + addLife, 10);
                 }
             }
             timeDelt = 0;

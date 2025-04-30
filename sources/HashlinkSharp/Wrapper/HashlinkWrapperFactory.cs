@@ -16,7 +16,7 @@ namespace Hashlink.Wrapper
 {
     internal static class HashlinkWrapperFactory
     {
-        private static readonly ConcurrentDictionary<HashlinkFuncType, MethodInfo> hl_wrapper_cache = [];
+        private static readonly ConcurrentDictionary<HashlinkFuncType, DynamicMethod> hl_wrapper_cache = [];
         private static readonly FieldInfo FI_wrapperInfo_target = typeof(WrapperInfo)
             .GetField(nameof(WrapperInfo.target))!;
         private static readonly MethodInfo MI_WrapperHelper_AsPointer = typeof(WrapperHelper)
@@ -40,7 +40,7 @@ namespace Hashlink.Wrapper
             }
             return typeof(object);
         }
-        private static MethodInfo CreateWrapper( HashlinkFuncType func )
+        private static DynamicMethod CreateWrapper( HashlinkFuncType func )
         {
             var args = func.ArgTypes;
 
@@ -117,19 +117,28 @@ namespace Hashlink.Wrapper
 
             return dm;
         }
-
-        public static Delegate GetWrapper(
+        public static DelegateInfo GetWrapperInfo(
             HashlinkFuncType func,
-            nint target,
-            Type? targetType = null )
+            nint target)
         {
             var mi = hl_wrapper_cache.GetOrAdd(func, CreateWrapper);
             var info = new WrapperInfo()
             {
                 target = target,
             };
-            return targetType == null ? mi.CreateAnonymousDelegate(info, true) :
-                                        mi.CreateDelegate(targetType, info);
+            return new(info, mi);
+        }
+        public static Delegate GetWrapper(
+            HashlinkFuncType func,
+            nint target,
+            Type? targetType = null )
+        {
+            var info = GetWrapperInfo(func, target);
+            if (targetType != null)
+            {
+                return info.CreateDelegate(targetType);
+            }
+            return info.method!.CreateAnonymousDelegate(info.self);
         }
     }
 

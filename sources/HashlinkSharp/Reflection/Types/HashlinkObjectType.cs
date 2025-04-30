@@ -122,9 +122,9 @@ namespace Hashlink.Reflection.Types
                 return null;
             }
         }
-        public HashlinkObjectField? FindFieldById( int idx )
+        public HashlinkObjectField FindFieldById( int idx )
         {
-            return FindFieldByIdImpl(ref idx);
+            return FindFieldByIdImpl(ref idx) ?? throw new ArgumentOutOfRangeException(nameof(idx));
         }
 
         public HashlinkObjectProto? FindProtoById( int idx )

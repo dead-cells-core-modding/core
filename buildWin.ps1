@@ -1,8 +1,13 @@
 ﻿
 cd $PSScriptRoot
 
+echo "Generating Haxe Proxy"
+mkdir "./bin/core/mdk/ref" -Force
+dotnet run -c Release --no-launch-profile --project ./tools/HaxeProxyGenerator ./hlboots/hlboot-directx-steam.dat ./bin/core/mdk/ref/GameProxy.dll
+
+
 echo "Building MDK"
-dotnet build -c=Release ./mdk
+dotnet build -c Release ./mdk
 mkdir "./bin/core/mdk" -Force
 Get-ChildItem -Path "./mdk/bin" | Copy-Item -Destination "./bin/core/mdk" -Force -Recurse
 
@@ -10,11 +15,11 @@ echo "Building ModCore"
 
 cd sources
 
-dotnet build -c=Release ./ModCore
-dotnet build -c=Release ./ModCore.ModLoader.Default
+dotnet build -c Release ./ModCore
+dotnet build -c Release ./ModCore.ModLoader.Default
 
 echo "Building Shell"
-dotnet publish -c=Release -r win-x64 ./DeadCellsModding
+dotnet publish -c Release -r win-x64 ./DeadCellsModding
 
 echo "Building Native"
 cd native

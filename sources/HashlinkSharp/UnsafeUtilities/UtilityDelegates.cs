@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using MonoMod.Utils;
+using System.Runtime.CompilerServices;
 
 namespace Hashlink.UnsafeUtilities
 {
@@ -299,6 +300,8 @@ namespace Hashlink.UnsafeUtilities
                 return cd.CreateAnonymousDelegate(ci);
             }
         }
+        [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "GetMethodDescriptor")]
+        public extern static RuntimeMethodHandle GetDynamicMethodHandle( this DynamicMethod method );
         public static T Bind<T>( this Delegate target, object? self) where T : Delegate
         {
             return (T) target.Bind(self, typeof(T));

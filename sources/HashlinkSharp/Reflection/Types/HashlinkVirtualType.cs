@@ -1,4 +1,6 @@
-﻿using Hashlink.Reflection.Members.Object;
+﻿using Hashlink.Proxy;
+using Hashlink.Proxy.Objects;
+using Hashlink.Reflection.Members.Object;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -29,6 +31,11 @@ namespace Hashlink.Reflection.Types
                 }
                 return cachedFields;
             }
+        }
+
+        public override HashlinkObj CreateInstance()
+        {
+            return new HashlinkVirtual(this);
         }
 
         public bool HasField( string name )
