@@ -76,6 +76,9 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.hGetProxy = ImportHelperMethod(nameof(HaxeProxyHelper.GetProxy));
             rdata.hGetNullableProxy = ImportHelperMethod(nameof(HaxeProxyHelper.GetNullableProxy));
 
+            rdata.hAddHook = ImportHelperMethod(nameof(HaxeProxyHelper.AddHook));
+            rdata.hRemoveHook = ImportHelperMethod(nameof(HaxeProxyHelper.RemoveHook));
+
             TypeReference ImportType<T>()
             {
                 return module.ImportReference(typeof(T));

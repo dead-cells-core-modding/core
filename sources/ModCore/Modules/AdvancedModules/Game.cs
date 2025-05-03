@@ -7,8 +7,11 @@ using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using HaxeProxy.Runtime;
 using ModCore.Events;
+using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Game.Hero;
+using ModCore.Events.Interfaces.VM;
+using ModCore.Utitities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,8 +24,10 @@ namespace ModCore.Modules.AdvancedModules
     [AdvancedModule]
     public class Game : AdvancedModule<Game>,
         IOnBeforeGameInit,
-        IOnFrameUpdate
+        IOnFrameUpdate,
+        IOnAdvancedModuleInitializing
     {
+        public override int Priority => ModulePriorities.Game;
         private bool Hook_ServerApi_canSaveScore( HashlinkClosure orig, HashlinkObject self )
         {
             return false;
@@ -31,38 +36,44 @@ namespace ModCore.Modules.AdvancedModules
         {
             get; private set;
         }
-        private object? Hook_hero_init( HashlinkClosure orig, HashlinkObject self )
+
+        private void Hook_Boot_main( HashlinkClosure orig )
         {
-            HeroInstance = self.AsHaxe<Hero>();
-            EventSystem.BroadcastEvent<IOnHeroInit>();
-            return orig.DynamicInvoke(self);
+            EventSystem.BroadcastEvent<IOnBeforeGameInit>();
+            orig.DynamicInvoke();
         }
-        private object? Hook_hero_dispose( HashlinkClosure orig, HashlinkObject self )
+        void IOnBeforeGameInit.OnBeforeGameInit()
         {
-            EventSystem.BroadcastEvent<IOnHeroUpdate>();
-            HeroInstance = null;
-            return orig.DynamicInvoke(self);
+            Hook_Hero.init += Hook_Hero_init;
+            Hook_Hero.dispose += Hook_Hero_dispose;
+            Hook_TitleScreen.addMenu += Hook_TitleScreen_addMenu;
+
+            HashlinkHooks.Instance.CreateHook("tool.$ServerApi", "canSaveScore", Hook_ServerApi_canSaveScore).Enable();
+
+            if (Core.Config.Value.SkipLogoSplash)
+            {
+                Hook_LogoSplashscreen.update += Hook_LogoSplashscreen_update;
+            }
         }
-        private void Hook_LogoSplash_update( HashlinkClosure orig, HashlinkObject self )
+
+        private void Hook_LogoSplashscreen_update( Hook_LogoSplashscreen.orig_update orig, LogoSplashscreen self )
         {
-            var s = self.AsHaxe<LogoSplashscreen>();
+            var s = self;
 
             Assets.Class.preInit();
             s.secondLogo = true;
             s.ready = true;
-            self.AsDynamic().next(null);
+            self.next(null);
         }
 
-        private object? Hook_TitleMenu_addMenu( HashlinkClosure orig, HashlinkObject self,
-            HashlinkObject str, HashlinkClosure cb, HashlinkObject help, object? isEnabled,
-            object? color )
+        private Hashlink.Virtuals.virtual_cb_help_inter_isEnable_t_<HlAction, dc.String, dc.h2d.Interactive, bool, dc.ui.Text> Hook_TitleScreen_addMenu( Hook_TitleScreen.orig_addMenu orig, TitleScreen self, dc.String str, HlAction cb, dc.String help, bool? isEnable, Ref<int> color )
         {
-            var s = self.AsHaxe<TitleScreen>();
+            var s = self;
             var menuItems = s.menuItems;
             if (menuItems.length == 3 && s.isMainMenu)
             {
-                orig.DynamicInvoke(
-                    self, GetText.Instance.GetString("About Core Modding"), () =>
+                orig(
+                    self, GetText.Instance.GetString("About Core Modding").AsHaxeString(), () =>
                     {
                         Logger.Information("Open https://github.com/dead-cells-core-modding/core");
                         Process.Start(new ProcessStartInfo()
@@ -70,24 +81,24 @@ namespace ModCore.Modules.AdvancedModules
                             UseShellExecute = true,
                             FileName = "https://github.com/dead-cells-core-modding/core"
                         });
-                    }, null, null, null
+                    }, null, null, default
                     );
             }
-            return orig.DynamicInvoke(self, str, cb, help, isEnabled, color);
+            return orig(self, str, cb, help, isEnable, color);
         }
-        void IOnBeforeGameInit.OnBeforeGameInit()
+
+        private void Hook_Hero_dispose( Hook_Hero.orig_dispose orig, Hero self )
         {
-            HashlinkHooks.Instance.CreateHook("en.Hero", "init", Hook_hero_init).Enable();
-            HashlinkHooks.Instance.CreateHook("en.Hero", "dispose", Hook_hero_dispose).Enable();
+            EventSystem.BroadcastEvent<IOnHeroUpdate>();
+            HeroInstance = null;
+            orig(self);
+        }
 
-            HashlinkHooks.Instance.CreateHook("pr.TitleScreen", "addMenu", Hook_TitleMenu_addMenu).Enable();
-
-            HashlinkHooks.Instance.CreateHook("tool.$ServerApi", "canSaveScore", Hook_ServerApi_canSaveScore).Enable();
-
-            if (Core.Config.Value.SkipLogoSplash)
-            {
-                HashlinkHooks.Instance.CreateHook("pr.LogoSplashscreen", "update", Hook_LogoSplash_update).Enable();
-            }
+        private void Hook_Hero_init( Hook_Hero.orig_init orig, Hero self )
+        {
+            HeroInstance = self;
+            EventSystem.BroadcastEvent<IOnHeroInit>();
+            orig(self);
         }
 
         void IOnFrameUpdate.OnFrameUpdate( double dt )
@@ -96,6 +107,38 @@ namespace ModCore.Modules.AdvancedModules
             {
                 EventSystem.BroadcastEvent<IOnHeroUpdate, double>(dt);
             }
+        }
+
+        void IOnAdvancedModuleInitializing.OnAdvancedModuleInitializing()
+        {
+            HashlinkHooks.Instance.CreateHook("$Boot", "main", Hook_Boot_main).Enable();
+            Hook_Boot.init += Hook_Boot_init1;
+            Hook_Boot.endInit += Hook_Boot_endInit1;
+            Hook_Boot.update += Hook_Boot_update1;
+        }
+
+        private void Hook_Boot_update1( Hook_Boot.orig_update orig, Boot self, double dt )
+        {
+            orig(self, dt);
+            EventSystem.BroadcastEvent<IOnFrameUpdate, double>(dt);
+        }
+
+        private void Hook_Boot_endInit1( Hook_Boot.orig_endInit orig, Boot self )
+        {
+            orig(self);
+            EventSystem.BroadcastEvent<IOnGameEndInit>();
+        }
+
+        private void Hook_Boot_init1( Hook_Boot.orig_init orig, Boot self )
+        {
+            var win = self.engine.window.window;
+
+            orig(self);
+
+            win.set_title("Dead Cells with Core Modding".AsHaxeString());
+
+            EventSystem.BroadcastEvent<IOnGameInit>();
+            
         }
     }
 }

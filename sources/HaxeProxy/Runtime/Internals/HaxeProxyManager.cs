@@ -1,5 +1,6 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Proxy;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -29,6 +30,10 @@ namespace HaxeProxy.Runtime.Internals
                 throw new NotSupportedException();
             }
             var pt = bindingTypes[ht.TypeIndex];
+
+            Debug.Assert(pt != null);
+            Debug.Assert(!pt.IsAbstract);
+
             var inst = (HaxeProxyBase)RuntimeHelpers.GetUninitializedObject(pt);
             inst.createByManager = true;
             baseCtor(inst, obj);

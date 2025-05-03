@@ -1,5 +1,6 @@
 ﻿using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
         {
             var objType = (HlTypeWithObj)type;
 
-            Utils.ParseHlTypeName(objType.Obj.Name, out var np, out var name);
+            GeneralUtils.ParseHlTypeName(objType.Obj.Name, out var np, out var name);
             var td = new TypeDefinition(np, name, TypeAttributes.Class | TypeAttributes.Public);
             addedTypes.Add(new(td, type.TypeIndex));
 

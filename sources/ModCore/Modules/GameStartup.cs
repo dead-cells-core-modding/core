@@ -1,0 +1,40 @@
+﻿using Hashlink;
+using Hashlink.Marshaling;
+using Hashlink.Patch;
+using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.DynamicAccess;
+using Hashlink.Proxy.Objects;
+using Hashlink.Proxy.Values;
+using Hashlink.Reflection.Types;
+using ModCore.Events;
+using ModCore.Events.Interfaces;
+using ModCore.Events.Interfaces.Game;
+using ModCore.Events.Interfaces.Game.Hero;
+using ModCore.Events.Interfaces.VM;
+using ModCore.Modules.AdvancedModules;
+using System.Diagnostics;
+
+namespace ModCore.Modules
+{
+    [CoreModule]
+    internal unsafe class GameStartup : CoreModule<GameStartup>, IOnNativeEvent
+    {
+        
+
+        private void StartGame()
+        {
+            var entry = (HashlinkClosure)HashlinkMarshal.ConvertHashlinkObject(
+                    &HashlinkVM.Instance.Context->c
+                    )!;
+            entry.CreateDelegate<Action>()();
+        }
+
+        void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )
+        {
+            if (ev.EventId == IOnNativeEvent.EventId.HL_EV_START_GAME)
+            {
+                StartGame();
+            }
+        }
+    }
+}

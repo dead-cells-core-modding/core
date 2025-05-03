@@ -13,6 +13,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ModCore\ModCore.csproj" />
+
+    <Reference Include="..\..\bin\core\mdk\ref\GameProxy.dll" />
   </ItemGroup>
 
   <Target Name="CopyToOutput" AfterTargets="Build">

@@ -9,7 +9,8 @@ using var asm = AssemblyDefinition.CreateAssembly(new("GameProxy", new()), "Game
 var compiler = new HashlinkCompiler(
     HlCode.FromBytes(File.ReadAllBytes(args[0])), asm, new()
     {
-        AllowParalle = true
+        AllowParalle = true,
+        GenerateFakeCode = true
     });
 
 compiler.Compile();
@@ -40,10 +41,10 @@ foreach(var v in m.Types.ToArray())
 
 static void CleanupType(TypeDefinition v)
 {
-    v.CustomAttributes.Clear();
+    //v.CustomAttributes.Clear();
     foreach (var me in v.Methods.ToArray())
     {
-        me.CustomAttributes.Clear();
+        //me.CustomAttributes.Clear();
         if (!me.IsPublic)
         {
             v.Methods.Remove(me);
@@ -76,6 +77,24 @@ static void CleanupType(TypeDefinition v)
             CleanupType(nt);
         }
     }
+}
+
+var mscorlibRef = asm.MainModule.AssemblyReferences.First(x => x.Name == "mscorlib");
+var corelibRef = asm.MainModule.AssemblyReferences.FirstOrDefault(x => x.Name == "System.Private.CoreLib");
+if(corelibRef != null)
+{
+    corelibRef.Culture = mscorlibRef.Culture;
+    corelibRef.Version = mscorlibRef.Version;
+    corelibRef.Attributes = mscorlibRef.Attributes;
+    corelibRef.MetadataToken = mscorlibRef.MetadataToken;
+    corelibRef.PublicKeyToken = mscorlibRef.PublicKeyToken;
+    corelibRef.PublicKey = mscorlibRef.PublicKey;
+    corelibRef.Hash = mscorlibRef.Hash;
+    corelibRef.HashAlgorithm = mscorlibRef.HashAlgorithm;
+    corelibRef.HasPublicKey = mscorlibRef.HasPublicKey;
+    corelibRef.IsRetargetable = mscorlibRef.IsRetargetable;
+    corelibRef.IsWindowsRuntime = mscorlibRef.IsWindowsRuntime;
+    corelibRef.Name = mscorlibRef.Name;
 }
 
 asm.Write(args[1]);

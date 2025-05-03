@@ -4,6 +4,7 @@ using HashlinkNET.Compiler.Steps;
 using HashlinkNET.Compiler.Steps.Class;
 using HashlinkNET.Compiler.Steps.Enum;
 using HashlinkNET.Compiler.Steps.Func;
+using HashlinkNET.Compiler.Steps.Hooks;
 using HashlinkNET.Compiler.Steps.Preprocessor.Fun;
 using HashlinkNET.Compiler.Steps.Preprocessor.Imports;
 using HashlinkNET.Compiler.Steps.Preprocessor.Types;
@@ -65,6 +66,10 @@ namespace HashlinkNET.Compiler
             AddStep<GenerateClassGlobalPropStep>();
             AddStep<GenerateClassMethodDefStep>();
             AddStep<GenerateClassCtorStep>();
+            #endregion
+
+            #region Hooks
+            AddStep<GenerateHooksClassStep>();
             #endregion
 
         }

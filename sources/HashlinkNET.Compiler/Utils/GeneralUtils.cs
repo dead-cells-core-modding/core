@@ -13,9 +13,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HashlinkNET.Compiler
+namespace HashlinkNET.Compiler.Utils
 {
-    internal static class Utils
+    internal static class GeneralUtils
     {
         public static T ArrayLastItem<T>( this T[] array )
         {
@@ -60,7 +60,7 @@ namespace HashlinkNET.Compiler
         {
             var l = method.Parameters.ToArray();
             method.Parameters.Clear();
-            for (int i = 0; i < l.Length; i++)
+            for (var i = 0; i < l.Length; i++)
             {
                 method.Parameters.Add(l[i]);
             }
@@ -117,7 +117,7 @@ namespace HashlinkNET.Compiler
             var rdata = container.GetGlobalData<RuntimeImports>();
             var cache = GetHlFieldInfoCache(type, name, rdata);
             if (ft is GenericParameter || 
-                (ft.Namespace == "System" && ft.Name.StartsWith("Nullable^1") && ft.IsValueType))
+                ft.Namespace == "System" && ft.Name.StartsWith("Nullable^1") && ft.IsValueType)
             {
                 il.Emit(OpCodes.Ldstr, name);
                 il.Emit(OpCodes.Ldsflda, cache);
@@ -145,7 +145,7 @@ namespace HashlinkNET.Compiler
             var cache = GetHlFieldInfoCache(type, name, rdata);
 
             if (ft is GenericParameter ||
-                (ft.Namespace == "System" && ft.Name.StartsWith("Nullable^1") && ft.IsValueType)
+                ft.Namespace == "System" && ft.Name.StartsWith("Nullable^1") && ft.IsValueType
                 )
             {
                 il.Emit(OpCodes.Box, ft);
@@ -200,7 +200,7 @@ namespace HashlinkNET.Compiler
                 HasThis = true
             };
 
-            for (int i = 0; i < ft.Arguments.Length; i++)
+            for (var i = 0; i < ft.Arguments.Length; i++)
             {
                 var at = ft.Arguments[i].Value;
                 cs.Parameters.Add(new(container.GetTypeRef(at)));

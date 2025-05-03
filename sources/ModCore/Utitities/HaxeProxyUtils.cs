@@ -1,4 +1,6 @@
 ﻿using dc;
+using Hashlink.Proxy.Objects;
+using HaxeProxy.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +14,7 @@ namespace ModCore.Utitities
     {
         public static dc.String AsHaxeString( this string str )
         {
-            var s = new dc.String(Unsafe.As<dc.String>(str));
+            var s = new HashlinkString(str).AsHaxe<dc.String>();
             return s;
         }
     }

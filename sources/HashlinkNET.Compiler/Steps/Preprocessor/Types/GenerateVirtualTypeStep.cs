@@ -1,5 +1,6 @@
 ﻿using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
 using System;
@@ -37,11 +38,11 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
             sortedFields.Sort((a, b) => a.Name.CompareTo(b.Name));
 
             var sb = new StringBuilder();
-            sb.Append("virtual@");
+            sb.Append("virtual_");
             foreach (var name in sortedFields)
             {
                 sb.Append(name.Name);
-                sb.Append('@');
+                sb.Append('_');
             }
 
 

@@ -5,6 +5,16 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaxeProxyGenerator", "HaxeProxyGenerator\HaxeProxyGenerator.csproj", "{CA73955F-4464-4FA9-936B-096DFF5AA532}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Haxe Proxy", "Haxe Proxy", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashlinkSharp", "..\sources\HashlinkSharp\HashlinkSharp.csproj", "{11F77958-750F-EAE1-A457-5AFC9259F491}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaxeProxy", "..\sources\HaxeProxy\HaxeProxy.csproj", "{7D773574-8CE6-2B18-442A-740076D194B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashlinkNET.Compiler", "..\sources\HashlinkNET.Compiler\HashlinkNET.Compiler.csproj", "{DDF75B1C-4C06-EEA6-7E79-9B0C635BA50C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashlinkNET.Bytecode", "..\sources\HashlinkNET.Bytecode\HashlinkNET.Bytecode.csproj", "{7340580C-6C2D-9FCB-E0BF-4F215C2D2C83}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +25,32 @@ Global
 		{CA73955F-4464-4FA9-936B-096DFF5AA532}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA73955F-4464-4FA9-936B-096DFF5AA532}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA73955F-4464-4FA9-936B-096DFF5AA532}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11F77958-750F-EAE1-A457-5AFC9259F491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11F77958-750F-EAE1-A457-5AFC9259F491}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11F77958-750F-EAE1-A457-5AFC9259F491}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11F77958-750F-EAE1-A457-5AFC9259F491}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D773574-8CE6-2B18-442A-740076D194B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D773574-8CE6-2B18-442A-740076D194B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D773574-8CE6-2B18-442A-740076D194B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D773574-8CE6-2B18-442A-740076D194B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDF75B1C-4C06-EEA6-7E79-9B0C635BA50C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDF75B1C-4C06-EEA6-7E79-9B0C635BA50C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDF75B1C-4C06-EEA6-7E79-9B0C635BA50C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDF75B1C-4C06-EEA6-7E79-9B0C635BA50C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7340580C-6C2D-9FCB-E0BF-4F215C2D2C83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7340580C-6C2D-9FCB-E0BF-4F215C2D2C83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7340580C-6C2D-9FCB-E0BF-4F215C2D2C83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7340580C-6C2D-9FCB-E0BF-4F215C2D2C83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CA73955F-4464-4FA9-936B-096DFF5AA532} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{11F77958-750F-EAE1-A457-5AFC9259F491} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{7D773574-8CE6-2B18-442A-740076D194B1} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{DDF75B1C-4C06-EEA6-7E79-9B0C635BA50C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{7340580C-6C2D-9FCB-E0BF-4F215C2D2C83} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AE245F4F-74A0-4B5A-A8A5-4BEB8B7AB0A8}

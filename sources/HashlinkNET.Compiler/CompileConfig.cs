@@ -12,5 +12,9 @@ namespace HashlinkNET.Compiler
         {
             get; set;
         }
+        public bool GenerateFakeCode
+        {
+            get; set;
+        } //TODO
     }
 }

@@ -234,10 +234,14 @@ namespace Hashlink.UnsafeUtilities
             {
                 return target;
             }
+            if (target.HasSingleTarget)
+            {
+                return target.Method.CreateDelegate(targetType, target.Target);
+            }
             return adaptDelegates.GetOrAdd(targetType, CreateAdaptDelegate).CreateDelegate(
                 targetType, new DelegateInfo(target));
         }
-        public static T CreateAdaptDelegate<T>( this Delegate target) where T : Delegate
+        public static T CreateAdaptDelegate<T>( this Delegate target ) where T : Delegate
         {
             return (T) target.CreateAdaptDelegate(typeof(T));
         }

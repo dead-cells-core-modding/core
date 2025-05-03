@@ -1,5 +1,6 @@
 ﻿using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
+using HashlinkNET.Compiler.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace HashlinkNET.Compiler.Steps.Class
         public override bool Filter( HlType type )
         {
             return type is HlTypeWithObj obj &&
-                Utils.ParseHlTypeName(obj.Name, out _, out var name) &&
+                GeneralUtils.ParseHlTypeName(obj.Name, out _, out var name) &&
                 name.StartsWith('_');
         }
         public override void Execute( IDataContainer container, HlCode code, 

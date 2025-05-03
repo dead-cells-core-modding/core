@@ -1,6 +1,7 @@
 ﻿using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Data.Interfaces;
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;

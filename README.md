@@ -19,8 +19,8 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 - [x] Game object proxy objects in .NET
 	- [ ] Enum support
 	- [x] Object support
-	- [x] Virtual support
-	- [ ] Closure support
+	- [ ] Virtual support
+	- [x] Closure support
 - [x] Edit game bytecode dynamically
 - [ ] More convenient BuildSystem
 - [ ] Linux platform support
@@ -153,6 +153,8 @@ mods
 
 ## Credit
 
+- [MonoMod](https://github.com/MonoMod/MonoMod)
+- [HashlinkNET](https://github.com/DreamBoxSpy/HashlinkNET) from DreamBoxSpy
 - [DeadCellsDecomp](https://github.com/N3rdL0rd/DeadCellsDecomp) and [alivecells](https://github.com/N3rdL0rd/alivecells) from N3rdL0rd
 - [Hashlink](https://github.com/HaxeFoundation/hashlink) from HaxeFoundation
 

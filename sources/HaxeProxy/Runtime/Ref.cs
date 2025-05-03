@@ -10,6 +10,7 @@ namespace HaxeProxy.Runtime
     [StructLayout(LayoutKind.Sequential)]
     public ref struct Ref<T>(ref T value)
     {
+        public static Ref<T> Null => new();
         public ref T value = ref value;
     }
 }

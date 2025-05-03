@@ -1,5 +1,6 @@
 ﻿using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
         {
             var enumType = (HlTypeWithEnum)type;
 
-            if (!Utils.ParseHlTypeName(enumType.Enum.Name, out var np, out var name))
+            if (!GeneralUtils.ParseHlTypeName(enumType.Enum.Name, out var np, out var name))
             {
                 name = "UnnamedEnum" + Interlocked.Increment(ref unnamedEnumCount);
             }

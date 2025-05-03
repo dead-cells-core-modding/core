@@ -48,6 +48,9 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference hGetNullableProxy;
         public MethodReference hGetCallInfoById;
 
+        public MethodReference hAddHook;
+        public MethodReference hRemoveHook;
+
         public TypeReference stringType;
 
         public TypeReference IAsyncResultType;

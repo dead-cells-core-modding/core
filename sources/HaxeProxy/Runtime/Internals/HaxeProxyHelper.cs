@@ -9,6 +9,7 @@ using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper;
 using HaxeProxy.Runtime.Internals.Cache;
+using HaxeProxy.Runtime.Internals.Hooks;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -159,6 +160,14 @@ namespace HaxeProxy.Runtime.Internals
                 }
                 return cache.directEntry;
             }
+        }
+        public static void AddHook( int findex, Delegate hook )
+        {
+            HaxeHookManager.AddHook( findex, hook );
+        }
+        public static void RemoveHook( int findex, Delegate hook )
+        {
+            HaxeHookManager.RemoveHook( findex, hook );
         }
     }
 }
