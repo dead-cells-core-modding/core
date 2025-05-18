@@ -59,17 +59,26 @@ namespace HashlinkNET.Compiler.Steps.Enum
                 td.Methods.Add(ctor);
                 itemCtors[i] = ctor;
                 var ilp = ctor.Body.GetILProcessor();
+
+                ilp.Emit(OpCodes.Ldarg_0);
+                ilp.Emit(OpCodes.Ldc_I4, type.TypeIndex);
+                ilp.Emit(OpCodes.Ldc_I4, i);
+                ilp.Emit(OpCodes.Call, rdata.hCreateEnumInstance);
+                ilp.Emit(OpCodes.Call, rdata.objBaseCtorMethod);
+
                 for (int j = 0; j < ec.Params.Length; j++)
                 {
-                    var fd = new FieldDefinition("param" + j, FieldAttributes.Public,
+                    var pd = new PropertyDefinition("Param" + j, PropertyAttributes.None,
                         container.GetTypeRef(ec.Params[j].Value));
-                    td.Fields.Add(fd);
+                    GeneralUtils.EmitFieldGetterSetter(
+                        td, pd, container, (j | i << 16).ToString());
+                    td.Properties.Add(pd);
 
-                    var mp = new ParameterDefinition("p" + j, ParameterAttributes.None, fd.FieldType);
+                    var mp = new ParameterDefinition("p" + j, ParameterAttributes.None, pd.PropertyType);
                     ctor.Parameters.Add(mp);
                     ilp.Emit(OpCodes.Ldarg_0);
                     ilp.Emit(OpCodes.Ldarg, mp);
-                    ilp.Emit(OpCodes.Stfld, fd);
+                    ilp.Emit(OpCodes.Callvirt, pd.SetMethod);
                 }
                 ilp.Emit(OpCodes.Ret);
             }

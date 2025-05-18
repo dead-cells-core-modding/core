@@ -8,7 +8,7 @@ namespace HaxeProxy.Runtime.Internals
 {
     internal static unsafe class HaxeProxyManager
     {
-        private static delegate*< HaxeProxyBase, HashlinkObj, void > baseCtor =
+        private static readonly delegate*< HaxeProxyBase, HashlinkObj, void > baseCtor =
             (delegate*< HaxeProxyBase, HashlinkObj, void > )
                 typeof(HaxeProxyBase).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic).First().MethodHandle.GetFunctionPointer();
         private static Type[] bindingTypes = [];

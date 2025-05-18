@@ -17,7 +17,7 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 - [x] Simple Hook
 - [x] Basic interoperability
 - [x] Game object proxy objects in .NET
-	- [ ] Enum support
+	- [x] Enum support
 	- [x] Object support
 	- [x] Virtual support
 	- [x] Closure support

@@ -47,6 +47,7 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference hGetProxy;
         public MethodReference hGetNullableProxy;
         public MethodReference hGetCallInfoById;
+        public MethodReference hCreateEnumInstance;
 
         public MethodReference hAddHook;
         public MethodReference hRemoveHook;

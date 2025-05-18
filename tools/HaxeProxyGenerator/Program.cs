@@ -27,6 +27,8 @@ asm.CustomAttributes.Add(new(
 
 });
 
+#if !DEBUG
+
 foreach(var v in m.Types.ToArray())
 {
     if(!v.IsPublic)
@@ -38,6 +40,8 @@ foreach(var v in m.Types.ToArray())
         CleanupType(v);
     }
 }
+
+#endif
 
 static void CleanupType(TypeDefinition v)
 {

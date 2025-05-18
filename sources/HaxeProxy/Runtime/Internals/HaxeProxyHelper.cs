@@ -3,6 +3,7 @@ using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
+using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Members.Object;
 using Hashlink.Reflection.Types;
@@ -28,22 +29,30 @@ namespace HaxeProxy.Runtime.Internals
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void EnsureFieldInfo( HaxeProxyBase self, string name, ref ObjFieldInfoCache cache )
         {
-            if (cache.field == null)
+            if (!cache.hasCache)
             {
                 var t = self.HashlinkObj.Type;
                 if (t is HashlinkObjectType ot)
                 {
                     var f = ot.FindField(name) ??
                         throw new MissingFieldException(ot.Name, name);
-                    
+
                     cache.offset = (nint)HashlinkNative.hl_obj_lookup((HL_vdynamic*)self.HashlinkPointer,
                         f.HashedName, out _) - self.HashlinkPointer;
-                    cache.field = f;
+                }
+                else if (t is HashlinkEnumType et)
+                {
+                    var idx = int.Parse(name);
+                    var pid = idx & 0xffff;
+                    var c = et.Constructs[idx >> 16];
+                    cache.field = c.Params[pid];
+                    cache.offset = c.ParamOffsets[pid];
                 }
                 else
                 {
                     cache.offset = 0;
                 }
+                cache.hasCache = true;
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -56,7 +65,7 @@ namespace HaxeProxy.Runtime.Internals
                 return ((IHashlinkFieldObject) self.HashlinkObj).GetFieldValue(name);
             }
             return GetProxy<T>(HashlinkMarshal.ReadData((void*)(self.HashlinkPointer + cache.offset),
-                cache.field!.FieldType));
+                cache.field));
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetValueFieldById<T>( HaxeProxyBase self, string name, ref ObjFieldInfoCache cache )
@@ -79,7 +88,7 @@ namespace HaxeProxy.Runtime.Internals
                 return;
             }
             HashlinkMarshal.WriteData((void*)(self.HashlinkPointer + cache.offset),
-                value, cache.field!.FieldType);
+                value, cache.field);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetValueFieldById<T>( HaxeProxyBase self, T value, string name, ref ObjFieldInfoCache cache )
@@ -148,6 +157,12 @@ namespace HaxeProxy.Runtime.Internals
         public static HashlinkObj CreateInstance( int typeIndex )
         {
             return HashlinkMarshal.Module.Types[typeIndex].CreateInstance();
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HashlinkEnum CreateEnumInstance( int typeIndex, int elIndex )
+        {
+            var t = (HashlinkEnumType)HashlinkMarshal.Module.Types[typeIndex];
+            return new HashlinkEnum(t, elIndex);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DelegateInfo GetCallInfoById( int findex, ref FunctionInfoCache cache )
