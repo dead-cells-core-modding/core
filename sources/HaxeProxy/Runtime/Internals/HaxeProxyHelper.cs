@@ -36,7 +36,7 @@ namespace HaxeProxy.Runtime.Internals
                 {
                     var f = ot.FindField(name) ??
                         throw new MissingFieldException(ot.Name, name);
-
+                    cache.field = f.FieldType;
                     cache.offset = (nint)HashlinkNative.hl_obj_lookup((HL_vdynamic*)self.HashlinkPointer,
                         f.HashedName, out _) - self.HashlinkPointer;
                 }
