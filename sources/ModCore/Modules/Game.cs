@@ -6,6 +6,7 @@ using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
+using Hashlink.Virtuals;
 using HaxeProxy.Runtime;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
@@ -67,7 +68,7 @@ namespace ModCore.Modules
             self.next(null);
         }
 
-        private Hashlink.Virtuals.virtual_cb_help_inter_isEnable_t_<HlAction, dc.String, dc.h2d.Interactive, bool, dc.ui.Text> Hook_TitleScreen_addMenu( Hook_TitleScreen.orig_addMenu orig, TitleScreen self, dc.String str, HlAction cb, dc.String help, bool? isEnable, Ref<int> color )
+        private virtual_cb_help_inter_isEnable_t__0 Hook_TitleScreen_addMenu( Hook_TitleScreen.orig_addMenu orig, TitleScreen self, dc.String str, HlAction cb, dc.String help, bool? isEnable, Ref<int> color )
         {
             var s = self;
             var menuItems = s.menuItems;
@@ -85,6 +86,7 @@ namespace ModCore.Modules
                     }, null, null, default
                     );
             }
+
             return orig(self, str, cb, help, isEnable, color);
         }
 

@@ -14,10 +14,8 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
 {
     internal class GenerateVirtualTypeStep : GenerateTypeCompileStep
     {
-        private readonly ConcurrentDictionary<string, TypeDefinition> virtualClasses = [];
-        
         public override bool Filter( HlType type ) => type.Kind == HlTypeKind.Virtual;
-        protected override bool SupportParalle => false;
+        protected override bool SupportParalle => true;
         public override void Execute( IDataContainer data, HlCode code, GlobalData gdata, RuntimeImports rdata, HlType t )
         {
             if (t is not HlTypeWithVirtual vtype)
@@ -29,13 +27,15 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
             {
                 data.AddData(t, new VirtualClassData()
                 {
+                    ShortName = "virtual_",
+                    FullName = "virtual_",
                     TypeRef = rdata.virtualType,
                     SortedFields = []
                 });
                 return;
             }
             var sortedFields = virt.Fields.ToList();
-            sortedFields.Sort((a, b) => a.Name.CompareTo(b.Name));
+            sortedFields.Sort(( a, b ) => a.Name.CompareTo(b.Name));
 
             var sb = new StringBuilder();
             sb.Append("virtual_");
@@ -45,32 +45,23 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
                 sb.Append('_');
             }
 
-
-
             var vname = sb.ToString();
 
-            var virtType = virtualClasses.GetOrAdd(vname, _ =>
+            foreach (var v in sortedFields)
             {
-                var td = new TypeDefinition("Hashlink.Virtuals", sb.ToString(), TypeAttributes.Class |
-                TypeAttributes.Public | TypeAttributes.Sealed)
-                {
-                    BaseType = rdata.virtualType
-                };
+                sb.Append(v.Type.Value.ToString());
+                sb.Append('_');
+            }
 
-                foreach (var v in sortedFields)
-                {
-                    var gp = new GenericParameter("T" + v.Name, td);
-                    td.GenericParameters.Add(gp);
-                    var fd = new PropertyDefinition(v.Name, PropertyAttributes.None, gp);
-                    td.EmitFieldGetterSetter(fd, data, v.Name);
-                    td.Properties.Add(fd);
-                }
+            var fullname = sb.ToString();
 
-                addedTypes.Add(new(td, -1));
-                return td;
-            });
+            var td = new TypeDefinition("Hashlink.Virtuals", vname.ToString(), TypeAttributes.Class |
+            TypeAttributes.Public | TypeAttributes.Sealed)
+            {
+                BaseType = rdata.virtualType
+            };
 
-            var gt = new GenericInstanceType(virtType);
+            addedTypes.Add(new(td, -1));
 
             addAssemblyAttributes.Add(new(
                         rdata.attrTypeBindingCtor
@@ -79,13 +70,16 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
                 ConstructorArguments =
                         {
                             new(gdata.Module.TypeSystem.Int32, t.TypeIndex),
-                            new(gdata.Module.TypeSystem.TypedReference, gt)
+                            new(gdata.Module.TypeSystem.TypedReference, td)
                         }
             });
-            
-            data.AddData(gt, t, new VirtualClassData()
+
+            data.AddData(td, t, new VirtualClassData()
             {
-                TypeRef = gt,
+                TypeDef = td,
+                TypeRef = td,
+                FullName = fullname,
+                ShortName = vname,
                 SortedFields = sortedFields
             });
 

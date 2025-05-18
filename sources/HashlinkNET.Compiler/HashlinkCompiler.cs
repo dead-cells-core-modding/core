@@ -54,7 +54,9 @@ namespace HashlinkNET.Compiler
             #endregion
 
             #region Virtual
-            AddStep<FixVirtualFieldsStep>();
+            AddStep<GenerateVirtualCtorStep>();
+            AddStep<GenerateVirtualFieldsStep>();
+            AddStep<FixVirtualNameStep>();
             #endregion
 
             #region Class

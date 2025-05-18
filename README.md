@@ -19,7 +19,7 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 - [x] Game object proxy objects in .NET
 	- [ ] Enum support
 	- [x] Object support
-	- [ ] Virtual support
+	- [x] Virtual support
 	- [x] Closure support
 - [x] Edit game bytecode dynamically
 - [ ] More convenient BuildSystem

@@ -55,6 +55,11 @@ public class HlType
         return Kind.ToString();
     }
 
+    public override string ToString()
+    {
+        return GetShortName();
+    }
+
     public HlType( HlTypeKind kind )
     {
         Kind = kind;
@@ -263,6 +268,11 @@ public sealed class HlTypeWithObj : HlType, IHlNamedType
 
     public string Name => Obj.Name;
 
+    public override string ToString()
+    {
+        return Name;
+    }
+
     public override string GetShortName()
     {
         var lastDot = Obj.Name.LastIndexOf('.');
@@ -359,6 +369,35 @@ public class HlTypeVirtual
 
 public sealed class HlTypeWithVirtual : HlType
 {
+    private void AppendName( StringBuilder sb, HashSet<HlType> looked )
+    {
+        if (!looked.Add(this))
+        {
+            sb.Append("__Loop_Ref__");
+            return;
+        }
+        sb.Append($"_virtual_");
+        foreach (var v in Virtual.Fields)
+        {
+            sb.Append(v.Name);
+            sb.Append('_');
+            if (v.Type.Value is HlTypeWithVirtual virt)
+            {
+                virt.AppendName(sb, looked);
+            }
+            else
+            {
+                sb.Append(v.Type.Value);
+            }
+            sb.Append('_');
+        }
+    }
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        AppendName(sb, []);
+        return sb.ToString();
+    }
     public HlTypeVirtual Virtual
     {
         get; set;
