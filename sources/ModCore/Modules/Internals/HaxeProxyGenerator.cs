@@ -5,7 +5,6 @@ using HaxeProxy.Runtime.Internals;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
-using ModCore.Modules.AdvancedModules;
 using ModCore.Storage;
 using Mono.Cecil;
 using System;
@@ -18,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace ModCore.Modules.Internals
 {
-    [CoreModule]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     internal class HaxeProxyGenerator : CoreModule<HaxeProxyGenerator>,
         IOnCodeLoading,
         IOnHashlinkVMReady
@@ -73,25 +72,7 @@ namespace ModCore.Modules.Internals
 
             Logger.Information("Loading advanced modules");
 
-            foreach (var type in GetType().Assembly.SafeGetAllTypes())
-            {
-                if (type == null)
-                {
-                    continue;
-                }
-                if (!type.IsSubclassOf(typeof(Module)) || type.IsAbstract)
-                {
-                    continue;
-                }
-                var attr = type.GetCustomAttribute<AdvancedModuleAttribute>();
-                if (attr == null)
-                {
-                    continue;
-                }
-
-                Logger.Information("Loading advanced module: {type}", type.FullName);
-                Activator.CreateInstance(type);
-            }
+            Core.LoadCoreModules(typeof(Core).Assembly, CoreModuleAttribute.CoreModuleKind.Normal);
 
             EventSystem.BroadcastEvent<IOnAdvancedModuleInitializing>();
         }

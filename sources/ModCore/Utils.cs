@@ -3,6 +3,7 @@ using Hashlink;
 using Hashlink.Proxy.Objects;
 using ModCore.Trace;
 using MonoMod.Utils;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -98,6 +99,7 @@ namespace ModCore
             stackTraceString = st.ToString();
         }
 
+        
         public static Type?[] SafeGetAllTypes( this Assembly assembly )
         {
             try

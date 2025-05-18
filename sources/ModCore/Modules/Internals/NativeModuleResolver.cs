@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace ModCore.Modules.Internals
 {
-    [CoreModule]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     internal unsafe class NativeModuleResolver : CoreModule<NativeModuleResolver>,
         IOnCoreModuleInitializing,
         IOnResolveNativeFunction,

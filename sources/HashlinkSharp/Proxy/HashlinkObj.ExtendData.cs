@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Proxy
 {
-    public partial class HashlinkObj : IExtendData
+    public partial class HashlinkObj : IExtraData
     {
         private object? extendData;
         private readonly ReaderWriterLockSlim dataLock = new();
 
-        T IExtendData.GetOrCreateData<T>( Func<HashlinkObj, object> factory )
+        T IExtraData.GetOrCreateData<T>( Func<HashlinkObj, object> factory )
         {
             
             if (this is T)

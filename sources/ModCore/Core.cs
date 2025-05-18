@@ -42,11 +42,13 @@ namespace ModCore
             Environment.SetEnvironmentVariable(envName, val);
         }
 
-        public static void LoadCoreModules(Assembly asm)
+        public static void LoadCoreModules(
+            Assembly asm,
+            CoreModuleAttribute.CoreModuleKind kind)
         {
             var os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                   ? CoreModuleAttribute.SupportOS.Windows
-                   : CoreModuleAttribute.SupportOS.Linux;
+                   ? CoreModuleAttribute.SupportOSKind.Windows
+                   : CoreModuleAttribute.SupportOSKind.Linux;
             foreach (var type in asm.SafeGetAllTypes())
             {
                 if (type == null)
@@ -62,7 +64,11 @@ namespace ModCore
                 {
                     continue;
                 }
-                if ((attr.supportOS & os) != os)
+                if (attr.Kind != kind)
+                {
+                    continue;
+                }
+                if ((attr.SupportOS & os) != os)
                 {
                     continue;
                 }
@@ -100,7 +106,7 @@ namespace ModCore
 
             Log.Logger.Information("Loading core modules");
 
-            LoadCoreModules(typeof(Core).Assembly);
+            LoadCoreModules(typeof(Core).Assembly, CoreModuleAttribute.CoreModuleKind.Preload);
 
             EventSystem.BroadcastEvent<IOnCoreModuleInitializing>();
 

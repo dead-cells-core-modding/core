@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Hashlink.Proxy.DynamicAccess
 {
     public abstract class HashlinkObjDynamicAccess( HashlinkObj obj ) : DynamicObject, 
-        IHashlinkPointer, IExtendData, IExtendDataItem
+        IHashlinkPointer, IExtraData, IExtraDataItem
     {
         public HashlinkObj HashlinkObject
         {
@@ -21,7 +21,7 @@ namespace Hashlink.Proxy.DynamicAccess
         public HashlinkType Type => HashlinkObject.Type;
         public nint HashlinkPointer => ((IHashlinkPointer)HashlinkObject).HashlinkPointer;
 
-        private static readonly MethodInfo iextenddata_getdata = typeof(IExtendData).GetMethod(nameof(IExtendData.GetData))!;
+        private static readonly MethodInfo iextenddata_getdata = typeof(IExtraData).GetMethod(nameof(IExtraData.GetData))!;
         public static object Create( HashlinkObj obj )
         {
             if (obj is HashlinkObject hobj)
@@ -51,7 +51,7 @@ namespace Hashlink.Proxy.DynamicAccess
                 result = ToString();
                 return true;
             }
-            if (binder.Type.IsAssignableTo(typeof(IExtendDataItem)))
+            if (binder.Type.IsAssignableTo(typeof(IExtraDataItem)))
             {
                 var m = iextenddata_getdata.MakeGenericMethod(binder.Type);
                 result = m.Invoke(HashlinkObject, null);
@@ -66,9 +66,9 @@ namespace Hashlink.Proxy.DynamicAccess
         }
         public dynamic AsDynamic => this;
 
-        T IExtendData.GetOrCreateData<T>( Func<HashlinkObj, object> factory ) where T : class
+        T IExtraData.GetOrCreateData<T>( Func<HashlinkObj, object> factory ) where T : class
         {
-            return ((IExtendData)HashlinkObject).GetOrCreateData<T>(factory);
+            return ((IExtraData)HashlinkObject).GetOrCreateData<T>(factory);
         }
     }
 }

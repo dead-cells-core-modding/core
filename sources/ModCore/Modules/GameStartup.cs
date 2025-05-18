@@ -11,12 +11,11 @@ using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Events.Interfaces.VM;
-using ModCore.Modules.AdvancedModules;
 using System.Diagnostics;
 
 namespace ModCore.Modules
 {
-    [CoreModule]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     internal unsafe class GameStartup : CoreModule<GameStartup>, IOnNativeEvent
     {
         

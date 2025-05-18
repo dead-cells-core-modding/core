@@ -4,7 +4,8 @@ using System.Runtime.InteropServices;
 
 namespace ModCore.Modules
 {
-    [CoreModule(supportOS = CoreModuleAttribute.SupportOS.Windows)]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload,
+        CoreModuleAttribute.SupportOSKind.Windows)]
     internal class WindowsPlatformUtils : CoreModule<WindowsPlatformUtils>, IOnHashlinkVMReady
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

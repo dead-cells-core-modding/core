@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace ModCore.Modules.Internals
 {
-    [CoreModule]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     internal class PluginLoader : CoreModule<PluginLoader>, IOnCoreModuleInitializing
     {
         public override int Priority => ModulePriorities.PluginLoader;

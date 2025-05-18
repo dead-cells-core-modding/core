@@ -136,7 +136,7 @@ namespace Hashlink.Marshaling.ObjHandle
                         }
                     }
                 }
-                if (freeCount * 5 > rootsCount)
+                /*if (freeCount * 5 > rootsCount)
                 {
                     if (genCount > freeCount * 3 / 2)
                     {
@@ -147,7 +147,7 @@ namespace Hashlink.Marshaling.ObjHandle
                     {
                         GC.Collect(genCount / freeCount, GCCollectionMode.Forced, true);
                     }
-                }
+                }*/
             }
 
             void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )
@@ -215,7 +215,7 @@ namespace Hashlink.Marshaling.ObjHandle
                 gcLock.ExitReadLock();
             }
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ref ObjHandle GetObjHandle( int index )
         {
             var pageIndex = 32 - BitOperations.LeadingZeroCount((uint)index + 1);
@@ -226,6 +226,8 @@ namespace Hashlink.Marshaling.ObjHandle
         }
 
         private static readonly ReaderWriterLockSlim gcLock = new();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static nint* GetObjWrapperPtr( void* ptr )
         {
             var size = hl_gc_get_memsize(ptr);

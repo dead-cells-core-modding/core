@@ -11,10 +11,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Modules.AdvancedModules
+namespace ModCore.Modules
 {
-    [AdvancedModule]
-    public class FsPak : AdvancedModule<FsPak>,
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
+    public class FsPak : CoreModule<FsPak>,
         IOnBeforeGameInit
     {
         public override int Priority => ModulePriorities.Game;

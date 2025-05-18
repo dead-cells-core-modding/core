@@ -33,14 +33,29 @@ namespace Hashlink.Proxy.Clousre
             callback = HlCallbackFactory.GetHlCallback(
                 funcType
                 );
-            callback.Target = target;
-            TypedRef->fun = (void*)callback.NativePointer;
+            callback.Target = target.CreateAdaptDelegate();
             TypedRef->hasValue = 0;
         }
 
-        public nint FunctionPtr => 
-            (nint)TypedRef->fun;
+        public nint FunctionPtr =>
+            EnsureNativePointer();
 
+        private nint EnsureNativePointer(HL_vclosure* native = null)
+        {
+            if (native == null)
+            {
+                native = TypedRef;
+            }
+            if (native->fun == null)
+            {
+                if (callback == null)
+                {
+                    throw new InvalidOperationException();
+                }
+                native->fun = (void*) callback.NativePointer;
+            }
+            return (nint)native->fun;
+        }
         [MemberNotNull(nameof(cachedWrapper))]
         private void CheckWrapper()
         {
@@ -54,6 +69,8 @@ namespace Hashlink.Proxy.Clousre
             CheckWrapper();
             if (callback != null)
             {
+                args ??= [];
+
                 return callback.Target!.DynamicInvoke(args);
             }
             args ??= [];
@@ -85,7 +102,7 @@ namespace Hashlink.Proxy.Clousre
 
         public T CreateDelegate<T>() where T : Delegate
         {
-            return ((IExtendData)this).GetData<DelegateCache<T>>().Value;
+            return ((IExtraData)this).GetData<DelegateCache<T>>().Value;
         }
 
         public object? BindingThis
@@ -95,6 +112,14 @@ namespace Hashlink.Proxy.Clousre
                 return TypedRef->hasValue > 0 ? (
                     cachedThis ??= HashlinkMarshal.ConvertHashlinkObject(TypedRef->value)
                     ) : null;
+            }
+        }
+        public override nint HashlinkPointer
+        {
+            get
+            {
+                EnsureNativePointer((HL_vclosure*) base.HashlinkPointer);
+                return base.HashlinkPointer;
             }
         }
     }

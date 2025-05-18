@@ -15,7 +15,7 @@ using System.Text;
 
 namespace ModCore.Modules
 {
-    [CoreModule]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     public unsafe class HashlinkVM : CoreModule<HashlinkVM>,
         IOnCoreModuleInitializing,
         IOnHashlinkVMReady,

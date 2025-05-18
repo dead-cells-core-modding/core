@@ -52,10 +52,7 @@ namespace HashlinkNET.Compiler.Steps.Class
                     {
                         il.Emit(OpCodes.Ldarg_0);
                     }
-                    if (at.Value.Kind == HlTypeKind.Null)
-                    {
-                        il.Emit(OpCodes.Box, md.Parameters[i - 1].ParameterType);
-                    }
+                    
                 });
 
                 ilp.Emit(OpCodes.Ret);

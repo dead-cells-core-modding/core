@@ -11,7 +11,7 @@ namespace HaxeProxy.Runtime
     {
         public static HaxeProxyBase AsHaxe( this HashlinkObj obj )
         {
-            return ((IExtendData)obj).GetData<HaxeProxyBase>();
+            return ((IExtraData)obj).GetData<HaxeProxyBase>();
         }
         public static T AsHaxe<T>( this HashlinkObj obj ) where T : HaxeProxyBase
         {

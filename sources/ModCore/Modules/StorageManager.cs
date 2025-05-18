@@ -3,7 +3,7 @@ using ModCore.Storage;
 
 namespace ModCore.Modules
 {
-    [CoreModule]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     public class StorageManager : CoreModule<StorageManager>, IOnCoreModuleInitializing
     {
         public override int Priority => ModulePriorities.Storage;

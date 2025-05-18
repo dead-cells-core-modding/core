@@ -34,7 +34,7 @@ namespace HashlinkNET.Compiler.Steps.Hooks
             {
                 BaseType = rdata.objectType
             };
-            addedTypes.Add(new(htd, type.TypeIndex));
+            addedTypes.Add(new(htd, -1));
 
             foreach (var v in obj.Protos)
             {

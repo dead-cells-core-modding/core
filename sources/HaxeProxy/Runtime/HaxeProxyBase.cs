@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 namespace HaxeProxy.Runtime
 {
     public abstract class HaxeProxyBase : 
-        IExtendData,
-        IExtendDataItem,
+        IExtraData,
+        IExtraDataItem,
         IHashlinkPointer
     {
         protected HaxeProxyBase( HashlinkObj obj )
@@ -19,7 +19,7 @@ namespace HaxeProxy.Runtime
             HashlinkObj = obj;
             if (!createByManager)
             {
-                IExtendData ied = obj;
+                IExtraData ied = obj;
                 if (ied.GetOrCreateData<HaxeProxyBase>(_ => this) != this)
                 {
                     throw new InvalidOperationException();
@@ -36,7 +36,7 @@ namespace HaxeProxy.Runtime
 
         internal bool createByManager;
 
-        static object IExtendDataItem.Create( HashlinkObj obj )
+        static object IExtraDataItem.Create( HashlinkObj obj )
         {
             return HaxeProxyManager.CreateProxy( obj );
         }
@@ -49,9 +49,9 @@ namespace HaxeProxy.Runtime
         {
         }
 
-        T IExtendData.GetOrCreateData<T>( Func<HashlinkObj, object> factory ) where T : class
+        T IExtraData.GetOrCreateData<T>( Func<HashlinkObj, object> factory ) where T : class
         {
-            return ((IExtendData)HashlinkObj).GetOrCreateData<T>(factory);
+            return ((IExtraData)HashlinkObj).GetOrCreateData<T>(factory);
         }
     }
 }

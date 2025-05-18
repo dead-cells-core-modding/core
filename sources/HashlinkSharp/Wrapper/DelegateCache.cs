@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Wrapper
 {
-    internal class DelegateCache<T>(T d) : IExtendDataItem where T : Delegate
+    internal class DelegateCache<T>(T d) : IExtraDataItem where T : Delegate
     {
         public T Value
         {

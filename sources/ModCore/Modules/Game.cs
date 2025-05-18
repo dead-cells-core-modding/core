@@ -1,6 +1,7 @@
 ﻿using dc;
 using dc.en;
 using dc.pr;
+using dc.tool;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
@@ -19,10 +20,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModCore.Modules.AdvancedModules
+namespace ModCore.Modules
 {
-    [AdvancedModule]
-    public class Game : AdvancedModule<Game>,
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
+    public class Game : CoreModule<Game>,
         IOnBeforeGameInit,
         IOnFrameUpdate,
         IOnAdvancedModuleInitializing

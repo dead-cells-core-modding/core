@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace ModCore.Modules
 {
-    [CoreModule]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     internal class ModLoader : CoreModule<ModLoader>,
         IOnCoreModuleInitializing
     {

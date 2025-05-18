@@ -8,6 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using MonoMod.Utils;
 using System.Runtime.CompilerServices;
+using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy;
+using System.Diagnostics;
+using Serilog;
 
 namespace Hashlink.UnsafeUtilities
 {
@@ -17,14 +21,51 @@ namespace Hashlink.UnsafeUtilities
             new("UtilityDelegates"), AssemblyBuilderAccess.Run).DefineDynamicModule("MainModule");
 
         private static readonly MethodInfo MI_generalDelegateFunc_Invoke = typeof(Func<object?[], object?>).GetMethod("Invoke")!;
+        private static readonly MethodInfo MI_castObject = typeof(UtilityDelegates).GetMethod(nameof(CastObject), BindingFlags.Static | BindingFlags.NonPublic)!;
+        private static readonly MethodInfo MI_castObjectEx = typeof(UtilityDelegates).GetMethod(nameof(CastObjectEx), BindingFlags.Static | BindingFlags.NonPublic)!;
 
         private static readonly ConcurrentDictionary<int, Type> anonymousGenericDelegates = [];
         private static readonly ConcurrentDictionary<MethodInfo, Type> anonymousGenericInstDelegates = [];
         private static readonly ConcurrentDictionary<MethodInfo, Type> anonymousDelegateTypes = [];
         private static readonly ConcurrentDictionary<Type, MethodInfo> adaptDelegatesEx = [];
-        private static readonly ConcurrentDictionary<Type, MethodInfo> adaptDelegates = [];
+        private static readonly ConcurrentDictionary<(MethodInfo, Type?), MethodInfo> adaptDelegates = [];
         private static readonly ConcurrentDictionary<Type, MethodInfo> closureDelegates = [];
+        private static readonly HashSet<(MethodInfo, Type)> safeCastList = [];
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static T CastObjectEx<T>( object obj ) where T : class, IExtraDataItem
+        {
+            if (obj is IExtraData ied)
+            {
+                return ied.GetData<T>();
+            }
+            return CastObject<T>(obj);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static T CastObject<T>( object obj ) where T : class
+        {
+            if (obj is T t)
+            {
+                return t;
+            }
+            else if (typeof(T).BaseType == typeof(MulticastDelegate))
+            {
+                if (obj is Delegate del)
+                {
+                    return (T)(object)del.CreateAdaptDelegate(typeof(T));
+                }
+                else if (obj is HashlinkClosure cl)
+                {
+                    return (T)(object)cl.CreateDelegate(typeof(T));
+                }
+            }
+            else if (obj is IExtraData)
+            {
+                throw new InvalidProgramException();
+            }
+
+            return (T)(dynamic)obj;
+        }
         private static Type CreateGenericDelegate( int argCount )
         {
             var s = argCount;
@@ -200,14 +241,39 @@ namespace Hashlink.UnsafeUtilities
             ilg.Emit(OpCodes.Ret);
             return dm;
         }
-        private static MethodInfo CreateAdaptDelegate( Type type )
+        private static MethodInfo CreateAdaptDelegate( (MethodInfo, Type?) v)
         {
-            var invoke = type.GetMethod("Invoke")!;
-            var ps = invoke.GetParameters();
-            Type[] ts = [.. ps.Select(x => x.ParameterType)];
+            (var m, var type) = v;
+            var invoke = type?.GetDelegateInvoke() ?? m;
+            Type[] ps = [.. invoke.GetParameters().Select(x => x.ParameterType)];
+            Type[] ts = [.. m.GetParameters().Select(x => x.ParameterType)];
 
-            var dm = new DynamicMethod("AdaptDelegate+" + type.Name, invoke.ReturnType,
-                [typeof(DelegateInfo), ..ts ], true);
+            for (int i = 0; i < ps.Length; i++)
+            {
+                var pt = ps[i];
+                var tt = ts[i];
+                if (type == null)
+                {
+                    if (!pt.IsValueType)
+                    {
+                        ps[i] = typeof(object);
+                    }
+                    else if (pt.IsByRefLike &&
+                        pt.FullName!.StartsWith("HaxeProxy.Runtime.Ref`1"))
+                    {
+                        ps[i] = ts[i] = typeof(nint);
+                    }
+                }
+                else if (tt == typeof(nint) &&
+                    pt.IsByRefLike) //HRef -> Ref
+                {
+                    ts[i] = pt;
+                }
+            }
+            
+
+            var dm = new DynamicMethod("AdaptDelegate+" + m.Name, invoke.ReturnType,
+                [typeof(DelegateInfo), .. ps], true);
             var ilg = dm.GetILGenerator();
 
             ilg.Emit(OpCodes.Ldarg_0);
@@ -216,11 +282,37 @@ namespace Hashlink.UnsafeUtilities
             for (int i = 0; i < ts.Length; i++)
             {
                 ilg.Emit(OpCodes.Ldarg, i + 1);
+                var t = ts[i];
+                var pt = ps[i];
+                if (t.IsValueType != pt.IsValueType)
+                {
+                    if (t.IsValueType)
+                    {
+                        ilg.Emit(OpCodes.Unbox_Any, t);
+                    }
+                    else
+                    {
+                        ilg.Emit(OpCodes.Box, pt);
+                    }
+                }
+                if (!t.IsValueType)
+                {
+                    ilg.Emit(OpCodes.Call, ts[i].IsAssignableTo(typeof(IExtraDataItem)) ?
+                        MI_castObjectEx.MakeGenericMethod(ts[i]) : 
+                        MI_castObject.MakeGenericMethod(ts[i]));
+                }
+
             }
 
             ilg.Emit(OpCodes.Ldarg_0);
             ilg.Emit(OpCodes.Ldfld, DelegateInfo.FI_invokePtr);
             ilg.EmitCalli(OpCodes.Calli, CallingConventions.HasThis, invoke.ReturnType, ts, null);
+            if (!invoke.ReturnType.IsValueType)
+            {
+                ilg.Emit(OpCodes.Call, invoke.ReturnType.IsAssignableTo(typeof(IExtraDataItem)) ?
+                        MI_castObjectEx.MakeGenericMethod(invoke.ReturnType) :
+                        MI_castObject.MakeGenericMethod(invoke.ReturnType));
+            }
             ilg.Emit(OpCodes.Ret);
             return dm;
         }
@@ -228,19 +320,29 @@ namespace Hashlink.UnsafeUtilities
         {
             return adaptDelegatesEx.GetOrAdd(delegateType, CreateAdaptDelegateEx).CreateDelegate(delegateType, target);
         }
-        public static Delegate CreateAdaptDelegate( this Delegate target, Type targetType )
+        public static Delegate CreateAdaptDelegate( this Delegate target, Type? targetType = null )
         {
-            if (targetType.IsAssignableFrom(target.GetType()))
+            if (targetType?.IsAssignableTo(target.GetType()) ?? false)
             {
                 return target;
             }
-            if (target.HasSingleTarget)
+            var tinvoke = target.GetType().GetDelegateInvoke();
+            var m = adaptDelegates.GetOrAdd((tinvoke, targetType), CreateAdaptDelegate);
+            var di = new DelegateInfo(target);
+            if (targetType == null)
             {
-                return target.Method.CreateDelegate(targetType, target.Target);
+                return m.CreateAnonymousDelegate(di);
             }
-            return adaptDelegates.GetOrAdd(targetType, CreateAdaptDelegate).CreateDelegate(
-                targetType, new DelegateInfo(target));
+            else
+            {
+                return m.CreateDelegate(targetType, di);
+            }
         }
+        public static MethodInfo CreateAdaptMethod( MethodInfo method )
+        {
+            return adaptDelegates.GetOrAdd((method, null), CreateAdaptDelegate);
+        }
+
         public static T CreateAdaptDelegate<T>( this Delegate target ) where T : Delegate
         {
             return (T) target.CreateAdaptDelegate(typeof(T));

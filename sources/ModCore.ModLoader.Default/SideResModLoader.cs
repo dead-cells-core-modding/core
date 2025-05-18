@@ -3,7 +3,7 @@ using HaxeProxy.Runtime;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Mods;
 using ModCore.Mods;
-using ModCore.Modules.AdvancedModules;
+using ModCore.Modules;
 using ModCore.Plugins;
 using ModCore.Utitities;
 using System;

@@ -1,4 +1,6 @@
 ﻿using Hashlink.Proxy;
+using System.Collections.Concurrent;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,6 +8,7 @@ namespace Hashlink
 {
     internal static unsafe class Utils
     {
+        private static readonly ConcurrentDictionary<Type, MethodInfo> delegateInvokeCache = [];
         [StructLayout(LayoutKind.Explicit)]
         private struct BoxedStruct
         {
@@ -45,7 +48,11 @@ namespace Hashlink
         {
             return ref Unsafe.Unbox<T>(obj);
         }
-
+        public static MethodInfo GetDelegateInvoke( this Type type )
+        {
+            return delegateInvokeCache.GetOrAdd(type, t => t.GetMethod("Invoke") ??
+                throw new MissingMethodException(t.FullName, "Invoke"));
+        }
         static Utils()
         {
             {

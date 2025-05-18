@@ -13,10 +13,10 @@ using System.Threading.Tasks;
 
 using GT = dc.libs.data.GetText;
 
-namespace ModCore.Modules.AdvancedModules
+namespace ModCore.Modules
 {
-    [AdvancedModule]
-    public class GetText : AdvancedModule<GetText>
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
+    public class GetText : CoreModule<GetText>
     {
         public override int Priority => ModulePriorities.Game;
 

@@ -10,11 +10,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Hashlink.Marshaling;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Hashlink.Wrapper
 {
     internal unsafe class WrapperHelper
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowNetException( Exception ex )
         {
             if (Debugger.IsAttached)
@@ -28,27 +30,30 @@ namespace Hashlink.Wrapper
             }
             hl_throw((HL_vdynamic*)new HashlinkNETExceptionObj( ex ).HashlinkPointer);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetObjectFromPtr( nint ptr )
         {
             return HashlinkMarshal.ConvertHashlinkObject(HashlinkObjPtr.Get(ptr), null);
         }
-        public static T GetObjectFrom<T>( object obj ) where T : class, IExtendDataItem
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T GetObjectFrom<T>( object obj ) where T : class, IExtraDataItem
         {
             if (obj is T result)
             {
                 return result;
             }
-            if (obj is IExtendData ied)
+            if (obj is IExtraData ied)
             {
                 return ied.GetData<T>();
             }
             return (T)(dynamic)obj;
         }
-        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static nint AsPointer( object obj, int typeIdx )
         {
             return AsPointerWithType(obj, HashlinkMarshal.Module.Types[typeIdx]);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static nint AsPointerWithType( object obj, HashlinkType type )
         {
             if (!type.IsPointer)

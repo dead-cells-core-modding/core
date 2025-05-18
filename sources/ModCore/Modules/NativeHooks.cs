@@ -7,7 +7,7 @@ using HookInfo = MonoMod.Core.ICoreNativeDetour;
 
 namespace ModCore.Modules
 {
-    [CoreModule]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     public unsafe class NativeHooks : CoreModule<NativeHooks>
     {
         public override int Priority => ModulePriorities.NativeHook;

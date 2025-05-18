@@ -203,8 +203,19 @@ namespace HashlinkNET.Compiler.Utils
             for (var i = 0; i < ft.Arguments.Length; i++)
             {
                 var at = ft.Arguments[i].Value;
-                cs.Parameters.Add(new(container.GetTypeRef(at)));
+                var pt = container.GetTypeRef(at);
+
+                
                 emitArg(il, i);
+                if (at.Kind == HlTypeKind.Null)
+                {
+                    il.Emit(OpCodes.Box, pt);
+                    cs.Parameters.Add(new(rdata.objectType));
+                }
+                else
+                {
+                    cs.Parameters.Add(new(pt));
+                }
             }
 
             il.Emit(OpCodes.Ldloc, di);

@@ -2,6 +2,7 @@
 using Hashlink.Marshaling;
 using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Types;
+using HaxeProxy.Events;
 using ModCore.Hooks;
 using System;
 using System.Collections.Generic;
@@ -11,8 +12,10 @@ using System.Threading.Tasks;
 
 namespace ModCore.Modules
 {
-    [CoreModule]
-    public unsafe class HashlinkHooks : CoreModule<HashlinkHooks>
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
+    public unsafe class HashlinkHooks : CoreModule<HashlinkHooks>,
+        IOnAddHashlinkHook,
+        IOnRemoveHashlinkHook
     {
         private readonly Dictionary<nint, HashlinkHookManager> managers = [];
         private readonly List<HookHandle> hooks = [];
@@ -41,10 +44,14 @@ namespace ModCore.Modules
                 Manager.RemoveHook( Hook );
             }
         }
-        [Obsolete]
-        private HookHandle CreateHook( string typeName, string protoName, Delegate hook, nint entry )
+        private HashlinkHookManager GetManager(HashlinkFunction func )
         {
-            return CreateHook(typeName, protoName, hook);
+            if (!managers.TryGetValue(func.EntryPointer, out var manager))
+            {
+                manager = new(func.EntryPointer, func);
+                managers.Add(func.EntryPointer, manager);
+            }
+            return manager;
         }
         public HookHandle CreateHook( string typeName, string protoName, Delegate hook, bool enableByDefault = true)
         {
@@ -54,12 +61,7 @@ namespace ModCore.Modules
         {
             ArgumentNullException.ThrowIfNull(func);
             ArgumentNullException.ThrowIfNull(hook);
-            nint entry = func.EntryPointer;
-            if(!managers.TryGetValue(entry, out var manager))
-            {
-                manager = new(entry, func);
-                managers.Add(entry, manager);
-            }
+            var manager = GetManager(func);
             var h = new HookHandle(hook, manager);
             hooks.Add(h);
             if (enableByDefault)
@@ -67,6 +69,16 @@ namespace ModCore.Modules
                 h.Enable();
             }
             return h;
+        }
+
+        void IOnAddHashlinkHook.OnAddHashlinkHook( IOnAddHashlinkHook.Data data )
+        {
+            GetManager(data.Function).AddHook(data.Target);
+        }
+
+        void IOnRemoveHashlinkHook.OnRemoveHashlinkHook( IOnRemoveHashlinkHook.Data data )
+        {
+            GetManager(data.Function).RemoveHook(data.Target);
         }
     }
 }

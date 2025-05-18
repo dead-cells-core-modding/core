@@ -30,10 +30,11 @@ namespace ModCore.Hooks
         public readonly HashlinkFuncType funcType;
         public readonly HashlinkFunction function;
 
+        private static readonly ConcurrentDictionary<MethodInfo, DynamicMethod> adapts = [];
         private readonly List<Delegate> hooks = [];
+
         private readonly static MethodInfo MI_HookEntry = typeof(HashlinkHookManager).GetMethod(
             nameof(HookEntry), BindingFlags.NonPublic | BindingFlags.Instance)!;
-
         public HashlinkHookManager(nint target, HashlinkFunction func)
         {
             function = func;
@@ -127,8 +128,15 @@ namespace ModCore.Hooks
                 HashlinkClosure prev = new HashlinkClosure(funcType, hook.Original, 0);
                 for (int i = 0; i < hooks.Count; i++)
                 {
+                    object prevDel = prev;
+                    var h = hooks[i];
+                    var fpt = h.GetType().GetDelegateInvoke().GetParameters()[0].ParameterType;
+                    if (fpt != typeof(HashlinkClosure))
+                    {
+                        prevDel = prev.CreateDelegate(fpt);
+                    }
                     prev = new HashlinkClosure(funcType,
-                        hooks[i].Bind(prev));
+                        hooks[i].Bind(prevDel));
                 }
                 return prev.DynamicInvoke(args);
             }
