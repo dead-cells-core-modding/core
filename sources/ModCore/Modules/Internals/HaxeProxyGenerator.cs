@@ -55,16 +55,10 @@ namespace ModCore.Modules.Internals
                 proxyCache.UpdateCache();
             }
 
-            var gp = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "GameProxy");
-
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             proxyAssembly = Assembly.LoadFrom(proxyCache.CachePath);
 
-            gp = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "GameProxy");
-
             Logger.Information("Loading Haxe Proxy Assembly from {path}", proxyAssembly.Location);
-
-           
 
         }
 
