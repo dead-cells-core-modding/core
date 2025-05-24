@@ -21,6 +21,7 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 	- [x] Object support
 	- [x] Virtual support
 	- [x] Closure support
+	- [ ] Override Virtual Method
 - [x] Edit game bytecode dynamically
 - [ ] More convenient BuildSystem
 - [ ] Linux platform support
