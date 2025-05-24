@@ -45,10 +45,9 @@ jobs:
       run: |
         Copy-Item -Path ./hlboots/hlboot-directx-steam.dat -Destination "./ctx/hlboot.dat" -Recurse -Force
     - name: Install MDK
-      run: |
-        echo "DCCM_MDK_ROOT=$env:GITHUB_WORKSPACE/ctx/coremod/core/mdk" >> $env:GITHUB_ENV
-        echo "DEAD_CELLS_GAME_PATH=$env:GITHUB_WORKSPACE/ctx" >> $env:GITHUB_ENV
-        ./ctx/coremod/core/mdk/install.ps1
+      uses: dead-cells-core-modding/setup-mdk@main
+      with:
+        modcoreroot: ./ctx/coremod
     - name: Build ModCore
       run: |
         ./buildWin.ps1 -BuildNative 0 -BuildMDK 0
