@@ -123,7 +123,14 @@ namespace ModCore
                     asmName.Name + ".dll");
                 if (File.Exists(fileName))
                 {
-                    return Assembly.LoadFrom(fileName);
+                    try
+                    {
+                        return Assembly.LoadFrom(fileName);
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
                 }
             }
             return null;

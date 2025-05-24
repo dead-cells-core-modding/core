@@ -106,7 +106,7 @@ namespace ModCore.Modules.Internals
         private nint TryLoadSteam()
         {
             //FIXME: Recompile steam.hdll using an older version of Steamworks SDK. Goldberg only supports version 140, the current version is 160.
-            if (false && Core.Config.Value.EnableGoldberg)
+            if (Core.Config.Value.EnableGoldberg)
             {
                 Logger.Information("Goldberg Enabled");
                 var path = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?

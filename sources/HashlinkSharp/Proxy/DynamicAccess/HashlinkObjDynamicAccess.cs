@@ -36,6 +36,10 @@ namespace Hashlink.Proxy.DynamicAccess
             {
                 return new HashlinkClosureDynamicAccess(hcl);
             }
+            else if (obj is HashlinkVirtual virt)
+            {
+                return new HashlinkObjectDynamicAccess(virt);
+            }
             throw new NotSupportedException();
         }
 

@@ -49,7 +49,8 @@ namespace HashlinkNET.Compiler
                     return true;
                 }
             }
-            od.rwLock.EnterUpgradeableReadLock();
+            od.rwLock.EnterReadLock();
+            bool inReadLock = true;
             try
             {
 
@@ -58,10 +59,11 @@ namespace HashlinkNET.Compiler
                 {
                     data = default;
                 }
+                od.rwLock.ExitReadLock();
+                inReadLock = false;
                 od.rwLock.EnterWriteLock();
                 try
                 {
-
                     od.data.TryAdd(typeof(TData), result);
                     data = (TData?)result;
                     return data != null;
@@ -73,7 +75,10 @@ namespace HashlinkNET.Compiler
             }
             finally
             {
-                od.rwLock.ExitUpgradeableReadLock();
+                if (inReadLock)
+                {
+                    od.rwLock.ExitReadLock();
+                }
             }
         }
         public void Clear()

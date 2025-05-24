@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -54,12 +55,27 @@ namespace ModCore.Modules.Internals
                 proxyCache.UpdateCache();
             }
 
+            var gp = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "GameProxy");
+
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             proxyAssembly = Assembly.LoadFrom(proxyCache.CachePath);
+
+            gp = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "GameProxy");
 
             Logger.Information("Loading Haxe Proxy Assembly from {path}", proxyAssembly.Location);
 
            
 
+        }
+
+        private Assembly? CurrentDomain_AssemblyResolve( object? sender, ResolveEventArgs args )
+        {
+            var asmName = new AssemblyName(args.Name);
+            if (asmName.Name == "GameProxy")
+            {
+                return proxyAssembly;
+            }
+            return null;
         }
 
         void IOnHashlinkVMReady.OnHashlinkVMReady()

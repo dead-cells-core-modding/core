@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Proxy.DynamicAccess
 {
-    internal class HashlinkObjectDynamicAccess(HashlinkObject obj) : HashlinkObjDynamicAccess(obj)
+    internal class HashlinkObjectDynamicAccess(IHashlinkFieldObject obj) : HashlinkObjDynamicAccess((HashlinkObj)obj)
     {
         public override bool TryGetMember( GetMemberBinder binder, out object? result )
         {

@@ -1,15 +1,19 @@
-﻿
+﻿param (
+    [bool]$BuildNative = $true,
+    [bool]$BuildMDK = $true
+)
 cd $PSScriptRoot
 
 echo "Generating Haxe Proxy"
 mkdir "./bin/core/mdk/ref" -Force
 dotnet run -c Release --no-launch-profile --project ./tools/HaxeProxyGenerator ./hlboots/hlboot-directx-steam.dat ./bin/core/mdk/ref/GameProxy.dll
 
-
-echo "Building MDK"
-dotnet build -c Release ./mdk
-mkdir "./bin/core/mdk" -Force
-Get-ChildItem -Path "./mdk/bin" | Copy-Item -Destination "./bin/core/mdk" -Force -Recurse
+if($BuildMDK) {
+    echo "Building MDK"
+    dotnet build -c Release ./mdk
+    mkdir "./bin/core/mdk" -Force
+    Get-ChildItem -Path "./mdk/bin" | Copy-Item -Destination "./bin/core/mdk" -Force -Recurse
+}
 
 echo "Building ModCore"
 
@@ -21,26 +25,28 @@ dotnet build -c Release ./ModCore.ModLoader.Default
 echo "Building Shell"
 dotnet publish -c Release -r win-x64 ./DeadCellsModding
 
-echo "Building Native"
-cd native
-cmake . --preset=win-x64-release
-cmake --build ./out/build/win-x64-release
+if($BuildNative) {
+    echo "Building Native"
+    cd native
+    cmake . --preset=win-x64-release
+    cmake --build ./out/build/win-x64-release
 
+    echo "Copying 3rd library"
 
-echo "Copying 3rd library"
+    $nativedir = $PSScriptRoot + "/bin/core/native/win-x64"
+    $thirdparty = $PSScriptRoot + "/3rd"
 
-$nativedir = $PSScriptRoot + "/bin/core/native/win-x64"
-$thirdparty = $PSScriptRoot + "/3rd"
-echo $PSScriptRoot
-echo $nativedir
-cd $nativedir
+    cd $nativedir
 
-echo "Copying hlsteam"
-$hlsteam = $thirdparty + "/hlsteam/*"
-Copy-Item -Path $hlsteam -Destination "./hlsteam" -Recurse -Force
+    echo "Copying hlsteam"
+    $hlsteam = $thirdparty + "/hlsteam/*"
+    Copy-Item -Path $hlsteam -Destination "./hlsteam" -Recurse -Force
 
-echo "Copying Goldberg"
-$goldberg = $thirdparty + "/Goldberg/win-x64/*"
-Copy-Item -Path $goldberg -Destination "./goldberg" -Recurse -Force
+    echo "Copying Goldberg"
+    $goldberg = $thirdparty + "/Goldberg/win-x64/*"
+    Copy-Item -Path $goldberg -Destination "./goldberg" -Recurse -Force
+
+}
+
 
 cd $PSScriptRoot
