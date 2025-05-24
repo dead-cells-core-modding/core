@@ -24,31 +24,29 @@ namespace DebugMod
             ss.HIDE_CONSOLE = "FDMM_HIDE_CONSOLE".AsHaxeString();
             s.activateDebug();
         }
-        private void Hook_Console_handleCommand(HashlinkClosure orig, HashlinkObject self,
-            HashlinkString command)
-        {
-            Logger.Information("Handle Command: {cmd}", command.Value);
-            orig.DynamicInvoke(self, command);
-        }
-        private void Hook_Console_log(HashlinkClosure orig, HashlinkObject self,
-            HashlinkString text, object color)
-        {
-            Logger.Information(text.ToString() ?? "");
-            var ct = (HashlinkObjectType)self.Type;
-            ct.Super!.FindProto("log")!.Function.DynamicInvoke(self, text, color);
-        }
-        private void Hook_Console_updateUIVisibility(HashlinkClosure orig, HashlinkObject self)
-        {
-            orig.DynamicInvoke(self);
-        }
         void IOnBeforeGameInit.OnBeforeGameInit()
         {
             var hh = HashlinkHooks.Instance;
 
-            hh.CreateHook("ui.Console", "updateUIVisibility", Hook_Console_updateUIVisibility).Enable();
-            hh.CreateHook("ui.Console", "log", Hook_Console_log).Enable();
-            hh.CreateHook("ui.Console", "handleCommand", Hook_Console_handleCommand).Enable();
+            dc.h2d.Hook_Console.handleCommand += Hook_Console_handleCommand1;
+            dc.ui.Hook_Console.log += Hook_Console_log1;
+
             hh.CreateHook("ui.$Console", "__constructor__", Hook_Console_ctor).Enable();
+        }
+
+        private void Hook_Console_log1(dc.ui.Hook_Console.orig_log orig, dc.ui.Console self, 
+            dc.String text, int? color)
+        {
+            Logger.Information(text.ToString() ?? "");
+            var ct = (HashlinkObjectType)self.HashlinkObj.Type;
+            ct.Super!.FindProto("log")!.Function.DynamicInvoke(self, text, color);
+        }
+
+        private void Hook_Console_handleCommand1(dc.h2d.Hook_Console.orig_handleCommand orig, 
+            dc.h2d.Console self, dc.String command)
+        {
+            Logger.Information("Handle Command: {cmd}", command);
+            orig(self, command);
         }
     }
 }

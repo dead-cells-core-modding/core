@@ -1,60 +1,52 @@
-﻿using Hashlink;
+﻿using dc.en.hero;
+using Hashlink;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
+using HaxeProxy.Runtime;
 using ModCore.Events.Interfaces.Game;
+using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Mods;
 using ModCore.Modules;
 
 namespace DoubleCells
 {
     public class DoubleCellsMod(ModInfo info) : ModBase(info),
-        IOnFrameUpdate
+        IOnHeroUpdate
     {
         private double timeDelt = 0;
-        private dynamic? hero;
-        private object? Hook_hero_init(HashlinkClosure orig, HashlinkObject self)
-        {
-            hero = self.AsDynamic();
-            return orig.DynamicInvoke(self);
-        }
-        private object? Hook_hero_dispose(HashlinkClosure orig, HashlinkObject self)
-        {
-            hero = null;
-            return orig.DynamicInvoke(self);
-        }
-        private object? Hook_beheaded_addMoney(HashlinkClosure orig, HashlinkObject self, int val, nint noStats)
+
+        private void Hook_beheaded_addMoney(Hook_Beheaded.orig_addMoney orig, Beheaded self, int val, Ref<bool> noStats)
         {
             val *= 200;
-            return orig.DynamicInvoke(self, val, noStats);
+            orig(self, val, noStats);
         }
-        private object? Hook_beheaded_addCells(HashlinkClosure orig, HashlinkObject self, int val, nint noStats)
+        private void Hook_beheaded_addCells(Hook_Beheaded.orig_addCells orig, Beheaded self, int val, Ref<bool> noStats)
         {
             val *= 200;
-            return orig.DynamicInvoke(self, val, noStats);
+            orig(self, val, noStats);
         }
         public override void Initialize()
         {
             Logger.Information("Hello, World!");
-            HashlinkHooks.Instance.CreateHook("en.Hero", "init", Hook_hero_init).Enable();
-            HashlinkHooks.Instance.CreateHook("en.Hero", "dispose", Hook_hero_dispose).Enable();
-            HashlinkHooks.Instance.CreateHook("en.hero.Beheaded", "addMoney", Hook_beheaded_addMoney).Enable();
-            HashlinkHooks.Instance.CreateHook("en.hero.Beheaded", "addCells", Hook_beheaded_addCells).Enable();
+
+            Hook_Beheaded.addMoney += Hook_beheaded_addMoney;
+            Hook_Beheaded.addCells += Hook_beheaded_addCells;
         }
 
-        void IOnFrameUpdate.OnFrameUpdate(double dt)
+        void IOnHeroUpdate.OnHeroUpdate(double dt)
         {
             timeDelt += dt;
-
-            if (timeDelt < 0.25f || this.hero == null)
+            var hero = Game.Instance.HeroInstance;
+            if (timeDelt < 0.25f || hero == null)
             {
                 return;
             }
-            var hero = this.hero!;
-            var curLife = (int)hero.life;
-            var maxLife = (int)hero.maxLife;
+            
+            var curLife = hero.life;
+            var maxLife = hero.maxLife;
             if (curLife < maxLife)
             {
                 curLife += 1;

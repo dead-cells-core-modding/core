@@ -9,6 +9,7 @@ using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
 using HaxeProxy.Runtime;
 using dc.en;
+using dc.en.hero;
 
 namespace SampleHook
 {
@@ -44,21 +45,21 @@ namespace SampleHook
             hero.setLifeAndRally(curLife, 5);
             return used;
         }
-        private object? Hook_beheaded_addMoney(HashlinkClosure orig, HashlinkObject self, int val, nint noStats)
+        private void Hook_beheaded_addMoney(Hook_Beheaded.orig_addMoney orig, Beheaded self, int val, Ref<bool> noStats)
         {
             val -= AddHealth(val, 0.5f);
-            return orig.DynamicInvoke(self, val * 10, noStats);
+            orig(self, val * 10, noStats);
         }
-        private object? Hook_beheaded_addCells(HashlinkClosure orig, HashlinkObject self, int val, nint noStats)
+        private void Hook_beheaded_addCells(Hook_Beheaded.orig_addCells orig, Beheaded self, int val, Ref<bool> noStats)
         {
             bool b = false;
-            self.AsHaxe<Hero>().addMoney(val * 20, new(ref b));
-            return orig.DynamicInvoke(self, val, noStats);
+            self.addMoney(val * 20, new(ref b));
+            orig(self, val, noStats);
         }
         public override void Initialize()
         {
-            HashlinkHooks.Instance.CreateHook("en.hero.Beheaded", "addMoney", Hook_beheaded_addMoney).Enable();
-            HashlinkHooks.Instance.CreateHook("en.hero.Beheaded", "addCells", Hook_beheaded_addCells).Enable();
+            Hook_Beheaded.addMoney += Hook_beheaded_addMoney;
+            Hook_Beheaded.addCells += Hook_beheaded_addCells;
         }
         double timeDelt = 0;
         unsafe void IOnHeroUpdate.OnHeroUpdate(double dt)
