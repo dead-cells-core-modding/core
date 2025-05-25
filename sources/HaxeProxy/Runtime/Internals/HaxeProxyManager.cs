@@ -1,5 +1,6 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Proxy;
+using Hashlink.Reflection.Types;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -15,7 +16,9 @@ namespace HaxeProxy.Runtime.Internals
             (delegate*< HaxeProxyBase, HashlinkObj, void > )
                 typeof(HaxeProxyBase).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic).First().MethodHandle.GetFunctionPointer();
         public static ImmutableHashSet<Type> knownProxyTypes = [];
+        public static readonly Dictionary<Type, int> type2typeId = [];
         private static Type[] bindingTypes = [];
+        
 
         
         public static void Initialize( Assembly proxyAssembly )
@@ -25,7 +28,9 @@ namespace HaxeProxy.Runtime.Internals
             foreach (var v in types)
             {
                 bindingTypes[v.TypeIndex] = v.Type;
+                type2typeId[v.Type] = v.TypeIndex;
             }
+    
             knownProxyTypes = [.. bindingTypes];
         }
         public static void CheckCustomProxy( HaxeProxyBase proxy, HashlinkObj obj )
@@ -35,7 +40,7 @@ namespace HaxeProxy.Runtime.Internals
             {
                 return;
             }
-            throw new NotSupportedException();
+            Inheritance.InheritanceManager.Check(type, (HashlinkObjectType)obj.Type);
         }
         public static HaxeProxyBase CreateProxy( HashlinkObj obj )
         {

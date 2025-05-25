@@ -23,7 +23,23 @@ namespace TestRunner
             {
                 overrideMethodHasBennCalled = true;
                 return 114514;
-            } 
+            }
+            public override void load(HlAction onReady)
+            {
+                onReady();
+            }
+        }
+        private class TestObject2 : TestObject
+        {
+            public override int getSign()
+            {
+                return base.getSign() + 1;
+            }
+            public override void load(HlAction onReady)
+            {
+                overrideMethodHasBennCalled = true;
+                base.load(onReady);
+            }
         }
         [Fact]
         public void Test_Marshal()
@@ -37,6 +53,31 @@ namespace TestRunner
             Assert.Equal(obj, hobj.AsHaxe<TestObject>());
         }
         [Fact]
+        public void Test_Override_2()
+        {
+            var obj = new TestObject2();
+
+            Assert.Equal(114515, obj.getSign());
+            Assert.True(obj.overrideMethodHasBennCalled);
+
+            var hobj = (HashlinkObject)obj.HashlinkObj;
+            var cl = hobj.GetFieldValue("getSign") as HashlinkClosure;
+            Assert.NotNull(cl);
+            Assert.Equal(114515, cl.DynamicInvoke());
+
+            var dyn = hobj.AsDynamic();
+            Assert.Equal(114515, dyn.getSign());
+
+            var isFailed = true;
+            obj.overrideMethodHasBennCalled = false;
+            dyn.load((Action)(() =>
+            {
+                isFailed = false;
+            }));
+            Assert.False(isFailed);
+            Assert.True(obj.overrideMethodHasBennCalled);
+        }
+        [Fact]
         public void Test_Override()
         {
             var obj = new TestObject();
@@ -44,12 +85,21 @@ namespace TestRunner
             Assert.Equal(114514, obj.getSign());
             Assert.True(obj.overrideMethodHasBennCalled);
 
-            var hobj = (HashlinkObject) obj.HashlinkObj;
+            var hobj = (HashlinkObject)obj.HashlinkObj;
             var cl = hobj.GetFieldValue("getSign") as HashlinkClosure;
             Assert.NotNull(cl);
             Assert.Equal(114514, cl.DynamicInvoke());
 
-            Assert.Equal(114514, hobj.AsDynamic().getSign());
+            var dyn = hobj.AsDynamic();
+            Assert.Equal(114514, dyn.getSign());
+
+            var isFailed = true;
+            dyn.load((Action)(() =>
+            {
+                isFailed = false;
+            }));
+            Assert.False(isFailed);
+
         }
     }
 }

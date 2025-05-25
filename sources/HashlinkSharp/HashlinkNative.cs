@@ -72,6 +72,8 @@ namespace Hashlink
         [DoesNotReturn]
         public static partial void hl_throw( HL_vdynamic* v );
 
+        [LibraryImport(LIBHL)]
+        public static partial HL_vvirtual* hl_to_virtual( HL_type* vt, HL_vdynamic* obj );
 
         [LibraryImport(LIBHL)]
         public static partial HL_vdynobj* hl_alloc_dynobj();
@@ -111,7 +113,8 @@ namespace Hashlink
 
         [LibraryImport(LIBHL)]
         public static partial char* hl_resolve_symbol( void* addr, char* @out, ref int outSize );
-
+        [LibraryImport(LIBHL)]
+        public static partial HL_field_lookup* obj_resolve_field( HL_type_obj* o, int hfield );
         [LibraryImport(LIBHL)]
         public static partial void* hl_obj_lookup( HL_vdynamic* d, int hfield, out HL_type* t );
         [LibraryImport(LIBHL)]

@@ -1,5 +1,8 @@
 ﻿using Hashlink;
+using Hashlink.Marshaling;
 using Hashlink.Proxy;
+using Hashlink.Proxy.Objects;
+using Hashlink.Reflection.Types;
 using HaxeProxy.Runtime.Internals;
 using System;
 using System.Collections.Generic;
@@ -9,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace HaxeProxy.Runtime
 {
-    public abstract class HaxeProxyBase : 
+    public abstract unsafe class HaxeProxyBase : 
         IExtraData,
         IExtraDataItem,
         IHashlinkPointer
@@ -48,6 +51,16 @@ namespace HaxeProxy.Runtime
         }
         protected virtual void AfterBinding()
         {
+        }
+
+        public T ToVirtual<T>() where T : HaxeVirtual
+        {
+            var tid = HaxeProxyManager.type2typeId[typeof(T)];
+            var vt = HashlinkMarshal.Module.Types[tid];
+            var result = (HashlinkVirtual) HashlinkMarshal.ConvertHashlinkObject(
+                HashlinkNative.hl_to_virtual(vt.NativeType, (HL_vdynamic*)HashlinkPointer)
+                )!;
+            return result.AsHaxe<T>();
         }
 
         T IExtraData.GetOrCreateData<T>( Func<HashlinkObj, object> factory ) where T : class
