@@ -80,12 +80,12 @@ jobs:
     - name: Build Samples
       run: |
         cd sample
-        dotnet build -c Release -p:MDKOutputPath=../bin
+        dotnet build -c Release
     - name: Upload
       uses: actions/upload-artifact@v4.6.0
       with:
         name: build-samples
-        path: ./bin/*
+        path: ./sample/bin/*
         
 
   build-win-x64:

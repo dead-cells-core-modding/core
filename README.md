@@ -2,7 +2,7 @@
 # Dead Cells Core Modding (WIP)
 
 ![GitHub License](https://img.shields.io/github/license/dead-cells-core-modding/core) 
-[![Build](https://github.com/dead-cells-core-modding/core/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/dead-cells-core-modding/core/actions/workflows/build.yml)
+[![Build And Test](https://github.com/dead-cells-core-modding/core/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/dead-cells-core-modding/core/actions/workflows/build.yml)
 
 
 A Dead Cells Modding API/loader. 
@@ -10,7 +10,7 @@ A Dead Cells Modding API/loader.
 > [!WARNING]
 > This project is under active development. Breaking changes may be made to APIs with zero notice.
 
-Download the latest build [here](https://nightly.link/dead-cells-core-modding/core/workflows/build/main)
+Download the latest build [here](https://nightly.link/dead-cells-core-modding/core/workflows/build/dev)
 
 ## Roadmap
 
@@ -33,7 +33,7 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 
 ## Installation
 
-1. Get the core file from [nightly link](https://nightly.link/dead-cells-core-modding/core/workflows/build/main) or [releases](https://github.com/dead-cells-core-modding/core/releases)
+1. Get the core file from [nightly link](https://nightly.link/dead-cells-core-modding/core/workflows/build/dev) or [releases](https://github.com/dead-cells-core-modding/core/releases)
 2. Unzip it to the game root directory
 
 The folder structure should be similar to the following
@@ -150,7 +150,7 @@ mods
 #### Windows
 
 1. Clone the repository
-2. Run `buildWin.bat`
+2. Run `buildWin.ps1`
 
 ## Credit
 
