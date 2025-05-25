@@ -16,7 +16,6 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
         {
             return type.Kind == HlTypeKind.Enum;
         }
-        private int unnamedEnumCount = 0;
         public override void Execute( IDataContainer container,
             HlCode code, GlobalData gdata,
             RuntimeImports rdata, HlType type )
@@ -25,7 +24,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
 
             if (!GeneralUtils.ParseHlTypeName(enumType.Enum.Name, out var np, out var name))
             {
-                name = "UnnamedEnum" + Interlocked.Increment(ref unnamedEnumCount);
+                name = "UnnamedEnum" + type.TypeIndex;
             }
             var td = new TypeDefinition(np, name, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Abstract)
             {

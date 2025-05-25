@@ -9,6 +9,11 @@ namespace TestMod
         public override void Initialize()
         {
             modIsLoaded = true;
+
+            dc.haxe.Log.Class.trace = (obj, info) =>
+            {
+
+            };
         }
     }
 }

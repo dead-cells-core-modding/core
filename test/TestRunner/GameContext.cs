@@ -8,8 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using TestRunner;
 
-[assembly: AssemblyFixture(typeof(GameContext))]
-
 namespace TestRunner
 {
     public class GameContext : IEventReceiver, IOnBeforeGameInit
@@ -46,7 +44,13 @@ namespace TestRunner
                 Path.Combine(
                     Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!,
                     "coremod"));
-
+            Environment.SetEnvironmentVariable("DCCM_OverridePath_CONFIG_ROOT",
+                Path.Combine(
+                     Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!,
+                    "coremod",
+                    "test",
+                    "config"
+                    ));
             gameThread = new Thread(GameThread)
             {
                 Name = "Game Thread",
