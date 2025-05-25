@@ -1,5 +1,5 @@
 ﻿
-name: Build
+name: Build And Test
 
 on: [push, pull_request]
 
@@ -10,7 +10,7 @@ jobs:
   publish-release:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [build-win-x64,  test-win-x64]
+    needs: [build-win-x64,  test-win-x64, test-build-samples]
     steps:
     - name: Download artifacts
       uses: actions/download-artifact@v4
@@ -57,6 +57,36 @@ jobs:
         cd sources
         dotnet test
 
+  test-build-samples:
+    runs-on: windows-latest
+    needs: build-win-x64
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with: 
+        name: build-win-x64
+        path: coremod
+    - name: Install MDK
+      uses: dead-cells-core-modding/setup-mdk@main
+      with:
+        modcoreroot: ./coremod
+    - name: Build Samples
+      run: |
+        cd sample
+        dotnet build -c Release -p:MDKOutputPath=../bin
+    - name: Upload
+      uses: actions/upload-artifact@v4.6.0
+      with:
+        name: build-samples
+        path: ./bin/*
+        
 
   build-win-x64:
     runs-on: windows-latest

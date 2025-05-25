@@ -8,8 +8,6 @@
     <ModName>DebugMod</ModName>
     <ModType>mod</ModType>
     <ModMain>DebugMod.DebugModMod</ModMain>
-    
-    <AutoInstallMod>true</AutoInstallMod>
   </PropertyGroup>
 
   <ItemGroup>
