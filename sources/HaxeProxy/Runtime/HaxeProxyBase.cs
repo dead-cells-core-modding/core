@@ -24,6 +24,7 @@ namespace HaxeProxy.Runtime
                 {
                     throw new InvalidOperationException();
                 }
+                HaxeProxyManager.CheckCustomProxy(this, obj);
             }
             AfterBinding();
         }

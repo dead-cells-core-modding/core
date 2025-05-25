@@ -23,7 +23,8 @@ namespace TestRunner
             {
                 AllowCloseConsole = false,
                 EnableGoldberg = true,
-                SkipLogoSplash = true
+                SkipLogoSplash = true,
+                NoConsole = true,
             };
             EventSystem.AddReceiver(this);
             Startup.StartGame();
@@ -40,17 +41,22 @@ namespace TestRunner
 
         public GameContext()
         {
+            var testRoot = Path.Combine(
+                     Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!,
+                    "coremod",
+                    "test");
             Environment.SetEnvironmentVariable("DCCM_OverridePath_CORE_ROOT",
                 Path.Combine(
                     Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!,
                     "coremod"));
-            Environment.SetEnvironmentVariable("DCCM_OverridePath_CONFIG_ROOT",
-                Path.Combine(
-                     Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!,
-                    "coremod",
-                    "test",
+            Environment.SetEnvironmentVariable("DCCM_OverridePath_CORE_CONFIG",
+                Path.Combine(testRoot,
                     "config"
                     ));
+            Environment.SetEnvironmentVariable("DCCM_OverridePath_CORE_LOGS",
+                 Path.Combine(testRoot,
+                    "logs"
+                    )); 
             gameThread = new Thread(GameThread)
             {
                 Name = "Game Thread",

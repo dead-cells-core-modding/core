@@ -8,10 +8,8 @@ namespace ModCore
     {
         internal static void InitializeLog()
         {
-            Log.Logger = new LoggerConfiguration()
+            var configuration = new LoggerConfiguration()
               .MinimumLevel.Debug()
-              .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose,
-                  outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}")
               .WriteTo.File(
                 Path.Combine(FolderInfo.Logs.FullPath, "log_latest.log"),
                 outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}"
@@ -20,8 +18,13 @@ namespace ModCore
                   Path.Combine(FolderInfo.Logs.FullPath, "log_.log"),
                   outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}",
                   rollingInterval: RollingInterval.Minute
-              )
-              .CreateLogger();
+              );
+            if (!Core.Config.Value.NoConsole)
+            {
+                configuration.WriteTo.Console(Serilog.Events.LogEventLevel.Verbose,
+                  outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}");
+            }
+            Log.Logger = configuration.CreateLogger();
         }
     }
 }

@@ -18,7 +18,7 @@ namespace TestRunner
         {
             double x = 114514;
             double y = 0;
-            var p = new dc.h2d.col.Point(new(ref x), new(ref y));
+            var p = new Point(new(ref x), new(ref y));
 
             Assert.Equal(x, p.x);
             Assert.Equal(y, p.y);
