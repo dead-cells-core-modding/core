@@ -132,6 +132,16 @@ public sealed class HlCode
         return Strings[index];
     }
 
+    public HlFunction? GetFunctionById( int index )
+    {
+        var idx = FunctionIndexes[index];
+        if (idx >= Functions.Count)
+        {
+            return null;
+        }
+        return Functions[idx];
+    }
+
     /// <summary>
     ///     Retrieves a type from this binary file.
     /// </summary>

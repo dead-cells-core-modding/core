@@ -232,7 +232,9 @@ public class HlTypeObj
         get; set;
     }
 
-    public int[] Bindings
+    public record struct BindingData(int FieldIndex, int FunctionIndex);
+
+    public BindingData[] Bindings
     {
         get; set;
     }
@@ -242,7 +244,9 @@ public class HlTypeObj
         get; set;
     }
 
-    public HlTypeObj( string name, HlTypeRef? super, HlObjField[] fields, HlObjProto[] protos, int[] bindings, int globalValue )
+    public HlTypeObj( string name, HlTypeRef? super, HlObjField[] fields, 
+        HlObjProto[] protos,
+        BindingData[] bindings, int globalValue )
     {
         Name = name;
         Super = super;

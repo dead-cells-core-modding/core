@@ -22,6 +22,11 @@ namespace HashlinkNET.Compiler.Steps.Enum
         {
             var te = ((HlTypeWithEnum)type).Enum;
             var ei = container.GetData<EnumClassData>(type);
+            if (ei is ArrowFuncContextData)
+            {
+                return;
+            }
+
             var enumType = ei.TypeDef;
             var td = new TypeDefinition("", "Indexes", TypeAttributes.Public | TypeAttributes.Sealed, rdata.enumBaseType)
             {

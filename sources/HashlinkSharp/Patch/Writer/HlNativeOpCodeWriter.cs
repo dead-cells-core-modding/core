@@ -1,4 +1,5 @@
 ﻿using Hashlink.Patch.Reader;
+using HashlinkNET.Bytecode;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Hashlink.Patch.Writer
         private HL_opcode* cur = null;
         private int pidx = 0;
 
-        public override void MoveNext( HL_opcode.OpCodes op )
+        public override void MoveNext( HlOpcodeKind op )
         {
             if (cur == null)
             {
@@ -29,7 +30,7 @@ namespace Hashlink.Patch.Writer
                 cur++;
             }
             pidx = 0;
-            cur->op = op;
+            cur->op = (HL_opcode.OpCodes) op;
         }
 
         public override void Write( int val, HlOpCode.PayloadKind kind = HlOpCode.PayloadKind.None )

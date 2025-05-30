@@ -22,20 +22,39 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
         {
             var enumType = (HlTypeWithEnum)type;
 
-            if (!GeneralUtils.ParseHlTypeName(enumType.Enum.Name, out var np, out var name))
+            var hasName = GeneralUtils.ParseHlTypeName(enumType.Enum.Name, out var np, out var name);
+            var isArrowFuncCtx = false;
+            if (!hasName)
             {
                 name = "UnnamedEnum" + type.TypeIndex;
+                if (enumType.Enum.Constructs.Length == 1 &&
+                    string.IsNullOrEmpty(enumType.Enum.Constructs[0].Name))
+                {
+                    isArrowFuncCtx = true;
+                }
             }
             var td = new TypeDefinition(np, name, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Abstract)
             {
                 BaseType = new GenericInstanceType(rdata.enumType)
             };
             addedTypes.Add(new(td, type.TypeIndex));
-            container.AddData(type, td, new EnumClassData()
+
+            if (isArrowFuncCtx)
             {
-                TypeDef = td,
-                TypeIndex = type.TypeIndex
-            });
+                container.AddData(type, td, new ArrowFuncContextData()
+                {
+                    TypeDef = td,
+                    TypeIndex = type.TypeIndex
+                });
+            }
+            else
+            {
+                container.AddData(type, td, new EnumClassData()
+                {
+                    TypeDef = td,
+                    TypeIndex = type.TypeIndex
+                });
+            }
         }
     }
 }

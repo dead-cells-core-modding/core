@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 using OpCodeKind = HashlinkNET.Bytecode.HlOpcodeKind;
 
-namespace Hashlink.Patch
+namespace HashlinkNET.Bytecode.OpCodeParser
 {
     public static class HlOpCodes
     {
@@ -768,7 +768,7 @@ namespace Hashlink.Patch
 
         static HlOpCodes()
         {
-            var opcodes = new HlOpCode[(int)HL_opcode.OpCodes.ORealLast + 1];
+            var opcodes = new HlOpCode[(int)OpCodeKind.Last + 1];
             foreach (var v in typeof(HlOpCodes).GetRuntimeFields())
             {
                 if (v.FieldType == typeof(HlOpCode))

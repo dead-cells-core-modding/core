@@ -17,6 +17,7 @@ namespace HashlinkNET.Compiler.Data
         public TypeReference nativeArray;
         public TypeReference refType;
         public TypeReference enumType;
+        public TypeReference arrowFuncCtxType;
         public TypeReference virtualType;
         public TypeReference dynType;
         public TypeReference bytesType;

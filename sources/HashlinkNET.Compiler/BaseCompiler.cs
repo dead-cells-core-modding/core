@@ -14,8 +14,30 @@ namespace HashlinkNET.Compiler
         internal readonly IDataContainer data = new DataContainer();
 
         private readonly Queue<CompileStep> steps = new();
+        private bool compiled = false;
 
-        public abstract void Compile();
+        internal event Action<IDataContainer, CompileStep>? OnBeforeRunStep;
+        internal event Action<IDataContainer, CompileStep>? OnAfterRunStep;
+
+        protected virtual void CompileImpl()
+        {
+            InstallSteps();
+            BeforeRun();
+            RunSteps();
+            AfterRun();
+        }
+        public virtual void Compile()
+        {
+            if (compiled)
+            {
+                throw new InvalidOperationException();
+            }
+
+            CompileImpl();
+
+            data.Clear();
+            compiled = true;
+        }
 
         internal T AddStep<T>() where T : CompileStep, new()
         {
@@ -30,11 +52,21 @@ namespace HashlinkNET.Compiler
 
         protected abstract void InstallSteps();
 
+        protected virtual void BeforeRun()
+        {
+        }
+
+        protected virtual void AfterRun()
+        {
+        }
+
         protected void RunSteps()
         {
             while (steps.TryDequeue(out var step))
             {
+                OnBeforeRunStep?.Invoke(data, step);
                 step.Execute(data);
+                OnAfterRunStep?.Invoke(data, step);
             }
         }
     }

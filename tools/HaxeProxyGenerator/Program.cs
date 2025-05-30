@@ -3,15 +3,41 @@ using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 using var asm = AssemblyDefinition.CreateAssembly(new("GameProxy", new()), "GameProxy", ModuleKind.Dll);
+var config = new CompileConfig()
+{
+    AllowParalle = true,
+    GenerateFakeCode = false
+};
+
+#if DEBUG
+config.AllowParalle = false;
+#endif
+
 var compiler = new HashlinkCompiler(
-    HlCode.FromBytes(File.ReadAllBytes(args[0])), asm, new()
-    {
-        AllowParalle = true,
-        GenerateFakeCode = true
-    });
+    HlCode.FromBytes(File.ReadAllBytes(args[0])), asm, config);
+
+
+
+Stopwatch stopwatch = new();
+
+compiler.OnAfterRunStep += Compiler_OnAfterRunStep;
+compiler.OnBeforeRunStep += Compiler_OnBeforeRunStep;
+
+void Compiler_OnBeforeRunStep(IDataContainer arg1, HashlinkNET.Compiler.Steps.CompileStep arg2)
+{
+    Console.WriteLine($"Running Compile Step: {arg2.GetType().Name}");
+    stopwatch.Restart();
+}
+
+void Compiler_OnAfterRunStep(IDataContainer arg1, HashlinkNET.Compiler.Steps.CompileStep arg2)
+{
+    stopwatch.Stop();
+    Console.WriteLine($"{arg2.GetType().Name} completed, time: {stopwatch.Elapsed}");
+}
 
 compiler.Compile();
 

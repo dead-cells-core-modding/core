@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PK = Hashlink.Patch.HlOpCode.PayloadKind;
-using OP = Hashlink.HL_opcode.OpCodes;
+using OP = HashlinkNET.Bytecode.HlOpcodeKind;
 using Hashlink.Marshaling;
 using System.Reflection.Emit;
 using Hashlink.Reflection.Members;
@@ -280,14 +280,14 @@ namespace Hashlink.Patch
                         throw new InvalidProgramException($"Number of operands does not match in {ins}");
                     }
                 }
-                if (op.OpCode >= OP.OCall0 && op.OpCode <= OP.OCall4)
+                if (op.OpCode >= OP.Call0 && op.OpCode <= OP.Call4)
                 {
-                    if (ins.Operands.Length != (op.OpCode - OP.OCall0 + 2))
+                    if (ins.Operands.Length != (op.OpCode - OP.Call0 + 2))
                     {
                         throw new InvalidProgramException($"Number of operands does not match in {ins}");
                     }
                 }
-                if (op.OpCode == OP.OCallN)
+                if (op.OpCode == OP.CallN)
                 {
                     var f = ins.Operands[1] as IHashlinkFunc ?? throw new InvalidProgramException($"The operand type does not match, it should be IHashlinkFunc in {ins}");
                     if (ins.Operands.Length != (f.FuncType.ArgTypes.Length + 3))
@@ -295,7 +295,7 @@ namespace Hashlink.Patch
                         throw new InvalidProgramException($"Number of operands does not match in {ins}");
                     }
                 }
-                if (op.OpCode == OP.OCallMethod || op.OpCode == OP.OCallThis)
+                if (op.OpCode == OP.CallMethod || op.OpCode == OP.CallThis)
                 {
                     HashlinkFuncType ft;
                     if (ins.Operands[1] is HashlinkObjectProto p)
@@ -310,7 +310,7 @@ namespace Hashlink.Patch
                     {
                         throw new InvalidProgramException($"The operand type does not match, it should be HashlinkObjectProto or HashlinkObjectField in {ins}");
                     }
-                    if (ins.Operands.Length != (ft.ArgTypes.Length + 3 + OP.OCallMethod - op.OpCode))
+                    if (ins.Operands.Length != (ft.ArgTypes.Length + 3 + OP.CallMethod - op.OpCode))
                     {
                         throw new InvalidProgramException($"Number of operands does not match in {ins}");
                     }

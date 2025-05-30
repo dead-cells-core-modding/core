@@ -30,7 +30,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
 
             rdata.runtimeName = new AssemblyNameReference(rtAsm.GetName().Name, rtAsm.GetName().Version);
 
-
+            rdata.arrowFuncCtxType = ImportType<HaxeArrowFunctionContext>();
             rdata.objBaseType = ImportType<HaxeProxyBase>();
             rdata.functionInfoCache = ImportType<FunctionInfoCache>();
             rdata.objFieldInfoCache = ImportType<ObjFieldInfoCache>();

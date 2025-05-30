@@ -4,6 +4,7 @@ using HashlinkNET.Compiler.Steps;
 using HashlinkNET.Compiler.Steps.Class;
 using HashlinkNET.Compiler.Steps.Enum;
 using HashlinkNET.Compiler.Steps.Func;
+using HashlinkNET.Compiler.Steps.Func.ArrowFunc;
 using HashlinkNET.Compiler.Steps.Hooks;
 using HashlinkNET.Compiler.Steps.Preprocessor.Fun;
 using HashlinkNET.Compiler.Steps.Preprocessor.Imports;
@@ -20,8 +21,10 @@ namespace HashlinkNET.Compiler
         AssemblyDefinition output,
         CompileConfig? config = null) : BaseCompiler
     {
-        private bool compiled = false;
-
+        public CompileConfig Config
+        {
+            get;
+        } = config ?? new();
         public AssemblyDefinition Output => output;
         protected override void InstallSteps()
         {
@@ -46,6 +49,8 @@ namespace HashlinkNET.Compiler
 
             #region Function And Native
             AddStep<GenerateFuncDefStep>();
+
+            AddStep<FindClosureUsedByStep>();
             #endregion
 
             #region Enum
@@ -69,34 +74,32 @@ namespace HashlinkNET.Compiler
             AddStep<GenerateClassMethodDefStep>();
             AddStep<GenerateClassCtorStep>();
             #endregion
-
-            #region Hooks
-            AddStep<GenerateHooksClassStep>();
+            
+            #region Arrow Function 
+            AddStep<FindArrowFuncDefinitionStep>();
+            AddStep<GenerateArrowFuncContextStep>();
+            AddStep<FixArrowFuncContextNameStep>();
             #endregion
 
+            #region Hooks
+            if (!Config.GenerateFakeCode)
+            {
+                AddStep<GenerateHooksClassStep>();
+            }
+            #endregion
+
+           
         }
 
-        public override void Compile()
+        protected override void BeforeRun()
         {
-            if (compiled)
-            {
-                throw new InvalidOperationException();
-            }
-
-            InstallSteps();
-
-            data.AddGlobalData(config ?? new());
+            data.AddGlobalData(Config);
             data.AddGlobalData(new GlobalData(
             
                 Assembly: output,
                 Module: output.MainModule,
                 Code: code
             ));
-
-            RunSteps();
-            data.Clear();
-
-            compiled = true;
         }
     }
 }

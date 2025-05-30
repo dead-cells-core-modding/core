@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace HashlinkNET.Compiler.Steps
 {
     abstract class ParallelCompileStep<T> : CompileStep
     {
+        private readonly ConcurrentQueue<Action> syncRun = [];
         private IReadOnlyList<T> items = null!;
         private int curItemId;
         protected virtual bool SupportParalle => true;
@@ -32,6 +34,10 @@ namespace HashlinkNET.Compiler.Steps
                 }
                 Task.WaitAll(tasks);
             }
+            while (syncRun.TryDequeue(out var action))
+            {
+                action();
+            }
             PostProcessing(container);
         }
         private void StepTaskRunner(object? obj)
@@ -46,6 +52,11 @@ namespace HashlinkNET.Compiler.Steps
                 }
                 Execute(container, items[id], id);
             }
+        }
+
+        protected void RunSync( Action action )
+        {
+            syncRun.Enqueue( action );
         }
 
         protected abstract void Execute( IDataContainer container, T item, int index );

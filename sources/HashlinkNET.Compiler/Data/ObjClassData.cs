@@ -38,7 +38,7 @@ namespace HashlinkNET.Compiler.Data
         {
             get;
         } = [];
-        public Dictionary<int, MethodReference> Protos
+        public Dictionary<int, FuncData> Protos
         {
             get;
         } = [];
@@ -110,7 +110,7 @@ namespace HashlinkNET.Compiler.Data
 
         public MethodReference GetProto( int index )
         {
-            return Protos.TryGetValue(index, out var result) ? result :
+            return Protos.TryGetValue(index, out var result) ? result.Definition :
                 (Super == null ? throw new InvalidOperationException() :
                 Super.GetProto(index));
         }

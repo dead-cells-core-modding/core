@@ -19,18 +19,31 @@ namespace HashlinkNET.Compiler.Steps.Enum
         {
             var te = ((HlTypeWithEnum)type).Enum;
             var ei = container.GetData<EnumClassData>(type);
+            var isCtx = ei is ArrowFuncContextData;
             var enumType = ei.TypeDef;
 
             var itemTypes = ei.ItemTypes = new TypeDefinition[te.Constructs.Length];
             var itemCtors = ei.ItemCtors = new MethodReference[te.Constructs.Length];
+
+            if (isCtx && te.Constructs.Length != 1)
+            {
+                throw new NotSupportedException();
+            }
             for (int i = 0; i < te.Constructs.Length; i++)
             {
                 var ec = te.Constructs[i];
-                var td = new TypeDefinition("", ec.GetEnumItemName(), TypeAttributes.Class, enumType)
+                TypeDefinition td;
+                if (isCtx)
                 {
-                    Methods =
+                    td = enumType;
+                }
+                else
+                {
+                    td = new TypeDefinition("", ec.GetEnumItemName(), TypeAttributes.Class, enumType)
                     {
-                        new("get_Index", MethodAttributes.HideBySig | MethodAttributes.SpecialName | 
+                        Methods =
+                    {
+                        new("get_Index", MethodAttributes.HideBySig | MethodAttributes.SpecialName |
                             MethodAttributes.Public | MethodAttributes.Virtual, ei.IndexType)
                         {
                             Body =
@@ -43,13 +56,15 @@ namespace HashlinkNET.Compiler.Steps.Enum
                             }
                         }
                     }
-                };
-                td.Properties.Add(new("Index", PropertyAttributes.None, ei.IndexType)
-                {
-                    GetMethod = td.Methods[0]
-                });
-                enumType.NestedTypes.Add( td );
-                td.IsNestedPublic = true;
+                    };
+                    td.Properties.Add(new("Index", PropertyAttributes.None, ei.IndexType)
+                    {
+                        GetMethod = td.Methods[0]
+                    });
+                    enumType.NestedTypes.Add(td);
+                    td.IsNestedPublic = true;
+                }
+
                 itemTypes[i] = td;
                 var ctor = new MethodDefinition(".ctor", MethodAttributes.SpecialName | MethodAttributes.RTSpecialName |
                     MethodAttributes.Public, gdata.Module.TypeSystem.Void)

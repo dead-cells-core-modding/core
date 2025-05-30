@@ -70,6 +70,10 @@ namespace HashlinkNET.Compiler.Steps.Func
             md.Body.Instructions.Add(Instruction.Create(OpCodes.Ldnull));
             md.Body.Instructions.Add(Instruction.Create(OpCodes.Throw));
 
+            container.AddDataEach(f, new FuncData()
+            {
+                Definition = md,
+            });
             container.AddData(f, md);
         }
 

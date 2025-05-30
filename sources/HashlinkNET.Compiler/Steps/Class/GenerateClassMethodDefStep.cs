@@ -61,7 +61,9 @@ namespace HashlinkNET.Compiler.Steps.Class
             if (info.InstanceCtor != null)
             {
                 var fd = ((HlTypeWithFun)info.InstanceCtor.Type.Value).FunctionDescription;
-                var md = container.GetData<MethodDefinition>(info.InstanceCtor);
+                var method = container.GetData<FuncData>(info.InstanceCtor);
+                method.DeclaringClass = info;
+                var md = method.Definition;
 
                 md.Name = "__inst_construct__";
                 md.IsAssembly = true;
@@ -70,15 +72,28 @@ namespace HashlinkNET.Compiler.Steps.Class
                 EmitFunc(info.InstanceCtor);
             }
 
+            foreach (var b in obj.Bindings)
+            {
+                var f = gdata.Code.GetFunctionById(b.FunctionIndex);
+                if (f == null)
+                {
+                    continue;
+                }
+                var method = container.GetData<FuncData>(f);
+                method.DeclaringClass = info;
+            }
+
             foreach (var p in obj.Protos)
             {
                 var f = code.Functions[code.FunctionIndexes[p.FIndex]];
                 var fd = ((HlTypeWithFun)f.Type.Value).FunctionDescription;
-                var md = container.GetData<MethodDefinition>(f);
+                var method = container.GetData<FuncData>(f);
+                method.DeclaringClass = info;
+                var md = method.Definition;
                 if (p.PIndex >= 0)
                 {
                     md.IsVirtual = true;
-                    protos[p.PIndex] = md;
+                    protos[p.PIndex] = method;
                 }
                 md.IsStatic = false;
                 md.HasThis = true;

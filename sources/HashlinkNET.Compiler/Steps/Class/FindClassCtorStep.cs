@@ -25,12 +25,12 @@ namespace HashlinkNET.Compiler.Steps.Class
             HlFunction? f = null;
             for (int i = 0; i < obj.Bindings.Length; i += 2)
             {
-                var fid = obj.Bindings[i];
-                var mid = obj.Bindings[i + 1];
+                var fid = obj.Bindings[i].FieldIndex;
+                var mid = obj.Bindings[i].FunctionIndex;
                 if (fid == 4)
                 {
                     //__constructor__
-                    f = code.Functions[code.FunctionIndexes[mid]];
+                    f = code.GetFunctionById(mid);
                     break;
                 }
             }

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
+using static HashlinkNET.Bytecode.HlTypeObj;
 
 namespace HashlinkNET.Bytecode;
 
@@ -168,7 +169,7 @@ public unsafe ref struct HlBinaryReader
                     globalValue: global,
                     fields: new HlObjField[nFields],
                     protos: new HlObjProto[nProtos],
-                    bindings: new int[nBindings * 2]
+                    bindings: new BindingData[nBindings]
                 );
 
                     for (var i = 0; i < nFields; i++)
@@ -195,8 +196,8 @@ public unsafe ref struct HlBinaryReader
 
                     for (var i = 0; i < nBindings; i++)
                     {
-                        obj.Bindings[i << 1] = ReadUIndex();
-                        obj.Bindings[(i << 1) | 1] = ReadUIndex();
+                        obj.Bindings[i].FieldIndex = ReadUIndex();
+                        obj.Bindings[i].FunctionIndex = ReadUIndex();
                     }
 
                     return new HlTypeWithObj(kind, obj);

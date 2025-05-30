@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HashlinkNET.Bytecode\HashlinkNET.Bytecode.csproj" />
     <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
   </ItemGroup>
 
