@@ -22,9 +22,11 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
                 return;
             }
             var td = data.TypeDef;
-            var method = data.Methods.First();
-            var parent = method.UsedBy[0];
-            td.Name = parent.Item1.Definition.Name + "Context_" + parent.Item2;
+            if (data.DirectParent != null)
+            {
+                td.Name = data.DirectParent.Definition.Name + "Context_" + type.TypeIndex;
+            }
+            
         }
     }
 }

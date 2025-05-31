@@ -7,8 +7,9 @@ namespace ModCore
         [JsonIgnore]
         public bool NoConsole { get; set; } = false;
         public bool EnableDump { get; set; } = false;
+        public bool GeneratePseudocodeAssembly { get; set; } = false;
         public bool AllowCloseConsole { get; set; } = false;
-        public bool EnableGoldberg { get; set; } = true;
+        public bool EnableGoldberg { get; set; } = false;
         public bool DetailedStackTrace { get; set; } = false;
         public bool SkipLogoSplash { get; set; } = true;
     }

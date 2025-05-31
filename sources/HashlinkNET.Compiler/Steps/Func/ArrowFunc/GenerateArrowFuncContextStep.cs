@@ -28,8 +28,6 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
             var td = data.TypeDef;
             td.BaseType = rdata.arrowFuncCtxType;
 
-            var entryIndex = 0;
-
             foreach (var method in data.Methods)
             {
                 var f = container.GetData<HlFunction>(method);
@@ -37,7 +35,7 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
                 var md = method.Definition;
                 var usedby = method.UsedBy[0];
 
-                md.Name = "ArrowFunctionEntry_" + entryIndex++;
+                md.Name = "ArrowFunctionEntry_" + f.FunctionIndex;
                 md.HasThis = true;
                 md.IsStatic = false;
                 md.IsPublic = true;
@@ -75,21 +73,31 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
             foreach (var v in data.Methods)
             {
                 var parent = v.UsedBy[0].Item1;
-                var pmd = parent.Definition;
-                if (pmd.DeclaringType == null ||
-                    td == pmd.DeclaringType)
+                if (parent.DeclaringClass != null)
                 {
-                    if (parent.DeclaringClass == null)
+                    parentDef = parent.DeclaringClass.TypeDef;
+                    data.DirectParent = parent;
+                    break;
+                }
+            }
+
+            if (parentDef == null)
+            {
+                foreach (var v in data.Methods)
+                {
+                    var parent = v.UsedBy[0].Item1;
+                    var pmd = parent.Definition;
+                    if (pmd.DeclaringType == null ||
+                        td == pmd.DeclaringType)
                     {
                         continue;
                     }
-                    parentDef = parent.DeclaringClass.TypeDef;
-                    break;
-                }
-                else
-                {
-                    parentDef = pmd.DeclaringType;
-                    break;
+                    else
+                    {
+                        parentDef = pmd.DeclaringType;
+                        data.DirectParent = parent;
+                        break;
+                    }
                 }
             }
 

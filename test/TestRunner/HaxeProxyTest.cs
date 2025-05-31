@@ -46,7 +46,7 @@ namespace TestRunner
 
             Assert.NotNull(e);
 
-            var e2 = new Boot.slowMoTweenieContext_0(114514, (dc.libs.misc.TType)dc.libs.misc.TType.Indexes.TZigZag,
+            var e2 = new Boot.slowMoTweenieContext_4995(114514, (dc.libs.misc.TType)dc.libs.misc.TType.Indexes.TZigZag,
                 null);
             Assert.Equal(114514, e2.Param0);
             Assert.Equal(dc.libs.misc.TType.Indexes.TZigZag, e2.Param1.Index);

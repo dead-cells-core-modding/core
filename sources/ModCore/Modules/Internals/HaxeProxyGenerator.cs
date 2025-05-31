@@ -24,6 +24,7 @@ namespace ModCore.Modules.Internals
         IOnHashlinkVMReady
     {
         public readonly CacheFile proxyCache = new("GameProxy.dll");
+        public readonly CacheFile pseudoCache = new("GamePseudocode.dll");
         public override int Priority => 1000;
 
         private Assembly? proxyAssembly;
@@ -32,6 +33,34 @@ namespace ModCore.Modules.Internals
         {
             proxyCache.UpdateMetadata("code", data);
             proxyCache.UpdateMetadata("version", GetType().Assembly.GetName().Version?.ToString() ?? "None");
+
+            pseudoCache.UpdateMetadata("code", data);
+            pseudoCache.UpdateMetadata("version", GetType().Assembly.GetName().Version?.ToString() ?? "None");
+            pseudoCache.UpdateMetadata("enabled", Core.Config.Value.GeneratePseudocodeAssembly.ToString());
+
+            if (Core.Config.Value.GeneratePseudocodeAssembly &&
+                !pseudoCache.IsValid)
+            {
+                Logger.Information("Generating Pseudocode Assembly");
+
+                var asm = AssemblyDefinition.CreateAssembly(new("GamePseudocode", new()), "GamePseudocode", ModuleKind.Dll);
+                var compiler = new HashlinkCompiler(
+                    HlCode.FromBytes(data), asm, new()
+                    {
+                        AllowParalle = true,
+                        GeneratePseudocode = true
+                    });
+                compiler.Compile();
+                asm.Write(pseudoCache.CachePath);
+
+                compiler = null;
+                asm.Dispose();
+                asm = null;
+
+                GC.Collect();
+
+                pseudoCache.UpdateCache();
+            }
 
             if (!proxyCache.IsValid)
             {

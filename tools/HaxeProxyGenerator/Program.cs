@@ -10,7 +10,7 @@ using var asm = AssemblyDefinition.CreateAssembly(new("GameProxy", new()), "Game
 var config = new CompileConfig()
 {
     AllowParalle = true,
-    GenerateFakeCode = false
+    GeneratePseudocode = false
 };
 
 #if DEBUG

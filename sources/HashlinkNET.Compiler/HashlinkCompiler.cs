@@ -82,7 +82,7 @@ namespace HashlinkNET.Compiler
             #endregion
 
             #region Hooks
-            if (!Config.GenerateFakeCode)
+            if (!Config.GeneratePseudocode)
             {
                 AddStep<GenerateHooksClassStep>();
             }
