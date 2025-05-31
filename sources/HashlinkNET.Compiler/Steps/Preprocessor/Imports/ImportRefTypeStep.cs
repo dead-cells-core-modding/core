@@ -21,7 +21,14 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
         {
             var tt = (HlTypeWithType) type;
             var et = container.GetTypeRef(tt.Type.Value);
-            container.AddData(type, rdata.refType.MakeGenericInstanceType(et));
+            if (gdata.Config.GeneratePseudocode)
+            {
+                container.AddData(type, et.MakeByReferenceType());
+            }
+            else
+            {
+                container.AddData(type, rdata.refType.MakeGenericInstanceType(et));
+            }
         }
     }
 }

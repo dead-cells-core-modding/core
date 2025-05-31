@@ -1,0 +1,74 @@
+﻿using HashlinkNET.Compiler.Pseudocode.Data;
+using HashlinkNET.Compiler.Steps;
+using HashlinkNET.Compiler.Utils;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace HashlinkNET.Compiler.Pseudocode.Steps
+{
+    class GenerateFuncRegsStep : CompileStep
+    {
+        public override void Execute( IDataContainer container )
+        {
+            var gdata = container.GetGlobalData<FuncEmitGlobalData>();
+            var f = gdata.Function;
+            var fd = gdata.FuncType;
+            var regs = gdata.Registers;
+            var md = gdata.Definition;
+
+            md.FixPIndex();
+
+            for (var i = 0; i < f.LocalVariables.Length; i++)
+            {
+                if (i < fd.Arguments.Length)
+                {
+                    //Param
+                    regs.Add(new(HlFuncRegisterData.RegisterKind.Parameter, i)
+                    {
+                        Parameter = md.HasThis ? 
+                            (i == 0 ?  md.Body.ThisParameter : md.Parameters[i - 1]) 
+                            : md.Parameters[i]
+                    });
+                }
+                else
+                {
+                    //LocalVar
+                    var hlv = f.LocalVariables[i].Value;
+                    if (hlv.Kind == Bytecode.HlTypeKind.Void)
+                    {
+                        regs.Add(null);
+                        continue;
+                    }
+                    var lv = new VariableDefinition(
+                        container.GetTypeRef(hlv)
+                        );
+                    md.Body.Variables.Add(lv);
+                    regs.Add(new(HlFuncRegisterData.RegisterKind.LocalVar, i)
+                    {
+                        Variable = lv
+                    });
+                    if (f.Assigns != null)
+                    {
+                        //TODO: Var Name (TODO)
+                        //var assign = f.Assigns[i - 1];
+                        
+                    }
+                }
+            }
+            if (regs.Count >= 2)
+            {
+                if (regs[0]?.Kind == HlFuncRegisterData.RegisterKind.Parameter &&
+                    regs[1]?.Kind == HlFuncRegisterData.RegisterKind.Parameter)
+                {
+                    Debug.Assert(regs[0]?.Parameter!.Index != regs[1]?.Parameter!.Index);
+                }
+            }
+        }
+    }
+}

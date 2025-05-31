@@ -15,6 +15,7 @@ var config = new CompileConfig()
 
 #if DEBUG
 config.AllowParalle = false;
+config.GeneratePseudocode = true;
 #endif
 
 var compiler = new HashlinkCompiler(

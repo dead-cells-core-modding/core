@@ -67,5 +67,12 @@ namespace HashlinkNET.Compiler.Data
 
         public TypeReference[] funcTypes;
         public TypeReference[] actionTypes;
+
+        internal MethodReference phToVirtual;
+        internal MethodReference phGetNativeMethod;
+        internal MethodReference phDynGetMethod;
+        internal MethodReference phDynSetMethod;
+        internal MethodReference phCreateObject;
+        internal MethodReference phCreateClosure;
     }
 }

@@ -36,7 +36,8 @@ namespace HashlinkNET.Compiler.Steps.Class
             if (info.GlobalClassType != info.TypeDef)
             {
 
-                var realCtor = info.GlobalClassType?.FindMethod("__inst_construct__");
+                var realCtor = info.GlobalClassType?.FindMethod("__inst_construct__") ??
+                                info.GlobalClassType?.FindMethod("__construct__");
                 if (realCtor != null)
                 {
                     il.Emit(OpCodes.Ldarg_0);

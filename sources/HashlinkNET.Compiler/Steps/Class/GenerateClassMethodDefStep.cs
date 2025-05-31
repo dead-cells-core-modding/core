@@ -58,6 +58,21 @@ namespace HashlinkNET.Compiler.Steps.Class
                 ilp.Emit(OpCodes.Ret);
             }
 
+            foreach (var b in obj.Bindings)
+            {
+                var f = gdata.Code.GetFunctionById(b.FunctionIndex);
+                var field = info.GetField(b.FieldIndex);
+                if (f == null ||
+                    field == null)
+                {
+                    continue;
+                }
+                var method = container.GetData<FuncData>(f);
+                method.Definition.Name = field.Name;
+                method.DeclaringClass = info;
+            }
+
+
             if (info.InstanceCtor != null)
             {
                 var fd = ((HlTypeWithFun)info.InstanceCtor.Type.Value).FunctionDescription;
@@ -70,17 +85,6 @@ namespace HashlinkNET.Compiler.Steps.Class
                 td.Methods.Add(md);
 
                 EmitFunc(info.InstanceCtor);
-            }
-
-            foreach (var b in obj.Bindings)
-            {
-                var f = gdata.Code.GetFunctionById(b.FunctionIndex);
-                if (f == null)
-                {
-                    continue;
-                }
-                var method = container.GetData<FuncData>(f);
-                method.DeclaringClass = info;
             }
 
             foreach (var p in obj.Protos)

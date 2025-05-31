@@ -14,6 +14,7 @@ namespace HashlinkNET.Compiler.Data
         );
     internal record class GlobalData
     (
+        CompileConfig Config,
         AssemblyDefinition Assembly,
         ModuleDefinition Module,
         HlCode Code

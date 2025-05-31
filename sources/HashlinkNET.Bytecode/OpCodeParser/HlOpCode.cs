@@ -40,6 +40,7 @@ namespace HashlinkNET.Bytecode.OpCodeParser
             RequestTypeInfo = 1 << 18,
             IndexedConstants = 1 << 19,
             ExtraParamPointer = 1 << 20,
+            StoreResult = 1 << 21,
         }
         public HlOpcodeKind OpCode
         {

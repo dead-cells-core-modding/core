@@ -72,34 +72,40 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
             TypeDefinition? parentDef = null;
             foreach (var v in data.Methods)
             {
-                var parent = v.UsedBy[0].Item1;
-                if (parent.DeclaringClass != null)
+                foreach ((var parent, _) in v.UsedBy)
                 {
-                    parentDef = parent.DeclaringClass.TypeDef;
-                    data.DirectParent = parent;
-                    break;
+                    if (parent.DeclaringClass != null)
+                    {
+                        parentDef = parent.DeclaringClass.TypeDef;
+                        data.DirectParent = parent;
+                        goto BREAK_0;
+                    }
                 }
             }
+            BREAK_0:
 
             if (parentDef == null)
             {
                 foreach (var v in data.Methods)
                 {
-                    var parent = v.UsedBy[0].Item1;
-                    var pmd = parent.Definition;
-                    if (pmd.DeclaringType == null ||
-                        td == pmd.DeclaringType)
+                    foreach ((var parent, _) in v.UsedBy)
                     {
-                        continue;
-                    }
-                    else
-                    {
-                        parentDef = pmd.DeclaringType;
-                        data.DirectParent = parent;
-                        break;
+                        var pmd = parent.Definition;
+                        if (pmd.DeclaringType == null ||
+                            td == pmd.DeclaringType)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            parentDef = pmd.DeclaringType;
+                            data.DirectParent = parent;
+                            goto BREAK_1;
+                        }
                     }
                 }
             }
+            BREAK_1:
 
             if (parentDef == null)
             {

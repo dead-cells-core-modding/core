@@ -24,6 +24,7 @@ namespace TestRunner
                 AllowCloseConsole = false,
                 EnableGoldberg = true,
                 SkipLogoSplash = true,
+                GeneratePseudocodeAssembly = true,
                 NoConsole = true,
             };
             EventSystem.AddReceiver(this);

@@ -62,7 +62,7 @@ namespace HashlinkNET.Compiler.Utils
             method.Parameters.Clear();
             for (var i = 0; i < l.Length; i++)
             {
-                method.Parameters.Add(l[i]);
+                method.Parameters.Add(new(l[i].Name, l[i].Attributes, l[i].ParameterType));
             }
         }
 

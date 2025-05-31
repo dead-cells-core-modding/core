@@ -1,19 +1,13 @@
 ﻿
 using Hashlink.Proxy;
 using Hashlink.UnsafeUtilities;
-using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HaxeProxy.Runtime;
 using HaxeProxy.Runtime.Internals;
 using HaxeProxy.Runtime.Internals.Cache;
 using Mono.Cecil;
-using System;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
 {
@@ -66,6 +60,13 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.delegateInfoSelfField = module.ImportReference(DelegateInfo.FI_self);
             rdata.delegateInfoTargetField = module.ImportReference(DelegateInfo.FI_invokePtr);
 
+            rdata.phToVirtual = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.ToVirtual));
+            rdata.phGetNativeMethod = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetNativeMethod));
+            rdata.phDynGetMethod = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.DynGet));
+            rdata.phDynSetMethod = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.DynSet));
+            rdata.phCreateObject = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.CreateObject));
+            rdata.phCreateClosure = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.CreateClosure));
+
             rdata.hCreateInstance = ImportHelperMethod(nameof(HaxeProxyHelper.CreateInstance));
             rdata.hGetCallInfoById = ImportHelperMethod(nameof(HaxeProxyHelper.GetCallInfoById));
             rdata.hGetFieldById = ImportHelperMethod(nameof(HaxeProxyHelper.GetFieldById));
@@ -97,6 +98,11 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             MethodReference ImportHelperMethod( string name )
             {
                 return module.ImportReference(typeof(HaxeProxyHelper).GetMethod(name));
+            }
+
+            MethodReference ImportPseudocodeHelperMethod( string name )
+            {
+                return module.ImportReference(typeof(PseudocodeHelper).GetMethod(name));
             }
 
             rdata.attrTypeBindingCtor = ImportAttribute<HaxeProxyBindingAttribute>();

@@ -1,5 +1,6 @@
 ﻿using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
+using HashlinkNET.Compiler.Pseudocode.Steps;
 using HashlinkNET.Compiler.Steps;
 using HashlinkNET.Compiler.Steps.Class;
 using HashlinkNET.Compiler.Steps.Enum;
@@ -88,14 +89,21 @@ namespace HashlinkNET.Compiler
             }
             #endregion
 
-           
+            #region Pseudocode
+            if (Config.GeneratePseudocode)
+            {
+                AddStep<FindMissingFunctionStep>();
+                AddStep<CollectUnnamedFuncStep>();
+                AddStep<GeneratePseudocodeStep>();
+            }
+            #endregion
         }
 
         protected override void BeforeRun()
         {
             data.AddGlobalData(Config);
             data.AddGlobalData(new GlobalData(
-            
+                Config: Config,
                 Assembly: output,
                 Module: output.MainModule,
                 Code: code
