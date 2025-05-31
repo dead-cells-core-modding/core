@@ -27,6 +27,13 @@ namespace Hashlink.Proxy
             return new string(hl_to_string((HL_vdynamic*)HashlinkPointer)) ?? Type.Name ?? "";
         }
 
+        public void MarkStateful()
+        {
+            if (Handle != null)
+            {
+                Handle.IsStateless = false;
+            }
+        }
         public HashlinkObjHandle? Handle
         {
             get; 

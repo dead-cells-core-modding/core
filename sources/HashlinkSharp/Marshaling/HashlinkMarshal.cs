@@ -179,5 +179,14 @@ namespace Hashlink.Marshaling
         {
             _ = HashlinkObjManager.GetHandle(ptr.HashlinkPointer);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MarkStateful( IHashlinkPointer ptr )
+        {
+            var handle = HashlinkObjManager.GetHandle(ptr.HashlinkPointer);
+            if (handle != null)
+            {
+                handle.IsStateless = false;
+            }
+        }
     }
 }

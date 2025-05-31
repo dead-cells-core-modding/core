@@ -18,6 +18,7 @@ namespace Hashlink.Marshaling.ObjHandle
     {
         private struct ObjHandle
         {
+            public nint hlPtr;
             public GCHandle weakRef;
             public object? strongRef;
         }
@@ -68,12 +69,11 @@ namespace Hashlink.Marshaling.ObjHandle
                     }
 
                     ref var curHandle = ref curPage[hpidx++];
-                    var hobjHandle = (HashlinkObjHandle?)(curHandle.strongRef ?? 
-                        curHandle.weakRef.Target);
 
-                    if (hobjHandle != null)
+                    if ((curHandle.strongRef ??
+                        curHandle.weakRef.Target) is HashlinkObjHandle)
                     {
-                        rootsArray[i] = hobjHandle.hlPtr;
+                        rootsArray[i] = curHandle.hlPtr;
                         continue;
                     }
 
@@ -90,10 +90,12 @@ namespace Hashlink.Marshaling.ObjHandle
                             currentIndex = currentHandlePage.Length;
                         }
                         ref var h = ref currentHandlePage[--currentIndex];
-                        var hh = h.strongRef ?? h.weakRef.Target;
-                        if (hh != null)
+                        if ((h.strongRef ?? h.weakRef.Target) is HashlinkObjHandle hh)
                         {
-                            h.strongRef = hh;
+                            if (!hh.IsStateless)
+                            {
+                                h.strongRef = hh;
+                            }
                             break;
                         }
                         freeCount++;
@@ -106,14 +108,18 @@ namespace Hashlink.Marshaling.ObjHandle
                     }
 
                     //Swap
-                    (currentHandlePage[currentIndex], curHandle) = (curHandle, currentHandlePage[currentIndex]);
+                    ref var old = ref currentHandlePage[currentIndex];
 
-                    hobjHandle = (HashlinkObjHandle)curHandle.strongRef!;
+                    *GetObjWrapperPtr((void*)old.hlPtr) = 0;
+                    curHandle.hlPtr = 0;
+                    (old, curHandle) = (curHandle, old);
+
+                    var hobjHandle = (HashlinkObjHandle?) (curHandle.strongRef ?? curHandle.weakRef.Target);
 
                     Debug.Assert(hobjHandle != null);
 
                     hobjHandle.handleIndex = i;
-                    rootsArray[i] = hobjHandle.hlPtr;
+                    rootsArray[i] = curHandle.hlPtr;
                 }
                 data.nroots = rootsCount;
                 data.roots = (void**) Unsafe.AsPointer(ref rootsArray[0]);
@@ -136,18 +142,10 @@ namespace Hashlink.Marshaling.ObjHandle
                         }
                     }
                 }
-                /*if (freeCount * 5 > rootsCount)
+                if (freeCount * 5 > rootsCount)
                 {
-                    if (genCount > freeCount * 3 / 2)
-                    {
-                        //Gen 2
-                        GC.Collect();
-                    }
-                    else
-                    {
-                        GC.Collect(genCount / freeCount, GCCollectionMode.Forced, true);
-                    }
-                }*/
+                    GC.Collect(genCount / freeCount, GCCollectionMode.Optimized, false);
+                }
             }
 
             void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )
@@ -184,27 +182,27 @@ namespace Hashlink.Marshaling.ObjHandle
                 if (curIdx >= curArray.Length)
                 {
                     gcLock.ExitReadLock();
-                    if (gcLock.TryEnterWriteLock(1))
-                    {
-                        if (currentHandlePage != curArray)
-                        {
-                            //Realloc
-                            gcLock.ExitWriteLock();
-                            goto _RE_ALLOC;
-                        }
-                        //Next page
-                        currentHandlePageIndex++;
-                        if (handlePages.Count == currentHandlePageIndex)
-                        {
-                            handlePages.Add(new ObjHandle[curArray.Length * 2]);
-                        }
-                        currentPageStartIndex += curArray.Length;
-                        currentIndex = 0;
-                        currentHandlePage = handlePages[currentHandlePageIndex];
+                    gcLock.EnterWriteLock();
 
+                    if (currentHandlePage != curArray)
+                    {
+                        //Realloc
                         gcLock.ExitWriteLock();
                         goto _RE_ALLOC;
                     }
+                    //Next page
+                    currentHandlePageIndex++;
+                    if (handlePages.Count == currentHandlePageIndex)
+                    {
+                        handlePages.Add(new ObjHandle[curArray.Length * 2]);
+                    }
+                    currentPageStartIndex += curArray.Length;
+                    currentIndex = 0;
+                    currentHandlePage = handlePages[currentHandlePageIndex];
+
+                    gcLock.ExitWriteLock();
+                    goto _RE_ALLOC;
+
                 }
 
                 index = curStart + curIdx;
@@ -249,13 +247,20 @@ namespace Hashlink.Marshaling.ObjHandle
             {
                 var gch = GCHandle.FromIntPtr(*wp);
                 handle = gch.Target as HashlinkObjHandle;
-                Debug.Assert(handle != null);
+                if (handle == null)
+                {
+                    *wp = 0;
+                    return GetHandle(ptr);
+                }
 
                 ref var h = ref GetObjHandle(handle.handleIndex);
 
                 Debug.Assert(h.weakRef.Target == handle);
 
-                h.strongRef = handle;
+                if (!handle.IsStateless)
+                {
+                    h.strongRef = handle;
+                }
 
                 return handle;
             }
@@ -264,7 +269,11 @@ namespace Hashlink.Marshaling.ObjHandle
             {
                 ref var h = ref AllocObjHandle(out var handleIdx);
                 handle = new(ptr, handleIdx);
-                h.strongRef = handle;
+                h.hlPtr = ptr;
+                if (!handle.IsStateless)
+                {
+                    h.strongRef = handle;
+                }
                 if (!h.weakRef.IsAllocated)
                 {
                     h.weakRef = GCHandle.Alloc(handle, GCHandleType.Weak);

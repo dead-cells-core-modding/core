@@ -135,7 +135,7 @@ namespace ModCore.Hooks
                     {
                         prevDel = prev.CreateDelegate(fpt);
                     }
-                    prev = new HashlinkClosure(funcType,
+                    prev = new HookOrigClosure(funcType,
                         hooks[i].Bind(prevDel));
                 }
                 return prev.DynamicInvoke(args);

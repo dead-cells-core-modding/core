@@ -10,7 +10,7 @@ namespace Hashlink.Proxy.Clousre
 {
     public unsafe class HashlinkClosure( HashlinkObjPtr objPtr ) : HashlinkTypedObj<HL_vclosure>(objPtr)
     {
-        private readonly HlCallback? callback;
+        protected HlCallback? callback;
         private Delegate? cachedWrapper;
         private object? cachedThis;
 
@@ -35,6 +35,7 @@ namespace Hashlink.Proxy.Clousre
                 );
             callback.Target = target.CreateAdaptDelegate();
             TypedRef->hasValue = 0;
+            MarkStateful();
         }
 
         public nint FunctionPtr =>
@@ -66,13 +67,14 @@ namespace Hashlink.Proxy.Clousre
 
         public object? DynamicInvoke( params object?[]? args )
         {
-            CheckWrapper();
+            
             if (callback != null)
             {
                 args ??= [];
 
                 return callback.Target!.DynamicInvoke(args);
             }
+            CheckWrapper();
             args ??= [];
             return cachedWrapper.DynamicInvoke(
                 BindingThis != null ?
@@ -85,11 +87,11 @@ namespace Hashlink.Proxy.Clousre
 
         public Delegate CreateDelegate(Type type)
         {
-            CheckWrapper();
             if (callback != null)
             {
                 return callback.Target!.CreateAdaptDelegate(type);
             }
+            CheckWrapper();
             if (TypedRef->hasValue > 0)
             {
                 return cachedWrapper.Bind(BindingThis, type);

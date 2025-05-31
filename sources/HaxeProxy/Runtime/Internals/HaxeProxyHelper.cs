@@ -52,6 +52,7 @@ namespace HaxeProxy.Runtime.Internals
                 {
                     cache.offset = 0;
                 }
+                Interlocked.MemoryBarrier();
                 cache.hasCache = true;
             }
         }

@@ -40,6 +40,7 @@ namespace HaxeProxy.Runtime.Internals
             {
                 return;
             }
+            obj.MarkStateful();
             Inheritance.InheritanceManager.Check(type, (HashlinkObjectType)obj.Type);
         }
         public static HaxeProxyBase CreateProxy( HashlinkObj obj )
