@@ -46,15 +46,11 @@ namespace TestRunner
 
             Assert.NotNull(e);
 
-            var e2 = new UnnamedEnum18556.Default(null, 1, 2, 3, 4, 5, 6, 7);
-            Assert.Null(e2.Param0);
-            Assert.Equal(1, e2.Param1);
-            Assert.Equal(2, e2.Param2);
-            Assert.Equal(3, e2.Param3);
-            Assert.Equal(4, e2.Param4);
-            Assert.Equal(5, e2.Param5);
-            Assert.Equal(6, e2.Param6);
-            Assert.Equal(7, e2.Param7);
+            var e2 = new Boot.slowMoTweenieContext_0(114514, (dc.libs.misc.TType)dc.libs.misc.TType.Indexes.TZigZag,
+                null);
+            Assert.Equal(114514, e2.Param0);
+            Assert.Equal(dc.libs.misc.TType.Indexes.TZigZag, e2.Param1.Index);
+            Assert.Null(e2.Param2);
         }
 
         [Fact]

@@ -28,69 +28,86 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
             var td = data.TypeDef;
             td.BaseType = rdata.arrowFuncCtxType;
 
-            var method = data.Method!;
-            var f = container.GetData<HlFunction>(method);
-            var fd = ((HlTypeWithFun)f.Type.Value).FunctionDescription;
-            var md = method.Definition;
+            var entryIndex = 0;
 
-            md.Name = "ArrowFunctionEntry";
-            md.HasThis = true;
-            md.IsStatic = false;
-            md.IsPublic = true;
-            md.Parameters.RemoveAt(0);
-
+            foreach (var method in data.Methods)
             {
-                md.FixPIndex();
+                var f = container.GetData<HlFunction>(method);
+                var fd = ((HlTypeWithFun)f.Type.Value).FunctionDescription;
+                var md = method.Definition;
+                var usedby = method.UsedBy[0];
 
-                md.Body.Instructions.Clear();
-                var ilp = md.Body.GetILProcessor();
+                md.Name = "ArrowFunctionEntry_" + entryIndex++;
+                md.HasThis = true;
+                md.IsStatic = false;
+                md.IsPublic = true;
+                md.Parameters.RemoveAt(0);
 
-                data.TypeDef.EmitCallHlFunc(ilp, container, f, ( il, i ) =>
                 {
-                    var at = fd.Arguments[i];
-                    if (md.IsStatic)
-                    {
-                        il.Emit(OpCodes.Ldarg, md.Parameters[i]);
-                    }
-                    else if (i > 0)
-                    {
-                        il.Emit(OpCodes.Ldarg, md.Parameters[i - 1]);
-                    }
-                    else
-                    {
-                        il.Emit(OpCodes.Ldarg_0);
-                    }
+                    md.FixPIndex();
 
-                });
+                    md.Body.Instructions.Clear();
+                    var ilp = md.Body.GetILProcessor();
 
-                ilp.Emit(OpCodes.Ret);
-            }
+                    data.TypeDef.EmitCallHlFunc(ilp, container, f, ( il, i ) =>
+                    {
+                        var at = fd.Arguments[i];
+                        if (md.IsStatic)
+                        {
+                            il.Emit(OpCodes.Ldarg, md.Parameters[i]);
+                        }
+                        else if (i > 0)
+                        {
+                            il.Emit(OpCodes.Ldarg, md.Parameters[i - 1]);
+                        }
+                        else
+                        {
+                            il.Emit(OpCodes.Ldarg_0);
+                        }
 
-            var parent = method.UsedBy[0].Item1;
-            var pmd = parent.Definition;
-            TypeDefinition parentDef;
-            if (pmd.DeclaringType == null ||
-                td == pmd.DeclaringType)
-            {
-                if (parent.DeclaringClass == null)
-                {
-                    return;
+                    });
+
+                    ilp.Emit(OpCodes.Ret);
                 }
-                parentDef = parent.DeclaringClass.TypeDef;
             }
-            else
+            
+            TypeDefinition? parentDef = null;
+            foreach (var v in data.Methods)
             {
-                parentDef = pmd.DeclaringType;
+                var parent = v.UsedBy[0].Item1;
+                var pmd = parent.Definition;
+                if (pmd.DeclaringType == null ||
+                    td == pmd.DeclaringType)
+                {
+                    if (parent.DeclaringClass == null)
+                    {
+                        continue;
+                    }
+                    parentDef = parent.DeclaringClass.TypeDef;
+                    break;
+                }
+                else
+                {
+                    parentDef = pmd.DeclaringType;
+                    break;
+                }
             }
+
+            if (parentDef == null)
+            {
+                return;
+            }
+           
             Debug.Assert(td != parentDef);
 
             RunSync(() =>
             {
-                //gdata.Module.Types.Remove(td);
+                gdata.Module.Types.Remove(td);
                 parentDef.NestedTypes.Add(td);
             });
             td.IsNestedPublic = true;
-            
+            td.Namespace = "";
+            td.IsAbstract = false;
         }
 
     }

@@ -26,7 +26,7 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
                 return;
             }
             var md = container.GetData<FuncData>(item);
-            ctx.Method = md;
+            ctx.Methods.Add(md);
             RunSync(() => ctx.TypeDef.Methods.Add(md.Definition));
         }
 
