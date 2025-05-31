@@ -18,7 +18,7 @@ namespace HashlinkNET.Compiler
         }
 
 
-        private readonly ConcurrentDictionary<Type, ConcurrentDictionary<object, ObjectData>> table = [];
+        private readonly ConcurrentDictionary<object, ObjectData> table = [];
 
         public IDataContainer? Parent
         {
@@ -27,7 +27,7 @@ namespace HashlinkNET.Compiler
 
         private ObjectData GetObjectData( object obj )
         {
-            return table.GetOrAdd(obj.GetType(), _ => []).GetOrAdd(obj, _ => new());
+            return table.GetOrAdd(obj, _ => new());
         }
         public bool TryGetData<TData>( object? obj, [NotNullWhen(true)] out TData? data ) where TData : class
         {
