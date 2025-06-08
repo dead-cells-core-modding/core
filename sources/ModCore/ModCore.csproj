@@ -41,6 +41,10 @@
     </Using>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Serialization\" />
+  </ItemGroup>
+
   <Target Name="WriteModCoreVersionFile" AfterTargets="Build">
     <WriteLinesToFile File="$(OutputPath)../../ModCoreVersion.txt" Lines="$(Version)" Overwrite="true" />
   </Target>

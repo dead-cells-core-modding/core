@@ -1,60 +1,48 @@
-﻿using Hashlink.Reflection.Types;
+﻿using Hashlink;
+using Hashlink.Marshaling;
+using Hashlink.Proxy.Objects;
+using Hashlink.Reflection.Types;
+using HaxeProxy.Events;
+using ModCore.Collections;
+using ModCore.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace HaxeProxy.Runtime.Internals.Inheritance
 {
-    internal static class InheritanceManager
+    internal unsafe static class InheritanceManager
     {
         private static readonly ReaderWriterLockSlim rwLock = new();
-        private static readonly HashSet<Type> processed = [];
-        private static readonly Dictionary<HashlinkObjectType, Dictionary<string, ProtoOverride>> overrideMethodsDict = [];
+        private static readonly Dictionary<Type, CustomHaxeType> processed = [];
 
-        private static void ProcessType( Type type, HashlinkObjectType otype )
+        private static HashlinkObjectType FindHLType( Type type )
         {
-            Type curType = type;
-            List<string> overrideMethods = [];
-            while (!HaxeProxyManager.knownProxyTypes.Contains(curType))
+            Type? t = type;
+            while (t != null)
             {
-                foreach (var v in curType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+                var ca = t.GetCustomAttribute<HashlinkTIndexAttribute>();
+                if (ca != null)
                 {
-                    if (!v.IsVirtual)
-                    {
-                        continue;
-                    }
-                    overrideMethods.Add(v.Name);
+                    return (HashlinkObjectType) HashlinkMarshal.Module.Types[ca.Index];
                 }
-                Debug.Assert(curType.BaseType != null);
-                curType = curType.BaseType;
+                t = t.BaseType;
             }
-            if (!overrideMethodsDict.TryGetValue(otype, out var dict))
-            {
-                dict = [];
-                overrideMethodsDict.Add(otype, dict);
-            }
-            foreach (var v in overrideMethods)
-            {
-                if (dict.TryGetValue(v, out var po))
-                {
-                    continue;
-                }
-                var proto = otype.FindProto(v) ??
-                    throw new MissingMethodException(otype.Name, v);
-                po = new(proto, otype, curType.GetMethod(v) ??
-                    throw new MissingMethodException(curType.FullName, v));
-                dict.Add(v, po);
-            }
+            throw new InvalidOperationException();
         }
-
-        public static void Check( Type type, HashlinkObjectType otype )
+        
+        public static void Check( Type type, HashlinkObjectType? otype, [NotNull] out CustomHaxeType? cht )
         {
             rwLock.EnterReadLock();
-            if (processed.Contains(type))
+            if (processed.TryGetValue(type, out cht))
             {
                 rwLock.ExitReadLock();
                 return;
@@ -62,20 +50,24 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
             rwLock.ExitReadLock();
             rwLock.EnterWriteLock();
 
-            if (processed.Contains(type))
+            if (processed.TryGetValue(type, out cht))
             {
                 rwLock.ExitWriteLock();
                 return;
             }
             try
             {
-                ProcessType(type, otype);
-                processed.Add(type);
+                otype ??= FindHLType(type);
+                cht = new(type, otype);
+                processed.Add(type, cht);
             }
             finally
             {
                 rwLock.ExitWriteLock();
             }
+            EventSystem.BroadcastEvent<IOnRegisterCustomType, IOnRegisterCustomType.Data>(
+                new(type, cht.Type, otype)
+                );
         }
 
     }

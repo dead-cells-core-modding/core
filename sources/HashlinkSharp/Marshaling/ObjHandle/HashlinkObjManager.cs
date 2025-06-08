@@ -247,7 +247,8 @@ namespace Hashlink.Marshaling.ObjHandle
             {
                 var gch = GCHandle.FromIntPtr(*wp);
                 handle = gch.Target as HashlinkObjHandle;
-                if (handle == null)
+                if (handle == null
+                    || handle.nativeHLPtr != ptr)
                 {
                     *wp = 0;
                     return GetHandle(ptr);
@@ -255,6 +256,7 @@ namespace Hashlink.Marshaling.ObjHandle
 
                 ref var h = ref GetObjHandle(handle.handleIndex);
 
+                Debug.Assert(h.hlPtr == ptr);
                 Debug.Assert(h.weakRef.Target == handle);
 
                 if (!handle.IsStateless)

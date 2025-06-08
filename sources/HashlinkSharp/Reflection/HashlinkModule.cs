@@ -218,16 +218,7 @@ namespace Hashlink.Reflection
             {
                 return result;
             }
-            if (!
-                (   
-                    Array.IndexOf(internalTypes, (nint)ptr) != -1 ||
-                    Utils.InAllocBlock(NativeCode->alloc, ptr) ||
-                    Utils.InAllocBlock(NativeModule->ctx.alloc, ptr)
-                )
-                )
-            {
-                return null;
-            }
+           
             return cachedHandles.GetOrAdd((nint)ptr, ptr =>
             {
                 return new HashlinkMemberHandle((void*)ptr);

@@ -40,6 +40,7 @@ namespace Hashlink.Marshaling
                     return (object?)*(float*)target;
                 case TypeKind.HF64:
                     return (object?)*(double*)target;
+                case TypeKind.HTYPE:
                 case TypeKind.HABSTRACT:
                     return (object?)*(nint*)target;
                 case TypeKind.HREF:
@@ -152,7 +153,8 @@ namespace Hashlink.Marshaling
             }
             else if (typeKind is TypeKind.HDYN)
             {
-                var vt = HashlinkMarshal.GetHashlinkType(value.GetType()) ?? throw new InvalidOperationException();
+                var vt = HashlinkMarshal.GetHashlinkType(value.GetType()) ?? 
+                    throw new InvalidOperationException();
                 var dptr = hl_alloc_dynamic(
                     vt.NativeType
                     );
@@ -165,7 +167,7 @@ namespace Hashlink.Marshaling
                     );
                 HashlinkMarshal.WriteData(&dptr->val, value, ((HashlinkNullType)type!).ValueType);
             }
-            else if (typeKind is TypeKind.HABSTRACT)
+            else if (typeKind is TypeKind.HABSTRACT or TypeKind.HTYPE)
             {
                 *(nint*)target = (nint)value;
             }

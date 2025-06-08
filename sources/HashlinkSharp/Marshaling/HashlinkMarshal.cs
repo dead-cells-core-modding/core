@@ -72,6 +72,10 @@ namespace Hashlink.Marshaling
             {
                 return kt.Void;
             }
+            else if (type == typeof(nint))
+            {
+                return kt.Bytes;
+            }
             return null;
         }
 
@@ -91,12 +95,13 @@ namespace Hashlink.Marshaling
             [TypeKind.HBYTES] = typeof(nint),
             [TypeKind.HBOOL] = typeof(bool),
             [TypeKind.HVOID] = typeof(void),
-            [TypeKind.HREF] = typeof(nint)
+            [TypeKind.HREF] = typeof(nint),
+            [TypeKind.HTYPE] = typeof(nint)
         };
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsValueType( this TypeKind type )
         {
-            return type < TypeKind.HBYTES || type == TypeKind.HREF;
+            return type <= TypeKind.HBYTES || type == TypeKind.HREF || type == TypeKind.HTYPE;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsPointer( this TypeKind type )

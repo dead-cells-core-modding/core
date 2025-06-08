@@ -28,7 +28,7 @@ namespace Hashlink.Proxy.Objects
                 ptr = hl_obj_lookup_extra((HL_vdynamic*)HashlinkPointer, hashedName);
                 return ptr != null
                     ? HashlinkMarshal.ConvertHashlinkObject(ptr)
-                    : throw new MissingFieldException(new string(hl_type_str(NativeType)), new string(hl_field_name(hashedName)));
+                    : throw new MissingFieldException(Type.Name, new string(hl_field_name(hashedName)));
             }
             return HashlinkMarshal.ReadData(ptr, HashlinkMarshal.GetHashlinkType(ftype));
         }
@@ -45,7 +45,7 @@ namespace Hashlink.Proxy.Objects
             var ptr = hl_obj_lookup((HL_vdynamic*)HashlinkPointer, hashedName, out var ftype);
             if (ptr == null)
             {
-                throw new MissingFieldException(new string(hl_type_str(NativeType)), new string(hl_field_name(hashedName)));
+                throw new MissingFieldException(Type.Name, new string(hl_field_name(hashedName)));
             }
             HashlinkMarshal.WriteData(ptr, value, HashlinkMarshal.GetHashlinkType(ftype));
         }

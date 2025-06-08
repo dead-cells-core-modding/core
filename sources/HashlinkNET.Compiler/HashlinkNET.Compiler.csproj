@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HashlinkNET.Bytecode\HashlinkNET.Bytecode.csproj" />
     <ProjectReference Include="..\HaxeProxy\HaxeProxy.csproj" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,8 @@
-﻿using Hashlink.Marshaling;
+﻿using Hashlink;
+using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Reflection.Types;
+using HaxeProxy.Runtime.Internals.Inheritance;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -41,21 +43,30 @@ namespace HaxeProxy.Runtime.Internals
                 return;
             }
             obj.MarkStateful();
-            Inheritance.InheritanceManager.Check(type, (HashlinkObjectType)obj.Type);
+            InheritanceManager.Check(type, (HashlinkObjectType)obj.Type, out var cht);
+            *(nint*)obj.HashlinkPointer = (nint)cht.nativeType;
+            obj.RefreshTypeInfo(cht.nativeType);
         }
         public static HaxeProxyBase CreateProxy( HashlinkObj obj )
         {
             var ht = obj.Type;
-            if (ht.TypeIndex < 0)
+            Type type;
+            if (ht.TypeIndex >= 0)
+            {
+                type = bindingTypes[ht.TypeIndex];
+            }
+            else if(ht is CustomHaxeType.ReflectType rt)
+            {
+                type = rt.CustomType.Data.type;
+            }
+            else
             {
                 throw new NotSupportedException();
             }
-            var pt = bindingTypes[ht.TypeIndex];
+            Debug.Assert(type != null);
+            Debug.Assert(!type.IsAbstract);
 
-            Debug.Assert(pt != null);
-            Debug.Assert(!pt.IsAbstract);
-
-            var inst = (HaxeProxyBase)RuntimeHelpers.GetUninitializedObject(pt);
+            var inst = (HaxeProxyBase)RuntimeHelpers.GetUninitializedObject(type);
             inst.createByManager = true;
             baseCtor(inst, obj);
             return inst;

@@ -63,7 +63,9 @@ namespace HaxeProxy.Runtime.Internals
             EnsureFieldInfo(self, name, ref cache);
             if (cache.offset == 0)
             {
-                return ((IHashlinkFieldObject) self.HashlinkObj).GetFieldValue(name);
+                return GetProxy<T>(
+                    ((IHashlinkFieldObject) self.HashlinkObj).GetFieldValue(name)
+                    );
             }
             return GetProxy<T>(HashlinkMarshal.ReadData((void*)(self.HashlinkPointer + cache.offset),
                 cache.field));

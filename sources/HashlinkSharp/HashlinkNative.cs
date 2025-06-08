@@ -146,7 +146,8 @@ namespace Hashlink
         public static partial HL_vclosure* hl_alloc_closure_void( HL_type* fullt, void* fvalue );
         [LibraryImport(LIBHL)]
         public static partial void* hl_code_read( void* data, int size, byte** errorMsg );
-
+        [LibraryImport(LIBHL)]
+        public static partial void hl_dump_stack();
         [LibraryImport(LIBHL)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static partial bool module_resolve_pos( HL_module* m, void* addr, out int fidx, out int fpos );

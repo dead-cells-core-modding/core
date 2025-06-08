@@ -4,6 +4,7 @@ using ModCore.Events.Interfaces;
 using ModCore.Modules;
 using ModCore.Storage;
 using Serilog;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -41,6 +42,8 @@ namespace ModCore
             val = string.Join(';', nativeSearchPath) + ";" + val;
             Environment.SetEnvironmentVariable(envName, val);
         }
+
+        private static readonly ConcurrentDictionary<string, Assembly?> name2typeLookup = [];
 
         public static void LoadCoreModules(
             Assembly asm,
@@ -86,6 +89,7 @@ namespace ModCore
             init = true;
 
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+            AppDomain.CurrentDomain.TypeResolve += CurrentDomain_TypeResolve;
 
             Environment.SetEnvironmentVariable("DCCM_CoreLoaded", "true");
 
@@ -111,6 +115,24 @@ namespace ModCore
             EventSystem.BroadcastEvent<IOnCoreModuleInitializing>();
 
             Log.Logger.Information("Loaded modding core");
+        }
+
+        private static Assembly? CurrentDomain_TypeResolve( object? sender, ResolveEventArgs args )
+        {
+            var parts = args.Name.Split(',');
+            var type = parts[0];
+            return name2typeLookup.GetOrAdd(type, name =>
+            {
+                foreach (var v in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (v.GetType(name) != null)
+                    {
+                        return v;
+                    }
+                }
+                return null;
+            });
+            
         }
 
         private static Assembly? CurrentDomain_AssemblyResolve( object? sender, ResolveEventArgs args )

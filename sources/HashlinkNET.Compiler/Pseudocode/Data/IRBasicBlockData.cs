@@ -25,8 +25,12 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         public void GenerateFlatIR()
         {
             var count = 0;
-            static void CountIRResults( IRResult ir, ref int count )
+            static void CountIRResults( IRResult? ir, ref int count )
             {
+                if (ir == null)
+                {
+                    return;
+                }
                 if (ir.IsNone)
                 {
                     return;
@@ -42,8 +46,12 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
                 CountIRResults(v, ref count);
             }
             var result = new IRResult[count];
-            static void ForeachIR( IRResult ir, IRResult[] array, ref int index )
+            static void ForeachIR( IRResult? ir, IRResult[] array, ref int index )
             {
+                if (ir == null)
+                {
+                    return;
+                }
                 if (ir.IsNone)
                 {
                     return;

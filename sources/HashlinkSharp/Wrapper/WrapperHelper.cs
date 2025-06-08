@@ -22,6 +22,7 @@ namespace Hashlink.Wrapper
             if (Debugger.IsAttached)
             {
                 Debugger.Log(4, null, "Uncaught .NET Exception: " + ex.ToString());
+                hl_dump_stack();
                 Debugger.Break();
             }
             if (ex is HashlinkError err)

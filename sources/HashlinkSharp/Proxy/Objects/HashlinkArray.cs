@@ -1,9 +1,11 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Reflection.Types;
+using System.Collections;
 
 namespace Hashlink.Proxy.Objects
 {
-    public unsafe class HashlinkArray( HashlinkObjPtr objPtr ) : HashlinkTypedObj<HL_array>(objPtr)
+    public unsafe class HashlinkArray( HashlinkObjPtr objPtr ) : 
+        HashlinkTypedObj<HL_array>(objPtr)
     {
         public HashlinkArray( HashlinkType elementType, int size ) : 
             this(HashlinkObjPtr.Get(hl_alloc_array(elementType.NativeType, size)))
@@ -16,6 +18,11 @@ namespace Hashlink.Proxy.Objects
         public int ElementSize => hl_type_size(NativeElementType);
         public int Count => TypedRef->size;
         public void* Data => TypedRef + 1;
+
+        public Span<T> AsSpan<T>() where T : unmanaged
+        {
+            return new Span<T>(Data, ElementSize * Count / sizeof(T));
+        }
 
         public object? this[int index]
         {

@@ -1,13 +1,19 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Marshaling.ObjHandle;
 using Hashlink.Reflection.Types;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Hashlink.Proxy
 {
     public abstract unsafe partial class HashlinkObj : IHashlinkPointer
     {
-        
-
+        [MemberNotNull(nameof(nativeType))]
+        [MemberNotNull(nameof(type))]
+        internal void RefreshTypeInfo(HL_type* ptr)
+        {
+            nativeType = ptr;
+            type = HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(nativeType);
+        }
       
         public HashlinkObj( HashlinkObjPtr objPtr )
         {
@@ -19,8 +25,8 @@ namespace Hashlink.Proxy
             }
 
             HashlinkPointer = ptr;
-            NativeType = *(HL_type**)ptr;
-            Type = HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(NativeType);
+            nativeType = *(HL_type**)ptr;
+            type = HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(nativeType);
         }
         public override string ToString()
         {
@@ -39,14 +45,12 @@ namespace Hashlink.Proxy
             get; 
         }
         public TypeKind TypeKind => Type.TypeKind;
-        public HashlinkType Type
-        {
-            get; 
-        }
-        public HL_type* NativeType
-        {
-            get; 
-        }
+
+        private HL_type* nativeType;
+        private HashlinkType? type;
+
+        public HashlinkType Type => type!;
+        public HL_type* NativeType => nativeType;
         public virtual nint HashlinkPointer
         {
             get; 

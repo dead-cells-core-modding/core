@@ -29,7 +29,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
                 HlTypeKind.Dyn => ts.Object,
                 HlTypeKind.DynObj => rdata.dynType,
                 HlTypeKind.Abstract => ts.IntPtr,
-                HlTypeKind.Type => gdata.Module.ImportReference(typeof(Type)),
+                HlTypeKind.Type => ts.IntPtr,
                 _ => null
             };
             if (tr != null)

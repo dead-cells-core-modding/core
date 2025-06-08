@@ -3,6 +3,7 @@ using ModCore.Events;
 using ModCore.Events.Interfaces.Game;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace TestRunner
                 EnableGoldberg = true,
                 SkipLogoSplash = true,
                 GeneratePseudocodeAssembly = true,
-                NoConsole = true,
+                NoConsole = !Debugger.IsAttached,
             };
             EventSystem.AddReceiver(this);
             Startup.StartGame();

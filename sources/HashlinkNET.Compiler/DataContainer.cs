@@ -13,12 +13,12 @@ namespace HashlinkNET.Compiler
     {
         private class ObjectData
         {
+            public readonly List<object> dataList = [];
             public readonly ReaderWriterLockSlim rwLock = new();
-            public readonly Dictionary<Type, object?> data = [];
+            public readonly Dictionary<Type, object?> dataLookup = [];
         }
 
-
-        private readonly ConcurrentDictionary<object, ObjectData> table = [];
+        private readonly ConcurrentDictionary<object, ObjectData> table = new(ReferenceEqualityComparer.Instance);
 
         public IDataContainer? Parent
         {
@@ -37,15 +37,20 @@ namespace HashlinkNET.Compiler
                 return false;
             }
             var od = GetObjectData( obj );
-            if (od.data.TryGetValue(typeof(TData), out var result) && result is not null)
+            od.rwLock.EnterReadLock();
+            if (od.dataLookup.TryGetValue(typeof(TData), out var result) 
+                && result is not null)
             {
+                od.rwLock.ExitReadLock();
                 data = (TData) result;
                 return true;
             }
+            od.rwLock.ExitReadLock();
             if (Parent is not null)
             {
                 if (Parent.TryGetData(obj, out data))
                 {
+                    //TryAddData(obj, data);
                     return true;
                 }
             }
@@ -53,8 +58,7 @@ namespace HashlinkNET.Compiler
             bool inReadLock = true;
             try
             {
-
-                result = od.data.Values.FirstOrDefault(x => x is TData);
+                result = od.dataList.FirstOrDefault(x => x is TData);
                 if (result == null)
                 {
                     data = default;
@@ -64,7 +68,7 @@ namespace HashlinkNET.Compiler
                 od.rwLock.EnterWriteLock();
                 try
                 {
-                    od.data.TryAdd(typeof(TData), result);
+                    od.dataLookup.TryAdd(typeof(TData), result);
                     data = (TData?)result;
                     return data != null;
                 }
@@ -95,11 +99,12 @@ namespace HashlinkNET.Compiler
             try
             {
                 od.rwLock.EnterWriteLock();
-                if (!od.data.TryAdd(typeof(TData), data))
+                if (!od.dataLookup.TryAdd(typeof(TData), data))
                 {
                     //Try to add duplicate data. If this exception is thrown, it means that there is a serious bug in the compiler.
                     throw new InvalidOperationException("Try to add duplicate data. If this exception is thrown, it means that there is a serious bug in the compiler.");
                 }
+                od.dataList.Add(data);
                 return data;
             }
             finally
@@ -114,7 +119,11 @@ namespace HashlinkNET.Compiler
             try
             {
                 od.rwLock.EnterWriteLock();
-                od.data.TryAdd(typeof(TData), data);
+                if (od.dataLookup.TryAdd(typeof(TData), data))
+                {
+                    od.dataList.Add(data);
+                }
+                
                 return data;
             }
             finally

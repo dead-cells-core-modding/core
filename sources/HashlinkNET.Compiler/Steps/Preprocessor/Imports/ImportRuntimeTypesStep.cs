@@ -1,11 +1,13 @@
 ﻿
 using Hashlink.Proxy;
+using Hashlink.Proxy.Objects;
 using Hashlink.UnsafeUtilities;
 using HashlinkNET.Compiler.Data;
 using HaxeProxy.Runtime;
 using HaxeProxy.Runtime.Internals;
 using HaxeProxy.Runtime.Internals.Cache;
 using Mono.Cecil;
+using Newtonsoft.Json;
 using System.Dynamic;
 using System.Reflection;
 
@@ -42,10 +44,11 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
 
             rdata.bytesType = ImportType<nint>();
             rdata.refType = module.ImportReference(typeof(Ref<>));
-            rdata.nativeArray = ImportType<Array>();
+            rdata.nativeArray = ImportType<HashlinkArray>();
             rdata.enumType = module.ImportReference(typeof(HaxeEnum<,>));
             rdata.virtualType = ImportType<HaxeVirtual>();
             rdata.dynType = ImportType<ExpandoObject>();
+
 
 
             rdata.objBaseCtorMethod = module.ImportReference(typeof(HaxeProxyBase)
@@ -108,6 +111,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.attrTypeBindingCtor = ImportAttribute<HaxeProxyBindingAttribute>();
             rdata.attrFIndexCtor = ImportAttribute<HashlinkFIndexAttribute>();
             rdata.attrTIndexCtor = ImportAttribute<HashlinkTIndexAttribute>();
+            rdata.jsonIgnoreCtor = ImportAttribute<JsonIgnoreAttribute>();
 
             rdata.funcTypes = new TypeReference[FUNC_MAX_ARGS_COUNT];
             for (var i = 0; i < FUNC_MAX_ARGS_COUNT; i++)

@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace ModCore.Modules
 {
-    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     public class Game : CoreModule<Game>,
         IOnBeforeGameInit,
         IOnFrameUpdate,

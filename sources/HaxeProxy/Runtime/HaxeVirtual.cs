@@ -1,4 +1,5 @@
 ﻿using Hashlink.Proxy;
+using Hashlink.Proxy.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,11 @@ namespace HaxeProxy.Runtime
         private HaxeVirtual( HashlinkObj obj ) : base(obj)
         {
             throw new InvalidProgramException();
+        }
+
+        public T AsObject<T>() where T : HaxeProxyBase
+        {
+            return ((HashlinkVirtual)HashlinkObj).GetValue()?.AsHaxe<T>() ?? throw new InvalidCastException();
         }
     }
 }

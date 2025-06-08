@@ -3,9 +3,11 @@ using Hashlink.Reflection.Members.Object;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper.Callbacks;
+using ModCore.Collections;
 using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -18,9 +20,10 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
     {
         private readonly HlCallback callback;
         private readonly DynamicMethod virtualRouter;
+
         public ProtoOverride( 
             HashlinkObjectProto proto, 
-            HashlinkObjectType type,
+            HL_type* type,
             MethodInfo vmethod)
         {
             if (!proto.IsVirtual)
@@ -32,6 +35,12 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
 
             virtualRouter = new("<VirtualRouter>+" + vmethod.GetID(),
                 vmethod.ReturnType, ptypes);
+
+            if (ptypes.Length == 4 ||
+                ptypes.Length == 5)
+            {
+                Debugger.Break();
+            }
 
             {
                 var ilp = virtualRouter.GetILGenerator();
@@ -50,7 +59,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
 
             {
 
-                var nt = type.NativeType;
+                var nt = type;
                 nt->vobj_proto[proto.ProtoIndex] = (void*)callback.NativePointer;
                 var o = nt->data.obj;
 

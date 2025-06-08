@@ -54,6 +54,7 @@ namespace ModCore.Modules.Internals
                 asm.Write(pseudoCache.CachePath);
 
                 compiler = null;
+                asm.MainModule.Types.Clear();
                 asm.Dispose();
                 asm = null;
 
@@ -76,6 +77,7 @@ namespace ModCore.Modules.Internals
                 asm.Write(proxyCache.CachePath);
 
                 compiler = null;
+                asm.MainModule.Types.Clear();
                 asm.Dispose();
                 asm = null;
 
@@ -83,6 +85,10 @@ namespace ModCore.Modules.Internals
 
                 proxyCache.UpdateCache();
             }
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
 
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             proxyAssembly = Assembly.LoadFrom(proxyCache.CachePath);
