@@ -25,6 +25,13 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 if (code == Code.Ldarg)
                 {
                     var index = ((ParameterDefinition)v.Operand!).Index;
+                    if (md.HasThis)
+                    {
+                        if (v.Operand != md.Body.ThisParameter)
+                        {
+                            index++;
+                        }
+                    }
                     if (index < 256)
                     {
                         v.OpCode = index switch
