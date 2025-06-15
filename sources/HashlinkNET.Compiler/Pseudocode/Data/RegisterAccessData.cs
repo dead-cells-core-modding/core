@@ -17,5 +17,6 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         public readonly BitArray requireReg = new(regCount);
 
         public readonly List<int> regAccess = [];
+        public SSARegisterData[] ssaRegisters = [];
     }
 }

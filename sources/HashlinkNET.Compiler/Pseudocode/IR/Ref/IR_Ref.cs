@@ -18,6 +18,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Ref
         public HlFuncRegisterData reg = reg;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
+            reg.IsExposed = true;
             if (reg.Kind == HlFuncRegisterData.RegisterKind.Parameter)
             {
                 il.Emit(OpCodes.Ldarga, reg.Parameter);

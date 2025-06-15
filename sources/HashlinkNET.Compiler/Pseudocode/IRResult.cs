@@ -12,6 +12,10 @@ namespace HashlinkNET.Compiler.Pseudocode
 {
     class IRResult
     {
+        public int Index
+        {
+            get; set;
+        }
         public bool IsNone => IR is null;
         public IRBase? IR
         {

@@ -55,7 +55,8 @@ namespace HashlinkNET.Compiler.Steps.Func
 
             if (f.Assigns != null && md.Parameters.Count > 0)
             {
-                var argNamesCount = f.Assigns.TakeWhile(x => x.Index == 0).Count();
+                var argNamesCount = f.Assigns.TakeWhile(x => x.Index >= 0)
+                    .Take(md.Parameters.Count).Count();
                 var ai = 0;
                 for (int i = md.Parameters.Count != argNamesCount ? 1 : 0; i < md.Parameters.Count; i++)
                 {

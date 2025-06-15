@@ -16,6 +16,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         } = values;
         public TypeReference? Emit( EmitContext ctx, bool requestValue = false )
         {
+            ctx.RequestValue = requestValue;
             var rt = Emit(ctx, ctx.DataContainer, ctx.IL);
             var hasRet = rt != null && (rt.Namespace != "System" || rt.Name != "Void");
             if (requestValue)
@@ -36,6 +37,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             return rt;
         }
 
-        protected abstract TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il );
+        protected abstract TypeReference? Emit( EmitContext ctx, IDataContainer container, 
+            ILProcessor il );
     }
 }

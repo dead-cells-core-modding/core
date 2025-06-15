@@ -53,15 +53,28 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     {
                         Variable = lv
                     });
-                    if (f.Assigns != null)
+                   
+                }
+
+            }
+            if (f.Assigns != null)
+            {
+                foreach (var v in f.Assigns)
+                {
+                    if (v.Index <= 0 ||
+                        v.Name == null)
                     {
-                        //TODO: Var Name (TODO)
-                        //var assign = f.Assigns[i - 1];
-                        
+                        continue;
                     }
+
+                    if (!gdata.Assigns.TryGetValue(v.Index , out var list))
+                    {
+                        list = [];
+                        gdata.Assigns[v.Index] = list;
+                    }
+                    list.Add(v.Name);
                 }
             }
-           
         }
     }
 }

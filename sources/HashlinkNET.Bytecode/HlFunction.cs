@@ -81,6 +81,11 @@ public struct HlFunDebug
         FileName = filename;
         Line = line;
     }
+
+    public override string ToString()
+    {
+        return $"{FileName}:{Line}";
+    }
 }
 
 /// <summary>
@@ -100,6 +105,11 @@ public struct HlFunAssign
     {
         Name = name;
         Index = index;
+    }
+
+    public override string ToString()
+    {
+        return $"{Index}: {Name}";
     }
 }
 

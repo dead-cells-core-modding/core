@@ -16,7 +16,16 @@ namespace HashlinkNET.Compiler.Pseudocode
         TypeSystem TypeSystem,
         RuntimeImports RuntimeImports,
         CompileConfig Config,
+        ScopeDebugInformation Scope,
         ILProcessor IL)
     {
+        public ScopeDebugInformation?[] VariableDebugs
+        {
+            get; set;
+        } = [];
+        public bool RequestValue
+        {
+            get; set;
+        }
     }
 }

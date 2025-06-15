@@ -14,6 +14,10 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         int Index
         )
     {
+        public bool IsExposed
+        {
+            get; set;
+        }
         public ParameterDefinition? Parameter
         {
             get; set;

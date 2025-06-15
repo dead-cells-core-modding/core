@@ -33,6 +33,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         private FuncEmitGlobalData gdata = null!;
         private TypeSystem typeSystem = null!;
         private IDataContainer container = null!;
+        private string? currentAssign = null;
         public override void Execute( IDataContainer container )
         {
             this.container = container;
@@ -64,6 +65,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 foreach (var v in hlbb.transitions)
                 {
                     var bb = ParseBB(v.Target);
+                    bb.parents.Add(irbb);
                     if (v.Kind == TransitionKind.Default)
                     {
                         irbb.defaultTransition = bb;
@@ -84,9 +86,19 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 return irbb;
             }
         }
-        private IR_LoadLocalReg CreateLoadLocalReg( int index )
+        private IR_LoadLocalReg CreateLoadLocalReg( int index, bool isValue = false )
         {
-            return new IR_LoadLocalReg(gdata.Registers[index]);
+            var an = currentAssign;
+            if (isValue)
+            {
+                currentAssign = null;
+            }
+            else
+            {
+                an = null;
+            }
+
+            return new IR_LoadLocalReg(gdata.Registers[index], an);
         }
         public TypeReference GetLocalRegType( int index )
         {
@@ -131,6 +143,12 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             var hlc = gdata2.Code;
             var c = code.Kind;
             var op = HlOpCodes.OpCodes[(int)code.Kind];
+            currentAssign = null;
+            if (gdata.Assigns.TryGetValue(index + 1, out var assign) &&
+                assign.Count > 0)
+            {
+                currentAssign = string.Join('_', assign);
+            }
             if (op.Payloads.Length > 0 &&
                 op.Payloads[0].HasFlag(HlOpCode.PayloadKind.StoreResult))
             {
@@ -166,7 +184,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         (IR_Opt2.OptKind)((int)c - HlOpcodeKind.Add)
                         );
                 }
-                else if (c == HlOpcodeKind.Neg && c <= HlOpcodeKind.Decr)
+                else if (c >= HlOpcodeKind.Neg && c <= HlOpcodeKind.Decr)
                 {
                     //Opt 2
                     src = new IR_Opt1(
@@ -292,12 +310,15 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         container.GetTypeRef(hlc.Types[code.Parameters[1]])
                         );
                 }
+                else if (c == HlOpcodeKind.GetType)
+                {
+                    src = new IR_GetType(
+                            container.GetTypeRef(hlc.Types[code.Parameters[1]])
+                            );
+                }
                 else if (c == HlOpcodeKind.New)
                 {
-                    if (dstReg >= 0)
-                    {
-                        src = new IR_New(gdata.Registers[code.Parameters[0]]!.RegisterType);
-                    }
+                    src = new IR_New(GetLocalRegType(code.Parameters[0]));
                 }
                 else if (c == HlOpcodeKind.ArraySize)
                 {
@@ -345,7 +366,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         hlc.GetUString(code.Parameters[2]));
                 }
                 else if (c == HlOpcodeKind.SafeCast ||
-                    c == HlOpcodeKind.ToDyn ||
+                        c == HlOpcodeKind.ToDyn ||
                         c == HlOpcodeKind.ToInt ||
                         c == HlOpcodeKind.ToSFloat ||
                         c == HlOpcodeKind.ToUFloat ||
@@ -355,6 +376,10 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         CreateLoadLocalReg(code.Parameters[1]),
                         gdata.Registers[code.Parameters[0]]!.RegisterType
                         );
+                }
+                else if (c == HlOpcodeKind.UnsafeCast)
+                {
+                    src = CreateLoadLocalReg(code.Parameters[1]);
                 }
                 else if (c == HlOpcodeKind.InstanceClosure)
                 {
@@ -449,10 +474,13 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     {
                         dstReg = code.Parameters[0];
                     }
+                    
                     irbb.AddIR(new IR_SetLocalReg(
                         gdata.Registers[dstReg],
-                        src
+                        src,
+                        currentAssign
                         ));
+                    currentAssign = null;
                 }
             }
             else if (c == HlOpcodeKind.SetArray)
@@ -507,7 +535,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     GetFieldById(
                         GetLocalRegType(code.Parameters[0]),
                         code.Parameters[1]),
-                    CreateLoadLocalReg(code.Parameters[2])
+                    CreateLoadLocalReg(code.Parameters[2], true)
                     ));
             }
             else if (c == HlOpcodeKind.SetThis)
@@ -588,6 +616,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             {
                 irbb.AddIR(new IR_Assert("Assert fail!"));
             }
+            Debug.Assert(currentAssign == null);
         }
     }
 }

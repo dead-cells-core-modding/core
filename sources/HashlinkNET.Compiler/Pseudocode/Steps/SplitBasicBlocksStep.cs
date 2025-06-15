@@ -109,26 +109,28 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     lastCode.Kind != HlOpcodeKind.Throw &&
                     i != bb.Count - 1)
                 {
+                    var target = bb[i + 1];
                     bbd.transitions.Add(
-                        new(bb[i + 1], lastCode, TransitionKind.Default)
+                        new(target, lastCode, TransitionKind.Default)
                         );
                 }
                 if (lastCode.Kind == HlOpcodeKind.Switch)
                 {
                     for (var j = 0; j < lastCode.Parameters[1]; j++)
                     {
+                        var target = bbLookup[jmpNext + lastCode.Parameters[3 + j]];
                         bbd.transitions.Add(
-                            new(bbLookup[jmpNext + lastCode.Parameters[3 + j]], lastCode, TransitionKind.Conditional)
+                            new(target, lastCode, TransitionKind.Conditional)
                             );
                     }
                 }
                 if (lastCode.Kind >= HlOpcodeKind.JTrue &&
                     lastCode.Kind <= HlOpcodeKind.JAlways)
                 {
-                    
+                    var target = bbLookup[jmpNext + lastCode.Parameters[^1]];
                     bbd.transitions.Add(
                         new(
-                            bbLookup[jmpNext + lastCode.Parameters[^1]], lastCode, TransitionKind.Conditional
+                            target, lastCode, TransitionKind.Conditional
                             )
                         );
                 }

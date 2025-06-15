@@ -128,5 +128,11 @@ if(corelibRef != null)
     corelibRef.Name = mscorlibRef.Name;
 }
 
-asm.Write(args[1]);
+using var pdbFile = new FileStream(Path.ChangeExtension(args[1], "pdb"), 
+    FileMode.Create, FileAccess.Write);
+asm.Write(args[1], new()
+{
+    SymbolWriterProvider = new PortablePdbWriterProvider(),
+    SymbolStream = pdbFile
+});
 asm.Dispose();

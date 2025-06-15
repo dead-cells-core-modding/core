@@ -11,7 +11,9 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
 {
     class IRBasicBlockData
     {
+        public readonly Instruction endInst = Instruction.Create(OpCodes.Nop);
         public readonly Instruction startInst = Instruction.Create(OpCodes.Nop);
+        public readonly List<IRBasicBlockData> parents = [];
         public readonly List<Transition> transitions = []; 
         public IRBasicBlockData? defaultTransition;
         public readonly List<IRResult> ir = [];
@@ -56,6 +58,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
                 {
                     return;
                 }
+                ir.Index = index;
                 array[index++] = ir;
                 foreach (var v in ir.IR!.Values)
                 {

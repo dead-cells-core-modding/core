@@ -11,10 +11,12 @@ using System.Threading.Tasks;
 namespace HashlinkNET.Compiler.Pseudocode.IR
 {
     class IR_LoadLocalReg(
-        HlFuncRegisterData? src
+        HlFuncRegisterData? src,
+        string? assignName = null
         ) : IRBase
     {
         public HlFuncRegisterData? src = src; 
+        public readonly string? assignName= assignName;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             if (src == null)

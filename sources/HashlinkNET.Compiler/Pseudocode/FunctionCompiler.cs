@@ -2,6 +2,7 @@
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Pseudocode.Data;
 using HashlinkNET.Compiler.Pseudocode.Steps;
+using HashlinkNET.Compiler.Pseudocode.Steps.SSA;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,10 @@ namespace HashlinkNET.Compiler.Pseudocode
             AddStep<SplitBasicBlocksStep>();
 
             AddStep<ParseOpCodesStep>();
+
+            //AddStep<GenerateFlatIRStep>();
+            //AddStep<SSAScanRegistersAccessStep>();
+            //AddStep<SSAOptimizeStep>();
 
             AddStep<EmitILStep>();
             AddStep<OptimizeILStep>();

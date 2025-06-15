@@ -23,6 +23,10 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         {
             get;
         } = [];
+        public Dictionary<int, List<string>> Assigns
+        {
+            get;
+        } = [];
         public List<HlFuncRegisterData?> Registers
         {
             get;
