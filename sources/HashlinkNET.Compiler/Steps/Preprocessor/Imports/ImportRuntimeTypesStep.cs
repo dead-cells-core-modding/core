@@ -44,9 +44,17 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
 
             rdata.bytesType = ImportType<nint>();
             rdata.refType = module.ImportReference(typeof(Ref<>));
-            rdata.nativeArray = ImportType<HashlinkArray>();
+            if (!gdata.Config.GeneratePseudocode)
+            {
+                rdata.nativeArray = ImportType<HashlinkArray>();
+            }
+            else
+            {
+                rdata.nativeArray = ImportType<Array>();
+            }
             rdata.enumType = module.ImportReference(typeof(HaxeEnum<,>));
             rdata.virtualType = ImportType<HaxeVirtual>();
+            rdata.objectBaseType = ImportType<HaxeObject>();
             rdata.dynType = ImportType<ExpandoObject>();
 
 
@@ -80,6 +88,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.hGetProxy = ImportHelperMethod(nameof(HaxeProxyHelper.GetProxy));
             rdata.hGetNullableProxy = ImportHelperMethod(nameof(HaxeProxyHelper.GetNullableProxy));
             rdata.hCreateEnumInstance = ImportHelperMethod(nameof(HaxeProxyHelper.CreateEnumInstance));
+            rdata.hGetEnumIndex = ImportMethod(typeof(HaxeEnum), "get_RawIndex");
 
             rdata.hAddHook = ImportHelperMethod(nameof(HaxeProxyHelper.AddHook));
             rdata.hRemoveHook = ImportHelperMethod(nameof(HaxeProxyHelper.RemoveHook));

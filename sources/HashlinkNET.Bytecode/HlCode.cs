@@ -142,6 +142,8 @@ public sealed class HlCode
         return Functions[idx];
     }
 
+  
+
     /// <summary>
     ///     Retrieves a type from this binary file.
     /// </summary>

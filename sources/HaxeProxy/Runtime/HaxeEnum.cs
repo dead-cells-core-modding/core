@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HaxeProxy.Runtime
 {
-    public abstract class HaxeEnum<TEnum, TIndex> : HaxeEnum where TIndex : struct 
+    public abstract class HaxeEnum<TEnum, TIndex> : HaxeEnum where TIndex : struct, Enum
         where TEnum : HaxeEnum<TEnum, TIndex>
     {
 
@@ -20,7 +20,7 @@ namespace HaxeProxy.Runtime
                 itemTypes.Add(Enum.Parse<TIndex>(v, true), it);
             }
         }
-
+        public override int RawIndex => (int)(object)Index;
         public abstract TIndex Index
         {
             get;
@@ -52,11 +52,16 @@ namespace HaxeProxy.Runtime
             return Index.ToString() ?? "";
         }
     }
-    public class HaxeEnum : HaxeProxyBase
+    public abstract class HaxeEnum : HaxeProxyBase
     {
         protected HaxeEnum( ) : base(null!)
         {
             throw new InvalidProgramException();
+        }
+
+        public abstract int RawIndex
+        {
+            get;
         }
 
         public static bool operator ==( HaxeEnum? left, HaxeEnum? right )

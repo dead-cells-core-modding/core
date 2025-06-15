@@ -62,7 +62,19 @@ namespace HaxeProxy.Runtime
                 )!;
             return result.AsHaxe<T>();
         }
-
+        public T AsObject<T>() where T : HaxeObject
+        {
+            if (this is T result)
+            {
+                return result;
+            }
+            if (this is HaxeVirtual)
+            {
+                return ((HashlinkVirtual)HashlinkObj).GetValue()?.AsHaxe<T>() 
+                    ?? throw new InvalidCastException();
+            }
+            throw new InvalidCastException();
+        }
         T IExtraData.GetOrCreateData<T>( Func<HashlinkObj, object> factory ) where T : class
         {
             return ((IExtraData)HashlinkObj).GetOrCreateData<T>(factory);

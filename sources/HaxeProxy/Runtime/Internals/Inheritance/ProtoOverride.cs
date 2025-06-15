@@ -36,12 +36,6 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
             virtualRouter = new("<VirtualRouter>+" + vmethod.GetID(),
                 vmethod.ReturnType, ptypes);
 
-            if (ptypes.Length == 4 ||
-                ptypes.Length == 5)
-            {
-                Debugger.Break();
-            }
-
             {
                 var ilp = virtualRouter.GetILGenerator();
 

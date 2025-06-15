@@ -16,7 +16,6 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
     {
         public MethodReference method = method;
         public readonly IRResult[] args = args;
-        public override bool HasSideEffects => true;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             foreach (var v in args)

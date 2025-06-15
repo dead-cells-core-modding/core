@@ -8,17 +8,12 @@ using System.Threading.Tasks;
 
 namespace HaxeProxy.Runtime
 {
-    public class HaxeVirtual : HaxeProxyBase
+    public class HaxeObject : HaxeProxyBase
     {
         //Never call
-        internal HaxeVirtual( HashlinkObj obj ) : base(obj)
+        private HaxeObject( HashlinkObj obj ) : base(obj)
         {
             throw new InvalidProgramException();
-        }
-
-        public new T AsObject<T>() where T : HaxeObject
-        {
-            return ((HashlinkVirtual)HashlinkObj).GetValue()?.AsHaxe<T>() ?? throw new InvalidCastException();
         }
     }
 }

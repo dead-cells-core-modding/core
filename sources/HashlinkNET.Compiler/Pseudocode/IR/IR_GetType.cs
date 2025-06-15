@@ -13,8 +13,6 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         ) : IRBase
     {
         public TypeReference type = type;
-        public override bool IgnoreSideEffects => true;
-        public override bool IsConstantCost => true;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             il.Emit(OpCodes.Ldtoken, type);

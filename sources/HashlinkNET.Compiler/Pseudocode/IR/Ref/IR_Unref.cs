@@ -18,6 +18,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Ref
         public readonly TypeReference itemType = type;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
+            src.Emit(ctx, true);
             il.Emit(OpCodes.Ldobj, itemType);
             return itemType;
         }

@@ -34,7 +34,7 @@ namespace HashlinkNET.Compiler.Steps.Class
             }
             else
             {
-                baseType = rdata.objBaseType;
+                baseType = rdata.objectBaseType;
             }
             td.BaseType = baseType;
         }

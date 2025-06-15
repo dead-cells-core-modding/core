@@ -10,9 +10,6 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
 {
     abstract class IRBase( params IRResult?[] values )
     {
-        public virtual bool HasSideEffects => false;
-        public virtual bool IgnoreSideEffects => false;
-        public virtual bool IsConstantCost => false;
         public IRResult?[] Values
         {
             get;

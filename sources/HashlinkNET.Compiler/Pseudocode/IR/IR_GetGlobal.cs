@@ -14,7 +14,6 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         ) : IRBase
     {
         public IGlobalValue globalValue = globalValue;
-        public override bool IsConstantCost => true;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             if (globalValue.GlobalClassProp is not null)

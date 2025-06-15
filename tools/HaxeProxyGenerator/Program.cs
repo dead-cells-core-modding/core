@@ -14,7 +14,7 @@ var config = new CompileConfig()
 };
 
 #if DEBUG
-config.AllowParalle = false;
+config.AllowParalle = true;
 config.GeneratePseudocode = true;
 #endif
 

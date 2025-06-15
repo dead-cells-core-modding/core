@@ -16,9 +16,6 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Ref
         ) : IRBase
     {
         public HlFuncRegisterData reg = reg;
-
-        public override bool HasSideEffects => true;
-        public override bool IsConstantCost => true;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             if (reg.Kind == HlFuncRegisterData.RegisterKind.Parameter)

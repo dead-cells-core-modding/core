@@ -129,6 +129,7 @@ namespace HaxeProxy.Runtime.Internals
             {
                 return val;
             }
+
             if (typeof(T).IsAssignableTo(typeof(Delegate)))
             {
                 if (val is Delegate d)

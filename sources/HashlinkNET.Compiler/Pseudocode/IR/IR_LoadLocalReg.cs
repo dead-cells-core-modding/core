@@ -15,7 +15,6 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         ) : IRBase
     {
         public HlFuncRegisterData? src = src; 
-        public override bool IgnoreSideEffects => true;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             if (src == null)

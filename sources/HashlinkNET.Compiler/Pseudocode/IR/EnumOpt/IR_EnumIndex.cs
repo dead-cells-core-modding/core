@@ -15,7 +15,9 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.EnumOpt
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, 
             ILProcessor il )
         {
-            throw new NotImplementedException();
+            input.Emit(ctx, true);
+            il.Emit(OpCodes.Call, ctx.RuntimeImports.hGetEnumIndex);
+            return ctx.TypeSystem.Int32;
         }
     }
 }

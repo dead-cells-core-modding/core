@@ -61,14 +61,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     }
                 }
             }
-            if (regs.Count >= 2)
-            {
-                if (regs[0]?.Kind == HlFuncRegisterData.RegisterKind.Parameter &&
-                    regs[1]?.Kind == HlFuncRegisterData.RegisterKind.Parameter)
-                {
-                    Debug.Assert(regs[0]?.Parameter!.Index != regs[1]?.Parameter!.Index);
-                }
-            }
+           
         }
     }
 }

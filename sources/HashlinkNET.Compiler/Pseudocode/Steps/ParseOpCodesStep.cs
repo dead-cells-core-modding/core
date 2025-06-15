@@ -10,6 +10,7 @@ using HashlinkNET.Compiler.Pseudocode.IR.Closure;
 using HashlinkNET.Compiler.Pseudocode.IR.DynObj;
 using HashlinkNET.Compiler.Pseudocode.IR.EnumOpt;
 using HashlinkNET.Compiler.Pseudocode.IR.FlowControl;
+using HashlinkNET.Compiler.Pseudocode.IR.Mem;
 using HashlinkNET.Compiler.Pseudocode.IR.Object;
 using HashlinkNET.Compiler.Pseudocode.IR.Opterators;
 using HashlinkNET.Compiler.Pseudocode.IR.Ref;
@@ -30,12 +31,14 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
     {
         private GlobalData gdata2 = null!;
         private FuncEmitGlobalData gdata = null!;
+        private TypeSystem typeSystem = null!;
         private IDataContainer container = null!;
         public override void Execute( IDataContainer container )
         {
             this.container = container;
             gdata = container.GetGlobalData<FuncEmitGlobalData>();
             gdata2 = container.GetGlobalData<GlobalData>();
+            typeSystem = gdata2.Module.TypeSystem;
             var f = gdata.Function;
 
             var bb = gdata.IRBasicBlocks;
@@ -332,7 +335,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 {
                     src = new IR_Unref(
                         CreateLoadLocalReg(code.Parameters[1]),
-                        gdata.Registers[code.Parameters[0]]!.RegisterType
+                        GetLocalRegType(code.Parameters[0])
                         );
                 }
                 else if (c == HlOpcodeKind.DynGet)
@@ -345,7 +348,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     c == HlOpcodeKind.ToDyn ||
                         c == HlOpcodeKind.ToInt ||
                         c == HlOpcodeKind.ToSFloat ||
-                        c == HlOpcodeKind.ToUFloat)
+                        c == HlOpcodeKind.ToUFloat ||
+                        c == HlOpcodeKind.ToVirtual)
                 {
                     src = new IR_Cast(
                         CreateLoadLocalReg(code.Parameters[1]),
@@ -364,7 +368,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 else if (c == HlOpcodeKind.VirtualClosure)
                 {
                     src = new IR_CreateClosure(
-                        GetMethodProto((TypeDefinition) GetLocalRegType(code.Parameters[1]), code.Parameters[2]),
+                        GetMethodProto((TypeDefinition)GetLocalRegType(code.Parameters[1]), code.Parameters[2]),
                         GetLocalRegType(code.Parameters[0]),
                         true,
                         CreateLoadLocalReg(code.Parameters[1])
@@ -381,6 +385,11 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                             false,
                             new IR_LoadConst(null)
                             );
+                    }
+                    else
+                    {
+                        var native = hlc.Natives[hlc.FunctionIndexes[code.Parameters[1]] - hlc.Functions.Count];
+                        src = new IR_GetNative(native);
                     }
                 }
                 else if (c == HlOpcodeKind.MakeEnum)
@@ -400,13 +409,13 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 else if (c == HlOpcodeKind.EnumAlloc)
                 {
                     var ctor = container.GetData<EnumClassData>(
-                            gdata.Registers[code.Parameters[0]]!.RegisterType
+                        GetLocalRegType(code.Parameters[0])
                             ).ItemTypes[code.Parameters[1]];
                     src = new IR_New(ctor);
                 }
                 else if (c == HlOpcodeKind.EnumIndex)
                 {
-
+                    src = new IR_EnumIndex(CreateLoadLocalReg(code.Parameters[1]));
                 }
                 else if (c == HlOpcodeKind.EnumField)
                 {
@@ -418,8 +427,21 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                             .Properties[code.Parameters[3]]
                             );
                 }
-
-
+                else if (c == HlOpcodeKind.GetMem ||
+                    c == HlOpcodeKind.GetI8 ||
+                    c == HlOpcodeKind.GetI16)
+                {
+                    src = new IR_GetMem(
+                        CreateLoadLocalReg(code.Parameters[2]),
+                        CreateLoadLocalReg(code.Parameters[1]),
+                        c switch
+                        {
+                            HlOpcodeKind.GetI8 => typeSystem.Byte,
+                            HlOpcodeKind.GetI16 => typeSystem.Int16,
+                            _ => GetLocalRegType(code.Parameters[0])
+                        }
+                        );
+                }
 
                 if (src != null)
                 {
@@ -436,6 +458,16 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             else if (c == HlOpcodeKind.SetArray)
             {
                 irbb.AddIR(new IR_SetArrayItem(
+                    CreateLoadLocalReg(code.Parameters[0]),
+                    CreateLoadLocalReg(code.Parameters[1]),
+                    CreateLoadLocalReg(code.Parameters[2])
+                    ));
+            }
+            else if (c == HlOpcodeKind.SetI8 ||
+                c == HlOpcodeKind.SetI16 ||
+                c == HlOpcodeKind.SetMem)
+            {
+                irbb.AddIR(new IR_SetMem(
                     CreateLoadLocalReg(code.Parameters[0]),
                     CreateLoadLocalReg(code.Parameters[1]),
                     CreateLoadLocalReg(code.Parameters[2])
