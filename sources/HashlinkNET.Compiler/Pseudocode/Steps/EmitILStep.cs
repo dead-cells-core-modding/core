@@ -4,6 +4,7 @@ using HashlinkNET.Compiler.Steps;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -20,19 +21,32 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             var rdata = container.GetGlobalData<RuntimeImports>();
             var md = gdata.Definition;
 
-            
+
             md.Body.Instructions.Clear();
             var il = md.Body.GetILProcessor();
             var startInst = Instruction.Create(OpCodes.Nop);
-            il.Append( startInst );
+            il.Append(startInst);
             var endInst = Instruction.Create(OpCodes.Nop);
             var mdsd = md.DebugInformation.Scope = new(startInst, endInst);
             var vds = new ScopeDebugInformation[gdata.Registers.Count];
 
-            for (var i = 0; i < gdata.IRBasicBlocks.Count; i++)
+            Queue<IRBasicBlockData> queue = [];
+            BitArray visited = new(gdata.IRBasicBlocks.Count);
+
+            queue.Enqueue(gdata.IRBasicBlocks[0]);
+
+            while (queue.TryDequeue(out var bb))
             {
-                
-                var bb = gdata.IRBasicBlocks[i];
+                if (visited[bb.index])
+                {
+                    continue;
+                }
+                visited[bb.index] = true;
+
+                foreach (var v in bb.transitions)
+                {
+                    queue.Enqueue(v.Target);
+                }
 
                 il.Emit(OpCodes.Nop);
 
@@ -46,7 +60,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     md.Module,
                     md.Module.TypeSystem,
                     rdata,
-                    container.GetGlobalData<CompileConfig>(), 
+                    container.GetGlobalData<CompileConfig>(),
                     mdsd,
                     il)
                 {
@@ -60,10 +74,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
 
                 if (bb.defaultTransition != null)
                 {
-                    if (bb.defaultTransition.index != i + 1)
-                    {
-                        il.Emit(OpCodes.Br, bb.defaultTransition.startInst);
-                    }
+                    il.Emit(OpCodes.Br, bb.defaultTransition.startInst);
                 }
                 il.Append(bb.endInst);
                 //il.Emit(OpCodes.Ldstr, "======BB End======");

@@ -9,7 +9,11 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
 {
     internal class SSARegisterData
     {
-        public bool IsExposed => reg?.IsExposed ?? false;
+        public bool IsRefExposed => reg?.IsExposed ?? false;
+        public bool IsExposed => IsRefExposed || crossBB;
+        public bool crossBB;
+        public bool isLast;
+        public IRResult overrideValue = new();
         public HlFuncRegisterData? reg;
         public IR_SSA_Save? ir_save;
         public List<IRResult> loadAccess = [];

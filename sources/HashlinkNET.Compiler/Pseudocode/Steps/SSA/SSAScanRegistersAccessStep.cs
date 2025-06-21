@@ -76,12 +76,10 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.SSA
                     var trad = v.registerAccessData!;
                     var old = (BitArray) trad.requireReg.Clone();
                     var req = (BitArray) rad.requireReg.Clone();
-                    req.Not()
-                        .Xor(trad.writeReg)
-                        .Not()
-                        .And(rad.requireReg)
-                        ;
+                    req.And(trad.writeReg.Not());
+                    trad.writeReg.Not();
 
+                    trad.exposedReg.Or(req);
                     trad.requireReg.Or(req);
                     if (old.Xor(trad.requireReg).HasAnySet()) //Not Equal
                     {
@@ -90,6 +88,19 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.SSA
                 }
             }
 
+            foreach (var v in gdata.IRBasicBlocks)
+            {
+                var rad = v.registerAccessData!;
+                foreach (var sr in rad.ssaRegisters)
+                {
+                    if (sr != null &&
+                        sr.reg != null)
+                    {
+                        sr.isLast = true;
+                        sr.crossBB = rad.exposedReg[sr.reg.Index];
+                    }
+                }
+            }
         }
     }
 }

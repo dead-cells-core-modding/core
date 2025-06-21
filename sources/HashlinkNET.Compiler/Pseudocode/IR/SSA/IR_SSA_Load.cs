@@ -24,6 +24,10 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.SSA
             {
                 return Value.Emit(ctx, true);
             }
+            if (!src.overrideValue.IsNone)
+            {
+                return src.overrideValue.Emit(ctx, true);
+            }
 
             var reg = src.reg;
             if (reg == null)

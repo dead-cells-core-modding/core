@@ -1,4 +1,5 @@
 ﻿using HashlinkNET.Compiler.Pseudocode.Data;
+using HashlinkNET.Compiler.Pseudocode.IR;
 using HashlinkNET.Compiler.Pseudocode.IR.SSA;
 using HashlinkNET.Compiler.Steps;
 using System;
@@ -23,13 +24,18 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.SSA
             foreach (var bb in bbs)
             {
                 var ss = new Stack<LocalRegAccessScope>();
-                for (var i = bb.ir.Count - (1); i >= 0; i--)
+                foreach (var ir in bb.flatIR!)
                 {
-                    var irr = bb.ir[i];
-                    var ir = irr.IR;
-                    if (ir is IR_SSA_Load sl)
+                    if (ir.IR is IR_SSA_Save sa)
                     {
-                        
+                        if (sa.dst.IsRefExposed)
+                        {
+                            continue;
+                        }
+                        if (sa.value.IR is IR_LoadConst lc)
+                        {
+                            sa.dst.overrideValue = lc;
+                        }
                     }
                 }
             }
