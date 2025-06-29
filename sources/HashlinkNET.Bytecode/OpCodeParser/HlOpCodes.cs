@@ -723,7 +723,7 @@ namespace HashlinkNET.Bytecode.OpCodeParser
               HlOpCode.PayloadKind.Register | HlOpCode.PayloadKind.StoreResult,
               HlOpCode.PayloadKind.Register | HlOpCode.PayloadKind.TypeProvider,
               HlOpCode.PayloadKind.Impl,
-              HlOpCode.PayloadKind.EnumFieldIndex
+              HlOpCode.PayloadKind.EnumFieldIndex | HlOpCode.PayloadKind.ExtraParamPointer
           ]
           );
         public readonly static HlOpCode OSetEnumField = new(

@@ -1,6 +1,7 @@
 ﻿using dc.hxbit;
 using HaxeProxy.Runtime;
 using MonoMod.Utils;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -13,8 +14,9 @@ namespace ModCore.Serialization
 {
     internal record class DeserializeContext( Serializer Serializer )
     {
-        private static readonly Dictionary<System.Type, FastReflectionHelper.FastInvoker> setDataInvoker = [];
+        private static readonly Dictionary<System.Type, SetDataInvokerInfo> setDataInvoker = [];
 
+        public record class SetDataInvokerInfo(FastReflectionHelper.FastInvoker Invoker, Type Data);
         public static DeserializeContext? current;
         public static readonly Stack<DeserializeContext> stack = [];
 
@@ -37,6 +39,11 @@ namespace ModCore.Serialization
                 return;
             }
             current = stack.Pop();
+        }
+
+        public void Begin( JObject obj )
+        {
+            
         }
     }
 }

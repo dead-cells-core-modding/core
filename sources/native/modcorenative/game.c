@@ -130,7 +130,6 @@ EXTERNC EXPORT int hlu_start_game(hl_code* code) {
 	init_trace();
 	hl_event(HL_EV_VM_READY, &ctx);
 
-	hl_code_free(ctx.code);
 	ctx.c.t = ctx.code->functions[ctx.m->functions_indexes[ctx.m->code->entrypoint]].type;
 	ctx.c.fun = ctx.m->functions_ptrs[ctx.m->code->entrypoint];
 	ctx.c.hasValue = 0;

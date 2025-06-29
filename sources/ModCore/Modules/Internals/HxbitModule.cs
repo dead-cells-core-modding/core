@@ -56,6 +56,72 @@ namespace ModCore.Modules.Internals
             Hook_Serializer.beginSave += Hook_Serializer_beginSave;
             Hook_Serializer.endSave += Hook_Serializer_endSave;
             Hook_Serializer.addObjRef += Hook_Serializer_addObjRef;
+
+            Hook_Serializer.beginLoad += Hook_Serializer_beginLoad;
+            Hook_Serializer.endLoad += Hook_Serializer_endLoad;
+        }
+
+        private void Hook_Serializer_endLoad( Hook_Serializer.orig_endLoad orig, Serializer self )
+        {
+            var ctx = DeserializeContext.current;
+            if (ctx == null)
+            {
+                orig(self);
+                return;
+            }
+            if (ctx.Serializer != self)
+            {
+                throw new InvalidOperationException("beginLoad and endLoad are called a mismatch of times");
+            }
+            try
+            {
+                var cur = (byte*)self.input.b + self.inPos;
+                var end = (byte*)self.input.b + self.input.length;
+
+                while (cur < end)
+                {
+                    if (*((ulong*)cur) == MAGIC_NUMBER_EXTRA_DATA)
+                    {
+                        break;
+                    }
+                    cur++;
+                }
+                if (cur == end)
+                {
+                    //No extra data
+                    orig(self);
+                    return;
+                }
+                cur += sizeof(ulong);
+                var ver = (*(int*)cur++);
+                if (ver != CURRENT_VERSION)
+                {
+                    Logger.Warning("Version number mismatch: expected {A} instead of {B}.", CURRENT_VERSION, ver);
+                    Logger.Warning("Skip extra data loading, save data may be corrupted after saving.");
+                    orig(self);
+                    return;
+                }
+                var size = (*(int*)cur++);
+                var json = JObject.FromObject(System.Text.Encoding.UTF8.GetString(cur, size));
+                cur = cur + size;
+
+                self.inPos = (int)((nint) cur - self.input.b);
+
+                ctx.Begin(json);
+
+                orig(self);
+            }
+            finally
+            {
+                DeserializeContext.PopContext();
+            }
+        }
+
+        private void Hook_Serializer_beginLoad( Hook_Serializer.orig_beginLoad orig, Serializer self, 
+            Bytes bytes, Ref<int> position )
+        {
+            DeserializeContext.PushContext(new(self));
+            orig(self, bytes, position);
         }
 
         private JsonSerializerSettings SerializerSettingsFactory()
@@ -104,15 +170,6 @@ namespace ModCore.Modules.Internals
             }
 
             orig(self, s);
-        }
-
-        private void AppendBuffer( BytesBuffer buffer, ReadOnlySpan<byte> bytes )
-        {
-            fixed (byte* ptr = bytes)
-            {
-                var p = ptr;
-                buffer.__add((nint)ptr, 0, bytes.Length);
-            }
         }
 
         private Bytes Hook_Serializer_endSave( Hook_Serializer.orig_endSave orig, Serializer self,

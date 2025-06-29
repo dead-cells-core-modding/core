@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HashlinkNET.Bytecode.OpCodeParser;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,7 +32,7 @@ namespace Hashlink.Patch.Reader
                 1 => cur->p1,
                 2 => cur->p2,
                 3 => cur->p3,
-                > 3 => kind.HasFlag(HlOpCode.PayloadKind.ExtraParamPointer) ? (int)cur->extra : cur->extra[pIndex - 3],
+                > 3 => kind.HasFlag(HlOpCode.PayloadKind.ExtraParamPointer) ? (int)cur->extra : cur->extra[pIndex - 4],
                 _ => throw new ArgumentOutOfRangeException()
             };
             pIndex++;

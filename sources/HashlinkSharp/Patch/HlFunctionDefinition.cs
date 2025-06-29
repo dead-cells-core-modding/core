@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PK = Hashlink.Patch.HlOpCode.PayloadKind;
+using PK = HashlinkNET.Bytecode.OpCodeParser.HlOpCode.PayloadKind;
 using OP = HashlinkNET.Bytecode.HlOpcodeKind;
 using Hashlink.Marshaling;
 using System.Reflection.Emit;
@@ -19,6 +19,7 @@ using Hashlink.UnsafeUtilities;
 using Hashlink.Patch.Writer;
 using Hashlink.Proxy.Objects;
 using System.Collections.Concurrent;
+using HashlinkNET.Bytecode.OpCodeParser;
 
 namespace Hashlink.Patch
 {

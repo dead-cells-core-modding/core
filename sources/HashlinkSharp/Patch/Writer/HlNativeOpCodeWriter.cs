@@ -1,5 +1,6 @@
 ﻿using Hashlink.Patch.Reader;
 using HashlinkNET.Bytecode;
+using HashlinkNET.Bytecode.OpCodeParser;
 using System;
 using System.Collections.Generic;
 using System.Linq;

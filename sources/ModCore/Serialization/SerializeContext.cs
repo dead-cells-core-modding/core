@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,7 +18,8 @@ namespace ModCore.Serialization
 {
     internal record class SerializeContext(Serializer Serializer)
     {
-        private static readonly Dictionary<System.Type, FastReflectionHelper.FastInvoker> getDataInvoker = [];
+        private static readonly Dictionary<System.Type, FastReflectionHelper.FastInvoker[]> 
+            getDataInvoker = [];
 
         public static SerializeContext? current;
         public static readonly Stack<SerializeContext> stack = [];
@@ -58,17 +60,24 @@ namespace ModCore.Serialization
             {
                 dynamic dyn = obj;
                 var type = obj.GetType();
-                if (!getDataInvoker.TryGetValue(type, out var invoker))
+                if (!getDataInvoker.TryGetValue(type, out var invokers))
                 {
-                    invoker = type.GetInterfaces()
-                        .First(i => i.IsGenericType && 
+                    invokers = [.. type.GetInterfaces()
+                        .Where(i => i.IsGenericType &&
                             i.GetGenericTypeDefinition() == typeof(IHxbitSerializable<>))
-                        .GetMethod("GetData")!.GetFastInvoker();
+                        .Select(x => x.GetMethod("GetData")!.GetFastInvoker())];
                 }
-                int uid = dyn.__uid;
-                var data = invoker(obj)!;
-                var json = JObject.FromObject(data);
-                items.Add(uid, new()
+                var uid = dyn.__uid;
+                var json = new JObject();
+                
+                foreach (var v in invokers)
+                {
+                    var data = v(obj)!;
+                    json[data.GetType().AssemblyQualifiedName!] = JObject.FromObject(data);
+                }
+               
+                
+                items.Add(uid, new ItemData()
                 {
                     objType = type,
                     jobject = json
