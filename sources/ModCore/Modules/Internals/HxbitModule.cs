@@ -18,6 +18,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.Hashing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -29,8 +30,8 @@ namespace ModCore.Modules.Internals
     internal unsafe class HxbitModule : CoreModule<HxbitModule>,
         IOnAdvancedModuleInitializing
     {
-        public const ulong MAGIC_NUMBER_EXTRA_DATA = 0x004443434D435344;
-        public static readonly int CURRENT_VERSION = 1;
+        public const ulong MAGIC_NUMBER_EXTRA_DATA = 0x004443434D435300;
+        public static readonly int CURRENT_VERSION = 3;
 
         private Class? Hook_resolveClass( Func<dc.String, Class?> orig, dc.String str )
         {
@@ -64,36 +65,25 @@ namespace ModCore.Modules.Internals
         private void Hook_Serializer_endLoad( Hook_Serializer.orig_endLoad orig, Serializer self )
         {
             var ctx = DeserializeContext.current;
-            if (ctx == null)
+            if (ctx == null ||
+                ctx.Serializer != self)
             {
                 orig(self);
                 return;
-            }
-            if (ctx.Serializer != self)
-            {
-                throw new InvalidOperationException("beginLoad and endLoad are called a mismatch of times");
             }
             try
             {
                 var cur = (byte*)self.input.b + self.inPos;
                 var end = (byte*)self.input.b + self.input.length;
 
-                while (cur < end)
-                {
-                    if (*((ulong*)cur) == MAGIC_NUMBER_EXTRA_DATA)
-                    {
-                        break;
-                    }
-                    cur++;
-                }
-                if (cur == end)
+                if (*((ulong*)cur) != MAGIC_NUMBER_EXTRA_DATA)
                 {
                     //No extra data
                     orig(self);
                     return;
                 }
                 cur += sizeof(ulong);
-                var ver = (*(int*)cur++);
+                var ver = Read<int>(ref cur);
                 if (ver != CURRENT_VERSION)
                 {
                     Logger.Warning("Version number mismatch: expected {A} instead of {B}.", CURRENT_VERSION, ver);
@@ -101,13 +91,27 @@ namespace ModCore.Modules.Internals
                     orig(self);
                     return;
                 }
-                var size = (*(int*)cur++);
-                var json = JObject.FromObject(System.Text.Encoding.UTF8.GetString(cur, size));
+                var size = Read<int>(ref cur) - 16;
+                var str = System.Text.Encoding.UTF8.GetString(cur, size);
+                var data = JsonConvert.DeserializeObject<SerializeContext.Data>(
+                    str
+                    );
+
+                Debug.Assert(data != null);
+
                 cur = cur + size;
 
-                self.inPos = (int)((nint) cur - self.input.b);
+                var checksum = Crc64.HashToUInt64(new ReadOnlySpan<byte>(
+                    cur, data.extraHxObjSize
+                ));
+                if (checksum != data.extraHxObjChecksum)
+                {
+                    throw new InvalidOperationException("Save is corrupted.");
+                }
 
-                ctx.Begin(json);
+                self.setInput(new((nint)cur, data.extraHxObjSize), 0);
+
+                ctx.Begin(data);
 
                 orig(self);
             }
@@ -171,24 +175,33 @@ namespace ModCore.Modules.Internals
 
             orig(self, s);
         }
+        private static void Write<T>( ref byte* ptr, T value ) where T : unmanaged
+        {
+            *(T*)ptr = value;
+            ptr += sizeof(T);
+        }
+        private static T Read<T>( ref byte* ptr ) where T : unmanaged
+        {
+            var result = *(T*)ptr;
+            ptr += sizeof(T);
+            return result;
+        }
 
         private Bytes Hook_Serializer_endSave( Hook_Serializer.orig_endSave orig, Serializer self,
             Ref<int> savePosition )
         {
             var ctx = SerializeContext.current;
-            if (ctx == null)
+            if (ctx == null ||
+                ctx.Serializer != self)
             {
                 return orig(self, savePosition);
-            }
-            if (ctx.Serializer != self)
-            {
-                throw new InvalidOperationException("beginSave and endSave are called a mismatch of times");
             }
             try
             {
                 if (ctx.HasData)
                 {
                     var prev = self.@out;
+                    ctx.hxbitBuffer.pos = 0;
                     self.@out = ctx.hxbitBuffer;
 
                     ctx.SerializeData();
@@ -206,14 +219,15 @@ namespace ModCore.Modules.Internals
                     fixed (byte* ptr = buf)
                     {
                         var p = ptr;
-                        *((ulong*)p++) = MAGIC_NUMBER_EXTRA_DATA;
-                        *((int*)p++) = CURRENT_VERSION;
-                        *((int*)p++) = buf.Length;
+                        Write(ref p, MAGIC_NUMBER_EXTRA_DATA);
+                        Write(ref p, CURRENT_VERSION);
+                        Write(ref p, buf.Length);
+
                         System.Text.Encoding.UTF8.GetBytes(str, new Span<byte>(p, buf.Length));
 
                         buffer.__add((nint)ptr, 0, buf.Length);
                     }
-                    buffer.__add(ctx.hxbitBuffer.b, 0, ctx.hxbitBuffer.size);
+                    buffer.__add(ctx.hxbitBuffer.b, 0, ctx.hxbitBuffer.pos);
 
                     return buffer.getBytes();
                 }

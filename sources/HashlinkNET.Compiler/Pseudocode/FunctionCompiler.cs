@@ -25,7 +25,6 @@ namespace HashlinkNET.Compiler.Pseudocode
 
             AddStep<GenerateFlatIRStep>();
             AddStep<SSAScanRegistersAccessStep>();
-            AddStep<SSAOptimizeStep>();
 
             AddStep<EmitILStep>();
             AddStep<OptimizeILStep>();

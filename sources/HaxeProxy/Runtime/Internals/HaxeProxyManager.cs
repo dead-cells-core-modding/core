@@ -56,7 +56,7 @@ namespace HaxeProxy.Runtime.Internals
             obj.MarkStateful();
             InheritanceManager.Check(type, (HashlinkObjectType)obj.Type, out var cht);
             *(nint*)obj.HashlinkPointer = (nint)cht.nativeType;
-            obj.RefreshTypeInfo(cht.nativeType);
+            obj.RefreshTypeInfo(cht.nativeType, false);
         }
         public static HaxeProxyBase CreateProxy( HashlinkObj obj )
         {

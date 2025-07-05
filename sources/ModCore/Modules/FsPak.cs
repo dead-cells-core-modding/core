@@ -1,4 +1,6 @@
-﻿using dc.ui;
+﻿using dc;
+using dc.tool.mod;
+using dc.ui;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
@@ -24,6 +26,14 @@ namespace ModCore.Modules
         {
             dc.hxd.fmt.pak.Hook_Reader.readHeader += Hook_Reader_readHeader1;
             dc.hxd.fmt.pak.Hook_FileSystem.loadPak += Hook_FileSystem_loadPak1;
+            Hook__Assets.init += Hook__Assets_init;
+        }
+
+        private bool Hook__Assets_init( Hook__Assets.orig_init orig )
+        {
+            var result = orig();
+            CDBManager.Class.instance.getAlteredCDB();
+            return result;
         }
 
         private void Hook_FileSystem_loadPak1( dc.hxd.fmt.pak.Hook_FileSystem.orig_loadPak orig, 

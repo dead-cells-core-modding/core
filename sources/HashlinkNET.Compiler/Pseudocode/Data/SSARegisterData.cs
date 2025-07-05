@@ -1,4 +1,4 @@
-﻿using HashlinkNET.Compiler.Pseudocode.IR.SSA;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         public bool isLast;
         public IRResult overrideValue = new();
         public HlFuncRegisterData? reg;
-        public IR_SSA_Save? ir_save;
+
         public List<IRResult> loadAccess = [];
     }
 }

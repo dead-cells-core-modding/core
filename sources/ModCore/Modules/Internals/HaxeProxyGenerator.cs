@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime;
 using System.Runtime.Loader;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ namespace ModCore.Modules.Internals
             pseudoCache.UpdateMetadata("code", data);
             pseudoCache.UpdateMetadata("version", GetType().Assembly.GetName().Version?.ToString() ?? "None");
             pseudoCache.UpdateMetadata("enabled", Core.Config.Value.GeneratePseudocodeAssembly.ToString());
+
 
             if (Core.Config.Value.GeneratePseudocodeAssembly &&
                 !pseudoCache.IsValid)

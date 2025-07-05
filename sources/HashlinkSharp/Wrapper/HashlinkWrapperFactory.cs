@@ -23,6 +23,10 @@ namespace Hashlink.Wrapper
             .GetMethod(nameof(WrapperHelper.AsPointer))!;
         private static readonly MethodInfo MI_WrapperHelper_GetObjectFromPtr = typeof(WrapperHelper)
             .GetMethod(nameof(WrapperHelper.GetObjectFromPtr))!;
+        private static readonly MethodInfo MI_WrapperHelper_InitErrorHandler = typeof(WrapperHelper)
+            .GetMethod(nameof(WrapperHelper.InitErrorHandler))!;
+        private static readonly MethodInfo MI_WrapperHelper_UnInitErrorHandler = typeof(WrapperHelper)
+           .GetMethod(nameof(WrapperHelper.UnInitErrorHandler))!;
 
         private static Type GetNativeType( TypeKind kind )
         {
@@ -57,10 +61,12 @@ namespace Hashlink.Wrapper
 
             targs[0] = typeof(WrapperInfo);
 
-            var dm = new DynamicMethod("<Wrapper>+" + func.ToString(),
+            var dm = new DynamicMethod("cs_to_hl+" + func.ToString(),
                 GetManageType(func.ReturnType.TypeKind),
                 targs);
             var ilg = dm.GetILGenerator();
+
+            var loc_eh = ilg.DeclareLocal(typeof(WrapperHelper.ErrorHandle));
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -94,8 +100,14 @@ namespace Hashlink.Wrapper
             ilg.Emit(OpCodes.Ldarg_0);
             ilg.Emit(OpCodes.Ldfld, FI_wrapperInfo_target);
 
+            ilg.Emit(OpCodes.Ldloca, loc_eh);
+            ilg.Emit(OpCodes.Call, MI_WrapperHelper_InitErrorHandler);
+
             ilg.EmitCalli(OpCodes.Calli, System.Runtime.InteropServices.CallingConvention.Cdecl,
                 GetNativeType(func.ReturnType.TypeKind), dargs);
+
+            ilg.Emit(OpCodes.Ldloca, loc_eh);
+            ilg.Emit(OpCodes.Call, MI_WrapperHelper_UnInitErrorHandler);
 
             if (objRefs != null)
             {

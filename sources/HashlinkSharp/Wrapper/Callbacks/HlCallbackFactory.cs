@@ -65,12 +65,12 @@ namespace Hashlink.Wrapper.Callbacks
                 targs[i + 1] = GetNativeType(args[i].TypeKind);
             }
 
-            var md = new DynamicMethod("hl_router+" + sign.ToString(),
+            var dm = new DynamicMethod("hl_to_cs+" + sign.ToString(),
                 GetNativeType(sign.ReturnType.TypeKind), targs, true);
 
-            var ilg = md.GetILGenerator();
+            var ilg = dm.GetILGenerator();
 
-            var resultLoc = md.ReturnType == typeof(void) ? null : ilg.DeclareLocal(md.ReturnType);
+            var resultLoc = dm.ReturnType == typeof(void) ? null : ilg.DeclareLocal(dm.ReturnType);
             var endOfMethod = ilg.DefineLabel();
 
             ilg.Emit(OpCodes.Ldarg_0);
@@ -88,7 +88,7 @@ namespace Hashlink.Wrapper.Callbacks
             ilg.Emit(OpCodes.Ldfld, FI_hlrouterinfo_directRoute);
 
             ilg.Emit(OpCodes.Tailcall);
-            ilg.EmitCalli(OpCodes.Calli, CallingConvention.Cdecl, md.ReturnType, targs[1..]);
+            ilg.EmitCalli(OpCodes.Calli, CallingConvention.Cdecl, dm.ReturnType, targs[1..]);
             ilg.Emit(OpCodes.Ret);
 
             ilg.Emit(OpCodes.Nop);
@@ -177,7 +177,7 @@ namespace Hashlink.Wrapper.Callbacks
             }
             ilg.Emit(OpCodes.Ret);
 
-            return md;
+            return dm;
         }
 
         public static HlCallback GetHlCallback( HashlinkFuncType sign )

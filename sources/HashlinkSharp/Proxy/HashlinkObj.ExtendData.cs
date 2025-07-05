@@ -13,6 +13,11 @@ namespace Hashlink.Proxy
         private object? extendData;
         private readonly ReaderWriterLockSlim dataLock = new();
 
+        private void ClearExtraData()
+        {
+            extendData = null;
+        }
+
         T IExtraData.GetOrCreateData<T>( Func<HashlinkObj, object> factory )
         {
             

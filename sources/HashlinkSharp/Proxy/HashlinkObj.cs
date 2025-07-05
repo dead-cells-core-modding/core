@@ -9,10 +9,14 @@ namespace Hashlink.Proxy
     {
         [MemberNotNull(nameof(nativeType))]
         [MemberNotNull(nameof(type))]
-        internal void RefreshTypeInfo(HL_type* ptr)
+        internal void RefreshTypeInfo( HL_type* ptr, bool clearExtraData )
         {
             nativeType = ptr;
             type = HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(nativeType);
+            if (clearExtraData)
+            {
+                ClearExtraData();
+            }
         }
       
         public HashlinkObj( HashlinkObjPtr objPtr )

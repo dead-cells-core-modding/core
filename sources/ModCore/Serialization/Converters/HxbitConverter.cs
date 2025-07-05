@@ -1,6 +1,7 @@
 ﻿using Hashlink.Virtuals;
 using HaxeProxy.Runtime;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,19 +16,16 @@ namespace ModCore.Serialization.Converters
             HaxeObject? existingValue, bool hasExistingValue, JsonSerializer serializer )
         {
             var ctx = DeserializeContext.current ?? throw new InvalidOperationException();
-            reader.Read();
-            if (reader.TokenType == JsonToken.Null)
+            var token = JToken.ReadFrom( reader );
+            if (token == null ||
+                token is JValue and { Type: JTokenType.Null })
             {
                 return null;
             }
-            if (reader.TokenType != JsonToken.StartObject ||
-                reader.ReadAsString() != "uid")
-            {
+
+            var uid = token["uid"]?.Value<int>() ??
                 throw new InvalidOperationException();
-            }
-            var uid = reader.ReadAsInt32() ??
-                throw new InvalidOperationException();
-            reader.Read();
+
             var obj = ctx.hxbitObjects[uid];
             return obj;
         }

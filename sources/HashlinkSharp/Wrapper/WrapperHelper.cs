@@ -16,6 +16,13 @@ namespace Hashlink.Wrapper
 {
     internal unsafe class WrapperHelper
     {
+        public struct ErrorHandle
+        {
+            public HL_trap_ctx trap_ctx;
+            public nint ebp;
+            public nint esp;
+
+        }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowNetException( Exception ex )
         {
@@ -65,6 +72,32 @@ namespace Hashlink.Wrapper
             nint result = 0;
             HashlinkMarshal.WriteData(&result, obj, type);
             return result;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void InitErrorHandler(ref ErrorHandle handle)
+        {
+            var ti = hl_get_thread();
+            if (ti == null)
+            {
+                return;
+            }
+            handle.trap_ctx.prev = ti->trap_current;
+            handle.trap_ctx.tcheck = (HL_vdynamic*)0x4e455445;
+
+            //ti->trap_current = (HL_trap_ctx*) Unsafe.AsPointer(ref handle.trap_ctx);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void UnInitErrorHandler(ref ErrorHandle handle)
+        {
+            var ti = hl_get_thread();
+            if (ti == null)
+            {
+                return;
+            }
+            if (ti->trap_current == (HL_trap_ctx*)Unsafe.AsPointer(ref handle.trap_ctx))
+            {
+                ti->trap_current = handle.trap_ctx.prev;
+            }
         }
     }
 }

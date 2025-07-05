@@ -25,7 +25,7 @@ namespace ModCore.Storage
                platform_name + "-" + cpu_name);
 
         public static FolderInfo GameRoot { get; } = new("GAME_ROOT", "{CORE_ROOT}../");
-
+        public static FolderInfo SaveRoot { get; } = new("SAVE_ROOT", "{GAME_ROOT}/save");
         public static FolderInfo Logs { get; } = new("CORE_LOGS", "{CORE_ROOT}/logs");
         public static FolderInfo Config { get; } = new("CORE_CONFIG", "{CORE_ROOT}/config");
         public static FolderInfo Cache { get; } = new("CORE_CACHE", "{CORE_ROOT}/cache");

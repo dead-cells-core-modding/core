@@ -1,6 +1,5 @@
 ﻿using HashlinkNET.Compiler.Pseudocode.Data;
 using HashlinkNET.Compiler.Pseudocode.IR;
-using HashlinkNET.Compiler.Pseudocode.IR.SSA;
 using HashlinkNET.Compiler.Steps;
 using System;
 using System.Collections;
@@ -32,7 +31,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.SSA
                         {
                             reg = lcr.src
                         };
-                        ir.IR = new IR_SSA_Load(ssaReg);
+
                         ssaReg.loadAccess.Add(ir);
 
                         if (!rad.firstWriteReg[index])
@@ -50,9 +49,6 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.SSA
                         {
                             reg = slr.dst
                         };
-
-
-                        ir.IR = ssaReg.ir_save = new IR_SSA_Save(ssaReg, slr.src, slr.assign);
 
 
                         if (!rad.firstReadReg[index])

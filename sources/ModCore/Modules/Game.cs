@@ -1,6 +1,7 @@
 ﻿using dc;
 using dc.en;
 using dc.pr;
+using dc.spine;
 using dc.tool;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
@@ -12,6 +13,7 @@ using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Game.Hero;
+using ModCore.Events.Interfaces.Game.Save;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Utitities;
 using System;
@@ -30,32 +32,28 @@ namespace ModCore.Modules
         IOnAdvancedModuleInitializing
     {
         public override int Priority => ModulePriorities.Game;
-        private bool Hook_ServerApi_canSaveScore( HashlinkClosure orig, HashlinkObject self )
-        {
-            return false;
-        }
         public Hero? HeroInstance
         {
             get; private set;
         }
 
-        private void Hook_Boot_main( HashlinkClosure orig )
-        {
-            EventSystem.BroadcastEvent<IOnBeforeGameInit>();
-            orig.DynamicInvoke();
-        }
         void IOnBeforeGameInit.OnBeforeGameInit()
         {
             Hook_Hero.init += Hook_Hero_init;
             Hook_Hero.dispose += Hook_Hero_dispose;
             Hook_TitleScreen.addMenu += Hook_TitleScreen_addMenu;
 
-            HashlinkHooks.Instance.CreateHook("tool.$ServerApi", "canSaveScore", Hook_ServerApi_canSaveScore).Enable();
+            Hook__ServerApi.canSaveScore += Hook__ServerApi_canSaveScore;
 
             if (Core.Config.Value.SkipLogoSplash)
             {
                 Hook_LogoSplashscreen.update += Hook_LogoSplashscreen_update;
             }
+        }
+
+        private bool Hook__ServerApi_canSaveScore( Hook__ServerApi.orig_canSaveScore orig )
+        {
+            return false;
         }
 
         private void Hook_LogoSplashscreen_update( Hook_LogoSplashscreen.orig_update orig, LogoSplashscreen self )
@@ -114,10 +112,48 @@ namespace ModCore.Modules
 
         void IOnAdvancedModuleInitializing.OnAdvancedModuleInitializing()
         {
-            HashlinkHooks.Instance.CreateHook("$Boot", "main", Hook_Boot_main).Enable();
+            Hook__Boot.main += Hook__Boot_main;
             Hook_Boot.init += Hook_Boot_init1;
             Hook_Boot.endInit += Hook_Boot_endInit1;
             Hook_Boot.update += Hook_Boot_update1;
+
+            Hook__Save.delete += Hook__Save_delete;
+            Hook__Save.copy += Hook__Save_copy;
+            Hook__Save.tryLoad += Hook__Save_tryLoad;
+            Hook__Save.save += Hook__Save_save;
+        }
+
+        private void Hook__Save_save( Hook__Save.orig_save orig, User u, bool onlyGameData )
+        {
+            EventSystem.BroadcastEvent<IOnBeforeSavingSave, IOnBeforeSavingSave.EventData>(new(u, onlyGameData));
+            orig(u, onlyGameData);
+            EventSystem.BroadcastEvent<IOnAfterSavingSave>();
+        }
+
+        private User Hook__Save_tryLoad( Hook__Save.orig_tryLoad orig )
+        {
+            EventSystem.BroadcastEvent<IOnBeforeLoadingSave>();
+            var data = orig();
+            EventSystem.BroadcastEvent<IOnAfterLoadingSave, User>(data);
+            return data;
+        }
+
+        private void Hook__Save_copy( Hook__Save.orig_copy orig, int slotFrom, int slotTo )
+        {
+            EventSystem.BroadcastEvent<IOnCopySave, IOnCopySave.EventData>(new(slotFrom, slotTo));
+            orig(slotFrom, slotTo);
+        }
+
+        private void Hook__Save_delete( Hook__Save.orig_delete orig, int? slot )
+        {
+            EventSystem.BroadcastEvent<IOnDeleteSave, int?>(slot);
+            orig(slot);
+        }
+
+        private void Hook__Boot_main( Hook__Boot.orig_main orig )
+        {
+            EventSystem.BroadcastEvent<IOnBeforeGameInit>();
+            orig();
         }
 
         private void Hook_Boot_update1( Hook_Boot.orig_update orig, Boot self, double dt )
