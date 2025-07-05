@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace HashlinkNET.Compiler.Steps.Enum
 {
-    internal class GenerateEnumItemTypesStep : ForeachHlTypeCompileStep
+    internal class GenerateEnumItemTypesStep : GenerateTypeCompileStep
     {
         public override void Execute( IDataContainer container, HlCode code, GlobalData gdata, 
             RuntimeImports rdata, HlType type )
@@ -61,6 +61,9 @@ namespace HashlinkNET.Compiler.Steps.Enum
                     {
                         GetMethod = td.Methods[0]
                     });
+                    addedTypes.Add(new(td, 
+                        HaxeProxy.Runtime.Internals.HaxeProxyBindingAttribute.GetSubTypeId(type.TypeIndex, i))
+                        );
                     enumType.NestedTypes.Add(td);
                     td.IsNestedPublic = true;
                 }

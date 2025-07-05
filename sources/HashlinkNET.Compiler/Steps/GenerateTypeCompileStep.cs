@@ -26,8 +26,13 @@ namespace HashlinkNET.Compiler.Steps
             var module = gdata.Module;
             foreach (var v in addedTypes)
             {
-                module.Types.Add(v.Type);
-                if (v.Index >= 0)
+                if ((v.Index & 0x80000000) == 0 ||
+                    v.Index == -1)
+                {
+                    module.Types.Add(v.Type);
+                }
+                
+                if (v.Index != -1)
                 {
                     v.Type.CustomAttributes.Add(new(
                         rdata.attrTIndexCtor)

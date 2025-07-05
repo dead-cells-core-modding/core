@@ -11,5 +11,10 @@ namespace HaxeProxy.Runtime.Internals
     {
         public int TypeIndex => typeIndex;
         public Type Type => type;
+
+        public static int GetSubTypeId( int typeIndex, int subIndex )
+        {
+            return (int)(0x80000000 | ((uint)typeIndex << 16) | (uint)subIndex);
+        }
     }
 }

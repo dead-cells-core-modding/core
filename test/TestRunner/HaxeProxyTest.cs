@@ -1,6 +1,11 @@
 ﻿using dc;
 using dc.h2d.col;
+using dc.tool;
+using Hashlink.Marshaling;
+using Hashlink.Proxy.Values;
+using Hashlink.Reflection.Types;
 using Hashlink.Virtuals;
+using HaxeProxy.Runtime;
 using ModCore.Utitities;
 using System;
 using System.Collections.Generic;
@@ -46,11 +51,19 @@ namespace TestRunner
 
             Assert.NotNull(e);
 
-            var e2 = new Boot.slowMoTweenieContext_4995(114514, (dc.libs.misc.TType)dc.libs.misc.TType.Indexes.TZigZag,
-                null);
-            Assert.Equal(114514, e2.Param0);
-            Assert.Equal(dc.libs.misc.TType.Indexes.TZigZag, e2.Param1.Index);
-            Assert.Null(e2.Param2);
+            var e2 = new InventItemKind.Perk("A".AsHaxeString());
+            Assert.Equal("A", e2.Param0.ToString());
+            Assert.Equal(InventItemKind.Indexes.Perk, e2.Index);
+
+            var et = HashlinkMarshal.Module.GetTypeByName("enum<AffectKeepChoice>") as HashlinkEnumType;
+            Assert.NotNull(et);
+
+            var inst1 = new HashlinkEnum(et, 1);
+            Assert.Equal(1, inst1.Index);
+            Assert.Equal(et, inst1.EnumType);
+
+            var inst2 = inst1.AsHaxe();
+            Assert.NotNull(inst2);
         }
 
         [Fact]

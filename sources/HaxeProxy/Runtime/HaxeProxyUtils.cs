@@ -1,5 +1,6 @@
 ﻿using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
+using Hashlink.Reflection.Types;
 using HaxeProxy.Runtime.Internals.Inheritance;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,11 @@ namespace HaxeProxy.Runtime
         public static T AsHaxe<T>( this HashlinkObj obj ) where T : HaxeProxyBase
         {
             return (T)obj.AsHaxe();
+        }
+        public static HashlinkObjectType GetHashlinkType( Type type )
+        {
+            InheritanceManager.Check(type, null, out var cht);
+            return cht.Type;
         }
         public static TClass GetClass<TClass>( Type type ) where TClass : HaxeProxyBase
         {

@@ -1,6 +1,7 @@
 ﻿using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
+using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Types;
 using HaxeProxy.Runtime.Internals.Inheritance;
 using System.Collections.Concurrent;
@@ -20,6 +21,7 @@ namespace HaxeProxy.Runtime.Internals
         public static ImmutableHashSet<Type> knownProxyTypes = [];
         public static readonly Dictionary<Type, int> type2typeId = [];
         private static Type[] bindingTypes = [];
+        private static ImmutableDictionary<int, Type> subTypes = ImmutableDictionary<int, Type>.Empty;
         
 
         
@@ -27,11 +29,20 @@ namespace HaxeProxy.Runtime.Internals
         {
             bindingTypes = new Type[HashlinkMarshal.Module.Types.Length];
             var types = proxyAssembly.GetCustomAttributes<HaxeProxyBindingAttribute>();
+            var subTypes = new Dictionary<int, Type>();
             foreach (var v in types)
             {
-                bindingTypes[v.TypeIndex] = v.Type;
-                type2typeId[v.Type] = v.TypeIndex;
+                if ((v.TypeIndex & 0x80000000) == 0)
+                {
+                    bindingTypes[v.TypeIndex] = v.Type;
+                    type2typeId[v.Type] = v.TypeIndex;
+                }
+                else
+                {
+                    subTypes[v.TypeIndex] = v.Type;
+                }
             }
+            HaxeProxyManager.subTypes = subTypes.ToImmutableDictionary();
     
             knownProxyTypes = [.. bindingTypes];
         }
@@ -53,9 +64,18 @@ namespace HaxeProxy.Runtime.Internals
             Type type;
             if (ht.TypeIndex >= 0)
             {
-                type = bindingTypes[ht.TypeIndex];
+                if (ht.IsEnum)
+                {
+                    var hle = (HashlinkEnum)obj;
+                    type = subTypes[HaxeProxyBindingAttribute.GetSubTypeId(ht.TypeIndex,
+                        hle.Index)];
+                }
+                else
+                {
+                    type = bindingTypes[ht.TypeIndex];
+                }
             }
-            else if(ht is CustomHaxeType.ReflectType rt)
+            else if (ht is CustomHaxeType.ReflectType rt)
             {
                 type = rt.CustomType.Data.type;
             }
