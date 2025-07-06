@@ -144,6 +144,7 @@ mods
 
 - .NET SDK 9
 - CMake
+- nasm
 
 ### Build
 

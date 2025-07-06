@@ -36,6 +36,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9
+    - name: Setup NASM
+      uses: ilammy/setup-nasm@v1
     - name: Download artifacts
       uses: actions/download-artifact@v4
       with: 
