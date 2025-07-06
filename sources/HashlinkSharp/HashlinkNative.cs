@@ -71,6 +71,9 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         [DoesNotReturn]
         public static partial void hl_throw( HL_vdynamic* v );
+        [LibraryImport(LIBHL)]
+        [DoesNotReturn]
+        public static partial void hl_rethrow( HL_vdynamic* v );
 
         [LibraryImport(LIBHL)]
         public static partial HL_vvirtual* hl_to_virtual( HL_type* vt, HL_vdynamic* obj );
@@ -180,6 +183,8 @@ namespace Hashlink
         public static partial void* hl_jit_code( void* ctx, HL_module* m, int* codesize, void** debug, void* previous );
         [LibraryImport(LIBHL)]
         [SuppressGCTransition]
-        public static partial int hl_gc_get_memsize( void* ptr );
+        public static partial int hl_gc_get_memsize( void* ptr ); 
+        [LibraryImport(LIBHL)]
+        public static partial HL_array* hl_exception_stack( );
     }
 }

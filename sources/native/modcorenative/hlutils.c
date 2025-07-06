@@ -1,4 +1,4 @@
-
+﻿
 #include "modcorenative.h"
 
 #ifdef WIN32
@@ -23,20 +23,6 @@ EXTERNC EXPORT void* hlu_get_hl_bytecode_from_exe(const uchar* exePath, int* out
 }
 #endif
 
-EXTERNC EXPORT void* hlu_call_c2hl(void* f, hl_type* t, void** args, vdynamic* ret)
-{
-	
-	hl_trap_ctx_ex ctx;
-	vdynamic* exc;
-	hl_trap(ctx, exc, on_exception);
-
-	ctx.tcheck = 0x4e455445;
-
-	void* result = callback_c2hl(f, t, args, ret);
-	hl_endtrap(ctx);
-	return result;
-on_exception:
-	hl_fatal("on_exception");
-	return NULL;
+EXTERNC EXPORT void* hlu_get_exception_handle_helper() {
+	return asm_prepare_exception_handle;
 }
-

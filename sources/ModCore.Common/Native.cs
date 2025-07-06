@@ -30,7 +30,8 @@ namespace ModCore
             [MarshalAs(UnmanagedType.LPWStr)] string path, int* outSize );
         [LibraryImport(MODCORE_NATIVE_NAME)]
         public static partial int hlu_start_game( void* code );
-
+        [LibraryImport(MODCORE_NATIVE_NAME)]
+        public static partial nint hlu_get_exception_handle_helper();
         #endregion
     }
 }

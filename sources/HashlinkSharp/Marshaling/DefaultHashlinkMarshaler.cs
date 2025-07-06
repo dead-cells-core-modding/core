@@ -42,6 +42,7 @@ namespace Hashlink.Marshaling
                     return (object?)*(double*)target;
                 case TypeKind.HTYPE:
                 case TypeKind.HABSTRACT:
+                case TypeKind.HBYTES:
                     return (object?)*(nint*)target;
                 case TypeKind.HREF:
                     return (object?)*(nint*)target;
@@ -211,6 +212,7 @@ namespace Hashlink.Marshaling
                 TypeKind.HFUN => new HashlinkClosure(ptr),
                 TypeKind.HREF => (nint)((HL_vdynamic*)target)->val.ptr,
                 TypeKind.HENUM => new HashlinkEnum(ptr),
+                TypeKind.HARRAY => new HashlinkArray(ptr),
                 TypeKind.HNULL => HashlinkMarshal.ReadData(
                     &((HL_vdynamic*)target)->val, HashlinkMarshal.GetHashlinkType(ptr.Type->data.tparam)
                     ),

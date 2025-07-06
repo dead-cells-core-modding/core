@@ -140,13 +140,7 @@ namespace ModCore.Modules
 
         void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )
         {
-            if (ev.EventId == IOnNativeEvent.EventId.HL_EV_ERR_NET_CAUGHT)
-            {
-                var hlerr = new HashlinkError(ev.Data, new MixStackTrace(0, true).ToString());
-
-                throw new EventBreakException(hlerr);
-            }
-            else if (ev.EventId == IOnNativeEvent.EventId.HL_EV_VM_READY)
+            if (ev.EventId == IOnNativeEvent.EventId.HL_EV_VM_READY)
             {
                 Context = (VMContext*)ev.Data;
                 EventSystem.BroadcastEvent<IOnHashlinkVMReady>();

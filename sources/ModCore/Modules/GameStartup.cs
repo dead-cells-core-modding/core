@@ -32,7 +32,14 @@ namespace ModCore.Modules
         {
             if (ev.EventId == IOnNativeEvent.EventId.HL_EV_START_GAME)
             {
-                StartGame();
+                try
+                {
+                    StartGame();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Fatal(ex, "Fatal Error");
+                }
             }
         }
     }

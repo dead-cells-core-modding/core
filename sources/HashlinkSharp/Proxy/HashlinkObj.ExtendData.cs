@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -49,7 +50,8 @@ namespace Hashlink.Proxy
                 dataLock.ExitWriteLock();
                 return t;
             }
-            var list = extendData as List<object>;
+            var list = extendData as ImmutableList<object>;
+            
             if (list == null)
             {
                 list = [extendData];
@@ -74,7 +76,7 @@ namespace Hashlink.Proxy
             }
 
             t = (T)factory(this);
-            list.Add(t);
+            extendData = list.Add(t);
 
             dataLock.ExitWriteLock();
 

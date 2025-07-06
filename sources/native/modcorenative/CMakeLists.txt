@@ -5,8 +5,15 @@ file(GLOB SOURCES ./*.c)
 
 remove_definitions(-DLIBHL_EXPORTS)
 
+if(WIN32)
+set(ASM_HELPER_SRC ./win_x64.asm)
+else()
+set(ASM_HELPER_SRC ./linux_x64.asm)
+endif()
 
-add_library (modcorenative SHARED ${SOURCES} ${PLATFORM_SOURCES})
+add_library (modcorenative SHARED ${ASM_HELPER_SRC} ${SOURCES} ${PLATFORM_SOURCES})
+
+
 
 if (WIN32)
 target_link_libraries(modcorenative dbghelp)

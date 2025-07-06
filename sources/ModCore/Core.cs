@@ -88,7 +88,6 @@ namespace ModCore
                 return;
             }
             init = true;
-
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             AppDomain.CurrentDomain.TypeResolve += CurrentDomain_TypeResolve;
 

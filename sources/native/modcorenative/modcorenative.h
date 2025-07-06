@@ -34,3 +34,6 @@ EXTERNC extern void* call_jit_c2hl;
 EXTERNC extern void* call_jit_hl2c;
 
 EXTERNC void init_trace();
+
+EXTERNC void asm_prepare_exception_handle();
+EXTERNC void asm_return_from_exception(void* ptr);
