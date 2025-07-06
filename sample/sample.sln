@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleHook", "SampleHook\Sa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebugMod", "DebugMod\DebugMod.csproj", "{06211DC9-64CF-46B0-A814-BEACA73FA016}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleWeapon", "SampleWeapon\SampleWeapon.csproj", "{A85FED0A-9F07-454D-85E3-80659925D0A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{06211DC9-64CF-46B0-A814-BEACA73FA016}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06211DC9-64CF-46B0-A814-BEACA73FA016}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06211DC9-64CF-46B0-A814-BEACA73FA016}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A85FED0A-9F07-454D-85E3-80659925D0A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A85FED0A-9F07-454D-85E3-80659925D0A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A85FED0A-9F07-454D-85E3-80659925D0A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A85FED0A-9F07-454D-85E3-80659925D0A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

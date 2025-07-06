@@ -23,7 +23,8 @@ namespace ModCore
              FolderInfo.GameRoot.FullPath
             ];
         public static Config<CoreConfig> Config { get; } = new("modcore");
-
+        public static string Version { get; } = typeof(Core).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
+                "Unknown";
         public static Thread MainThread { get; } = Thread.CurrentThread;
         public static void ThrowIfNotMainThread()
         {
@@ -101,8 +102,7 @@ namespace ModCore
             Log.Logger.Information("Runtime: {FrameworkDescription} {RuntimeIdentifier}",
                    RuntimeInformation.FrameworkDescription, RuntimeInformation.RuntimeIdentifier);
             Log.Logger.Information("Core Version: {version}",
-                typeof(Core).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
-                "Unknown");
+                Version);
 
             Log.Logger.Information("Initalizing");
 

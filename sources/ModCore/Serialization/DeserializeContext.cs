@@ -60,10 +60,6 @@ namespace ModCore.Serialization
         {
             for (int i = 0; i < obj.extraHxObjCount; i++)
             {
-#if DEBUG
-                var uid = ReadUID();
-                Debug.Assert(Serializer.refs.exists(uid));
-#endif
                 var o = Serializer.getAnyRef();
                 hxbitObjects.Add(o.__uid, o.AsObject<HaxeObject>());
             }
@@ -74,6 +70,7 @@ namespace ModCore.Serialization
                 var hlt = HaxeProxyUtils.GetHashlinkType(type);
                 var inst = (HashlinkObject)Serializer.refs.get(uid)!;
                 inst.RefreshTypeInfo(hlt.NativeType, true);
+                inst.MarkStateful();
                 hxbitObjects[uid] = inst.AsHaxe<HaxeObject>();
             }
 

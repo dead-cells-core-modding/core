@@ -112,6 +112,7 @@ namespace ModCore.Modules
 
         void IOnAdvancedModuleInitializing.OnAdvancedModuleInitializing()
         {
+            Hook_TitleScreen.setMiscTexts += Hook_TitleScreen_setMiscTexts;
             Hook__Boot.main += Hook__Boot_main;
             Hook_Boot.init += Hook_Boot_init1;
             Hook_Boot.endInit += Hook_Boot_endInit1;
@@ -121,6 +122,13 @@ namespace ModCore.Modules
             Hook__Save.copy += Hook__Save_copy;
             Hook__Save.tryLoad += Hook__Save_tryLoad;
             Hook__Save.save += Hook__Save_save;
+        }
+
+        private void Hook_TitleScreen_setMiscTexts( Hook_TitleScreen.orig_setMiscTexts orig, 
+            TitleScreen self )
+        {
+            orig(self);
+            self.build.set_text($"DCCM(v{typeof(Core).Assembly.GetName().Version}) - {self.build.text}".AsHaxeString());
         }
 
         private void Hook__Save_save( Hook__Save.orig_save orig, User u, bool onlyGameData )

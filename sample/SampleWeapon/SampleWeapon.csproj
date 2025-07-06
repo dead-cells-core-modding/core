@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    
+    <ModName>SampleWeapon</ModName>
+    <ModType>mod</ModType>
+    <ModMain>SampleSimple.SimpleMod</ModMain>
+    <AutoInstallMod>true</AutoInstallMod>
+    <Authors>Frostbite</Authors>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="DeadCellsCoreModding.MDK" Version="1.0.1" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="res.pak">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <OutputFiles Include="res.pak" />
+  </ItemGroup>
+
+</Project>

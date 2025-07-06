@@ -13,11 +13,14 @@ namespace Hashlink.Proxy
         {
             nativeType = ptr;
             type = HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(nativeType);
+            isChangedTypeInfo = true;
             if (clearExtraData)
             {
                 ClearExtraData();
             }
         }
+
+        internal bool isChangedTypeInfo = false;
       
         public HashlinkObj( HashlinkObjPtr objPtr )
         {

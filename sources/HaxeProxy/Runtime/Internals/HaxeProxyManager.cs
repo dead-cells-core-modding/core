@@ -77,6 +77,10 @@ namespace HaxeProxy.Runtime.Internals
             }
             else if (ht is CustomHaxeType.ReflectType rt)
             {
+                if (!obj.isChangedTypeInfo)
+                {
+                    throw new InvalidProgramException();
+                }
                 type = rt.CustomType.Data.type;
             }
             else

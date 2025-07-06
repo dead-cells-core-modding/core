@@ -18,9 +18,31 @@ namespace Hashlink.Marshaling.ObjHandle
     {
         private struct ObjHandle
         {
+            public bool valid;
             public nint hlPtr;
             public GCHandle weakRef;
             public object? strongRef;
+
+            public void Free()
+            {
+                Debug.Assert(valid);
+                valid = false;
+                *GetObjWrapperPtr((void*)hlPtr) = 0;
+                hlPtr = 0;
+            }
+            public void Init( nint hlptr, object h )
+            {
+                valid = true;
+                hlPtr = hlptr;
+                if (!weakRef.IsAllocated)
+                {
+                    weakRef = GCHandle.Alloc(h, GCHandleType.WeakTrackResurrection);
+                }
+                else
+                {
+                    weakRef.Target = h;
+                }
+            }
         }
 
         private static readonly List<ObjHandle[]> handlePages = [ 
@@ -70,12 +92,14 @@ namespace Hashlink.Marshaling.ObjHandle
 
                     ref var curHandle = ref curPage[hpidx++];
 
-                    if ((curHandle.strongRef ??
+                    if (curHandle.valid && (curHandle.strongRef ??
                         curHandle.weakRef.Target) is HashlinkObjHandle)
                     {
                         rootsArray[i] = curHandle.hlPtr;
                         continue;
                     }
+
+                    Debug.Assert(curHandle.weakRef.Target == null);
 
                     freeCount++;
 
@@ -86,7 +110,7 @@ namespace Hashlink.Marshaling.ObjHandle
                         {
                             currentHandlePageIndex--;
                             currentHandlePage = handlePages[currentHandlePageIndex];
-                            currentPageStartIndex -= currentHandlePage.Length;
+                            currentPageStartIndex = CalcPageStartIndex();
                             currentIndex = currentHandlePage.Length;
                         }
                         ref var h = ref currentHandlePage[--currentIndex];
@@ -97,6 +121,10 @@ namespace Hashlink.Marshaling.ObjHandle
                                 h.strongRef = hh;
                             }
                             break;
+                        }
+                        else
+                        {
+                            h.Free();
                         }
                         freeCount++;
                     }
@@ -110,11 +138,16 @@ namespace Hashlink.Marshaling.ObjHandle
                     //Swap
                     ref var old = ref currentHandlePage[currentIndex];
 
-                    *GetObjWrapperPtr((void*)old.hlPtr) = 0;
-                    curHandle.hlPtr = 0;
+                    Debug.Assert(curHandle.weakRef.Target == null);
+                    Debug.Assert(old.weakRef.Target != null);
+
+                    curHandle.Free();
                     (old, curHandle) = (curHandle, old);
 
-                    var hobjHandle = (HashlinkObjHandle?) (curHandle.strongRef ?? curHandle.weakRef.Target);
+                    Debug.Assert(!currentHandlePage[currentIndex].valid);
+
+                    var hobjHandle = (HashlinkObjHandle?) (curHandle.strongRef ?? 
+                        curHandle.weakRef.Target);
 
                     Debug.Assert(hobjHandle != null);
 
@@ -169,6 +202,16 @@ namespace Hashlink.Marshaling.ObjHandle
             }
         }
 
+        private static int CalcPageStartIndex()
+        {
+            if (currentHandlePageIndex == 0 ||
+                currentHandlePageIndex == 1)
+            {
+                return 0;
+            }
+            return (1 << (currentHandlePageIndex - 1)) - 1;
+        }
+
         private static ref ObjHandle AllocObjHandle(out int index)
         {
             try
@@ -196,7 +239,7 @@ namespace Hashlink.Marshaling.ObjHandle
                     {
                         handlePages.Add(new ObjHandle[curArray.Length * 2]);
                     }
-                    currentPageStartIndex += curArray.Length;
+                    currentPageStartIndex = CalcPageStartIndex();
                     currentIndex = 0;
                     currentHandlePage = handlePages[currentHandlePageIndex];
 
@@ -216,7 +259,8 @@ namespace Hashlink.Marshaling.ObjHandle
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ref ObjHandle GetObjHandle( int index )
         {
-            var pageIndex = 32 - BitOperations.LeadingZeroCount((uint)index + 1);
+            var pageIndex = index == 0 ? 
+                1 : (32 - BitOperations.LeadingZeroCount((uint)index + 1));
             var offset = index - ((1 << (pageIndex - 1)) - 1);
             var page = handlePages[pageIndex];
 
@@ -247,15 +291,17 @@ namespace Hashlink.Marshaling.ObjHandle
             {
                 var gch = GCHandle.FromIntPtr(*wp);
                 handle = gch.Target as HashlinkObjHandle;
-                if (handle == null
-                    || handle.nativeHLPtr != ptr)
+                if (handle == null)
                 {
                     *wp = 0;
                     return GetHandle(ptr);
                 }
 
+                Debug.Assert(handle.nativeHLPtr == ptr);
+
                 ref var h = ref GetObjHandle(handle.handleIndex);
 
+                Debug.Assert(h.valid);
                 Debug.Assert(h.hlPtr == ptr);
                 Debug.Assert(h.weakRef.Target == handle);
 
@@ -270,20 +316,16 @@ namespace Hashlink.Marshaling.ObjHandle
             //Alloc New Handle
             {
                 ref var h = ref AllocObjHandle(out var handleIdx);
+                Debug.Assert(!h.valid);
+                Debug.Assert(h.hlPtr == 0);
+                h.valid = true;
                 handle = new(ptr, handleIdx);
-                h.hlPtr = ptr;
+                h.Init(ptr, handle);
                 if (!handle.IsStateless)
                 {
                     h.strongRef = handle;
                 }
-                if (!h.weakRef.IsAllocated)
-                {
-                    h.weakRef = GCHandle.Alloc(handle, GCHandleType.Weak);
-                }
-                else
-                {
-                    h.weakRef.Target = handle;
-                }
+                
                 *wp = (nint)h.weakRef;
             }
             return handle;

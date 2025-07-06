@@ -5,6 +5,8 @@ using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
+using ModCore.Events;
+using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.VM;
 using System;
@@ -32,7 +34,8 @@ namespace ModCore.Modules
         private bool Hook__Assets_init( Hook__Assets.orig_init orig )
         {
             var result = orig();
-            CDBManager.Class.instance.getAlteredCDB();
+            EventSystem.BroadcastEvent<IOnAfterLoadingAssets>();
+            Data.Class.loadJson(CDBManager.Class.instance.getAlteredCDB(), default);
             return result;
         }
 
