@@ -53,6 +53,7 @@ namespace Hashlink.Wrapper
                     data->outErrorTable = &prepare_exception_handle_data->buffer;
                     if (prepare_exception_handle_data->stack_area == null)
                     {
+                        Debug.Assert(prepare_exception_handle_data->current->stack_area != null);
                         prepare_exception_handle_data->stack_area = prepare_exception_handle_data->current->stack_area;
                     }
                 }
@@ -131,7 +132,7 @@ namespace Hashlink.Wrapper
             handle.prev = prepare_exception_handle_data->current;
             if (handle.prev != null)
             {
-                handle.stack_area = prepare_exception_handle_data->stack_area;
+                handle.prev->stack_area = prepare_exception_handle_data->stack_area;
             }
             prepare_exception_handle_data->current = (ErrorHandle*)Unsafe.AsPointer(ref handle);
 
