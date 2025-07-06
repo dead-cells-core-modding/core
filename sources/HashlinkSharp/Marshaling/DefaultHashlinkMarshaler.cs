@@ -160,13 +160,16 @@ namespace Hashlink.Marshaling
                     vt.NativeType
                     );
                 HashlinkMarshal.WriteData(&dptr->val, value, vt);
+                *(nint*)target = (nint)dptr;
             }
             else if (typeKind is TypeKind.HNULL)
             {
+                var vt = ((HashlinkNullType)type!).ValueType;
                 var dptr = hl_alloc_dynamic(
-                    type!.NativeType
+                    vt.NativeType
                     );
-                HashlinkMarshal.WriteData(&dptr->val, value, ((HashlinkNullType)type!).ValueType);
+                HashlinkMarshal.WriteData(&dptr->val, value, vt);
+                *(nint*)target = (nint)dptr;
             }
             else if (typeKind is TypeKind.HABSTRACT or TypeKind.HTYPE)
             {
