@@ -1,6 +1,7 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Marshaling.ObjHandle;
 using Hashlink.Proxy.Objects;
+using Hashlink.Reflection.Members;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using System;
@@ -17,16 +18,34 @@ namespace Hashlink.Wrapper
 {
     internal unsafe partial class WrapperHelper
     {
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_stackTrace")]
+        static extern ref object GetStackTrace( Exception ex );
+        [StructLayout(LayoutKind.Sequential)]
+        private struct StackTraceElement
+        {
+            public nint ip;
+            public nint sp;
+            public nint pFunc;
+            public int flags;
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        struct ArrayHeader
+        {
+            public int m_size;
+            public int m_keepAliveItemsCount;
+            public nint m_thread;
+        };
+        [StructLayout(LayoutKind.Sequential)]
+        private struct EventData
+        {
+            public void* exception;
+            public void* outErrorTable;
+        }
         private class ExceptionEventHandler : IEventReceiver, IOnNativeEvent
         {
-            [StructLayout(LayoutKind.Sequential)]
-            private struct EventData
-            {
-                public void* exception;
-                public void* outErrorTable;
-            }
+            
             public int Priority => 0;
-
+            [StackTraceHidden]
             public void OnNativeEvent( IOnNativeEvent.Event ev )
             {
                 if (ev.EventId == IOnNativeEvent.EventId.HL_EV_ERR_NET_CAUGHT)
@@ -40,16 +59,45 @@ namespace Hashlink.Wrapper
                     }
                     else
                     {
-                        var st = HashlinkMarshal.ConvertHashlinkObject<HashlinkArray>(hl_exception_stack())!;
-                        var sb = new StringBuilder();
-                        for (int i = 0; i < st.Count; i++)
+                        hlerrorCache ??= [];
+                        if (hlerrorCache.TryGetValue((nint)data->exception, out var le))
                         {
-                            sb.AppendLine("at " + Marshal.PtrToStringUni((nint) st[i]!));
+                            last_exception = le;
                         }
-                        sb.AppendLine("=====================");
-                        sb.AppendLine(new StackTrace(true).ToString());
-                        last_exception = new HashlinkError((nint)data->exception, sb.ToString());
+                        else
+                        {
+
+                            try
+                            {
+                                throw new HashlinkError((nint)data->exception);
+                            }
+                            catch (HashlinkError ex)
+                            {
+                                last_exception = ex;
+                                hlerrorCache[(nint)data->exception] = ex;
+                            }
+                            var st = HashlinkMarshal.ConvertHashlinkObject<HashlinkArray>(hl_exception_stack())!;
+                            var sb = new StringBuilder();
+                            var hasNetStack = false;
+                            for (int i = 0; i < st.Count; i++)
+                            {
+                                if (i == 0 &&
+                                    (nint)st[i]! == 0)
+                                {
+                                    hasNetStack = true;
+                                    continue;
+                                }
+                                sb.AppendLine(" at " + Marshal.PtrToStringUni((nint)st[i]!));
+                            }
+                            if (!hasNetStack)
+                            {
+                                sb.AppendLine("=====================");
+                                sb.AppendLine(new StackTrace(true).ToString());
+                            }
+                            ((HashlinkError)last_exception).stackTrace = sb.ToString();
+                        }
                     }
+
                     data->outErrorTable = &prepare_exception_handle_data->buffer;
                     if (prepare_exception_handle_data->stack_area == null)
                     {
@@ -65,11 +113,13 @@ namespace Hashlink.Wrapper
         private static readonly AsmHelperData* asmhelper_data_pool =
             (AsmHelperData*)hl_alloc_executable_memory(81920); //TODO: 
         private static int asmhelper_data_id = 0;
+        [ThreadStatic]
+        private static Dictionary<nint, HashlinkError>? hlerrorCache;
 
         [ThreadStatic]
         private static AsmHelperData* prepare_exception_handle_data;
         [ThreadStatic]
-        private static Exception? last_exception;
+        internal static Exception? last_exception;
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct AsmHelperData
@@ -104,6 +154,7 @@ namespace Hashlink.Wrapper
             hl_throw((HL_vdynamic*)new HashlinkNETExceptionObj(ex).HashlinkPointer);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [StackTraceHidden]
         public static nint InitErrorHandler( nint target, ref ErrorHandle handle )
         {
             if (prepare_exception_handle_data == null)
@@ -132,6 +183,7 @@ namespace Hashlink.Wrapper
             handle.prev = prepare_exception_handle_data->current;
             if (handle.prev != null)
             {
+                Debug.Assert(prepare_exception_handle_data->stack_area != null);
                 handle.prev->stack_area = prepare_exception_handle_data->stack_area;
             }
             prepare_exception_handle_data->current = (ErrorHandle*)Unsafe.AsPointer(ref handle);
@@ -140,7 +192,129 @@ namespace Hashlink.Wrapper
 
             return (nint)prepare_exception_handle_data->shellcode;
         }
+        [StackTraceHidden]
+        private static void FixExceptionTrace( Exception ex, nint stackTop )
+        {
+            static ref sbyte[] GetStackTraceData( ref object stackTrace )
+            {
+                if (stackTrace is sbyte[])
+                {
+                    return ref Unsafe.As<object, sbyte[]>(ref stackTrace);
+                }
+                else
+                {
+                    return ref Unsafe.As<object, sbyte[]>(ref ((object[])(stackTrace))[0]);
+                }
+            }
+
+            ref object stackTrace = ref GetStackTrace(ex);
+            ref sbyte[] stackTraceData = ref GetStackTraceData(ref stackTrace);
+
+            Span<int> buffer = stackalloc int[0x400];
+            int buffer_index = 0;
+
+            fixed (sbyte* oldPtr = stackTraceData)
+            {
+                var header = (ArrayHeader*)oldPtr;
+
+                var ti = hl_get_thread();
+                var old = new ReadOnlySpan<StackTraceElement>(header + 1, header->m_size);
+
+                {
+                    int index = 0;
+                    for (int i = 0; i < old.Length; i++)
+                    {
+                        var curFrame = old[i];
+                        while (index < ti->exc_stack_count)
+                        {
+                            var sp = ti->exc_stack_ptrs[index];
+                            if (sp < 0)
+                            {
+                                index++;
+                                continue;
+                            }
+                            if (sp >= curFrame.sp)
+                            {
+                                break;
+                            }
+                            buffer[buffer_index++] = -(index + 1);
+                            ti->exc_stack_ptrs[index++] = -sp;
+                        }
+                        buffer[buffer_index++] = i;
+                    }
+
+                    while (index < ti->exc_stack_count)
+                    {
+                        var sp = ti->exc_stack_ptrs[index];
+                        if (sp < 0)
+                        {
+                            index++;
+                            continue;
+                        }
+                        if (sp >= stackTop)
+                        {
+                            break;
+                        }
+                        buffer[buffer_index++] = -(index + 1);
+                        ti->exc_stack_ptrs[index++] = -sp;
+                    }
+                    
+                }
+                
+                var newTraceData = GC.AllocateArray<sbyte>(sizeof(ArrayHeader) +
+                    sizeof(StackTraceElement) * buffer_index, true);
+                
+                stackTraceData = newTraceData;
+                var newheader = (ArrayHeader*)Unsafe.AsPointer(ref newTraceData[0]);
+                *newheader = *header;
+                newheader->m_size = buffer_index;
+                var newdata = new Span<StackTraceElement>(newheader + 1, newheader->m_size);
+                
+                void* hlbuf = stackalloc char[0x100];
+
+                for (int i = 0; i < buffer_index; i++)
+                {
+                    var id = buffer[i];
+                    if (id >= 0)
+                    {
+                        newdata[i] = old[id];
+                    }
+                    else
+                    {
+                        id = -id - 1;
+                        var ip = ti->exc_stack_trace[id];
+                        var size = 0x100;
+                        module_resolve_symbol_ex((void*)ip, (char*)hlbuf, ref size, false);
+                        var str = new string((char*)hlbuf);
+
+                        var lastDot = str.LastIndexOf('.');
+                        var className = "global";
+                        var funcName = "";
+                        if (lastDot == -1)
+                        {
+                            funcName = str[..^2];
+                        }
+                        else
+                        {
+                            className = str[..lastDot];
+                            funcName = str[(lastDot + 1)..^2];
+                        }
+                        var req = new FakeStackTraceManager.RequestInfo("Haxe!" + className, funcName);
+                        var fk = FakeStackTraceManager.RequestFakeMethods(req)[req];
+                        newdata[i] = new()
+                        {
+                            sp = -ti->exc_stack_ptrs[id],
+                            ip = fk.IP,
+                            flags = 2,
+                            pFunc = fk.Method.MethodHandle.Value
+                        };
+
+                    }
+                }
+            }
+        }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [StackTraceHidden]
         public static void UnInitErrorHandler( ref ErrorHandle handle )
         {
             var ti = hl_get_thread();
@@ -153,11 +327,13 @@ namespace Hashlink.Wrapper
                 ti->trap_current = handle.trap_ctx.prev;
             }
             prepare_exception_handle_data->current = handle.prev;
-            prepare_exception_handle_data->stack_area = null;
+            prepare_exception_handle_data->stack_area = handle.prev->stack_area;
             if (last_exception != null)
             {
-                ExceptionDispatchInfo.Throw(last_exception);
+                var ex = last_exception;
+                FixExceptionTrace(last_exception, (nint)Unsafe.AsPointer(ref handle));
                 last_exception = null;
+                ExceptionDispatchInfo.Throw(ex);
             }
         }
     }

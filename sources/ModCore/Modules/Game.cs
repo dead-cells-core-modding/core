@@ -1,5 +1,6 @@
 ﻿using dc;
 using dc.en;
+using dc.haxe;
 using dc.pr;
 using dc.spine;
 using dc.tool;
@@ -122,6 +123,14 @@ namespace ModCore.Modules
             Hook__Save.copy += Hook__Save_copy;
             Hook__Save.tryLoad += Hook__Save_tryLoad;
             Hook__Save.save += Hook__Save_save;
+
+            Hook__MainLoop.tick += Hook__MainLoop_tick;
+        }
+
+        //Record .NET Stacktrace
+        private double Hook__MainLoop_tick( Hook__MainLoop.orig_tick orig )
+        {
+            return orig();
         }
 
         private void Hook_TitleScreen_setMiscTexts( Hook_TitleScreen.orig_setMiscTexts orig, 

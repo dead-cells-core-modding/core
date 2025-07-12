@@ -1,5 +1,6 @@
 ﻿using Mono.Cecil.Cil;
 using MonoMod.Utils;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -81,12 +82,13 @@ namespace ModCore.Events
             EventMethod = FindEventMethod(typeof(TEvent));
             call = GenerateCall(EventMethod);
         }
-
+        [StackTraceHidden]
         public static void Invoke( TEvent self, nint refOfarg , nint refOfResult)
         {
             IsCalled = true;
             call(self!, refOfarg, refOfResult);
         }
+        [StackTraceHidden]
         public static unsafe void Invoke<TArg, TResult>( TEvent self, ref TArg argOnStack, out EventResult<TResult> resultOnStack ) where TArg : allows ref struct
         {
             Unsafe.SkipInit(out resultOnStack);

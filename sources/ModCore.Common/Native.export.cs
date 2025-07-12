@@ -1,5 +1,4 @@
 ﻿
-using Hashlink.Trace;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using Serilog;
@@ -48,7 +47,6 @@ namespace ModCore
         private static readonly ConcurrentDictionary<string, ILogger> nativeLoggers = [];
 
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-        [CallFromHLOnly]
         public static void OnHLEvent( int eventId, nint data )
         {
 
@@ -58,7 +56,6 @@ namespace ModCore
         }
 
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-        [CallFromHLOnly]
         private static void LogPrint( nint source, int level, byte* msg )
         {
             if (!knownLogSources.TryGetValue(source, out var sourceStr))

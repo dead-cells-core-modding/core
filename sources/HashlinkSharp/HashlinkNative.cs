@@ -1,5 +1,6 @@
 ﻿
 using ModCore;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -155,6 +156,8 @@ namespace Hashlink
         [return: MarshalAs(UnmanagedType.Bool)]
         public static partial bool module_resolve_pos( HL_module* m, void* addr, out int fidx, out int fpos );
         [LibraryImport(LIBHL)]
+        public static partial char* module_resolve_symbol_ex( void* addr, char* @out, ref int outSize, [MarshalAs(UnmanagedType.Bool)] bool needFileInfo );
+        [LibraryImport(LIBHL)]
         public static partial void hl_gc_set_flags( HL_GC_Flags flags );
         [LibraryImport(LIBHL)]
         public static partial HL_GC_Flags hl_gc_get_flags();
@@ -186,5 +189,9 @@ namespace Hashlink
         public static partial int hl_gc_get_memsize( void* ptr ); 
         [LibraryImport(LIBHL)]
         public static partial HL_array* hl_exception_stack( );
+        [LibraryImport(LIBHL)]
+        public static partial HL_array* hl_exception_stack_ex();
+        [LibraryImport(LIBHL)]
+        public static partial HL_array* hl_capture_exc_stack();
     }
 }

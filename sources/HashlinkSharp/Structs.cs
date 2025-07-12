@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 
 namespace Hashlink
@@ -443,7 +444,13 @@ namespace Hashlink
         public int exc_stack_count;
         // extra
         public C_jmpbuf gc_regs;
-        public fixed byte exc_stack_trace[1]; //As void* [0x100]
+        [InlineArray(0x100)]
+        public struct EXC_STACK_ARRAY
+        {
+            public nint ptr;
+        }
+        public EXC_STACK_ARRAY exc_stack_trace; //As void* [0x100]
+        public EXC_STACK_ARRAY exc_stack_ptrs;
     }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_array

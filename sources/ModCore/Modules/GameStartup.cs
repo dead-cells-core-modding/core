@@ -39,6 +39,8 @@ namespace ModCore.Modules
                 catch (Exception ex)
                 {
                     Logger.Fatal(ex, "Fatal Error");
+                    Environment.Exit(-1);
+                    throw;
                 }
             }
         }

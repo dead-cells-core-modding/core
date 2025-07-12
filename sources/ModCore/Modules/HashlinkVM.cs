@@ -2,13 +2,15 @@
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Objects;
 using Hashlink.Trace;
+using Hashlink.Wrapper;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Storage;
-using ModCore.Trace;
 using Serilog;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -44,35 +46,6 @@ namespace ModCore.Modules
             get; private set;
         }
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-
-        private delegate HL_array* hl_exception_stack_handler();
-        private static hl_exception_stack_handler orig_hl_exception_stack = null!;
-
-
-        private static HL_array* Hook_hl_exception_stack()
-        {
-            try
-            {
-                var st = new MixStackTrace(0, true);
-                var result = new HashlinkArray(HashlinkMarshal.Module.KnownTypes.Bytes, st.FrameCount);
-                for (var i = 0; i < st.FrameCount; i++)
-                {
-                    var f = st.GetFrame(i);
-                    if (f == null)
-                    {
-                        continue;
-                    }
-                    result[i] = f.GetDisplayName();
-                }
-                return (HL_array*)result.HashlinkPointer;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Error on Hook_hl_exception_stack");
-                return orig_hl_exception_stack();
-            }
-        }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void hl_sys_print_handler( char* msg );
@@ -80,7 +53,6 @@ namespace ModCore.Modules
         private static readonly ILogger hlprintLogger = Log.ForContext("SourceContext", "Game");
         private static readonly StringBuilder hlprintBuffer = new();
 
-        [CallFromHLOnly]
         private static void Hook_hl_sys_print( char* msg )
         {
             char ch;
@@ -101,7 +73,7 @@ namespace ModCore.Modules
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void hl_sys_exit_handler( int code );
         private readonly static hl_sys_exit_handler hl_sys_exit_del = Hook_hl_sys_exit;
-        [CallFromHLOnly]
+
         private static void Hook_hl_sys_exit( int code )
         {
             EventSystem.BroadcastEvent<IOnSaveConfig>();

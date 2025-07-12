@@ -1,5 +1,6 @@
 ﻿using ModCore.Events.Collections;
 using Serilog;
+using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 
 namespace ModCore.Events
@@ -42,21 +43,24 @@ namespace ModCore.Events
         {
             return eventReceivers.OfType<T>();
         }
-
+        [StackTraceHidden]
         public static void BroadcastEvent<TEvent>( ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
         {
             BroadcastEvent<TEvent, int>(0, flags);
         }
+        [StackTraceHidden]
         public static void BroadcastEvent<TEvent, TArg>( TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
                         where TArg : allows ref struct
         {
             BroadcastEvent<TEvent, TArg>(ref arg, flags);
         }
+        [StackTraceHidden]
         public static void BroadcastEvent<TEvent, TArg>(ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
                         where TArg : allows ref struct
         {
             _ = BroadcastEvent<TEvent, TArg, object?>(ref arg, flags);
         }
+        [StackTraceHidden]
         public static EventResult<TResult> BroadcastEvent<TEvent, TArg, TResult>( TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
                        where TArg : allows ref struct
         {
