@@ -255,7 +255,17 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     else
                     {
                         var mr = container.GetData<MethodReference>(hlc.Functions[fidx]);
-                        src = new IR_Call(mr, false, args);
+                        if (mr.Name == "__inst_construct__" &&
+                            (gdata.Definition.Name != "__inst_construct__" ||
+                            code.Parameters[argSkip] != 0))
+                        {
+                            src = new IR_CallCtor(GetLocalRegType(code.Parameters[argSkip]), args[1..]);
+                            dstReg = code.Parameters[argSkip];
+                        }
+                        else
+                        {
+                            src = new IR_Call(mr, false, args);
+                        }
                     }
 
                 }
@@ -316,9 +326,16 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                             container.GetTypeRef(hlc.Types[code.Parameters[1]])
                             );
                 }
+                else if (c == HlOpcodeKind.GetTID)
+                {
+                    src = new IR_GetObjType(
+                            CreateLoadLocalReg(code.Parameters[1])
+                            );
+                }
                 else if (c == HlOpcodeKind.New)
                 {
-                    src = new IR_New(GetLocalRegType(code.Parameters[0]));
+                    currentAssign = null;
+                    src = null;// new IR_New(GetLocalRegType(code.Parameters[0]));
                 }
                 else if (c == HlOpcodeKind.ArraySize)
                 {

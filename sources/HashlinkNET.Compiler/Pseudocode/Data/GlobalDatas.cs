@@ -27,6 +27,15 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         {
             get;
         } = [];
+        public int VariablesCount
+        {
+            get; set;
+        }
+
+        public List<HlFuncRegisterData> LocalRegisters
+        {
+            get; set;
+        } = [];
         public List<HlFuncRegisterData?> Registers
         {
             get;

@@ -16,8 +16,11 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.SSA
         {
             var gdata = container.GetGlobalData<FuncEmitGlobalData>();
 
+            Queue<IRBasicBlockData> queue = [];
             foreach (var v in gdata.IRBasicBlocks)
             {
+                queue.Enqueue( v );
+
                 var rad = v.registerAccessData = new RegisterAccessData(gdata.Registers.Count);
                 rad.ssaRegisters = new SSARegisterData[gdata.Registers.Count];
                 for (int i = 0; i < v.flatIR!.Length; i++)
@@ -45,7 +48,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.SSA
                     {
                         var index = slr.dst.Index;
 
-                        var ssaReg = rad.ssaRegisters[index] = new()
+                        rad.ssaRegisters[index] = new()
                         {
                             reg = slr.dst
                         };
@@ -62,7 +65,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.SSA
                 rad.requireReg.Or(rad.firstReadReg);
             }
 
-            Queue<IRBasicBlockData> queue = [];
+            
 
             while (queue.TryDequeue(out var bb))
             {
@@ -72,10 +75,10 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.SSA
                     var trad = v.registerAccessData!;
                     var old = (BitArray) trad.requireReg.Clone();
                     var req = (BitArray) rad.requireReg.Clone();
+                    trad.exposedReg.Or(req);
                     req.And(trad.writeReg.Not());
                     trad.writeReg.Not();
 
-                    trad.exposedReg.Or(req);
                     trad.requireReg.Or(req);
                     if (old.Xor(trad.requireReg).HasAnySet()) //Not Equal
                     {

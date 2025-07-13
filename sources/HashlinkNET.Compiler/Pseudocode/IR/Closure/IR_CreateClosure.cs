@@ -1,4 +1,5 @@
-﻿using HashlinkNET.Compiler.Utils;
+﻿using HashlinkNET.Compiler.Data.Interfaces;
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
@@ -18,13 +19,30 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Closure
     {
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
+            TypeReference? selfType = null;
             if (self != null)
             {
-                self.Emit(ctx, true);
+                selfType = self.Emit(ctx, true);
             }
             else
             {
                 il.Emit(OpCodes.Ldnull);
+            }
+            if (
+                (
+                (method.HasThis &&
+                selfType != null &&
+                method.DeclaringType == selfType)
+                )
+                )
+            {
+                if (isVirt)
+                {
+                    il.Emit(OpCodes.Dup);
+                }
+                il.Emit(isVirt ? OpCodes.Ldvirtftn : OpCodes.Ldftn, method);
+                il.Emit(OpCodes.Newobj, container.GetData<IConstructable>(type).Construct);
+                return type;
             }
             if (isVirt)
             {

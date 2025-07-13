@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using HashlinkNET.Compiler.Data.Interfaces;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
@@ -9,12 +10,12 @@ using System.Threading.Tasks;
 namespace HashlinkNET.Compiler.Pseudocode.IR.Object
 {
     class IR_CallCtor(
-        MethodReference method,
+        TypeReference type,
         IRResult[] args
         )
         : IRBase(args)
     {
-        public MethodReference method = method;
+        public TypeReference type = type;
         public readonly IRResult[] args = args;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
@@ -22,8 +23,8 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Object
             {
                 v.Emit(ctx, true);
             }
-            il.Emit(OpCodes.Call, method);
-            return method.ReturnType;
+            il.Emit(OpCodes.Newobj, container.GetData<IConstructable>(type).Construct);
+            return type;
         }
     }
 }

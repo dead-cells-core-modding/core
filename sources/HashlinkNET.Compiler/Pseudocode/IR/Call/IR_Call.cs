@@ -18,10 +18,12 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
         public readonly IRResult[] args = args;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
+
             foreach (var v in args)
             {
                 v.Emit(ctx, true);
             }
+
             il.Emit(virt && method.HasThis ? OpCodes.Callvirt : OpCodes.Call, method);
             return method.ReturnType;
         }

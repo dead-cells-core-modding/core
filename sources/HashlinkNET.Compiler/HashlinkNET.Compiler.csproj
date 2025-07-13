@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\SpecialTypes\**" />
+    <EmbeddedResource Remove="Data\SpecialTypes\**" />
+    <None Remove="Data\SpecialTypes\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
   </ItemGroup>
 
@@ -15,10 +21,6 @@
     <ProjectReference Include="..\HashlinkNET.Bytecode\HashlinkNET.Bytecode.csproj" />
     <ProjectReference Include="..\HaxeProxy\HaxeProxy.csproj" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\SpecialTypes\" />
   </ItemGroup>
 
 </Project>

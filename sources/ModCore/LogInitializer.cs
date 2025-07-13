@@ -8,10 +8,15 @@ namespace ModCore
     {
         internal static void InitializeLog()
         {
+            var latest = Path.Combine(FolderInfo.Logs.FullPath, "log_latest.log");
+            if (File.Exists(latest))
+            {
+                File.Delete(latest);
+            }
             var configuration = new LoggerConfiguration()
               .MinimumLevel.Debug()
               .WriteTo.File(
-                Path.Combine(FolderInfo.Logs.FullPath, "log_latest.log"),
+                latest,
                 outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}"
                 )
               .WriteTo.File(

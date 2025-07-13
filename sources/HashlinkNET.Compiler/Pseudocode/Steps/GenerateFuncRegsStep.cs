@@ -23,6 +23,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             var md = gdata.Definition;
 
             md.FixPIndex();
+            md.Body.Variables.Clear();
 
             for (var i = 0; i < f.LocalVariables.Length; i++)
             {
@@ -39,20 +40,25 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 else
                 {
                     //LocalVar
+                    
                     var hlv = f.LocalVariables[i].Value;
                     if (hlv.Kind == Bytecode.HlTypeKind.Void)
                     {
                         regs.Add(null);
                         continue;
                     }
+                    gdata.VariablesCount++;
                     var lv = new VariableDefinition(
                         container.GetTypeRef(hlv)
                         );
                     md.Body.Variables.Add(lv);
-                    regs.Add(new(HlFuncRegisterData.RegisterKind.LocalVar, i)
+                    var reg = new HlFuncRegisterData(HlFuncRegisterData.RegisterKind.LocalVar, i)
                     {
                         Variable = lv
-                    });
+                    };
+                    Debug.Assert(lv.Index == gdata.LocalRegisters.Count);
+                    gdata.LocalRegisters.Add(reg);
+                    regs.Add(reg);
                    
                 }
 

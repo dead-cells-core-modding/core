@@ -6,9 +6,11 @@ using HashlinkNET.Compiler.Steps.Class;
 using HashlinkNET.Compiler.Steps.Enum;
 using HashlinkNET.Compiler.Steps.Func;
 using HashlinkNET.Compiler.Steps.Func.ArrowFunc;
+using HashlinkNET.Compiler.Steps.Func.Native;
 using HashlinkNET.Compiler.Steps.Hooks;
 using HashlinkNET.Compiler.Steps.Preprocessor.Fun;
 using HashlinkNET.Compiler.Steps.Preprocessor.Imports;
+using HashlinkNET.Compiler.Steps.Preprocessor.Native;
 using HashlinkNET.Compiler.Steps.Preprocessor.Types;
 using HashlinkNET.Compiler.Steps.Virtual;
 using Mono.Cecil;
@@ -42,6 +44,7 @@ namespace HashlinkNET.Compiler
             AddStep<ImportFuncTypeStep>();
             AddStep<ImportNullTypeStep>();
             AddStep<ImportRefTypeStep>();
+
             #endregion
             #region Fix type ref
             AddStep<FixClassTypeRefStep>();
@@ -92,9 +95,13 @@ namespace HashlinkNET.Compiler
             #region Pseudocode
             if (Config.GeneratePseudocode)
             {
+                AddStep<GenerateNativeImplClassStep>();
+                AddStep<GenerateNativeFieldsDefStep>();
+
                 AddStep<FindMissingFunctionStep>();
                 AddStep<CollectUnnamedFuncStep>();
                 AddStep<GeneratePseudocodeStep>();
+                AddStep<PostGeneratePseudocodeStep>();
             }
             #endregion
         }

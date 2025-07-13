@@ -43,16 +43,10 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                 il.Emit(OpCodes.Ldc_I4_0);
             }
 
-            Instruction? sk = null;
-            if (kind == ConditionKind.NotEq)
-            {
-                sk = Instruction.Create(OpCodes.Nop);
-                il.Emit(OpCodes.Beq, sk);
-            }
             il.Emit(kind switch
             {
                 ConditionKind.Eq => OpCodes.Beq,
-                ConditionKind.NotEq => OpCodes.Br,
+                ConditionKind.NotEq => OpCodes.Bne_Un,
                 ConditionKind.Greate => OpCodes.Bgt,
                 ConditionKind.NotGreate => OpCodes.Ble,
                 ConditionKind.Less => OpCodes.Blt,
@@ -61,10 +55,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                 ConditionKind.SLess => OpCodes.Blt_Un,
                 _ => throw new NotSupportedException()
             }, target.startInst);
-            if (sk != null)
-            {
-                il.Append(sk);
-            }
+
             return null;
         }
     }

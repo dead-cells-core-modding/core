@@ -38,7 +38,7 @@ namespace HashlinkNET.Compiler.Steps.Class
 
                 td.EmitFieldGetterSetter(fd, container, f.Name);
 
-                fd.CustomAttributes.Add(new(rdata.jsonIgnoreCtor));
+                //fd.CustomAttributes.Add(new(rdata.jsonIgnoreCtor));
                 td.Properties.Add(fd);
                 fields.Add(fd);
                 container.AddData(f, fd);

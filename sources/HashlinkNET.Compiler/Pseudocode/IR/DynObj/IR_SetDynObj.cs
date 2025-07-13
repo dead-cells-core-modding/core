@@ -23,7 +23,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.DynObj
             src.Emit(ctx, true);
             il.Emit(OpCodes.Ldstr, name);
             val.Emit(ctx, true);
-            il.Emit(OpCodes.Callvirt, ctx.RuntimeImports.phDynSetMethod);
+            il.Emit(OpCodes.Call, ctx.RuntimeImports.phDynSetMethod);
             return null;
         }
     }

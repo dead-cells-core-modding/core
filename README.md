@@ -7,6 +7,10 @@
 
 A Dead Cells Modding API/loader. 
 
+文档请参见[中文文档](https://dead-cells-core-modding.github.io/docs-zh/docs)
+> I'm sorry I don't have time to maintain English documentation.
+
+
 > [!WARNING]
 > This project is under active development. Breaking changes may be made to APIs with zero notice.
 
