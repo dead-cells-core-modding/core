@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <Version>35.4.1</Version>
+    <Version>35.4.2</Version>
     <TargetFramework>net9</TargetFramework>
     <RepositoryUrl>https://github.com/dead-cells-core-modding/core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

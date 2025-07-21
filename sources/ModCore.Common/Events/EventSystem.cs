@@ -78,7 +78,7 @@ namespace ModCore.Events
                 Logger.Debug("Broadcast Global Event: {Name}", typeof(TEvent).Name);
             }
             List<Exception>? exceptions = null;
-            var receivers = eventReceivers; // EventCaller<TEvent>.IsCallOnce ? eventReceivers : (IEnumerable<IEventReceiver>)EventReceiversCache<TEvent>.receivers;
+            var receivers = EventCaller<TEvent>.IsCallOnce ? eventReceivers : (IEnumerable<IEventReceiver>)EventReceiversCache<TEvent>.receivers;
             foreach (var module in receivers)
             {
                 if (module is TEvent ev)
