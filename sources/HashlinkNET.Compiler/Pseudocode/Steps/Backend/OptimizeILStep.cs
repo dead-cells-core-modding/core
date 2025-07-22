@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HashlinkNET.Compiler.Pseudocode.Steps
+namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 {
     class OptimizeILStep : CompileStep
     {

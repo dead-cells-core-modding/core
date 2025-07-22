@@ -1,11 +1,10 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HashlinkNET.Compiler.Pseudocode.Data
+namespace HashlinkNET.Compiler.Pseudocode.Data.DFA
 {
     internal class SSARegisterData
     {
@@ -16,6 +15,5 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         public IRResult overrideValue = new();
         public HlFuncRegisterData? reg;
 
-        public List<IRResult> loadAccess = [];
     }
 }

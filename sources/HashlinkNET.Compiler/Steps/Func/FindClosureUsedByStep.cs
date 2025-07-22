@@ -24,10 +24,14 @@ namespace HashlinkNET.Compiler.Steps.Func
         protected override void Execute( IDataContainer container, HlFunction item, int index )
         {
             var selfData = container.GetData<FuncData>(item);
-            var closureCount = 0;
+            var closureCount = 1;
+            var callCount = 1;
             foreach (var v in item.Opcodes)
             {
-                if (v.Kind < HlOpcodeKind.StaticClosure ||
+                if (v.Kind < HlOpcodeKind.Call0 ||
+                    v.Kind == HlOpcodeKind.CallThis ||
+                    v.Kind == HlOpcodeKind.CallMethod ||
+                    v.Kind == HlOpcodeKind.CallClosure ||
                     v.Kind > HlOpcodeKind.InstanceClosure)
                 {
                     continue;
@@ -39,7 +43,19 @@ namespace HashlinkNET.Compiler.Steps.Func
                 }
                 var func = gdata.Code.Functions[fid];
                 var fdata = container.GetData<FuncData>(func);
-                fdata.UsedBy.Add((selfData, closureCount++));
+                int id;
+                if (v.Kind == HlOpcodeKind.StaticClosure || v.Kind == HlOpcodeKind.InstanceClosure)
+                {
+                    id = closureCount++;
+                }
+                else
+                {
+                    id = -(callCount++);
+                }
+                lock (fdata.UsedBy)
+                {
+                    fdata.UsedBy.Add((selfData, id));
+                }
             }
         }
 

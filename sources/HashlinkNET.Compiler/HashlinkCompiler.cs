@@ -83,6 +83,12 @@ namespace HashlinkNET.Compiler
             AddStep<FindArrowFuncDefinitionStep>();
             AddStep<GenerateArrowFuncContextStep>();
             AddStep<FixArrowFuncContextNameStep>();
+
+            if (Config.GeneratePseudocode)
+            {
+                AddStep<FindArrowFuncDefinitionStep>();
+                AddStep<FindArrowFuncDefinitionStep>();
+            }
             #endregion
 
             #region Hooks

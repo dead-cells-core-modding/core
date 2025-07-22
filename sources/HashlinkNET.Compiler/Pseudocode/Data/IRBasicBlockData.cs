@@ -1,4 +1,5 @@
 ﻿
+using HashlinkNET.Compiler.Pseudocode.Data.DFA;
 using HashlinkNET.Compiler.Pseudocode.IR;
 using Mono.Cecil.Cil;
 using System;

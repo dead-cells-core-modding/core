@@ -15,15 +15,13 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
         {
             var type = (HlTypeWithFun)item.Type.Value;
             var desc = type.FunctionDescription;
-            if (desc.Arguments.Length == 0)
-            {
-                return;
-            }
-            var firstArg = desc.Arguments[0].Value;
+
             var md = container.GetData<FuncData>(item);
-            if (!container.TryGetData<ArrowFuncContextData>(firstArg, out var ctx))
+            if (desc.Arguments.Length == 0 || 
+                !container.TryGetData<ArrowFuncContextData>(desc.Arguments[0].Value, out var ctx))
             {
-                if (md.DeclaringClass != null)
+                if (md.DeclaringClass != null ||
+                    md.Definition.DeclaringType != null)
                 {
                     return;
                 }
@@ -36,6 +34,15 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
                     {
                         parentM = parent.Definition;
                         parentDef = parent.DeclaringClass.TypeDef;
+                        goto BREAK_0;
+                    }
+                }
+                foreach ((var parent, _) in md.UsedBy)
+                {
+                    if (parent.Definition.DeclaringType != null)
+                    {
+                        parentM = parent.Definition;
+                        parentDef = parent.Definition.DeclaringType;
                         goto BREAK_0;
                     }
                 }
@@ -58,9 +65,13 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
                 RunSync(() => parentDef.Methods.Add(md.Definition));
                 return;
             }
+            if (ctx != null &&
+                md.DeclaringClass == null)
+            {
+                ctx.Methods.Add(md);
+                RunSync(() => ctx.TypeDef.Methods.Add(md.Definition));
+            }
             
-            ctx.Methods.Add(md);
-            RunSync(() => ctx.TypeDef.Methods.Add(md.Definition));
         }
 
         protected override IReadOnlyList<HlFunction> GetItems( IDataContainer container )

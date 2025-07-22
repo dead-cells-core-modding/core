@@ -1,4 +1,5 @@
 ﻿using HashlinkNET.Compiler.Pseudocode.Data;
+using HashlinkNET.Compiler.Pseudocode.Data.DFA;
 using HashlinkNET.Compiler.Pseudocode.IR;
 using HashlinkNET.Compiler.Steps;
 using System;
@@ -8,9 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HashlinkNET.Compiler.Pseudocode.Steps.SSA
+namespace HashlinkNET.Compiler.Pseudocode.Steps.DFA
 {
-    internal class SSAScanRegistersAccessStep : CompileStep
+    internal class ScanRegistersAccessStep : CompileStep
     {
         public override void Execute( IDataContainer container )
         {
@@ -23,7 +24,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.SSA
 
                 var rad = v.registerAccessData = new RegisterAccessData(gdata.Registers.Count);
                 rad.ssaRegisters = new SSARegisterData[gdata.Registers.Count];
-                for (int i = 0; i < v.flatIR!.Length; i++)
+                for (var i = 0; i < v.flatIR!.Length; i++)
                 {
                     var ir = v.flatIR[i];
                     if (ir.IR is IR_LoadLocalReg lcr && lcr.src != null)
@@ -34,8 +35,6 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.SSA
                         {
                             reg = lcr.src
                         };
-
-                        ssaReg.loadAccess.Add(ir);
 
                         if (!rad.firstWriteReg[index])
                         {

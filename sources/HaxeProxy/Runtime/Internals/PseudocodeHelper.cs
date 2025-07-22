@@ -32,5 +32,13 @@ namespace HaxeProxy.Runtime.Internals
         {
             throw new NotSupportedException();
         }
+        public static T ReadMem<T>( nint ptr, int offset )
+        {
+            throw new NotSupportedException();
+        }
+        public static void WriteMem<T>( nint ptr, int offset, T value )
+        {
+            throw new NotSupportedException();
+        }
     }
 }

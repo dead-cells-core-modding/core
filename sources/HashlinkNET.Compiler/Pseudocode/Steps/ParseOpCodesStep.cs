@@ -474,8 +474,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     c == HlOpcodeKind.GetI16)
                 {
                     src = new IR_GetMem(
-                        CreateLoadLocalReg(code.Parameters[2]),
                         CreateLoadLocalReg(code.Parameters[1]),
+                        CreateLoadLocalReg(code.Parameters[2]),
                         c switch
                         {
                             HlOpcodeKind.GetI8 => typeSystem.Byte,

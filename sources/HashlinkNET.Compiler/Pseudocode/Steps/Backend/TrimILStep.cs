@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HashlinkNET.Compiler.Pseudocode.Steps
+namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 {
     internal class TrimILStep : CompileStep
     {
@@ -141,10 +141,9 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         {
             var gdata = container.GetGlobalData<FuncEmitGlobalData>();
             var md = gdata.Definition;
-            var insts = md.Body.Instructions;
 
             var stack = new List<StackItem>();
-            var stack_id = 0;
+            int stack_id;
 
             void Push( Instruction instruction, StlocInfo? inst )
             {
@@ -221,7 +220,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     {
                         var info = (StlocInfo)it.Operand;
                         if ((info.register?.IsExposed ?? true) ||
-                            (rad.exposedReg[info.register.Index] && info.isLast))
+                            rad.exposedReg[info.register.Index] && info.isLast)
                         {
                             goto SKIP;
                         }
@@ -251,7 +250,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         {
                             goto SKIP;
                         }
-                        for (int i = stack_id - 1; i >= 0; i--)
+                        for (var i = stack_id - 1; i >= 0; i--)
                         {
                             if (info.isConstant)
                             {
@@ -287,11 +286,11 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     }
                     SKIP:
                     (var pop, var push) = GetStackOperate(it, md);
-                    for (int i = 0; i < pop; i++)
+                    for (var i = 0; i < pop; i++)
                     {
                         Pop();
                     }
-                    for (int i = 0; i < push; i++)
+                    for (var i = 0; i < push; i++)
                     {
                         Push(it, null);
                     }
@@ -308,6 +307,34 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         it.Operand = info.variable;
                     }
                     it = it.Next;
+                }
+            }
+
+            // 
+
+            {
+                Instruction? lastBr = null;
+                foreach (var v in md.Body.Instructions)
+                {
+                    if (v.OpCode == OpCodes.Br)
+                    {
+                        lastBr = v;
+                        continue;
+                    }
+                    if (lastBr != null)
+                    {
+                        if (v == lastBr.Operand)
+                        {
+                            lastBr.Operand = null;
+                            lastBr.OpCode = OpCodes.Nop;
+                            continue;
+                        }
+                    }
+                    if (v.OpCode != OpCodes.Nop)
+                    {
+                        lastBr = null;
+                    }
+                    
                 }
             }
         }

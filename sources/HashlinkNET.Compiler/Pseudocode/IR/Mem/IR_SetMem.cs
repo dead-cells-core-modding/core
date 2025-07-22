@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using HashlinkNET.Compiler.Utils;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
@@ -23,14 +24,10 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Mem
             ptr.Emit(ctx, true);
 
             index.Emit(ctx, true);
-            var si = Instruction.Create(OpCodes.Sizeof, ctx.TypeSystem.Int16);
-            il.Append( si );
-            il.Emit(OpCodes.Mul);
-            il.Emit(OpCodes.Add);
 
-            var vt = val.Emit(ctx, true);
-            si.Operand = vt;
-            il.Emit(OpCodes.Stobj, vt);
+            var vt = val.Emit(ctx, true)!;
+
+            il.Emit(OpCodes.Call, ctx.RuntimeImports.phWriteMem.MakeInstance(vt));
             return null;
         }
     }

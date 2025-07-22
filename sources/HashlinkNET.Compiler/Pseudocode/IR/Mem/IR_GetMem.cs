@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using HashlinkNET.Compiler.Utils;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
@@ -22,12 +23,9 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Mem
         {
             ptr.Emit( ctx, true );
 
-            index.Emit(ctx, true);
-            il.Emit(OpCodes.Sizeof, type);
-            il.Emit(OpCodes.Mul);
-            il.Emit(OpCodes.Add);
-
-            il.Emit(OpCodes.Ldobj, type );
+            index.Emit( ctx, true );
+            
+            il.Emit(OpCodes.Call, ctx.RuntimeImports.phReadMem.MakeInstance(type) );
             return type;
         }
     }

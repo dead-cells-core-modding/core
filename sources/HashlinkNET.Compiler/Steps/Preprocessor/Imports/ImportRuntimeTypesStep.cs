@@ -77,6 +77,8 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.phDynSetMethod = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.DynSet));
             rdata.phCreateObject = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.CreateObject));
             rdata.phCreateClosure = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.CreateClosure));
+            rdata.phReadMem = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.ReadMem));
+            rdata.phWriteMem = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.WriteMem));
 
             rdata.hCreateInstance = ImportHelperMethod(nameof(HaxeProxyHelper.CreateInstance));
             rdata.hGetCallInfoById = ImportHelperMethod(nameof(HaxeProxyHelper.GetCallInfoById));

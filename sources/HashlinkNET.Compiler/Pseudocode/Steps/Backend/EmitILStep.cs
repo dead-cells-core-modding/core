@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HashlinkNET.Compiler.Pseudocode.Steps
+namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 {
     class EmitILStep : CompileStep
     {
@@ -31,11 +31,13 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             var vds = new ScopeDebugInformation[gdata.Registers.Count];
 
             Queue<IRBasicBlockData> queue = [];
+            Queue<IRBasicBlockData> highQueue = [];
             BitArray visited = new(gdata.IRBasicBlocks.Count);
 
-            queue.Enqueue(gdata.IRBasicBlocks[0]);
+            highQueue.Enqueue(gdata.IRBasicBlocks[0]);
 
-            while (queue.TryDequeue(out var bb))
+            while (highQueue.TryDequeue(out var bb) || 
+                queue.TryDequeue(out bb))
             {
                 if (visited[bb.index])
                 {
@@ -43,15 +45,16 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 }
                 visited[bb.index] = true;
 
+                if (bb.defaultTransition != null)
+                {
+                    highQueue.Enqueue(bb.defaultTransition);
+                }
                 foreach (var v in bb.transitions)
                 {
                     queue.Enqueue(v.Target);
                 }
 
                 il.Emit(OpCodes.Nop);
-
-                //il.Emit(OpCodes.Ldstr, "======BB Start======");
-                //il.Emit(OpCodes.Pop);
 
                 il.Append(bb.startInst);
                 var ctx = new EmitContext(
@@ -77,8 +80,6 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     il.Emit(OpCodes.Br, bb.defaultTransition.startInst);
                 }
                 il.Append(bb.endInst);
-                //il.Emit(OpCodes.Ldstr, "======BB End======");
-                //il.Emit(OpCodes.Pop);
             }
             il.Emit(OpCodes.Ret);
             il.Append(endInst);

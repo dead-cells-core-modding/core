@@ -1,12 +1,11 @@
-﻿
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HashlinkNET.Compiler.Pseudocode.Data
+namespace HashlinkNET.Compiler.Pseudocode.Data.DFA
 {
     class RegisterAccessData(int regCount)
     {
