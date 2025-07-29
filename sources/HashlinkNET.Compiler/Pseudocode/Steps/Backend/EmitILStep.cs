@@ -21,6 +21,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             var rdata = container.GetGlobalData<RuntimeImports>();
             var md = gdata.Definition;
 
+            var list = container.GetGlobalData<List<IRBasicBlockData>>();
+
 
             md.Body.Instructions.Clear();
             var il = md.Body.GetILProcessor();
@@ -30,30 +32,10 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             var mdsd = md.DebugInformation.Scope = new(startInst, endInst);
             var vds = new ScopeDebugInformation[gdata.Registers.Count];
 
-            Queue<IRBasicBlockData> queue = [];
-            Queue<IRBasicBlockData> highQueue = [];
-            BitArray visited = new(gdata.IRBasicBlocks.Count);
+            
 
-            highQueue.Enqueue(gdata.IRBasicBlocks[0]);
-
-            while (highQueue.TryDequeue(out var bb) || 
-                queue.TryDequeue(out bb))
+            foreach (var bb in list)
             {
-                if (visited[bb.index])
-                {
-                    continue;
-                }
-                visited[bb.index] = true;
-
-                if (bb.defaultTransition != null)
-                {
-                    highQueue.Enqueue(bb.defaultTransition);
-                }
-                foreach (var v in bb.transitions)
-                {
-                    queue.Enqueue(v.Target);
-                }
-
                 il.Emit(OpCodes.Nop);
 
                 il.Append(bb.startInst);
@@ -81,6 +63,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                 }
                 il.Append(bb.endInst);
             }
+
             il.Emit(OpCodes.Ret);
             il.Append(endInst);
         }

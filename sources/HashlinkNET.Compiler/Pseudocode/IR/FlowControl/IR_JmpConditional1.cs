@@ -13,8 +13,24 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
         IRBasicBlockData target,
         IR_JmpConditional1.ConditionKind kind,
         IRResult src
-        ) : IRBase(src)
+        ) : IRBase(src), IIR_JmpConditional
     {
+        public void ReserveCondition()
+        {
+            kind = kind switch
+            {
+                ConditionKind.True => ConditionKind.False,
+                ConditionKind.False => ConditionKind.True,
+                ConditionKind.Null => ConditionKind.NotNull,
+                ConditionKind.NotNull => ConditionKind.Null,
+                _ => throw new NotImplementedException()
+            };
+        }
+        public IRBasicBlockData Target
+        {
+            get => target;
+            set => target = value;
+        }
         public enum ConditionKind
         {
             True,

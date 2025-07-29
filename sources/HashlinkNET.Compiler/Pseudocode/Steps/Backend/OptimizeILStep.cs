@@ -3,6 +3,7 @@ using HashlinkNET.Compiler.Pseudocode.Data;
 using HashlinkNET.Compiler.Steps;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,8 +20,10 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             var gdata = container.GetGlobalData<FuncEmitGlobalData>();
             var md = gdata.Definition;
 
+            int offset = 0;
             foreach (var v in md.Body.Instructions)
             {
+                v.Offset = offset++;
                 var code = v.OpCode.Code;
                 if (code == Code.Ldarg)
                 {

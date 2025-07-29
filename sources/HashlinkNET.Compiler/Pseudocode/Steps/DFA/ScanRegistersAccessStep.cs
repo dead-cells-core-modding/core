@@ -61,7 +61,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.DFA
                         rad.regAccess.Add(i);
                     }
                 }
-                rad.requireReg.Or(rad.firstReadReg);
+                rad.requireBySelfAndChildrenReg.Or(rad.firstReadReg);
             }
 
             
@@ -72,14 +72,14 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.DFA
                 foreach (var v in bb.parents)
                 {
                     var trad = v.registerAccessData!;
-                    var old = (BitArray) trad.requireReg.Clone();
-                    var req = (BitArray) rad.requireReg.Clone();
+                    var old = (BitArray) trad.requireBySelfAndChildrenReg.Clone();
+                    var req = (BitArray) rad.requireBySelfAndChildrenReg.Clone();
                     trad.exposedReg.Or(req);
                     req.And(trad.writeReg.Not());
                     trad.writeReg.Not();
 
-                    trad.requireReg.Or(req);
-                    if (old.Xor(trad.requireReg).HasAnySet()) //Not Equal
+                    trad.requireBySelfAndChildrenReg.Or(req);
+                    if (old.Xor(trad.requireBySelfAndChildrenReg).HasAnySet()) //Not Equal
                     {
                         queue.Enqueue(v);
                     }

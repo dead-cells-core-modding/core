@@ -15,8 +15,28 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
         IR_JmpConditional2.ConditionKind kind,
         IRResult a,
         IRResult b
-        ) : IRBase(a, b)
+        ) : IRBase(a, b), IIR_JmpConditional
     {
+        public void ReserveCondition()
+        {
+            kind = kind switch
+            {
+                ConditionKind.Eq => ConditionKind.NotEq,
+                ConditionKind.NotEq => ConditionKind.Eq,
+                ConditionKind.Greate => ConditionKind.NotGreate,
+                ConditionKind.Less => ConditionKind.NotLess,
+                ConditionKind.NotGreate => ConditionKind.Greate,
+                ConditionKind.NotLess => ConditionKind.Less,
+                ConditionKind.SGreate => ConditionKind.NotGreate,
+                ConditionKind.SLess => ConditionKind.NotLess,
+                _ => throw new NotImplementedException()
+            };
+        }
+        public IRBasicBlockData Target
+        {
+            get => target;
+            set => target = value;
+        }
         public enum ConditionKind
         {
             Eq,

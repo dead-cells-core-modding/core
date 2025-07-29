@@ -13,6 +13,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 {
     internal class TrimILStep : CompileStep
     {
+        private static readonly object REMOVED_NOP = new();
         private record struct StackItem(StlocInfo? Info, Instruction Instruction);
         private class StlocInfo
         {
@@ -140,6 +141,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
         public override void Execute( IDataContainer container )
         {
             var gdata = container.GetGlobalData<FuncEmitGlobalData>();
+            var list = container.GetGlobalData<List<IRBasicBlockData>>();
             var md = gdata.Definition;
 
             var stack = new List<StackItem>();
@@ -169,7 +171,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             }
 
 
-            foreach (var bb in gdata.IRBasicBlocks)
+            foreach (var bb in list)
             {
                 var rad = bb.registerAccessData!;
                 var it = bb.startInst;
@@ -220,7 +222,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                     {
                         var info = (StlocInfo)it.Operand;
                         if ((info.register?.IsExposed ?? true) ||
-                            rad.exposedReg[info.register.Index] && info.isLast)
+                            rad.readReg[info.register.Index] != rad.writeReg[info.register.Index] ||
+                            (rad.exposedReg[info.register.Index] && info.isLast))
                         {
                             goto SKIP;
                         }
@@ -231,9 +234,9 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                         if (info.isConstant)
                         {
                             val.Instruction.OpCode = OpCodes.Nop;
-                            val.Instruction.Operand = null;
+                            val.Instruction.Operand = REMOVED_NOP;
                             it.OpCode = OpCodes.Nop;
-                            it.Operand = null;
+                            it.Operand = REMOVED_NOP;
                         }
                         else
                         {
@@ -265,10 +268,10 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                             }
                             if (stack[i].Info == info)
                             {
-                                it.Operand = null;
+                                it.Operand = REMOVED_NOP;
                                 it.OpCode = OpCodes.Nop;
                                 info.instruction.OpCode = OpCodes.Nop;
-                                info.instruction.Operand = null;
+                                info.instruction.Operand = REMOVED_NOP;
 
                                 stack[i] = stack[i] with
                                 {
@@ -325,7 +328,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                     {
                         if (v == lastBr.Operand)
                         {
-                            lastBr.Operand = null;
+                            lastBr.Operand = REMOVED_NOP;
                             lastBr.OpCode = OpCodes.Nop;
                             continue;
                         }
@@ -335,6 +338,17 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                         lastBr = null;
                     }
                     
+                }
+
+                var array = md.Body.Instructions.ToArray();
+                md.Body.Instructions.Clear();
+                foreach (var v in array)
+                {
+                    if (v.Operand == REMOVED_NOP)
+                    {
+                        continue;
+                    }
+                    md.Body.Instructions.Add(v);
                 }
             }
         }

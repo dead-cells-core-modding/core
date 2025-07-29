@@ -13,7 +13,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Data.DFA
         public readonly BitArray firstWriteReg = new(regCount);
         public readonly BitArray writeReg = new(regCount);
         public readonly BitArray readReg = new(regCount);
-        public readonly BitArray requireReg = new(regCount);
+        public readonly BitArray requireBySelfAndChildrenReg = new(regCount);
         public readonly BitArray exposedReg = new(regCount);
 
         public readonly List<int> regAccess = [];
