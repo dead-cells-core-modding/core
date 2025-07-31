@@ -298,12 +298,18 @@ namespace Hashlink.Marshaling.ObjHandle
                 }
 
                 Debug.Assert(handle.nativeHLPtr == ptr);
+                
 
                 ref var h = ref GetObjHandle(handle.handleIndex);
 
                 Debug.Assert(h.valid);
                 Debug.Assert(h.hlPtr == ptr);
                 Debug.Assert(h.weakRef.Target == handle);
+
+                if (handle.Target != null)
+                {
+                    Debug.Assert(*((nint*)ptr) == (nint)handle.Target.NativeType);
+                }
 
                 if (!handle.IsStateless)
                 {

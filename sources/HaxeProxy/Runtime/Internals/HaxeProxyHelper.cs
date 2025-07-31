@@ -60,6 +60,10 @@ namespace HaxeProxy.Runtime.Internals
         public static object? GetFieldById<T>( HaxeProxyBase self, string name, ref ObjFieldInfoCache cache )
             where T : class
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                return null;
+            }
             EnsureFieldInfo(self, name, ref cache);
             if (cache.offset == 0)
             {
@@ -74,6 +78,10 @@ namespace HaxeProxy.Runtime.Internals
         public static T GetValueFieldById<T>( HaxeProxyBase self, string name, ref ObjFieldInfoCache cache )
             where T : unmanaged
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                return default;
+            }
             EnsureFieldInfo(self, name, ref cache);
             if (cache.offset == 0)
             {

@@ -20,6 +20,7 @@ namespace Hashlink.Marshaling.ObjHandle
             nativeHLPtr = objPtr;
             handleIndex = index;
         }
+
         public bool IsStateless
         {
             get => isStateless;
