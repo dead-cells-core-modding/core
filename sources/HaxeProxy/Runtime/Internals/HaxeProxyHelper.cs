@@ -2,6 +2,7 @@
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Members;
@@ -133,11 +134,10 @@ namespace HaxeProxy.Runtime.Internals
             {
                 return null;
             }
-            if (val is T)
+            if (val is T && typeof(T) != typeof(object))
             {
                 return val;
             }
-
             if (typeof(T).IsAssignableTo(typeof(Delegate)))
             {
                 if (val is Delegate d)
@@ -148,6 +148,10 @@ namespace HaxeProxy.Runtime.Internals
                 {
                     return closure.CreateDelegate(typeof(T));
                 }
+            }
+            if (val is HashlinkDynObj dyn)
+            {
+                return HashlinkObjDynamicAccess.Create(dyn);
             }
             if (val is IExtraData ied)
             {

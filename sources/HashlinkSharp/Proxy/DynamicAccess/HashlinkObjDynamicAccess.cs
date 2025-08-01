@@ -40,6 +40,10 @@ namespace Hashlink.Proxy.DynamicAccess
             {
                 return new HashlinkObjectDynamicAccess(virt);
             }
+            else if (obj is HashlinkDynObj dyn)
+            {
+                return new HashlinkObjectDynamicAccess(dyn);
+            }
             throw new NotSupportedException();
         }
 

@@ -1,8 +1,11 @@
 ﻿using dc;
 using dc.h2d.col;
+using dc.hl.types;
 using dc.tool;
 using Hashlink.Marshaling;
+using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
+using Hashlink.Reflection;
 using Hashlink.Reflection.Types;
 using Hashlink.Virtuals;
 using HaxeProxy.Runtime;
@@ -31,6 +34,19 @@ namespace TestRunner
             p.normalize();
 
             Assert.Equal(1d, p.x);
+
+            var array = new ArrayObj()
+            {
+                array = new(HashlinkMarshal.Module.KnownTypes.Dynamic, 0)
+            };
+            array.push(p);
+            Assert.Equal(array.pop(), p);
+
+            var dyn = new HashlinkDynObj();
+            dyn.SetFieldValue("test1", p);
+            array.push(dyn);
+            var dyn2 = array.pop();
+            Assert.Equal((Point)dyn2.test1, p);
         }
         [Fact]
         public void Interaction_Virtual()

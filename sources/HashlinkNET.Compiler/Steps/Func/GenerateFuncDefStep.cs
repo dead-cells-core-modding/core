@@ -50,7 +50,9 @@ namespace HashlinkNET.Compiler.Steps.Func
             for (int i = 0; i < ft.Arguments.Length; i++)
             {
                 var at = container.GetTypeRef(ft.Arguments[i].Value);
-                md.Parameters.Add(new("arg" + (i + 1), ParameterAttributes.None, at));
+                var pd = new ParameterDefinition("arg" + (i + 1), ParameterAttributes.None, at);
+                pd.CheckDynamic(rdata, at);
+                md.Parameters.Add(pd);
             }
 
             if (f.Assigns != null && md.Parameters.Count > 0)
@@ -70,6 +72,7 @@ namespace HashlinkNET.Compiler.Steps.Func
 
             md.Body.Instructions.Add(Instruction.Create(OpCodes.Ldnull));
             md.Body.Instructions.Add(Instruction.Create(OpCodes.Throw));
+            md.MethodReturnType.CheckDynamic(rdata, md.ReturnType);
 
             container.AddDataEach(f, new FuncData()
             {

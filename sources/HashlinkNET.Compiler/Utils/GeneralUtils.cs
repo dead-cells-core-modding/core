@@ -10,8 +10,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using CallSite = Mono.Cecil.CallSite;
 
 namespace HashlinkNET.Compiler.Utils
 {
@@ -58,12 +60,7 @@ namespace HashlinkNET.Compiler.Utils
 
         public static void FixPIndex( this MethodDefinition method )
         {
-            var l = method.Parameters.ToArray();
-            method.Parameters.Clear();
-            for (var i = 0; i < l.Length; i++)
-            {
-                method.Parameters.Add(new(l[i].Name, l[i].Attributes, l[i].ParameterType));
-            }
+
         }
 
         private static FieldDefinition GetHlFieldInfoCache( TypeDefinition type, string name, RuntimeImports rdata)
@@ -101,6 +98,8 @@ namespace HashlinkNET.Compiler.Utils
             {
                 property.GetMethod = new("get_" + name, MethodAttributes.SpecialName | MethodAttributes.Public,
                     property.PropertyType);
+                property.GetMethod.MethodReturnType.CheckDynamic(
+                    container.GetGlobalData<RuntimeImports>(), property.PropertyType);
                 var ilp = property.GetMethod.Body.GetILProcessor();
                 ilp.Emit(OpCodes.Ldarg_0);
                 type.EmitGetHlField(ilp, container, name, property.PropertyType);
@@ -207,15 +206,14 @@ namespace HashlinkNET.Compiler.Utils
 
                 
                 emitArg(il, i);
+                var pd = new ParameterDefinition(pt);
                 if (at.Kind == HlTypeKind.Null)
                 {
                     il.Emit(OpCodes.Box, pt);
-                    cs.Parameters.Add(new(rdata.objectType));
+                    pd.ParameterType = rdata.objectType;
                 }
-                else
-                {
-                    cs.Parameters.Add(new(pt));
-                }
+                //pd.CheckDynamic(rdata, pd.ParameterType);
+                cs.Parameters.Add(pd);
             }
 
             il.Emit(OpCodes.Ldloc, di);
@@ -252,6 +250,19 @@ namespace HashlinkNET.Compiler.Utils
                 gm.GenericArguments.Add(v);
             }
             return gm;
+        }
+
+        public static void AddDynamicAttribute( this ICustomAttributeProvider provider, RuntimeImports runtimeImports )
+        {
+            provider.CustomAttributes.Add(new(runtimeImports.attrDynamic));
+        }
+        public static void CheckDynamic( this ICustomAttributeProvider provider, RuntimeImports runtimeImports,
+            TypeReference type )
+        {
+            if (type.Namespace == "System" && type.Name == "Object")
+            {
+                provider.AddDynamicAttribute(runtimeImports);
+            }
         }
 
         public static bool ParseHlTypeName( string name, out string @namespace, out string typeName )

@@ -88,11 +88,13 @@ namespace HashlinkNET.Compiler.Steps.Enum
                 {
                     var pd = new PropertyDefinition("Param" + j, PropertyAttributes.None,
                         container.GetTypeRef(ec.Params[j].Value));
+                    pd.CheckDynamic(rdata, pd.PropertyType);
                     GeneralUtils.EmitFieldGetterSetter(
                         td, pd, container, (j | i << 16).ToString());
                     td.Properties.Add(pd);
 
                     var mp = new ParameterDefinition("p" + j, ParameterAttributes.None, pd.PropertyType);
+                    
                     ctor.Parameters.Add(mp);
                     ilp.Emit(OpCodes.Ldarg_0);
                     ilp.Emit(OpCodes.Ldarg, mp);
