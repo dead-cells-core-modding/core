@@ -47,7 +47,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                     rdata,
                     container.GetGlobalData<CompileConfig>(),
                     mdsd,
-                    il)
+                    il,
+                    gdata)
                 {
                     VariableDebugs = vds
                 };

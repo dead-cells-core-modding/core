@@ -19,6 +19,7 @@ static void Run(string[] args){
 #if DEBUG
     config.AllowParalle = true;
     config.GeneratePseudocode = true;
+    config.GenerateBytecodeMapping = true;
 #endif
 
     var compiler = new HashlinkCompiler(
@@ -136,6 +137,8 @@ foreach(var v in m.Types.ToArray())
         SymbolWriterProvider = new PortablePdbWriterProvider(),
         SymbolStream = pdbFile
     });
+    File.WriteAllBytes(Path.ChangeExtension(args[1], "bcm.bin"),
+        compiler.BytecodeMappingData.Write());
 }
 
 Run(args); 

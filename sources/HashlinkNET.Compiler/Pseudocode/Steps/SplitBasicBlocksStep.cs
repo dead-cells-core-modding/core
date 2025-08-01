@@ -77,7 +77,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 var bbd = new HlBasicBlockData()
                 {
                     opcodeStart = start,
-                    opcodes = new Memory<HlOpcode>(opcodes, start, v - start)
+                    opcodes = new Memory<HlOpcode>(opcodes, start, v - start),
+                    function = f
                 };
                 if (bbd.opcodes.IsEmpty)
                 {
@@ -92,7 +93,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 var bbd = new HlBasicBlockData()
                 {
                     opcodeStart = start,
-                    opcodes = new Memory<HlOpcode>(opcodes, start, opcodes.Length - start)
+                    opcodes = new Memory<HlOpcode>(opcodes, start, opcodes.Length - start),
+                    function = f
                 };
                 bb.Add(bbd);
                 bbLookup.Add(start, bbd);

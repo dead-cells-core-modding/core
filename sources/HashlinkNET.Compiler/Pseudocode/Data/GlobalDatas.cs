@@ -1,4 +1,5 @@
-﻿using HashlinkNET.Bytecode;
+﻿using BytecodeMapping;
+using HashlinkNET.Bytecode;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
     record class FuncEmitGlobalData(
         HlFunction Function,
         HlTypeFun FuncType,
-        MethodDefinition Definition
+        MethodDefinition Definition,
+        BytecodeMappingData.FunctionData MappingData
         )
     {
 

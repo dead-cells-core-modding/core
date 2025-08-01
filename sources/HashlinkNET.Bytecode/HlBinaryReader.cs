@@ -476,7 +476,7 @@ public unsafe ref struct HlBinaryReader
                 while (count-- > 0)
                 {
                     debug[i] = new(
-                        code.GetUString(currFile),
+                        code.DebugFiles[currFile],
                         currLine);
 
                     i++;
@@ -488,7 +488,7 @@ public unsafe ref struct HlBinaryReader
             {
                 currLine += c >> 3;
                 debug[i] = new(
-                        code.GetUString(currFile),
+                        code.DebugFiles[currFile],
                         currLine);
                 i++;
             }
@@ -498,7 +498,7 @@ public unsafe ref struct HlBinaryReader
                 var b3 = ReadByte();
                 currLine = (c >> 3) | (b2 << 5) | (b3 << 13);
                 debug[i] = new(
-                        code.GetUString(currFile),
+                        code.DebugFiles[currFile],
                         currLine);
                 i++;
             }

@@ -1,4 +1,5 @@
-﻿using HashlinkNET.Bytecode;
+﻿using BytecodeMapping;
+using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Pseudocode.Steps;
 using HashlinkNET.Compiler.Steps;
@@ -29,6 +30,10 @@ namespace HashlinkNET.Compiler
             get;
         } = config ?? new();
         public AssemblyDefinition Output => output;
+        public BytecodeMappingData BytecodeMappingData
+        {
+            get;
+        } = new();
         protected override void InstallSteps()
         {
             #region Pre Process
@@ -119,7 +124,8 @@ namespace HashlinkNET.Compiler
                 Config: Config,
                 Assembly: output,
                 Module: output.MainModule,
-                Code: code
+                Code: code,
+                BytecodeMappingData: BytecodeMappingData
             ));
         }
     }

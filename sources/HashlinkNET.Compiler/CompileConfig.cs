@@ -15,6 +15,10 @@ namespace HashlinkNET.Compiler
         public bool GeneratePseudocode
         {
             get; set;
-        } //TODO
+        }
+        public bool GenerateBytecodeMapping
+        {
+            get; set;
+        }
     }
 }

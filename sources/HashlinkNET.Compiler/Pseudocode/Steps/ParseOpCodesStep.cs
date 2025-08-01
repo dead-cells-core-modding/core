@@ -78,11 +78,23 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 //Parse OpCodes
                 int optIdx = hlbb.opcodeStart;
                 irbb.ir.Capacity = hlbb.opcodes.Length;
-                foreach (var v in hlbb.opcodes.Span)
-                {
-                    ParseOpCode(v, optIdx++, irbb);
-                }
 
+                if (hlbb.function.Debug == null ||
+                    !gdata2.Config.GenerateBytecodeMapping)
+                {
+                    foreach (var v in hlbb.opcodes.Span)
+                    {
+                        ParseOpCode(v, optIdx++, irbb);
+                    }
+                }
+                else
+                {
+                    foreach (var v in hlbb.opcodes.Span)
+                    {
+                        irbb.AddIR(new IR_DebugSequence(hlbb.function.Debug[optIdx]));
+                        ParseOpCode(v, optIdx++, irbb);
+                    }
+                }
                 return irbb;
             }
         }

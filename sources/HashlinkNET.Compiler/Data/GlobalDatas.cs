@@ -1,4 +1,5 @@
-﻿using HashlinkNET.Bytecode;
+﻿using BytecodeMapping;
+using HashlinkNET.Bytecode;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,8 @@ namespace HashlinkNET.Compiler.Data
         CompileConfig Config,
         AssemblyDefinition Assembly,
         ModuleDefinition Module,
-        HlCode Code
+        HlCode Code,
+        BytecodeMappingData BytecodeMappingData
     );
     internal record class NativeImplClasses
     (

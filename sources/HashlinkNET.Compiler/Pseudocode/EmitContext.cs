@@ -1,4 +1,5 @@
 ﻿using HashlinkNET.Compiler.Data;
+using HashlinkNET.Compiler.Pseudocode.Data;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
@@ -17,7 +18,8 @@ namespace HashlinkNET.Compiler.Pseudocode
         RuntimeImports RuntimeImports,
         CompileConfig Config,
         ScopeDebugInformation Scope,
-        ILProcessor IL)
+        ILProcessor IL,
+        FuncEmitGlobalData GlobalData)
     {
         public ScopeDebugInformation?[] VariableDebugs
         {

@@ -12,7 +12,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         public readonly List<Transition> transitions = [];
         public required int opcodeStart;
         public required Memory<HlOpcode> opcodes;
-
+        public required HlFunction function;
         public record class Transition
         (
             HlBasicBlockData Target,

@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using HashlinkNET.Bytecode;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
