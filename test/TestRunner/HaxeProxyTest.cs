@@ -35,18 +35,7 @@ namespace TestRunner
 
             Assert.Equal(1d, p.x);
 
-            var array = new ArrayObj()
-            {
-                array = new(HashlinkMarshal.Module.KnownTypes.Dynamic, 0)
-            };
-            array.push(p);
-            Assert.Equal(array.pop(), p);
-
-            var dyn = new HashlinkDynObj();
-            dyn.SetFieldValue("test1", p);
-            array.push(dyn);
-            var dyn2 = array.pop();
-            Assert.Equal((Point)dyn2.test1, p);
+            
         }
         [Fact]
         public void Interaction_Virtual()
@@ -80,6 +69,30 @@ namespace TestRunner
 
             var inst2 = inst1.AsHaxe();
             Assert.NotNull(inst2);
+        }
+
+        [Fact]
+        public void Test_Dyn()
+        {
+            double x = 114514;
+            double y = 0;
+            var p = new Point(new(ref x), new(ref y)); 
+            
+            var array = new ArrayObj()
+            {
+                array = new(HashlinkMarshal.Module.KnownTypes.Dynamic, 0)
+            };
+            array.push(p);
+            Assert.Equal(array.pop(), p);
+
+            var dyn = new HashlinkDynObj();
+            dyn.SetFieldValue("test1", p);
+            array.push(dyn);
+            var dyn2 = array.pop();
+            Assert.Equal((Point)dyn2.test1, p);
+
+            array.pushDyn(114514);
+            Assert.Equal(114514, (int)array.pop());
         }
 
         [Fact]

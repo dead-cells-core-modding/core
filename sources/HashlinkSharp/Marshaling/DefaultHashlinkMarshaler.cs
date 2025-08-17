@@ -216,9 +216,11 @@ namespace Hashlink.Marshaling
                 TypeKind.HREF => (nint)((HL_vdynamic*)target)->val.ptr,
                 TypeKind.HENUM => new HashlinkEnum(ptr),
                 TypeKind.HARRAY => new HashlinkArray(ptr),
-                TypeKind.HNULL => HashlinkMarshal.ReadData(
+                TypeKind.HDYNOBJ => new HashlinkDynObj(ptr),
+                TypeKind.HNULL or TypeKind.HDYN => HashlinkMarshal.ReadData(
                     &((HL_vdynamic*)target)->val, HashlinkMarshal.GetHashlinkType(ptr.Type->data.tparam)
                     ),
+                    
                 _ => throw new InvalidOperationException($"Unrecognized type {kind}")
             };
         }
