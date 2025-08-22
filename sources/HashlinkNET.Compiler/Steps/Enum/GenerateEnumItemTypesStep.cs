@@ -62,6 +62,7 @@ namespace HashlinkNET.Compiler.Steps.Enum
                         GetMethod = td.Methods[0]
                     });
                     addedTypes.Add(new(td, 
+                        AddTypeKind.AddToTypesList,
                         HaxeProxy.Runtime.Internals.HaxeProxyBindingAttribute.GetSubTypeId(type.TypeIndex, i))
                         );
                     enumType.NestedTypes.Add(td);

@@ -7,6 +7,7 @@
     <RootNamespace>TestRunner</RootNamespace>
     <ModType>library</ModType>
     <NoModCore>true</NoModCore>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     
     <!--
     To enable the Microsoft Testing Platform 'dotnet test' experience, add property:

@@ -12,8 +12,7 @@ namespace HashlinkNET.Compiler.Data
     class VirtualClassData : 
         IGetField,
         ITypeReferenceValue,
-        ITypeIndex,
-        ITypeDefinitionValue
+        ITypeIndex
     {
         public required TypeReference TypeRef
         {
@@ -23,17 +22,7 @@ namespace HashlinkNET.Compiler.Data
         {
             get;
         } = [];
-        public required List<HlObjField> SortedFields
-        {
-            get; set;
-        }
-
-        public required string ShortName
-        {
-            get; set;
-        }
-
-        public required string FullName
+        public required VirtualGroupData Group
         {
             get; set;
         }
@@ -43,10 +32,6 @@ namespace HashlinkNET.Compiler.Data
             get; set;
         }
 
-        public TypeDefinition TypeDef
-        {
-            get; set;
-        } = null!;
 
         public PropertyDefinition? GetField( int index )
         {

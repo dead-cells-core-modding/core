@@ -2,6 +2,7 @@
 using dc.h2d.col;
 using dc.hl.types;
 using dc.tool;
+using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
@@ -38,7 +39,7 @@ namespace TestRunner
             
         }
         [Fact]
-        public void Interaction_Virtual()
+        public unsafe void Interaction_Virtual()
         {
             var v = new virtual_fileName_lineNumber_
             {
@@ -48,6 +49,13 @@ namespace TestRunner
 
             Assert.Equal(114514, v.lineNumber);
             Assert.Equal("Test", v.fileName.ToString());
+
+            var iter = new virtual_hasNext_next_<HlFunc<int>>();
+            var iterType = iter.HashlinkObj.Type;
+
+            var hlobj = HashlinkNative.hl_alloc_virtual(iterType.NativeType);
+            var iter2 = ((HashlinkVirtual?)HashlinkMarshal.ConvertHashlinkObject(hlobj))?.AsHaxe();
+            Assert.Equal(iterType, iter2?.HashlinkObj.Type);
         }
         [Fact]
         public void Interaction_Enum()

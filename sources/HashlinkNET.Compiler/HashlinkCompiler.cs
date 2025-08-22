@@ -13,6 +13,7 @@ using HashlinkNET.Compiler.Steps.Preprocessor.Fun;
 using HashlinkNET.Compiler.Steps.Preprocessor.Imports;
 using HashlinkNET.Compiler.Steps.Preprocessor.Native;
 using HashlinkNET.Compiler.Steps.Preprocessor.Types;
+using HashlinkNET.Compiler.Steps.Preprocessor.Types.Virtuals;
 using HashlinkNET.Compiler.Steps.Virtual;
 using Mono.Cecil;
 using System.Collections;
@@ -44,6 +45,8 @@ namespace HashlinkNET.Compiler
             AddStep<GenerateClassTypeStep>();
             AddStep<GenerateEnumTypeStep>();
             AddStep<GenerateStructTypeStep>();
+
+            AddStep<ScanVirtualTypeStep>();
             AddStep<GenerateVirtualTypeStep>();
 
             AddStep<ImportFuncTypeStep>();
@@ -68,9 +71,9 @@ namespace HashlinkNET.Compiler
             #endregion
 
             #region Virtual
-            AddStep<GenerateVirtualCtorStep>();
-            AddStep<GenerateVirtualFieldsStep>();
-            AddStep<FixVirtualNameStep>();
+            AddStep<FixVirtualGenericTypeStep>();
+            AddStep<GenerateVirtualClassStep>();
+            
             #endregion
 
             #region Class

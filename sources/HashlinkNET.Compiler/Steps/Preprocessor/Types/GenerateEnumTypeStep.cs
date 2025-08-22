@@ -37,7 +37,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
             {
                 BaseType = new GenericInstanceType(rdata.enumType)
             };
-            addedTypes.Add(new(td, type.TypeIndex));
+            addedTypes.Add(new(td, AddTypeKind.AddToModule | AddTypeKind.AddToTypesList, type.TypeIndex));
 
             if (isArrowFuncCtx)
             {

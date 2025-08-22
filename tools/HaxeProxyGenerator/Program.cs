@@ -1,4 +1,5 @@
-﻿
+﻿//#define DONT_CLEAN_TYPE
+
 using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler;
 using Mono.Cecil;
@@ -7,6 +8,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime;
 using System.Runtime.CompilerServices;
+
 
 static void Run(string[] args){
     using var asm = AssemblyDefinition.CreateAssembly(new("GameProxy", new()), "GameProxy", ModuleKind.Dll);
@@ -17,7 +19,7 @@ static void Run(string[] args){
     };
 
 #if DEBUG
-    config.AllowParalle = true;
+    config.AllowParalle = false;
     config.GeneratePseudocode = true;
     config.GenerateBytecodeMapping = true;
 #endif
@@ -56,31 +58,32 @@ static void Run(string[] args){
 
     });
 
-#if !DEBUG
+#if !DEBUG && !DONT_CLEAN_TYPE
 
-foreach(var v in m.Types.ToArray())
-{
-    if(!v.IsPublic)
+    foreach (var v in m.Types.ToArray())
     {
-        m.Types.Remove(v);
-    }
-    else
-    {
-        CleanupType(v);
-    }
+        if (!v.IsPublic)
+        {
+            m.Types.Remove(v);
+        }
+        else
+        {
+            CleanupType(v);
+        }
 }
 
 #endif
 
     static void CleanupType(TypeDefinition v)
     {
+        
         //v.CustomAttributes.Clear();
         foreach (var me in v.Methods.ToArray())
         {
             //me.CustomAttributes.Clear();
             if (!me.IsPublic)
             {
-                v.Methods.Remove(me);
+               v.Methods.Remove(me);
             }
             else if (me.Body != null)
             {

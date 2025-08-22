@@ -81,5 +81,6 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference hGetEnumIndex;
         public MethodReference phReadMem;
         public MethodReference phWriteMem;
+        public MethodReference hGetTypeIndexFromType;
     }
 }

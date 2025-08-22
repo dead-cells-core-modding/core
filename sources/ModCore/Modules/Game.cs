@@ -67,7 +67,7 @@ namespace ModCore.Modules
             self.next(null);
         }
 
-        private virtual_cb_help_inter_isEnable_t__0 Hook_TitleScreen_addMenu( Hook_TitleScreen.orig_addMenu orig, TitleScreen self, dc.String str, HlAction cb, dc.String help, bool? isEnable, Ref<int> color )
+        private virtual_cb_help_inter_isEnable_t_<bool> Hook_TitleScreen_addMenu( Hook_TitleScreen.orig_addMenu orig, TitleScreen self, dc.String str, HlAction cb, dc.String help, bool? isEnable, Ref<int> color )
         {
             var s = self;
             var menuItems = s.menuItems;

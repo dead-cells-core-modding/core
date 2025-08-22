@@ -28,7 +28,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
                 IsValueType = true,
                 BaseType = rdata.objBaseType
             };
-            addedTypes.Add(new(td, type.TypeIndex));
+            //addedTypes.Add(new(td, type.TypeIndex));
 
             container.AddData(type, td, new ObjClassData()
             {

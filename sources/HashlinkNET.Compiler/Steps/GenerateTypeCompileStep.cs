@@ -11,9 +11,17 @@ namespace HashlinkNET.Compiler.Steps
 {
     abstract class GenerateTypeCompileStep : ForeachHlTypeCompileStep
     {
-        public record struct AddTypeInfo(
-            TypeDefinition Type,
-            int Index
+        [Flags]
+        protected enum AddTypeKind
+        {
+            None,
+            AddToModule = 1,
+            AddToTypesList = 2
+        }
+        protected record struct AddTypeInfo(
+            TypeReference Type,
+            AddTypeKind Kind,
+            int Index = 0
             );
         protected readonly ConcurrentBag<AddTypeInfo> addedTypes = []; 
         protected readonly ConcurrentBag<CustomAttribute> addAssemblyAttributes = [];
@@ -26,22 +34,23 @@ namespace HashlinkNET.Compiler.Steps
             var module = gdata.Module;
             foreach (var v in addedTypes)
             {
-                if ((v.Index & 0x80000000) == 0 ||
-                    v.Index == -1)
+                if (v.Kind.HasFlag(AddTypeKind.AddToModule) && v.Type is TypeDefinition td )
                 {
-                    module.Types.Add(v.Type);
+                    module.Types.Add(td);
                 }
-                
-                if (v.Index != -1)
+                if (v.Kind.HasFlag(AddTypeKind.AddToTypesList))
                 {
-                    v.Type.CustomAttributes.Add(new(
-                        rdata.attrTIndexCtor)
+                    if (v.Type is TypeDefinition t)
                     {
-                        ConstructorArguments =
+                        t.CustomAttributes.Add(new(
+                            rdata.attrTIndexCtor)
+                        {
+                            ConstructorArguments =
                             {
                                 new(gdata.Module.TypeSystem.Int32, v.Index)
                             }
-                    });
+                        });
+                    }
                     module.Assembly.CustomAttributes.Add(new(
                         rdata.attrTypeBindingCtor
                         )

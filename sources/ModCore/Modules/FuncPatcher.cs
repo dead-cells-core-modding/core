@@ -13,6 +13,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace ModCore.Modules
 {
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
+    [Obsolete]
     public unsafe class FuncPatcher : CoreModule<FuncPatcher>
     {
         public delegate void PatcherCallback( HlFunctionDefinition definition );

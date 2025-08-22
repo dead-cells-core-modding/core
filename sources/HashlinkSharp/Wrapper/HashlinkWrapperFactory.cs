@@ -89,6 +89,12 @@ namespace Hashlink.Wrapper
                         ilg.Emit(OpCodes.Ldloca, l);
                         objRefs.Add((i + 1, l));
                     }
+                    else
+                    {
+                        var l = ilg.DeclareLocal(typeof(void*), true);
+                        ilg.Emit(OpCodes.Stloc, l);
+                        ilg.Emit(OpCodes.Ldloc, l);
+                    }
                 }
                 else if (!k.IsValueType())
                 {

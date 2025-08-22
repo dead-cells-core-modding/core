@@ -5,6 +5,7 @@ using HashlinkNET.Compiler.Data.Interfaces;
 using Microsoft.VisualBasic.FileIO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -63,7 +64,7 @@ namespace HashlinkNET.Compiler.Utils
 
         }
 
-        private static FieldDefinition GetHlFieldInfoCache( TypeDefinition type, string name, RuntimeImports rdata)
+        private static FieldReference GetHlFieldInfoCache( TypeDefinition type, string name, RuntimeImports rdata)
         {
             var cache = type.FindField("cachedFieldInfo_" + name);
             if (cache == null)
@@ -71,6 +72,11 @@ namespace HashlinkNET.Compiler.Utils
                 cache = new("cachedFieldInfo_" + name, FieldAttributes.Private | FieldAttributes.Static,
                     rdata.objFieldInfoCache);
                 type.Fields.Add(cache);
+            }
+            if (type.GenericParameters.Count != 0)
+            {
+                return new FieldReference(cache.Name, cache.FieldType, 
+                    type.MakeGenericInstanceType([.. type.GenericParameters]));
             }
             return cache;
         }
@@ -250,6 +256,32 @@ namespace HashlinkNET.Compiler.Utils
                 gm.GenericArguments.Add(v);
             }
             return gm;
+        }
+
+        public static MethodReference CreateGenericInstanceTypeMethod( this MethodReference method, TypeReference newType )
+        {
+            var result = new MethodReference(method.Name, method.ReturnType, newType)
+            {
+                ExplicitThis = method.ExplicitThis,
+                HasThis = method.HasThis
+            };
+            foreach (var v in method.Parameters)
+            {
+                var pd = new ParameterDefinition(v.Name, v.Attributes, v.ParameterType);
+                pd.CopyAttributeFrom(v);
+                result.Parameters.Add(pd);
+            }
+            result.MethodReturnType.CopyAttributeFrom(method.MethodReturnType);
+
+            return result;
+        }
+
+        public static void CopyAttributeFrom( this ICustomAttributeProvider self, ICustomAttributeProvider other )
+        {
+            foreach (var v in other.CustomAttributes)
+            {
+                self.CustomAttributes.Add(v);
+            }
         }
 
         public static void AddDynamicAttribute( this ICustomAttributeProvider provider, RuntimeImports runtimeImports )

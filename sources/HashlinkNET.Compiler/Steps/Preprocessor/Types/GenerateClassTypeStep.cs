@@ -25,7 +25,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
 
             GeneralUtils.ParseHlTypeName(objType.Obj.Name, out var np, out var name);
             var td = new TypeDefinition(np, name, TypeAttributes.Class | TypeAttributes.Public);
-            addedTypes.Add(new(td, type.TypeIndex));
+            addedTypes.Add(new(td, AddTypeKind.AddToModule | AddTypeKind.AddToTypesList, type.TypeIndex));
 
             container.AddData(type, td, new ObjClassData()
             {

@@ -21,6 +21,10 @@ namespace HashlinkNET.Compiler.Data
         HlCode Code,
         BytecodeMappingData BytecodeMappingData
     );
+    internal record class VirtualTypeList
+    (
+        Dictionary<string, VirtualGroupData> Virtuals
+    );
     internal record class NativeImplClasses
     (
         Dictionary<string, TypeDefinition> NativeImplClass

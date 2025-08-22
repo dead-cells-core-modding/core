@@ -12,6 +12,12 @@ namespace Hashlink.Proxy.Objects
         {
             
         }
+
+        public override string ToString()
+        {
+            return TypedValue!;
+        }
+
         public HashlinkString( string val ) : this()
         {
             TypedValue = val;

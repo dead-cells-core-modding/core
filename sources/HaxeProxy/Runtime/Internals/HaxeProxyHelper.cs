@@ -181,6 +181,15 @@ namespace HaxeProxy.Runtime.Internals
             return new HashlinkEnum(t, elIndex);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetTypeIndexFromType<T>( ref int cachedValue )
+        {
+            if (cachedValue > 0)
+            {
+                return cachedValue;
+            }
+            return cachedValue = HaxeProxyManager.type2typeId[typeof(T)];
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DelegateInfo GetCallInfoById( int findex, ref FunctionInfoCache cache )
         {
             if (cache.function == null)

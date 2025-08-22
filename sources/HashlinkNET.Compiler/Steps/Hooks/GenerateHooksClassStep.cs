@@ -33,7 +33,7 @@ namespace HashlinkNET.Compiler.Steps.Hooks
             {
                 BaseType = rdata.objectType
             };
-            addedTypes.Add(new(htd, -1));
+            addedTypes.Add(new(htd, AddTypeKind.AddToModule));
 
             var methods = new List<(string, int, MethodDefinition)>();
 
