@@ -148,11 +148,8 @@ mods
 
 - .NET SDK 9
 - CMake
-<<<<<<< HEAD
 - nasm
-=======
 - Powershell
->>>>>>> 8f1b912 (chore: linux)
 
 ### Build
 
