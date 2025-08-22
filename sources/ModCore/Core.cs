@@ -22,7 +22,7 @@ namespace ModCore
             ];
         public static readonly List<string> nativeSearchPath = [
             FolderInfo.CoreNativeRoot.FullPath,
-             FolderInfo.GameRoot.FullPath
+             FolderInfo.GameRoot.FullPath[..^1]
             ];
         public static Config<CoreConfig> Config { get; } = new("modcore");
         public static string Version { get; } = typeof(Core).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
@@ -84,6 +84,28 @@ namespace ModCore
             }
         }
 
+        private static void LoadLinuxLibs()
+        {
+            foreach (var v in Directory.GetFiles(FolderInfo.GameRoot.FullPath, "*", SearchOption.TopDirectoryOnly))
+            {
+                var name = Path.GetFileName(v);
+                if (name.StartsWith("lib") &&
+                    name.Contains(".so") &&
+                    //!name.StartsWith("libsteam") &&
+                    !name.StartsWith("libhl")
+                    )
+                {
+                    NativeModuleResolver.LoadLibrary(v, false, name =>
+                    {
+                        NativeModuleResolver.LoadLibrary(
+                            FolderInfo.GameRoot.GetFilePath(name), false
+                        );
+                    });
+                }
+            }
+        }
+
+
         internal static void Initialize()
         {
             if (init)
@@ -101,18 +123,15 @@ namespace ModCore
             AddPath();
 
             nint hlPtr;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                hlPtr = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("libhl"));
-                _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("modcorenative"));
-            }
-            else
-            {
-                hlPtr = NativeModuleResolver.LoadLibrary(FolderInfo.CoreNativeRoot.GetFilePath("libhl.so"));
-                _ = NativeModuleResolver.LoadLibrary(FolderInfo.CoreNativeRoot.GetFilePath("modcorenative.so"));
-            }
+            hlPtr = NativeModuleResolver.LoadLibrary(FolderInfo.CoreNativeRoot.GetFilePath("libhl.so"));
+            _ = NativeModuleResolver.LoadLibrary(FolderInfo.CoreNativeRoot.GetFilePath("modcorenative.so"));
             _ = NativeLibrary.GetExport(hlPtr, "hl_modcore_native_was_here");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                LoadLinuxLibs();
+            }
             
+
 
             Log.Logger.Information("Runtime: {FrameworkDescription} {RuntimeIdentifier}",
                    RuntimeInformation.FrameworkDescription, RuntimeInformation.RuntimeIdentifier);

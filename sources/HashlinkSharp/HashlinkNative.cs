@@ -14,7 +14,7 @@ namespace Hashlink
 
         public static class InternalTypes
         {
-            private static readonly nint hLibhl = NativeLibrary.Load(LIBHL);
+            private static readonly nint hLibhl = NativeLibrary.Load(LIBHL, typeof(HashlinkNative).Assembly, null);
 
             private static readonly Dictionary<Type, nint> net2hltype = [];
             private static readonly Dictionary<TypeKind, Type> hltype2net = [];

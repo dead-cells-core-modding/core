@@ -29,9 +29,9 @@ EXTERNC EXPORT void* hlu_get_exception_handle_helper() {
 
 #ifndef WIN32
 
-EXTERNC EXPORT void* hlu_load_so(const char* path, char** err)
+EXTERNC EXPORT void* hlu_load_so(const char* path, int lazy, char** err)
 {
-	void* result = dlopen(path, RTLD_GLOBAL | RTLD_NOW);
+	void* result = dlopen(path, RTLD_GLOBAL | (lazy ? RTLD_LAZY : RTLD_NOW));
 	*err = dlerror();
 	return result;
 }

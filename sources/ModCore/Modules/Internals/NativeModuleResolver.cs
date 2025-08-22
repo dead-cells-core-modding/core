@@ -21,7 +21,7 @@ namespace ModCore.Modules.Internals
     {
 
         [LibraryImport("modcorenative")]
-        private static partial nint hlu_load_so([MarshalAs(UnmanagedType.LPStr)] string path, out nint errMsg);
+        private static partial nint hlu_load_so( [MarshalAs(UnmanagedType.LPStr)] string path, int lazy, out nint errMsg );
         public override int Priority => ModulePriorities.NativeModuleResolver;
 
         private readonly Dictionary<string, Dictionary<string, nint>> knownNativeFunctions = [];
@@ -73,14 +73,20 @@ namespace ModCore.Modules.Internals
 
         }
 
-        public static nint LoadLibrary( string path )
+        public static nint LoadLibrary( string path, bool lazy = true, Action<string>? loadDep = null )
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                var result = hlu_load_so(path, out var err);
+                var result = hlu_load_so(path, lazy ? 1 : 0, out var err);
                 if (result == 0)
                 {
-                    var msg = Marshal.PtrToStringAnsi(err);
+                    var msg = Marshal.PtrToStringAnsi(err)!;
+                    var soName = msg[..msg.IndexOf(':')];
+                    if (loadDep != null)
+                    {
+                        loadDep(soName);
+                        return LoadLibrary(path, lazy, null);
+                    }
                     throw new DllNotFoundException(msg);
                 }
                 return result;
@@ -126,7 +132,7 @@ namespace ModCore.Modules.Internals
 
         private nint TryLoadSteam()
         {
-            
+
             if (Core.Config.Value.EnableGoldberg)
             {
                 Logger.Information("Goldberg Enabled");
@@ -134,9 +140,14 @@ namespace ModCore.Modules.Internals
                     FolderInfo.CoreNativeRoot.GetFilePath("goldberg/steam_api64.dll") :
                     FolderInfo.CoreNativeRoot.GetFilePath("goldberg/libsteam_api.so");
                 Logger.Information("Try loading Goldberg from {path}", path);
-                if (!NativeLibrary.TryLoad(path, out _))
+                try
                 {
-                    Logger.Information("Unable to load Goldberg");
+                    LoadLibrary(path);
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "Unable to load Goldberg");
                 }
             }
 
@@ -145,7 +156,7 @@ namespace ModCore.Modules.Internals
                 var hdll = FolderInfo.CoreNativeRoot.GetFilePath("hlsteam/steam.hdll");
                 if (File.Exists(hdll))
                 {
-                    return NativeLibrary.Load(hdll);
+                    return LoadLibrary(hdll);
                 }
             }
             return 0;
