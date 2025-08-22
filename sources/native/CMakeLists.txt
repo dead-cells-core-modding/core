@@ -46,9 +46,12 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zi /MP${CPU_NUMBER_OF_LOGICAL_CORES}")
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG /OPT:ICF")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEBUG /OPT:ICF")
+else()
+
 endif()
 
 
 
 add_subdirectory ("3rd/hashlink")
 add_subdirectory ("modcorenative")
+

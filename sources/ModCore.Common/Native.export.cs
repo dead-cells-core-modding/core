@@ -11,7 +11,7 @@ namespace ModCore
 {
     internal unsafe partial class Native
     {
-        public static nint ModcorenativeHandle { get; } = NativeLibrary.Load(MODCORE_NATIVE_NAME);
+        public static nint ModcorenativeHandle { get; } = NativeLibrary.Load(MODCORE_NATIVE_NAME, typeof(Native).Assembly, null);
 
         public static void BindNativeExport( Type type )
         {

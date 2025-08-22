@@ -26,3 +26,14 @@ EXTERNC EXPORT void* hlu_get_hl_bytecode_from_exe(const uchar* exePath, int* out
 EXTERNC EXPORT void* hlu_get_exception_handle_helper() {
 	return asm_prepare_exception_handle;
 }
+
+#ifndef WIN32
+
+EXTERNC EXPORT void* hlu_load_so(const char* path, char** err)
+{
+	void* result = dlopen(path, RTLD_GLOBAL | RTLD_NOW);
+	*err = dlerror();
+	return result;
+}
+#endif
+

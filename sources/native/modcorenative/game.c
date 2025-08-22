@@ -143,7 +143,7 @@ EXTERNC EXPORT int hlu_start_game(hl_code* code) {
 	ctx.m = hl_module_alloc(ctx.code);
 	if( ctx.m == NULL )
 		return 2;
-	if( !hl_module_init(ctx.m,FALSE) )
+	if( !hl_module_init(ctx.m,false) )
 		return 3;
 
 	init_trace();

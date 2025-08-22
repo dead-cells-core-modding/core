@@ -14,11 +14,14 @@ using System.Threading.Tasks;
 namespace ModCore.Modules.Internals
 {
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
-    internal unsafe class NativeModuleResolver : CoreModule<NativeModuleResolver>,
+    internal unsafe partial class NativeModuleResolver : CoreModule<NativeModuleResolver>,
         IOnCoreModuleInitializing,
         IOnResolveNativeFunction,
         IOnResolveNativeLib
     {
+
+        [LibraryImport("modcorenative")]
+        private static partial nint hlu_load_so([MarshalAs(UnmanagedType.LPStr)] string path, out nint errMsg);
         public override int Priority => ModulePriorities.NativeModuleResolver;
 
         private readonly Dictionary<string, Dictionary<string, nint>> knownNativeFunctions = [];
@@ -68,6 +71,24 @@ namespace ModCore.Modules.Internals
         void IOnCoreModuleInitializing.OnCoreModuleInitializing()
         {
 
+        }
+
+        public static nint LoadLibrary( string path )
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                var result = hlu_load_so(path, out var err);
+                if (result == 0)
+                {
+                    var msg = Marshal.PtrToStringAnsi(err);
+                    throw new DllNotFoundException(msg);
+                }
+                return result;
+            }
+            else
+            {
+                return NativeLibrary.Load(path);
+            }
         }
 
 
@@ -149,10 +170,16 @@ namespace ModCore.Modules.Internals
             var path = FolderInfo.CoreNativeRoot.GetFilePath(name + ".hdll");
             if (!File.Exists(path))
             {
+                path = FolderInfo.GameRoot.GetFilePath(name + ".hdll");
+                if (File.Exists(path))
+                {
+                    Logger.Information("Loading native module from {path}", path);
+                    return LoadLibrary(path);
+                }
                 return default;
             }
             Logger.Information("Loading native module from {path}", path);
-            return NativeLibrary.Load(path);
+            return LoadLibrary(path);
         }
     }
 }

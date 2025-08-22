@@ -1,0 +1,6 @@
+{
+    "version": 5,
+    "include": [
+        "./sources/native/CMakePresets.json"
+    ]
+}

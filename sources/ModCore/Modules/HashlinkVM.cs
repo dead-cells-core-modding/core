@@ -26,10 +26,6 @@ namespace ModCore.Modules
     {
         public override int Priority => ModulePriorities.HashlinkVM;
 
-        public nint LibhlHandle
-        {
-            get; private set;
-        }
         public Thread MainThread { get; private set; } = null!;
 
         [StructLayout(LayoutKind.Sequential)]
@@ -89,9 +85,6 @@ namespace ModCore.Modules
             Logger.Information("Initalizing HashlinkModule");
 
             MainThread = Thread.CurrentThread;
-
-            LibhlHandle = NativeLibrary.Load("libhl");
-            NativeLibrary.GetExport(LibhlHandle, "hl_modcore_native_was_here");
 
             Logger.Information("Hooking functions");
 

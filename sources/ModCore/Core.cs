@@ -1,7 +1,9 @@
 ﻿
+using Hashlink.Proxy;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Modules;
+using ModCore.Modules.Internals;
 using ModCore.Storage;
 using Serilog;
 using System.Collections.Concurrent;
@@ -38,9 +40,10 @@ namespace ModCore
 
         private static void AddPath()
         {
+            var split = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
             var envName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Path" : "LD_LIBRARY_PATH";
             var val = Environment.GetEnvironmentVariable(envName);
-            val = string.Join(';', nativeSearchPath) + ";" + val;
+            val = string.Join(split, nativeSearchPath) + split + val;
             Environment.SetEnvironmentVariable(envName, val);
         }
 
@@ -89,14 +92,27 @@ namespace ModCore
             }
             init = true;
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-            AppDomain.CurrentDomain.TypeResolve += CurrentDomain_TypeResolve;
+            NativeLibrary.SetDllImportResolver(typeof(Core).Assembly, NativeResolver);
+            NativeLibrary.SetDllImportResolver(typeof(EventSystem).Assembly, NativeResolver);
+            NativeLibrary.SetDllImportResolver(typeof(HashlinkObj).Assembly, NativeResolver);
 
             Environment.SetEnvironmentVariable("DCCM_CoreLoaded", "true");
 
             AddPath();
 
-            _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("libhl"));
-            _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("modcorenative"));
+            nint hlPtr;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                hlPtr = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("libhl"));
+                _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("modcorenative"));
+            }
+            else
+            {
+                hlPtr = NativeModuleResolver.LoadLibrary(FolderInfo.CoreNativeRoot.GetFilePath("libhl.so"));
+                _ = NativeModuleResolver.LoadLibrary(FolderInfo.CoreNativeRoot.GetFilePath("modcorenative.so"));
+            }
+            _ = NativeLibrary.GetExport(hlPtr, "hl_modcore_native_was_here");
+            
 
             Log.Logger.Information("Runtime: {FrameworkDescription} {RuntimeIdentifier}",
                    RuntimeInformation.FrameworkDescription, RuntimeInformation.RuntimeIdentifier);
@@ -115,7 +131,6 @@ namespace ModCore
 
             Log.Logger.Information("Loaded modding core");
         }
-
         private static Assembly? CurrentDomain_TypeResolve( object? sender, ResolveEventArgs args )
         {
             var parts = args.Name.Split(',');
@@ -134,6 +149,29 @@ namespace ModCore
             
         }
 
+        private static nint NativeResolver( string libraryName, Assembly assembly, DllImportSearchPath? searchPath )
+        {
+            if (libraryName == "libhl" ||
+                libraryName == "hl")
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    return NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("libhl.so"));
+                }
+                else
+                {
+                    return NativeLibrary.Load("libhl");
+                }
+            }
+            if (NativeLibrary.TryLoad(
+                FolderInfo.CoreNativeRoot.GetFilePath(
+                    libraryName + ".so"
+                ), out var result))
+            {
+                return result;
+            }
+            return 0;
+        }
         private static Assembly? CurrentDomain_AssemblyResolve( object? sender, ResolveEventArgs args )
         {
             var asmName = new AssemblyName(args.Name);

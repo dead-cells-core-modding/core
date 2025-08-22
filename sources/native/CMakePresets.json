@@ -19,22 +19,56 @@
     },
     {
       "name": "win-x64-debug",
-      "displayName": "x64 Debug",
+      "displayName": "Windows x64 Debug",
       "inherits": "windows-base",
       "architecture": {
         "value": "x64",
         "strategy": "set"
       },
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "TARGET_ARCH": "x64"
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
       "name": "win-x64-release",
-      "displayName": "x64 Release",
+      "displayName": "Windows x64 Release",
       "inherits": "win-x64-debug",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "linux-base",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-debug",
+      "displayName": "Linux x64 Debug",
+      "inherits": "linux-base",
+      "cacheVariables": {
+        "CMAKE_SYSTEM_PROCESSOR": "x86_64",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux x64 Release",
+      "inherits": "linux-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
     }
   ]
 }

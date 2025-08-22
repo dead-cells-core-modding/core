@@ -148,7 +148,11 @@ mods
 
 - .NET SDK 9
 - CMake
+<<<<<<< HEAD
 - nasm
+=======
+- Powershell
+>>>>>>> 8f1b912 (chore: linux)
 
 ### Build
 
@@ -156,6 +160,11 @@ mods
 
 1. Clone the repository
 2. Run `buildWin.ps1`
+
+### Linux
+
+1. Clone the repository
+2. Run `buildLinux.sh`
 
 ## Credit
 

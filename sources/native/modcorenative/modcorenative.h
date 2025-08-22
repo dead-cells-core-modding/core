@@ -8,6 +8,8 @@
 #ifdef WIN32
 #include <Windows.h>
 #else
+#include <unistd.h>
+#include <dlfcn.h>
 #endif
 
 #include "hl.h"
@@ -21,7 +23,9 @@ typedef void(*real_hl_global_init)(void);
 #define EXTERNC
 #endif
 
+#ifdef HL_WIN
 typedef unsigned long long int64;
+#endif
 
 typedef struct
 {
