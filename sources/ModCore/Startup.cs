@@ -20,7 +20,6 @@ namespace ModCore
             Core.Initialize();
 
             var logger = Log.Logger.ForContext(typeof(Startup));
-            var useOpenGL = Environment.GetEnvironmentVariable("GAME_OPENGL")?.ToLower() == "true";
             //Load hlboot.dat
             var hlbootPath = Environment.GetEnvironmentVariable("DCCM_HLBOOT_PATH");
             if (string.IsNullOrEmpty(hlbootPath))
@@ -39,7 +38,7 @@ namespace ModCore
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    var exeName = useOpenGL ? "deadcells_gl.exe" : "deadcells.exe";
+                    var exeName = "deadcells_gl.exe";
                     logger.Information("Loading hlboot.dat from {name}", exeName);
                     var hlbootSize = 0;
                     var hlboot = (byte*)hlu_get_hl_bytecode_from_exe(FolderInfo.GameRoot.GetFilePath(exeName),

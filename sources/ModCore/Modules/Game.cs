@@ -187,11 +187,11 @@ namespace ModCore.Modules
 
         private void Hook_Boot_init1( Hook_Boot.orig_init orig, Boot self )
         {
-            var win = self.engine.window.window;
+            dynamic win = self.engine.window;
 
             orig(self);
 
-            win.set_title("Dead Cells with Core Modding".AsHaxeString());
+            win.window.set_title("Dead Cells with Core Modding".AsHaxeString());
 
             EventSystem.BroadcastEvent<IOnGameInit>();
             

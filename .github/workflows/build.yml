@@ -109,9 +109,9 @@ jobs:
         Expand-Archive -LiteralPath ./OpenAL.zip -DestinationPath . -Force
         Move-Item -Path ./openal-soft-1.23.1-bin -Destination ./openal -Force
         
-        Invoke-WebRequest -Uri https://www.libsdl.org/release/SDL2-devel-2.30.2-VC.zip -OutFile ./SDL.zip
+        Invoke-WebRequest -Uri https://www.libsdl.org/release/SDL2-devel-2.32.8-VC.zip -OutFile ./SDL.zip
         Expand-Archive -LiteralPath ./SDL.zip -DestinationPath . -Force
-        Move-Item -Path ./SDL2-2.30.2 -Destination ./sdl -Force
+        Move-Item -Path ./SDL2-2.32.8 -Destination ./sdl -Force
 
     - name: Build
       run: ./buildWin.ps1

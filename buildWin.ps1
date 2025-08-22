@@ -6,7 +6,7 @@ cd $PSScriptRoot
 
 echo "Generating Haxe Proxy"
 mkdir "./bin/core/mdk/ref" -Force
-dotnet run -c Release --no-launch-profile --project ./tools/HaxeProxyGenerator ./hlboots/hlboot-directx-steam.dat ./bin/core/mdk/ref/GameProxy.dll
+dotnet run -c Release --no-launch-profile --project ./tools/HaxeProxyGenerator ./hlboots/hlboot-opengl-steam.dat ./bin/core/mdk/ref/GameProxy.dll
 
 if($BuildMDK) {
     echo "Building MDK"
