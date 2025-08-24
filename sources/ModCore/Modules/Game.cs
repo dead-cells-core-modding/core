@@ -142,6 +142,7 @@ namespace ModCore.Modules
 
         private void Hook__Save_save( Hook__Save.orig_save orig, User u, bool onlyGameData )
         {
+            EventSystem.BroadcastEvent<IOnSaveConfig>();
             EventSystem.BroadcastEvent<IOnBeforeSavingSave, IOnBeforeSavingSave.EventData>(new(u, onlyGameData));
             orig(u, onlyGameData);
             EventSystem.BroadcastEvent<IOnAfterSavingSave>();
@@ -149,6 +150,7 @@ namespace ModCore.Modules
 
         private User Hook__Save_tryLoad( Hook__Save.orig_tryLoad orig )
         {
+            EventSystem.BroadcastEvent<IOnSaveConfig>();
             EventSystem.BroadcastEvent<IOnBeforeLoadingSave>();
             var data = orig();
             EventSystem.BroadcastEvent<IOnAfterLoadingSave, User>(data);

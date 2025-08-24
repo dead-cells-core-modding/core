@@ -12,26 +12,26 @@ namespace ModCore.Utitities
 {
     public static class EnumerableUtils
     {
-        public static IEnumerable<dynamic> GetEnumerable( this ArrayBase array )
+        public static IEnumerator<dynamic> GetEnumerator( this ArrayBase array )
         {
             for (int i = 0; i < array.length; i++)
             {
                 yield return array.getDyn(i);
             }
         }
-        public static IEnumerable<dynamic> GetEnumerable( this ArrayDyn array )
+        public static IEnumerator<dynamic> GetEnumerator( this ArrayDyn array )
         {
             for (int i = 0; i < array.get_length(); i++)
             {
                 yield return array.getDyn(i);
             }
         }
-        public static IEnumerable<dynamic> GetEnumerable( this ArrayAccess array )
+        public static IEnumerator<dynamic> GetEnumerator( this ArrayAccess array )
         {
             if (array is ArrayBase ab)
-                return ab.GetEnumerable();
+                return ab.GetEnumerator();
             else if (array is ArrayDyn dyn)
-                return dyn.GetEnumerable();
+                return dyn.GetEnumerator();
             else
                 throw new NotSupportedException();
         }
