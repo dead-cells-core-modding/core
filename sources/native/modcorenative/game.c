@@ -101,20 +101,8 @@ void log_printf_handler(const char* source, int level, const char* format, va_li
 }
 
 void event_handler(int eventId, void* data) {
-	
-	if (eventId == HL_EV_ERR_NET_CAUGHT) {
-		struct {
-			void* exception;
-			void* outErrorTable;
-		} ev;
-		ev.exception = data;
-		ev.outErrorTable = NULL;
-		csapi_OnHLEvent(eventId, &ev);
-		asm_return_from_exception(ev.outErrorTable);
-	}
-	else {
+
 		csapi_OnHLEvent(eventId, data);
-	}
 }
 
 EXTERNC EXPORT void hlu_init_handlers() {

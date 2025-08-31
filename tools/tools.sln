@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashlinkNET.Bytecode", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BytecodeMapping", "BytecodeMapping\BytecodeMapping.csproj", "{E21FC338-E75D-43EE-BBF3-2B19194AAED6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonPublicMemberScanner", "NonPublicMemberScanner\NonPublicMemberScanner.csproj", "{8793DDB6-6A9A-4922-A1C7-3C6DF23327F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonPublicNativeMembers", "..\sources\NonPublicNativeMembers\NonPublicNativeMembers.csproj", "{8EE06AE6-45F3-44EC-ACF8-920E5D6DB97B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +51,14 @@ Global
 		{E21FC338-E75D-43EE-BBF3-2B19194AAED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E21FC338-E75D-43EE-BBF3-2B19194AAED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E21FC338-E75D-43EE-BBF3-2B19194AAED6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8793DDB6-6A9A-4922-A1C7-3C6DF23327F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8793DDB6-6A9A-4922-A1C7-3C6DF23327F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8793DDB6-6A9A-4922-A1C7-3C6DF23327F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8793DDB6-6A9A-4922-A1C7-3C6DF23327F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EE06AE6-45F3-44EC-ACF8-920E5D6DB97B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EE06AE6-45F3-44EC-ACF8-920E5D6DB97B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EE06AE6-45F3-44EC-ACF8-920E5D6DB97B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EE06AE6-45F3-44EC-ACF8-920E5D6DB97B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -35,6 +35,7 @@
     <ProjectReference Include="..\HashlinkSharp\HashlinkSharp.csproj" />
     <ProjectReference Include="..\HaxeProxy\HaxeProxy.csproj" />
     <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
+    <ProjectReference Include="..\NonPublicNativeMembers\NonPublicNativeMembers.csproj" />
 
     <Reference Include="..\..\bin\core\mdk\ref\GameProxy.dll">
       <Private>false</Private>
@@ -42,9 +43,6 @@
 
     <Using Include="Hashlink.HashlinkNative">
       <Static>True</Static>
-    </Using>
-    <Using Include="ModCore.Native">
-      <Static>true</Static>
     </Using>
   </ItemGroup>
 

@@ -27,6 +27,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
             if (!hasName)
             {
                 name = "UnnamedEnum" + type.TypeIndex;
+                
                 if (enumType.Enum.Constructs.Length == 1 &&
                     string.IsNullOrEmpty(enumType.Enum.Constructs[0].Name))
                 {
@@ -37,6 +38,12 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
             {
                 BaseType = new GenericInstanceType(rdata.enumType)
             };
+
+            if (!hasName)
+            {
+                td.SetDifferentBetweenVersion(rdata);
+            }
+
             addedTypes.Add(new(td, AddTypeKind.AddToModule | AddTypeKind.AddToTypesList, type.TypeIndex));
 
             if (isArrowFuncCtx)

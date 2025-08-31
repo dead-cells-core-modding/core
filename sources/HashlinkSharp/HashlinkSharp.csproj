@@ -8,21 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MonoModReorg.Utils" Version="23.3.22.1" />
+    
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    
     <ProjectReference Include="..\HashlinkNET.Bytecode\HashlinkNET.Bytecode.csproj" />
     <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
+    <ProjectReference Include="..\ModCore.Native\ModCore.Native.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Hashlink.HashlinkNative">
       <Static>True</Static>
-    </Using>
-    <Using Include="ModCore.Native">
-      <Static>true</Static>
     </Using>
   </ItemGroup>
 

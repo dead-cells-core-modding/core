@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Windows.Win32.Foundation;
 
 
 namespace Hashlink
@@ -193,5 +194,17 @@ namespace Hashlink
         public static partial HL_array* hl_exception_stack_ex();
         [LibraryImport(LIBHL)]
         public static partial HL_array* hl_capture_exc_stack();
+
+        public delegate void NativeEventHandleDelegate( int eventId, nint data);
+        [LibraryImport(LIBHL)]
+        public static partial void hl_event_set_handler( NativeEventHandleDelegate handler );
+        [LibraryImport(LIBHL)]
+        public static partial void hl_sys_init( void** args, int nargs, void* hlfile );
+        [LibraryImport(LIBHL)]
+        public static partial void hl_register_thread( void* stack_top );
+        [LibraryImport(LIBHL)]
+        public static partial HL_module* hl_module_alloc( HL_code* c );
+        [LibraryImport(LIBHL)]
+        public static partial int hl_module_init( HL_module* m, int hot_reload );
     }
 }

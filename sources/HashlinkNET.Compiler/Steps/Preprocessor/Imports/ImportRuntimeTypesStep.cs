@@ -101,9 +101,10 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             {
                 return module.ImportReference(typeof(T));
             }
-            MethodReference ImportAttribute<T>()
+            MethodReference ImportAttribute<T>(int argsCount = -1)
             {
-                return module.ImportReference(typeof(T).GetConstructors().First());
+                return module.ImportReference(typeof(T).GetConstructors().First(x =>
+                    argsCount < 0 || x.GetParameters().Length == argsCount));
             }
 
             MethodReference ImportMethod(Type type, string name)
@@ -125,6 +126,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.attrFIndexCtor = ImportAttribute<HashlinkFIndexAttribute>();
             rdata.attrTIndexCtor = ImportAttribute<HashlinkTIndexAttribute>();
             rdata.attrDynamic = ImportAttribute<DynamicAttribute>();
+            rdata.attrObsolete = ImportAttribute<ObsoleteAttribute>(1);
             rdata.jsonIgnoreCtor = ImportAttribute<JsonIgnoreAttribute>();
 
             rdata.funcTypes = new TypeReference[FUNC_MAX_ARGS_COUNT];

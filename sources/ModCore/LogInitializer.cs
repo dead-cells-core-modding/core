@@ -11,7 +11,14 @@ namespace ModCore
             var latest = Path.Combine(FolderInfo.Logs.FullPath, "log_latest.log");
             if (File.Exists(latest))
             {
-                File.Delete(latest);
+                try
+                {
+                    File.Delete(latest);
+                }
+                catch (Exception)
+                {
+                
+                }
             }
             var configuration = new LoggerConfiguration()
               .MinimumLevel.Debug()

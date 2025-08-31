@@ -23,6 +23,7 @@ using HashlinkNET.Bytecode.OpCodeParser;
 
 namespace Hashlink.Patch
 {
+    [Obsolete]
     public unsafe class HlFunctionDefinition
     {
         private static readonly ConcurrentBag<IHashlinkPointer> funcConstants = [];

@@ -69,7 +69,7 @@ namespace Hashlink
             {
                 fixed (HL_type* ptr = &this)
                 {
-                    return new string(hl_type_str(ptr));
+                    return new string(HashlinkNative.hl_type_str(ptr));
                 }
             }
         }

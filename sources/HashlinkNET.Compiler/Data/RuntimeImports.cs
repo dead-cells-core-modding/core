@@ -33,7 +33,8 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference attrTypeBindingCtor;
         public MethodReference attrFIndexCtor;
         public MethodReference attrTIndexCtor;
-        public MethodReference attrDynamic;
+        public MethodReference attrDynamic; 
+        public MethodReference attrObsolete;
         public MethodReference jsonIgnoreCtor;
 
         public MethodReference delegateDynInvokeMethod;

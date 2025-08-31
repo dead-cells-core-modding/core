@@ -4,6 +4,7 @@ using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Members;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
+using ModCore.Native;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -104,12 +105,14 @@ namespace Hashlink.Wrapper
                         Debug.Assert(prepare_exception_handle_data->current->stack_area != null);
                         prepare_exception_handle_data->stack_area = prepare_exception_handle_data->current->stack_area;
                     }
+
+                    //Return
+                    ((delegate* unmanaged[Cdecl]< void*, void >)NativeAsm.cs_hl_return_from_exception)(data->outErrorTable);
                 }
             }
         }
 
         private static readonly ConditionalWeakTable<Exception, HashlinkObjHandle> caughtException = [];
-        private static readonly nint pasm_prepare_exception_handle = hlu_get_exception_handle_helper();
         private static readonly AsmHelperData* asmhelper_data_pool =
             (AsmHelperData*)hl_alloc_executable_memory(81920); //TODO: 
         private static int asmhelper_data_id = 0;
@@ -166,7 +169,7 @@ namespace Hashlink.Wrapper
                 }
                 prepare_exception_handle_data = asmhelper_data_pool + id;
                 AsmHelperData.call_code_x64.CopyTo(new Span<byte>(prepare_exception_handle_data->shellcode, 12));
-                *(long*)&prepare_exception_handle_data->shellcode[2] = pasm_prepare_exception_handle;
+                *(long*)&prepare_exception_handle_data->shellcode[2] = NativeAsm.cs_hl_store_context;
             }
             var ti = hl_get_thread();
             if (ti == null)

@@ -4,6 +4,7 @@ using dc.haxe;
 using dc.pr;
 using dc.spine;
 using dc.tool;
+using dc.ui.icon;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
@@ -91,7 +92,7 @@ namespace ModCore.Modules
 
         private void Hook_Hero_dispose( Hook_Hero.orig_dispose orig, Hero self )
         {
-            EventSystem.BroadcastEvent<IOnHeroUpdate>();
+            EventSystem.BroadcastEvent<IOnHeroDispose>();
             HeroInstance = null;
             orig(self);
         }

@@ -1,10 +1,13 @@
-﻿using Hashlink.Trace;
+﻿
 using ModCore.Events;
+using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
+using ModCore.Native;
 using ModCore.Storage;
 using Serilog;
 using System.Diagnostics;
 using System.IO.MemoryMappedFiles;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace ModCore
@@ -40,42 +43,32 @@ namespace ModCore
                 {
                     var exeName = "deadcells_gl.exe";
                     logger.Information("Loading hlboot.dat from {name}", exeName);
-                    var hlbootSize = 0;
-                    var hlboot = (byte*)hlu_get_hl_bytecode_from_exe(FolderInfo.GameRoot.GetFilePath(exeName),
-                        &hlbootSize);
-                    if (hlboot == null)
+                    codeData = NativeWin.GetHlbootDataFromExe(FolderInfo.GameRoot.GetFilePath(exeName));
+                    if (codeData.IsEmpty)
                     {
                         throw new FileNotFoundException(null, "hlboot.dat");
                     }
-                    codeData = new(hlboot, hlbootSize);
                 }
                 else
                 {
                     throw new FileNotFoundException(null, "hlboot.dat");
                 }
             }
-            byte* err = null;
-            logger.Information("Reading hl bytecode");
-
-            hl_global_init();
 
             EventSystem.BroadcastEvent<IOnCodeLoading, ReadOnlySpan<byte>>(ref codeData);
 
-            void* code;
-            fixed (byte* data = codeData)
-            {
-                code = hl_code_read(data, codeData.Length, &err);
-            }
-            if (err != null)
-            {
-                logger.Error("An error occurred while loading bytecode: {err}", Marshal.PtrToStringAnsi((nint)err));
-                return -1;
-            }
             try
             {
+                logger.Information("Initializing game");
+                NativeCommon.InitGame(codeData, out var ctx);
                 logger.Information("Starting game");
-                MixTrace.MarkEnteringHL();
-                return hlu_start_game(code);
+
+                EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
+                    new(IOnNativeEvent.EventId.HL_EV_START_GAME, (nint)Unsafe.AsPointer(ref ctx)));
+
+                GC.KeepAlive(ctx);
+                return 0;
+                
             }
             catch (Exception ex)
             {
@@ -83,5 +76,6 @@ namespace ModCore
                 throw;
             }
         }
+   
     }
 }

@@ -296,6 +296,21 @@ namespace HashlinkNET.Compiler.Utils
                 provider.AddDynamicAttribute(runtimeImports);
             }
         }
+        public static void SetObsolete( this ICustomAttributeProvider provider, RuntimeImports runtimeImports,
+            string msg )
+        {
+            provider.CustomAttributes.Add(new(runtimeImports.attrObsolete)
+            {
+                ConstructorArguments =
+                {
+                    new(runtimeImports.stringType, msg)
+                }
+            });
+        }
+        public static void SetDifferentBetweenVersion( this ICustomAttributeProvider provider, RuntimeImports runtimeImports )
+        {
+            provider.SetObsolete(runtimeImports, "Note that this type/method/field/property may not exist in other versions of the game.");
+        }
 
         public static bool ParseHlTypeName( string name, out string @namespace, out string typeName )
         {

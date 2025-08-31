@@ -52,6 +52,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestRunner", "..\test\TestR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMod", "..\test\TestMod\TestMod.csproj", "{3BD5AAD1-6389-4845-C860-77975AB64147}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonPublicNativeMembers", "NonPublicNativeMembers\NonPublicNativeMembers.csproj", "{505C2CD3-87E5-3ED8-AF55-C98EF81C41C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModCore.Native", "ModCore.Native\ModCore.Native.csproj", "{877DD03A-6BBE-431D-9080-B5CD0E2EABDC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -98,6 +102,14 @@ Global
 		{3BD5AAD1-6389-4845-C860-77975AB64147}.Debug|x64.Build.0 = Debug|Any CPU
 		{3BD5AAD1-6389-4845-C860-77975AB64147}.Release|x64.ActiveCfg = Release|Any CPU
 		{3BD5AAD1-6389-4845-C860-77975AB64147}.Release|x64.Build.0 = Release|Any CPU
+		{505C2CD3-87E5-3ED8-AF55-C98EF81C41C1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{505C2CD3-87E5-3ED8-AF55-C98EF81C41C1}.Debug|x64.Build.0 = Debug|Any CPU
+		{505C2CD3-87E5-3ED8-AF55-C98EF81C41C1}.Release|x64.ActiveCfg = Release|Any CPU
+		{505C2CD3-87E5-3ED8-AF55-C98EF81C41C1}.Release|x64.Build.0 = Release|Any CPU
+		{877DD03A-6BBE-431D-9080-B5CD0E2EABDC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{877DD03A-6BBE-431D-9080-B5CD0E2EABDC}.Debug|x64.Build.0 = Debug|Any CPU
+		{877DD03A-6BBE-431D-9080-B5CD0E2EABDC}.Release|x64.ActiveCfg = Release|Any CPU
+		{877DD03A-6BBE-431D-9080-B5CD0E2EABDC}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 
 namespace ModCore
 {
-    internal static class Core
+    internal static partial class Core
     {
         private static bool init = false;
         public static readonly List<string> dllSearchPath = [
@@ -19,7 +19,7 @@ namespace ModCore
             FolderInfo.Mods.FullPath,
             ];
         public static readonly List<string> nativeSearchPath = [
-            FolderInfo.CoreNativeRoot.FullPath,
+            FolderInfo.CurrentNativeRoot.FullPath,
              FolderInfo.GameRoot.FullPath
             ];
         public static Config<CoreConfig> Config { get; } = new("modcore");
@@ -81,6 +81,8 @@ namespace ModCore
             }
         }
 
+        
+
         internal static void Initialize()
         {
             if (init)
@@ -93,10 +95,7 @@ namespace ModCore
 
             Environment.SetEnvironmentVariable("DCCM_CoreLoaded", "true");
 
-            AddPath();
-
-            _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("libhl"));
-            _ = NativeLibrary.Load(FolderInfo.CoreNativeRoot.GetFilePath("modcorenative"));
+            InitializeNative();
 
             Log.Logger.Information("Runtime: {FrameworkDescription} {RuntimeIdentifier}",
                    RuntimeInformation.FrameworkDescription, RuntimeInformation.RuntimeIdentifier);

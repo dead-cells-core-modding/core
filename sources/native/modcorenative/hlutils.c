@@ -22,7 +22,3 @@ EXTERNC EXPORT void* hlu_get_hl_bytecode_from_exe(const uchar* exePath, int* out
 	return LockResource(hres);
 }
 #endif
-
-EXTERNC EXPORT void* hlu_get_exception_handle_helper() {
-	return asm_prepare_exception_handle;
-}

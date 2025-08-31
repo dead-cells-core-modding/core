@@ -1,7 +1,6 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
-using Hashlink.Trace;
 using Hashlink.UnsafeUtilities;
 using ModCore;
 using MonoMod.Utils;

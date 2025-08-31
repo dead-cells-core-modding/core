@@ -17,11 +17,15 @@ namespace ModCore.Storage
                 Path.GetDirectoryName(Path.GetDirectoryName(typeof(FolderInfo).Assembly.Location)!)!
                 )!
             );
-        public static FolderInfo CoreNativeRoot
+        public static FolderInfo NativeRoot
+        {
+            get;
+        } = new("CORE_NATIVE_ROOT", "{CORE_ROOT}core/native");
+        public static FolderInfo CurrentNativeRoot
         {
             get;
         } =
-            new("CORE_NATIVE_ROOT", "{CORE_ROOT}core/native/" +
+            new("CORE_CURRENT_NATIVE_ROOT", "{CORE_NATIVE_ROOT}" +
                platform_name + "-" + cpu_name);
 
         public static FolderInfo GameRoot { get; } = new("GAME_ROOT", "{CORE_ROOT}../");

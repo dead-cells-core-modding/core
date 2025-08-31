@@ -1,7 +1,6 @@
 ﻿using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Objects;
-using Hashlink.Trace;
 using Hashlink.Wrapper;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
@@ -32,16 +31,8 @@ namespace ModCore.Modules
         }
         public Thread MainThread { get; private set; } = null!;
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct VMContext
-        {
-            public HL_code* code;
-            public HL_module* m;
-            public HL_vdynamic* ret;
-            public HL_vclosure c;
-        }
-
-        public VMContext* Context
+       
+        internal Native.NativeCommon.VMContext* Context
         {
             get; private set;
         }
@@ -103,7 +94,7 @@ namespace ModCore.Modules
         {
             var tinfo = hl_get_thread();
 
-            Context = (VMContext*)tinfo->stack_top;
+            Context = (Native.NativeCommon.VMContext*)tinfo->stack_top;
 
             Logger.Information("Initializing Haxe Utils Utils");
 
@@ -114,7 +105,7 @@ namespace ModCore.Modules
         {
             if (ev.EventId == IOnNativeEvent.EventId.HL_EV_VM_READY)
             {
-                Context = (VMContext*)ev.Data;
+                Context = (Native.NativeCommon.VMContext*)ev.Data;
                 EventSystem.BroadcastEvent<IOnHashlinkVMReady>();
             }
             else if (ev.EventId == IOnNativeEvent.EventId.HL_EV_RESOLVE_NATIVE)

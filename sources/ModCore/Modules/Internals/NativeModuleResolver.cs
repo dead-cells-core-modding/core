@@ -110,8 +110,8 @@ namespace ModCore.Modules.Internals
             {
                 Logger.Information("Goldberg Enabled");
                 var path = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-                    FolderInfo.CoreNativeRoot.GetFilePath("goldberg/steam_api64.dll") :
-                    FolderInfo.CoreNativeRoot.GetFilePath("goldberg/libsteam_api.so");
+                    FolderInfo.CurrentNativeRoot.GetFilePath("goldberg/steam_api64.dll") :
+                    FolderInfo.CurrentNativeRoot.GetFilePath("goldberg/libsteam_api.so");
                 Logger.Information("Try loading Goldberg from {path}", path);
                 if (!NativeLibrary.TryLoad(path, out _))
                 {
@@ -121,7 +121,7 @@ namespace ModCore.Modules.Internals
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                var hdll = FolderInfo.CoreNativeRoot.GetFilePath("hlsteam/steam.hdll");
+                var hdll = FolderInfo.CurrentNativeRoot.GetFilePath("hlsteam/steam.hdll");
                 if (File.Exists(hdll))
                 {
                     return NativeLibrary.Load(hdll);
@@ -146,7 +146,7 @@ namespace ModCore.Modules.Internals
                 }
             }
 
-            var path = FolderInfo.CoreNativeRoot.GetFilePath(name + ".hdll");
+            var path = FolderInfo.CurrentNativeRoot.GetFilePath(name + ".hdll");
             if (!File.Exists(path))
             {
                 return default;

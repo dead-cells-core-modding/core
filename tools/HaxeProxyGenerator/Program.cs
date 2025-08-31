@@ -76,11 +76,8 @@ static void Run(string[] args){
 
     static void CleanupType(TypeDefinition v)
     {
-        
-        //v.CustomAttributes.Clear();
         foreach (var me in v.Methods.ToArray())
         {
-            //me.CustomAttributes.Clear();
             if (!me.IsPublic)
             {
                v.Methods.Remove(me);
@@ -95,7 +92,6 @@ static void Run(string[] args){
         }
         foreach (var f in v.Fields.ToArray())
         {
-            f.CustomAttributes.Clear();
             if (!f.IsPublic)
             {
                 v.Fields.Remove(f);
@@ -103,7 +99,6 @@ static void Run(string[] args){
         }
         foreach (var nt in v.NestedTypes.ToArray())
         {
-            nt.CustomAttributes.Clear();
             if (!nt.IsPublic && !nt.IsNestedPublic)
             {
                 v.NestedTypes.Remove(nt);
