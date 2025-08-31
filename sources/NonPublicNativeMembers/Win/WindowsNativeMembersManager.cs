@@ -23,7 +23,7 @@ namespace NonPublicNativeMembers.Win
         {
             foreach (var v in modules)
             {
-                var moduleName = Path.GetFileName(v);
+                var moduleName = Path.GetFileNameWithoutExtension(v);
                 var moduleInfo = new NativeMembersData.ModuleInfo()
                 {
                     Name = moduleName,
@@ -71,6 +71,7 @@ namespace NonPublicNativeMembers.Win
             _ = GetModuleFileName(new HMODULE(hDll), new PWSTR(nameBuf), 1024);
             var dllPath = new string(nameBuf);
             var hash = SHA256.HashData(File.ReadAllBytes(dllPath));
+            moduleName = Path.GetFileNameWithoutExtension(moduleName);
             if (!ActivateModule(moduleName, hash))
             {
                 Generate(dllPath);

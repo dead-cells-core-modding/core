@@ -25,6 +25,8 @@ namespace TestRunner
         [Fact]
         public void Interaction_Object()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             double x = 114514;
             double y = 0;
             var p = new Point(new(ref x), new(ref y));
@@ -41,6 +43,8 @@ namespace TestRunner
         [Fact]
         public unsafe void Interaction_Virtual()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var v = new virtual_fileName_lineNumber_
             {
                 lineNumber = 114514,
@@ -60,6 +64,8 @@ namespace TestRunner
         [Fact]
         public void Interaction_Enum()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var e = new Achievement_ID.BIOME_REACHED_SEWERS();
 
             Assert.NotNull(e);
@@ -82,6 +88,8 @@ namespace TestRunner
         [Fact]
         public void Test_Dyn()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             double x = 114514;
             double y = 0;
             var p = new Point(new(ref x), new(ref y)); 
@@ -106,6 +114,8 @@ namespace TestRunner
         [Fact]
         public void Test_Hook()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             double x = 114514;
             double y = 0;
             var p = new Point(new(ref x), new(ref y));

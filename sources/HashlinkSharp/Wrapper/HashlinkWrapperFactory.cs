@@ -27,6 +27,8 @@ namespace Hashlink.Wrapper
             .GetMethod(nameof(WrapperHelper.InitErrorHandler))!;
         private static readonly MethodInfo MI_WrapperHelper_UnInitErrorHandler = typeof(WrapperHelper)
            .GetMethod(nameof(WrapperHelper.UnInitErrorHandler))!;
+        private static readonly MethodInfo MI_hl_blocking = typeof(HashlinkNative)
+            .GetMethod(nameof(HashlinkNative.hl_blocking))!;
 
         private static Type GetNativeType( TypeKind kind )
         {
@@ -109,8 +111,14 @@ namespace Hashlink.Wrapper
             ilg.Emit(OpCodes.Ldloca, loc_eh);
             ilg.Emit(OpCodes.Call, MI_WrapperHelper_InitErrorHandler);
 
+            ilg.Emit(OpCodes.Ldc_I4_0);
+            ilg.Emit(OpCodes.Call, MI_hl_blocking);
+
             ilg.EmitCalli(OpCodes.Calli, System.Runtime.InteropServices.CallingConvention.Cdecl,
                 GetNativeType(func.ReturnType.TypeKind), dargs);
+
+            ilg.Emit(OpCodes.Ldc_I4_1);
+            ilg.Emit(OpCodes.Call, MI_hl_blocking);
 
             ilg.Emit(OpCodes.Ldloca, loc_eh);
             ilg.Emit(OpCodes.Call, MI_WrapperHelper_UnInitErrorHandler);

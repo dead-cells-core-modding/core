@@ -5,6 +5,7 @@ using Hashlink.Reflection.Members;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Native;
+using ModCore.Native.Events.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,7 +43,9 @@ namespace Hashlink.Wrapper
             public void* exception;
             public void* outErrorTable;
         }
-        private class ExceptionEventHandler : IEventReceiver, IOnNativeEvent
+        private class ExceptionEventHandler : IEventReceiver, 
+            IOnNativeEvent,
+            IOnPrepareExceptionReturn
         {
             
             public int Priority => 0;
@@ -51,64 +54,17 @@ namespace Hashlink.Wrapper
             {
                 if (ev.EventId == IOnNativeEvent.EventId.HL_EV_ERR_NET_CAUGHT)
                 {
-                    var data = (EventData*)ev.Data;
-                    var type = *(void**)data->exception;
-                    if (type == NETExcepetionError.ErrorType)
-                    {
-                        var ex = (HashlinkNETExceptionObj) HashlinkMarshal.ConvertHashlinkObject(data->exception)!;
-                        last_exception = ex.Exception;
-                    }
-                    else
-                    {
-                        hlerrorCache ??= [];
-                        if (hlerrorCache.TryGetValue((nint)data->exception, out var le))
-                        {
-                            last_exception = le;
-                        }
-                        else
-                        {
-
-                            try
-                            {
-                                throw new HashlinkError((nint)data->exception);
-                            }
-                            catch (HashlinkError ex)
-                            {
-                                last_exception = ex;
-                                hlerrorCache[(nint)data->exception] = ex;
-                            }
-                            var st = HashlinkMarshal.ConvertHashlinkObject<HashlinkArray>(hl_exception_stack())!;
-                            var sb = new StringBuilder();
-                            var hasNetStack = false;
-                            for (int i = 0; i < st.Count; i++)
-                            {
-                                if (i == 0 &&
-                                    (nint)st[i]! == 0)
-                                {
-                                    hasNetStack = true;
-                                    continue;
-                                }
-                                sb.AppendLine(" at " + Marshal.PtrToStringUni((nint)st[i]!));
-                            }
-                            if (!hasNetStack)
-                            {
-                                sb.AppendLine("=====================");
-                                sb.AppendLine(new StackTrace(true).ToString());
-                            }
-                            ((HashlinkError)last_exception).stackTrace = sb.ToString();
-                        }
-                    }
-
-                    data->outErrorTable = &prepare_exception_handle_data->buffer;
-                    if (prepare_exception_handle_data->stack_area == null)
-                    {
-                        Debug.Assert(prepare_exception_handle_data->current->stack_area != null);
-                        prepare_exception_handle_data->stack_area = prepare_exception_handle_data->current->stack_area;
-                    }
-
+                    var exc = (void*)ev.Data;
+                    var outErrorTable = (void**)PrepareExceptionReturn(exc);
                     //Return
-                    ((delegate* unmanaged[Cdecl]< void*, void >)NativeAsm.cs_hl_return_from_exception)(data->outErrorTable);
+                    
+                    ((delegate* unmanaged[Cdecl]< void*, void >)NativeAsm.cs_hl_return_from_exception)(outErrorTable);
                 }
+            }
+            [StackTraceHidden]
+            public EventResult<nint> OnPrepareExceptionReturn( nint data )
+            {
+                return PrepareExceptionReturn((void*)data);
             }
         }
 
@@ -143,6 +99,66 @@ namespace Hashlink.Wrapper
             public ErrorHandle* prev;
             public void* stack_area;
         }
+
+        private static nint PrepareExceptionReturn(void* exc)
+        {
+            
+            var type = *(void**)exc;
+            if (type == NETExcepetionError.ErrorType)
+            {
+                var ex = (HashlinkNETExceptionObj)HashlinkMarshal.ConvertHashlinkObject(exc)!;
+                last_exception = ex.Exception;
+            }
+            else
+            {
+                hlerrorCache ??= [];
+                if (hlerrorCache.TryGetValue((nint)exc, out var le))
+                {
+                    last_exception = le;
+                }
+                else
+                {
+
+                    try
+                    {
+                        throw new HashlinkError((nint)exc);
+                    }
+                    catch (HashlinkError ex)
+                    {
+                        last_exception = ex;
+                        hlerrorCache[(nint)exc] = ex;
+                    }
+                    var st = HashlinkMarshal.ConvertHashlinkObject<HashlinkArray>(hl_exception_stack())!;
+                    var sb = new StringBuilder();
+                    var hasNetStack = false;
+                    for (int i = 0; i < st.Count; i++)
+                    {
+                        if (i == 0 &&
+                            (nint)st[i]! == 0)
+                        {
+                            hasNetStack = true;
+                            continue;
+                        }
+                        sb.AppendLine(" at " + Marshal.PtrToStringUni((nint)st[i]!));
+                    }
+                    if (!hasNetStack)
+                    {
+                        sb.AppendLine("=====================");
+                        sb.AppendLine(new StackTrace(true).ToString());
+                    }
+                    ((HashlinkError)last_exception).stackTrace = sb.ToString();
+                }
+            }
+
+            var outErrorTable = &prepare_exception_handle_data->buffer;
+            if (prepare_exception_handle_data->stack_area == null)
+            {
+                Debug.Assert(prepare_exception_handle_data->current->stack_area != null);
+                prepare_exception_handle_data->stack_area = prepare_exception_handle_data->current->stack_area;
+            }
+            return (nint)outErrorTable;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowNetException( Exception ex )
         {
@@ -171,11 +187,15 @@ namespace Hashlink.Wrapper
                 AsmHelperData.call_code_x64.CopyTo(new Span<byte>(prepare_exception_handle_data->shellcode, 12));
                 *(long*)&prepare_exception_handle_data->shellcode[2] = NativeAsm.cs_hl_store_context;
             }
+
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var ti = hl_get_thread();
             if (ti == null)
             {
                 return target;
             }
+
             handle.trap_ctx.prev = ti->trap_current;
             handle.trap_ctx.tcheck = (HL_vdynamic*)0x4e455445;
             ti->trap_current = (HL_trap_ctx*)Unsafe.AsPointer(ref handle.trap_ctx);
@@ -325,14 +345,19 @@ namespace Hashlink.Wrapper
             {
                 return;
             }
+
             if (ti->trap_current == (HL_trap_ctx*)Unsafe.AsPointer(ref handle.trap_ctx))
             {
                 ti->trap_current = handle.trap_ctx.prev;
             }
             prepare_exception_handle_data->current = handle.prev;
-            prepare_exception_handle_data->stack_area = handle.prev->stack_area;
+            if (prepare_exception_handle_data->current != null)
+            {
+                prepare_exception_handle_data->stack_area = prepare_exception_handle_data->stack_area;
+            }
             if (last_exception != null)
             {
+                ((delegate* unmanaged< void >)NativeAsm.empty_method)();
                 var ex = last_exception;
                 FixExceptionTrace(last_exception, (nint)Unsafe.AsPointer(ref handle));
                 last_exception = null;

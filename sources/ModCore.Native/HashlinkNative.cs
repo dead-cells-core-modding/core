@@ -206,5 +206,7 @@ namespace Hashlink
         public static partial HL_module* hl_module_alloc( HL_code* c );
         [LibraryImport(LIBHL)]
         public static partial int hl_module_init( HL_module* m, int hot_reload );
+        [LibraryImport(LIBHL)]
+        public static partial void hl_blocking( int b );
     }
 }

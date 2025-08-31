@@ -29,6 +29,8 @@ namespace Hashlink.Wrapper.Callbacks
             .GetMethod(nameof(WrapperHelper.GetObjectFromPtr))!;
         private static readonly MethodInfo MI_WrapperHelper_ThrowNETException = typeof(WrapperHelper)
             .GetMethod(nameof(WrapperHelper.ThrowNetException))!;
+        private static readonly MethodInfo MI_hl_blocking = typeof(HashlinkNative)
+            .GetMethod(nameof(HashlinkNative.hl_blocking))!;
 
         private static Type GetNativeType( TypeKind kind )
         {
@@ -131,7 +133,10 @@ namespace Hashlink.Wrapper.Callbacks
             ilg.Emit(OpCodes.Ldarg_0);
             ilg.Emit(OpCodes.Ldfld, FI_hlrouterinfo_entry);
             ilg.Emit(OpCodes.Ldfld, DelegateInfo.FI_invokePtr);
-            
+
+            ilg.Emit(OpCodes.Ldc_I4_1);
+            ilg.Emit(OpCodes.Call, MI_hl_blocking);
+
             ilg.EmitCalli(OpCodes.Calli, CallingConventions.HasThis,
                 GetManageType(sign.ReturnType.TypeKind), dargs, null);
 
@@ -174,6 +179,10 @@ namespace Hashlink.Wrapper.Callbacks
             {
                 ilg.Emit(OpCodes.Ldloc, resultLoc);
             }
+
+            ilg.Emit(OpCodes.Ldc_I4_0);
+            ilg.Emit(OpCodes.Call, MI_hl_blocking);
+
             ilg.Emit(OpCodes.Ret);
 
             return dm;

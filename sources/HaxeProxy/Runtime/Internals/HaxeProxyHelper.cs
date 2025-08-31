@@ -172,11 +172,13 @@ namespace HaxeProxy.Runtime.Internals
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashlinkObj CreateInstance( int typeIndex )
         {
+            HashlinkMarshal.EnsureThreadRegistered();
             return HashlinkMarshal.Module.Types[typeIndex].CreateInstance();
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashlinkEnum CreateEnumInstance( int typeIndex, int elIndex )
         {
+            HashlinkMarshal.EnsureThreadRegistered();
             var t = (HashlinkEnumType)HashlinkMarshal.Module.Types[typeIndex];
             return new HashlinkEnum(t, elIndex);
         }

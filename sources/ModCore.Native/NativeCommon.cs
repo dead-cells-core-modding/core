@@ -1,10 +1,13 @@
 ﻿using Hashlink;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
+using ModCore.Native.Events.Interfaces;
+using MonoMod.Core;
 using Serilog;
 using Serilog.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -33,8 +36,36 @@ namespace ModCore.Native
 
         }
         private static readonly NativeEventHandleDelegate del_NativeEventHandler = NativeEventHandler;
+
+        #region Hooks
+        private static ICoreNativeDetour? detourBreakOnTrap;
+
+        [UnmanagedCallersOnly]
+        private static nint Hook_trap_filter( nint t, HL_trap_ctx* ctx, nint v )
+        {
+            if ((nint)ctx->tcheck != 0x4e455445)
+            {
+                return 0;
+            }
+            var result = EventSystem.BroadcastEvent<IOnPrepareExceptionReturn, nint, nint>(v);
+            Debug.Assert(result.HasValue);
+            return result.Value;
+        }
+
+        private static void InitNativeHooks()
+        {
+            var phLibhl = NativeLibrary.Load("libhl");
+
+            detourBreakOnTrap = DetourFactory.Current.CreateNativeDetour(
+                    NativeLibrary.GetExport(phLibhl, "break_on_trap"), NativeAsm.hook_break_on_trap_Entry, true);
+            NativeAsm.Data->orig_break_on_trap = detourBreakOnTrap.OrigEntrypoint;
+            NativeAsm.Data->trap_filter = (nint)(delegate* unmanaged< nint, HL_trap_ctx*, nint, nint >)&Hook_trap_filter;
+        }
+        #endregion
         public static void InitGame(ReadOnlySpan<byte> hlboot, out VMContext context)
         {
+            InitNativeHooks();
+
             HL_code* code;
             byte* err;
             context = new();

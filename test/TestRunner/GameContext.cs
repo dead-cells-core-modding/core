@@ -1,10 +1,13 @@
-﻿using ModCore;
+﻿using Hashlink;
+using Hashlink.Marshaling;
+using ModCore;
 using ModCore.Events;
 using ModCore.Events.Interfaces.Game;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using TestRunner;
@@ -41,6 +44,7 @@ namespace TestRunner
             }
         }
 
+
         public GameContext()
         {
             var testRoot = Path.Combine(
@@ -66,6 +70,8 @@ namespace TestRunner
             };
             gameThread.Start();
             gameInitEvent.WaitOne();
+
+            HashlinkMarshal.RegisterHashlinkThread();
         }
     }
 }

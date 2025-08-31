@@ -82,7 +82,6 @@ namespace ModCore.Modules
             MainThread = Thread.CurrentThread;
 
             LibhlHandle = NativeLibrary.Load("libhl");
-            NativeLibrary.GetExport(LibhlHandle, "hl_modcore_native_was_here");
 
             Logger.Information("Hooking functions");
 

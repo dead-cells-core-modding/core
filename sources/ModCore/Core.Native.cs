@@ -1,4 +1,5 @@
-﻿using ModCore.Storage;
+﻿using ModCore.Native;
+using ModCore.Storage;
 using MonoMod.Core;
 using NonPublicNativeMembers;
 using Serilog;
@@ -17,32 +18,39 @@ namespace ModCore
     internal unsafe partial class Core
     {
         private static ICoreNativeDetour? detourGetProcAddress;
-
+        
         private readonly static NativeMembersManager nativeMembers = NativeMembersManager.Create();
 
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
 
-        private delegate nint GetProcAddressDel( nint module, byte* name );
-        private static GetProcAddressDel? hook_GetProcAddress;
+        private delegate nint GetProcAddressDel( nint module, byte* name, nint unknown );
         private static GetProcAddressDel? orig_GetProcAddress;
 
         [UnmanagedCallersOnly]
-        private static nint New_GetProcAddress( nint module, byte* name )
+        [MethodImpl(MethodImplOptions.NoOptimization)]
+        private static nint New_GetProcAddress( nint module, byte* name, nint unknown )
         {
+
+            NativeAsm.Data->orig_GetProcAddress = detourGetProcAddress!.OrigEntrypoint;
+
             orig_GetProcAddress ??= Marshal.GetDelegateForFunctionPointer<GetProcAddressDel>(
                 detourGetProcAddress!.OrigEntrypoint);
-            var result = orig_GetProcAddress(module, name);
             
-            //if (result == 0)
+            var result = orig_GetProcAddress(module, name, unknown);
+
+            if ((nint)name > 0xffff)
             {
+                
                 if (module == phLibhl)
                 {
+                    var nameStr = Marshal.PtrToStringAnsi((nint)name)!;
                     //Find in non public
-                    Console.WriteLine($"Loading sym from: {Marshal.PtrToStringAnsi((nint)name)}");
-                    var info = nativeMembers.Resolve(Marshal.PtrToStringAnsi((nint)name)!);
+                    //Console.WriteLine($"Loading sym from: {nameStr}");
+
+                    var info = nativeMembers.Resolve(nameStr);
                     if (info == null)
                     {
-                        return 0;
+                        return result;
                     }
                     
                     return module + (nint)info.RVA;
@@ -71,22 +79,29 @@ namespace ModCore
             }
 
             //TODO
-            /**
+            //**
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                nativeMembers.LoadAndActivateModule("libhl.dll");
+                bool loadlibhl = nativeMembers.LoadAndActivateModule("libhl");
+                Debug.Assert(loadlibhl);
 
-                var k32 = NativeLibrary.Load("kernel32.dll");
-                var getprocaddress = NativeLibrary.GetExport(k32, "GetProcAddress");
+                var k32 = NativeLibrary.Load("kernelbase.dll");
+                var getprocaddress = NativeLibrary.GetExport(k32, "GetProcAddressForCaller");
 
                 detourGetProcAddress = DetourFactory.Current.CreateNativeDetour(new(getprocaddress,
-                    (nint)(delegate* unmanaged<nint, byte*, nint>)&New_GetProcAddress)
+                   NativeAsm.hook_GetProcAddress_Entry)
                 {
                     ApplyByDefault = false
                 });
+                NativeAsm.Data->new_GetProcAddress = (nint)(delegate* unmanaged< nint, byte*, nint, nint >)&New_GetProcAddress;
+                NativeAsm.Data->orig_GetProcAddress = NativeAsm.Data->new_GetProcAddress;
+                NativeAsm.Data->phLibhl = phLibhl;
                 detourGetProcAddress.Apply();
                 
-            }**/
+            }//**/
+
+            _  = NativeLibrary.GetExport(phLibhl, "break_on_trap");
+
         }
     }
 }

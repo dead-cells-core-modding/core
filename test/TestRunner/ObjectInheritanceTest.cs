@@ -44,6 +44,8 @@ namespace TestRunner
         [Fact]
         public void Test_Marshal()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var obj = new TestObject();
             var ptr = obj.HashlinkPointer;
 
@@ -55,6 +57,8 @@ namespace TestRunner
         [Fact]
         public void Test_Override_2()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var obj = new TestObject2();
 
             Assert.Equal(114515, obj.getSign());
@@ -80,6 +84,8 @@ namespace TestRunner
         [Fact]
         public void Test_Override()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var obj = new TestObject();
 
             Assert.Equal(114514, obj.getSign());

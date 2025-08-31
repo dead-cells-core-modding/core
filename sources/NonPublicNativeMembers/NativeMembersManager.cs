@@ -68,8 +68,11 @@ namespace NonPublicNativeMembers
             {
                 return true;
             }
+            
             var info = data.Modules.Where(x => x.Name == name)
-                                    .FirstOrDefault(x => hash256?.SequenceEqual(x.Hash) ?? true);
+                                    .FirstOrDefault(
+                                    x => hash256?.SequenceEqual(x.Hash) ?? true
+                );
             if (info == null)
             {
                 return false;

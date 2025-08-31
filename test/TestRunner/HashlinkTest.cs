@@ -24,6 +24,8 @@ namespace TestRunner
         [Fact]
         public void Interaction_Object()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var inst = CreateObject("h2d.col.Point");
 
             inst.SetFieldValue("x", 114514d);
@@ -50,6 +52,8 @@ namespace TestRunner
         [Fact]
         public void Interaction_ObjectMarshal()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var inst = CreateObject("h2d.col.Edge");
 
             var ptr = inst.HashlinkPointer;
@@ -64,6 +68,8 @@ namespace TestRunner
         [Fact]
         public void Interaction_Virtual()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var logt = HashlinkMarshal.GetGlobal("haxe.Log");
             Assert.NotNull(logt);
 
@@ -91,6 +97,8 @@ namespace TestRunner
         [Fact]
         public void Interaction_Closure()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var tt = (HashlinkFuncType)HashlinkMarshal.Module.GetTypeByName("(void (dynamic,virtual<className:String,customParams:hl.types.ArrayDyn,fileName:String,lineNumber:i32,methodName:String>))");
 
             var isFailed = true;
@@ -121,6 +129,8 @@ namespace TestRunner
         [Fact]
         public void Interaction_Enum()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var et = HashlinkMarshal.Module.GetTypeByName("enum<AffectKeepChoice>") as HashlinkEnumType;
             Assert.NotNull(et);
 

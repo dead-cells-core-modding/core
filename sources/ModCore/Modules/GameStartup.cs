@@ -25,7 +25,9 @@ namespace ModCore.Modules
             var entry = (HashlinkClosure)HashlinkMarshal.ConvertHashlinkObject(
                     &HashlinkVM.Instance.Context->c
                     )!;
+            hl_blocking(1);
             entry.CreateDelegate<Action>()();
+            hl_blocking(0);
         }
 
         void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )

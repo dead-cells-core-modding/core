@@ -193,5 +193,23 @@ namespace Hashlink.Marshaling
                 handle.IsStateless = false;
             }
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void RegisterHashlinkThread(nint stacktop = 0)
+        {
+            if (stacktop == 0)
+            {
+                stacktop = (nint)Unsafe.AsPointer(ref stacktop);
+            }
+            hl_register_thread((void*)stacktop);
+            hl_blocking(1);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void EnsureThreadRegistered()
+        {
+            if (hl_get_thread() == null)
+            {
+                RegisterHashlinkThread();
+            }
+        }
     }
 }
