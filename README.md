@@ -1,5 +1,5 @@
 ﻿
-# Dead Cells Core Modding (WIP)
+# Dead Cells Core Modding
 
 ![GitHub License](https://img.shields.io/github/license/dead-cells-core-modding/core) 
 [![Build And Test](https://github.com/dead-cells-core-modding/core/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/dead-cells-core-modding/core/actions/workflows/build.yml)
@@ -161,6 +161,7 @@ mods
 
 - [MonoMod](https://github.com/MonoMod/MonoMod)
 - [HashlinkNET](https://github.com/DreamBoxSpy/HashlinkNET) from DreamBoxSpy
+- [sharplink](https://github.com/steviegt6/sharplink) from Tomat
 - [DeadCellsDecomp](https://github.com/N3rdL0rd/DeadCellsDecomp) and [alivecells](https://github.com/N3rdL0rd/alivecells) from N3rdL0rd
 - [Hashlink](https://github.com/HaxeFoundation/hashlink) from HaxeFoundation
 
