@@ -5,3 +5,4 @@ SizeofResource
 LoadResource
 LockResource
 FreeLibrary
+VirtualProtect

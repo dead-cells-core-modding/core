@@ -32,7 +32,7 @@ namespace ModCore.Modules
         public Thread MainThread { get; private set; } = null!;
 
        
-        internal Native.NativeCommon.VMContext* Context
+        internal Native.Native.VMContext* Context
         {
             get; private set;
         }
@@ -93,7 +93,7 @@ namespace ModCore.Modules
         {
             var tinfo = hl_get_thread();
 
-            Context = (Native.NativeCommon.VMContext*)tinfo->stack_top;
+            Context = (Native.Native.VMContext*)tinfo->stack_top;
 
             Logger.Information("Initializing Haxe Utils Utils");
 
@@ -104,7 +104,7 @@ namespace ModCore.Modules
         {
             if (ev.EventId == IOnNativeEvent.EventId.HL_EV_VM_READY)
             {
-                Context = (Native.NativeCommon.VMContext*)ev.Data;
+                Context = (Native.Native.VMContext*)ev.Data;
                 EventSystem.BroadcastEvent<IOnHashlinkVMReady>();
             }
             else if (ev.EventId == IOnNativeEvent.EventId.HL_EV_RESOLVE_NATIVE)

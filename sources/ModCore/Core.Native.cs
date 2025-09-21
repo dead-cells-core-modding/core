@@ -13,6 +13,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
+using NN = ModCore.Native.Native;
+
 namespace ModCore
 {
     internal unsafe partial class Core
@@ -31,7 +33,7 @@ namespace ModCore
         private static nint New_GetProcAddress( nint module, byte* name, nint unknown )
         {
 
-            NativeAsm.Data->orig_GetProcAddress = detourGetProcAddress!.OrigEntrypoint;
+            NN.Current.Data->orig_GetProcAddress = detourGetProcAddress!.OrigEntrypoint;
 
             orig_GetProcAddress ??= Marshal.GetDelegateForFunctionPointer<GetProcAddressDel>(
                 detourGetProcAddress!.OrigEntrypoint);
@@ -89,13 +91,13 @@ namespace ModCore
                 var getprocaddress = NativeLibrary.GetExport(k32, "GetProcAddressForCaller");
 
                 detourGetProcAddress = DetourFactory.Current.CreateNativeDetour(new(getprocaddress,
-                   NativeAsm.hook_GetProcAddress_Entry)
+                   NN.Current.asm_hook_GetProcAddress_Entry)
                 {
                     ApplyByDefault = false
                 });
-                NativeAsm.Data->new_GetProcAddress = (nint)(delegate* unmanaged< nint, byte*, nint, nint >)&New_GetProcAddress;
-                NativeAsm.Data->orig_GetProcAddress = NativeAsm.Data->new_GetProcAddress;
-                NativeAsm.Data->phLibhl = phLibhl;
+                NN.Current.Data->new_GetProcAddress = (nint)(delegate* unmanaged< nint, byte*, nint, nint >)&New_GetProcAddress;
+                NN.Current.Data->orig_GetProcAddress = NN.Current.Data->new_GetProcAddress;
+                NN.Current.Data->phLibhl = phLibhl;
                 detourGetProcAddress.Apply();
                 
             }//**/

@@ -1,15 +1,4 @@
 ﻿
-SymInitialize
-SymLoadModuleEx 
-SymCleanup
-SymGetTypeInfo
-SymSetOptions
-SymEnumTypes 
-SymEnumSymbols 
-SymGetModuleInfo64
-SymEnumerateSymbols64
-SymFromAddr
-
 
 GetCurrentProcess 
 GetModuleFileName

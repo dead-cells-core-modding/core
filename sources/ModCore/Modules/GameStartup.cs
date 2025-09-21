@@ -26,7 +26,8 @@ namespace ModCore.Modules
                     &HashlinkVM.Instance.Context->c
                     )!;
             hl_blocking(1);
-            entry.CreateDelegate<Action>()();
+            var action = entry.CreateDelegate<Action>();
+            action();
             hl_blocking(0);
         }
 

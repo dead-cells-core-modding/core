@@ -54,11 +54,7 @@ namespace Hashlink.Wrapper
             {
                 if (ev.EventId == IOnNativeEvent.EventId.HL_EV_ERR_NET_CAUGHT)
                 {
-                    var exc = (void*)ev.Data;
-                    var outErrorTable = (void**)PrepareExceptionReturn(exc);
-                    //Return
-                    
-                    ((delegate* unmanaged[Cdecl]< void*, void >)NativeAsm.cs_hl_return_from_exception)(outErrorTable);
+                    throw new NotImplementedException();
                 }
             }
             [StackTraceHidden]
@@ -156,10 +152,11 @@ namespace Hashlink.Wrapper
                 Debug.Assert(prepare_exception_handle_data->current->stack_area != null);
                 prepare_exception_handle_data->stack_area = prepare_exception_handle_data->current->stack_area;
             }
+            Debug.Assert(*(long*)prepare_exception_handle_data->stack_area == Native.STACK_CHUCK_SUM);
             return (nint)outErrorTable;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+
         public static void ThrowNetException( Exception ex )
         {
             if (ex is HashlinkError err)
@@ -185,7 +182,7 @@ namespace Hashlink.Wrapper
                 }
                 prepare_exception_handle_data = asmhelper_data_pool + id;
                 AsmHelperData.call_code_x64.CopyTo(new Span<byte>(prepare_exception_handle_data->shellcode, 12));
-                *(long*)&prepare_exception_handle_data->shellcode[2] = NativeAsm.cs_hl_store_context;
+                *(long*)&prepare_exception_handle_data->shellcode[2] = Native.Current.asm_cs_hl_store_context;
             }
 
             HashlinkMarshal.EnsureThreadRegistered();
@@ -353,11 +350,12 @@ namespace Hashlink.Wrapper
             prepare_exception_handle_data->current = handle.prev;
             if (prepare_exception_handle_data->current != null)
             {
-                prepare_exception_handle_data->stack_area = prepare_exception_handle_data->stack_area;
+                prepare_exception_handle_data->stack_area = prepare_exception_handle_data->current->stack_area;
+                Debug.Assert(*(long*)prepare_exception_handle_data->stack_area == Native.STACK_CHUCK_SUM);
             }
             if (last_exception != null)
             {
-                ((delegate* unmanaged< void >)NativeAsm.empty_method)();
+                ((delegate* unmanaged< void >)Native.Current.asm_empty_method)();
                 var ex = last_exception;
                 FixExceptionTrace(last_exception, (nint)Unsafe.AsPointer(ref handle));
                 last_exception = null;

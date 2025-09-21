@@ -43,7 +43,7 @@ namespace ModCore
                 {
                     var exeName = "deadcells_gl.exe";
                     logger.Information("Loading hlboot.dat from {name}", exeName);
-                    codeData = NativeWin.GetHlbootDataFromExe(FolderInfo.GameRoot.GetFilePath(exeName));
+                    codeData = Native.Native.Current.GetHlbootDataFromExe(FolderInfo.GameRoot.GetFilePath(exeName));
                     if (codeData.IsEmpty)
                     {
                         throw new FileNotFoundException(null, "hlboot.dat");
@@ -60,7 +60,7 @@ namespace ModCore
             try
             {
                 logger.Information("Initializing game");
-                NativeCommon.InitGame(codeData, out var ctx);
+                Native.Native.Current.InitGame(codeData, out var ctx);
                 logger.Information("Starting game");
 
                 EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(

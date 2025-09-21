@@ -18,8 +18,15 @@ using static Hashlink.HashlinkNative;
 
 namespace ModCore.Native
 {
-    internal unsafe static class NativeCommon
+    internal unsafe abstract partial class Native
     {
+        public static Native Current
+        {
+            get;
+        } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new NativeWin() : 
+            throw new PlatformNotSupportedException();
+
+
         [StructLayout(LayoutKind.Sequential)]
         public struct VMContext
         {
@@ -51,21 +58,39 @@ namespace ModCore.Native
             Debug.Assert(result.HasValue);
             return result.Value;
         }
+        [UnmanagedCallersOnly]
+        private static void Return_From_Managed()
+        {
+            return;
+        }
+        [UnmanagedCallersOnly]
+        private static void Capture_Current_Frame(nint ptr)
+        {
+            
+        }
 
-        private static void InitNativeHooks()
+        public Native()
+        {
+            InitializeAsm();
+            
+        }
+
+        protected virtual void InitNativeHooks()
         {
             var phLibhl = NativeLibrary.Load("libhl");
 
             detourBreakOnTrap = DetourFactory.Current.CreateNativeDetour(
-                    NativeLibrary.GetExport(phLibhl, "break_on_trap"), NativeAsm.hook_break_on_trap_Entry, true);
-            NativeAsm.Data->orig_break_on_trap = detourBreakOnTrap.OrigEntrypoint;
-            NativeAsm.Data->trap_filter = (nint)(delegate* unmanaged< nint, HL_trap_ctx*, nint, nint >)&Hook_trap_filter;
+                    NativeLibrary.GetExport(phLibhl, "break_on_trap"), asm_hook_break_on_trap_Entry, true);
+            Data->orig_break_on_trap = detourBreakOnTrap.OrigEntrypoint;
+            Data->trap_filter = (nint)(delegate* unmanaged< nint, HL_trap_ctx*, nint, nint >)&Hook_trap_filter;
+
+            Data->return_from_managed = (nint)(delegate* unmanaged< void >)&Return_From_Managed;
+            Data->capture_current_frame = (nint)(delegate* unmanaged< nint, void >)&Capture_Current_Frame;
         }
         #endregion
-        public static void InitGame(ReadOnlySpan<byte> hlboot, out VMContext context)
+        public virtual void InitGame(ReadOnlySpan<byte> hlboot, out VMContext context)
         {
             InitNativeHooks();
-
             HL_code* code;
             byte* err;
             context = new();
@@ -111,5 +136,7 @@ namespace ModCore.Native
 
         }
 
+        public abstract void MakePageWritable( nint ptr, out int old );
+        public abstract void RestorePageProtect( nint ptr, int val );
     }
 }

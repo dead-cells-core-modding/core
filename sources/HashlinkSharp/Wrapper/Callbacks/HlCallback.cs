@@ -1,6 +1,8 @@
 ﻿using Hashlink.UnsafeUtilities;
+using ModCore.Native;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -9,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Wrapper.Callbacks
 {
-    public class HlCallback
+    public unsafe class HlCallback
     {
         private nint routerPtr;
         private Delegate? callback;
@@ -32,6 +34,25 @@ namespace Hashlink.Wrapper.Callbacks
             get => target;
             set => info.entry = new(target = value!);
         }
+
+        private static void PatchEntry( nint ptr )
+        {
+            var helperPtr = (ulong*)(ptr + 10 + 2);
+
+            Debug.Assert(Native.Current.Data->dotnet_runtime_pinvoke_wrapper == 0 ||
+                        (ulong)Native.Current.Data->dotnet_runtime_pinvoke_wrapper == * helperPtr);
+
+            Native.Current.Data->dotnet_runtime_pinvoke_wrapper = (nint)(*helperPtr);
+
+            int oldFlag = 0;
+
+            Native.Current.MakePageWritable(ptr, out oldFlag);
+
+            *helperPtr = (ulong)Native.Current.asm_hl2cs_store_return_ptr;
+
+            Native.Current.RestorePageProtect(ptr, oldFlag);
+        }
+
         public nint NativePointer
         {
             get
@@ -40,6 +61,8 @@ namespace Hashlink.Wrapper.Callbacks
                 {
                     callback = callbackMI.CreateAnonymousDelegate(info, true);
                     routerPtr = Marshal.GetFunctionPointerForDelegate(callback);
+
+                    PatchEntry(routerPtr);
                 }
                 return routerPtr;
             }
