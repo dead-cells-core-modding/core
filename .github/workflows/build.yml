@@ -103,7 +103,7 @@ jobs:
       uses: ilammy/setup-nasm@v1
     - name: Download Dependencies
       run: |
-        cd ./sources/native/hdlls/include
+        cd ./sources/native/3rd/hashlink/include
 
         Invoke-WebRequest -Uri https://github.com/kcat/openal-soft/releases/download/1.23.1/openal-soft-1.23.1-bin.zip -OutFile ./OpenAL.zip
         Expand-Archive -LiteralPath ./OpenAL.zip -DestinationPath . -Force

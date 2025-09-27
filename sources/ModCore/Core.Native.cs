@@ -54,8 +54,8 @@ namespace ModCore
                     {
                         return result;
                     }
-                    
-                    return module + (nint)info.RVA;
+                    var baseAddr = NativeLibrary.Load(info.ModuleName);
+                    return baseAddr + (nint)info.RVA;
                 }
             }
             return result;
