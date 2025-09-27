@@ -40,6 +40,7 @@ if($BuildNative) {
 
     echo "Copying Goldberg"
     $goldberg = $thirdparty + "/Goldberg/win-x64/*"
+    mkdir goldberg
     Copy-Item -Path $goldberg -Destination "./goldberg" -Recurse -Force
 
 }

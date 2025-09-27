@@ -86,7 +86,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.DFA
                 }
             }
 
-            foreach (var v in gdata.IRBasicBlocks)
+                foreach (var v in gdata.IRBasicBlocks)
             {
                 var rad = v.registerAccessData!;
                 foreach (var sr in rad.ssaRegisters)
