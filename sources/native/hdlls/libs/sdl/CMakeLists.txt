@@ -8,11 +8,15 @@ add_library(sdl.hdll SHARED
     gl.c
 )
 set_as_hdll(sdl)
+
+message("SDL include: ${SDL2_INCLUDE_DIR}")
+
 target_include_directories(sdl.hdll
     PRIVATE
     ${SDL2_INCLUDE_DIR}
-    ${INCLUDES_BASE_DIR}/gl
+    ${HDLLS_INCLUDE}/gl
 )
+
 target_link_libraries(sdl.hdll
     libhl
     ${SDL2_LIBRARY}
