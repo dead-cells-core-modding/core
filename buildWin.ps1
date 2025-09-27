@@ -38,10 +38,6 @@ if($BuildNative) {
 
     cd $nativedir
 
-    echo "Copying hlsteam"
-    $hlsteam = $thirdparty + "/hlsteam/*"
-    Copy-Item -Path $hlsteam -Destination "./hlsteam" -Recurse -Force
-
     echo "Copying Goldberg"
     $goldberg = $thirdparty + "/Goldberg/win-x64/*"
     Copy-Item -Path $goldberg -Destination "./goldberg" -Recurse -Force

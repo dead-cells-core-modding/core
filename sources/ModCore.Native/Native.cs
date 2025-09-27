@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -45,7 +46,10 @@ namespace ModCore.Native
         private static readonly NativeEventHandleDelegate del_NativeEventHandler = NativeEventHandler;
 
         #region Hooks
-        private static ICoreNativeDetour? detourBreakOnTrap;
+
+        private readonly List<ICoreNativeDetour> detours = [];
+
+        private ICoreNativeDetour? detourBreakOnTrap;
 
         [UnmanagedCallersOnly]
         private static nint Hook_trap_filter( nint t, HL_trap_ctx* ctx, nint v )
@@ -58,6 +62,34 @@ namespace ModCore.Native
             Debug.Assert(result.HasValue);
             return result.Value;
         }
+
+        private static nint orig_gc_mark;
+        [UnmanagedCallersOnly]
+        private static void Hook_gc_mark()
+        {
+            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
+                new(IOnNativeEvent.EventId.HL_EV_GC_BEFORE_MARK, 0));
+
+            ((delegate* unmanaged< void >)orig_gc_mark)();
+
+            IOnNativeEvent.Event_gc_roots roots = new();
+            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
+                new(IOnNativeEvent.EventId.HL_EV_GC_SEARCH_ROOT, (nint)(&roots)));
+
+            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
+                new(IOnNativeEvent.EventId.HL_EV_GC_AFTER_MARK, 0));
+        }
+        private static nint orig_gc_major;
+        [UnmanagedCallersOnly]
+        private static void Hook_gc_major()
+        {
+            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
+                new(IOnNativeEvent.EventId.HL_EV_BEGORE_GC, 0));
+            ((delegate* unmanaged< void >)orig_gc_major)();
+            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
+                new(IOnNativeEvent.EventId.HL_EV_AFTER_GC, 0));
+        }
+
         [UnmanagedCallersOnly]
         private static void Return_From_Managed()
         {
@@ -75,13 +107,43 @@ namespace ModCore.Native
             
         }
 
+        private static ICoreNativeDetour CreateNativeHookForHL( string srcName, string hookName, out nint orig )
+        {
+            var hook = typeof(Native).GetMethod(hookName, BindingFlags.Static | 
+                BindingFlags.NonPublic |
+                BindingFlags.Public);
+
+            Debug.Assert(hook != null);
+
+            var ptr = hook.MethodHandle.GetFunctionPointer();
+
+            ((delegate* unmanaged< void >)ptr)();
+
+            return Current.CreateNativeHookForHL(srcName, 
+                ptr, out orig);
+        }
+        protected ICoreNativeDetour CreateNativeHookForHL( string srcName, nint hook, out nint orig )
+        {
+            var phLibhl = NativeLibrary.Load("libhl");
+            return CreateNativeHook(NativeLibrary.GetExport(phLibhl, srcName),
+                hook, out orig);
+        }
+        protected ICoreNativeDetour CreateNativeHook( nint src, nint dst, out nint orig )
+        {
+            var detour = DetourFactory.Current.CreateNativeDetour(
+                    src, dst, true);
+            orig = detour.OrigEntrypoint;
+            detours.Add(detour);
+            return detour;
+        }
+
         protected virtual void InitNativeHooks()
         {
             var phLibhl = NativeLibrary.Load("libhl");
 
-            detourBreakOnTrap = DetourFactory.Current.CreateNativeDetour(
-                    NativeLibrary.GetExport(phLibhl, "break_on_trap"), asm_hook_break_on_trap_Entry, true);
-            Data->orig_break_on_trap = detourBreakOnTrap.OrigEntrypoint;
+            CreateNativeHookForHL("break_on_trap", asm_hook_break_on_trap_Entry, out Data->orig_break_on_trap);
+            //CreateNativeHookForHL("gc_mark", nameof(Hook_gc_mark), out orig_gc_mark);
+            //CreateNativeHookForHL("gc_major", nameof(Hook_gc_major), out orig_gc_major);
             Data->trap_filter = (nint)(delegate* unmanaged< nint, HL_trap_ctx*, nint, nint >)&Hook_trap_filter;
 
             Data->return_from_managed = (nint)(delegate* unmanaged< void >)&Return_From_Managed;

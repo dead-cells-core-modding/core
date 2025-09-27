@@ -1,0 +1,11 @@
+{
+    "haxe.displayConfigurations": [ // one or more configurations for the haxe completion server 
+        ["build.hxml"]
+    ],
+    "haxe.displayServer": { // configuration for starting haxe completion server itself
+        "haxePath": "haxe", // path to the executable (default: `haxe`)
+        "arguments": ["-debug"], // arguments before --wait (-v is useful for debugging)
+        "env": { // environment variables for the completion server
+        }
+    }
+}

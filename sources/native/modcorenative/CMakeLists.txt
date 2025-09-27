@@ -15,7 +15,6 @@ endif()
 
 target_link_libraries(modcorenative libhl)
 
-install(TARGETS modcorenative)
 
 SET_TARGET_PROPERTIES(modcorenative PROPERTIES LINKER_LANGUAGE C
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}

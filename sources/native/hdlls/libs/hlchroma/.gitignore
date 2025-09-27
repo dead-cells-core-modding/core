@@ -1,0 +1,17 @@
+*.opensdf
+*.sdf
+*.suo
+*.ipch
+*.hl
+*.obj
+*.exe
+*.dll
+*.user
+*.n
+Debug
+Release
+*.hdll
+*.opendb
+*.VC.db
+ReleaseVS2013
+build/

@@ -73,11 +73,6 @@ namespace ModCore.Modules.Internals
 
         EventResult<nint> IOnResolveNativeFunction.OnResolveNativeFunction( IOnResolveNativeFunction.NativeFunctionInfo info )
         {
-            if (info.libname == "chroma")
-            {
-                //Not Support
-                return (nint)ptr_NativeReturnFalse;
-            }
             if (info.libname == "steam")
             {
                 if (info.name == "is_user_logged_in")
@@ -103,9 +98,8 @@ namespace ModCore.Modules.Internals
             return default;
         }
 
-        private nint TryLoadSteam()
+        private void TryLoadSteam()
         {
-            
             if (Core.Config.Value.EnableGoldberg)
             {
                 Logger.Information("Goldberg Enabled");
@@ -113,21 +107,12 @@ namespace ModCore.Modules.Internals
                     FolderInfo.CurrentNativeRoot.GetFilePath("goldberg/steam_api64.dll") :
                     FolderInfo.CurrentNativeRoot.GetFilePath("goldberg/libsteam_api.so");
                 Logger.Information("Try loading Goldberg from {path}", path);
-                if (!NativeLibrary.TryLoad(path, out _))
+                if (NativeLibrary.TryLoad(path, out _))
                 {
-                    Logger.Information("Unable to load Goldberg");
+                    return;
                 }
+                Logger.Information("Unable to load Goldberg");
             }
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                var hdll = FolderInfo.CurrentNativeRoot.GetFilePath("hlsteam/steam.hdll");
-                if (File.Exists(hdll))
-                {
-                    return NativeLibrary.Load(hdll);
-                }
-            }
-            return 0;
         }
 
         EventResult<nint> IOnResolveNativeLib.OnResolveNativeLib( string name )
@@ -139,11 +124,7 @@ namespace ModCore.Modules.Internals
 
             if (name == "steam")
             {
-                var result = TryLoadSteam();
-                if (result != 0)
-                {
-                    return result;
-                }
+                TryLoadSteam();
             }
 
             var path = FolderInfo.CurrentNativeRoot.GetFilePath(name + ".hdll");

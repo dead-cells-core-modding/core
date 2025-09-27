@@ -151,7 +151,7 @@ namespace HaxeProxy.Runtime.Internals
             }
             if (val is HashlinkDynObj dyn)
             {
-                return HashlinkObjDynamicAccess.Create(dyn);
+                return dyn.AsDynamic();
             }
             if (val is IExtraData ied)
             {

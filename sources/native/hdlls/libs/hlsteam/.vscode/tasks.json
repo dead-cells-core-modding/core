@@ -1,0 +1,38 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "command": "haxe",
+    "args": [],
+    "tasks": [
+        {
+            "label": "HL Debug",
+            "command": "haxe",
+            "args": [
+                "-debug",
+                "build.hxml"
+            ],
+            "problemMatcher": {
+                "owner": "haxe",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
+                "pattern": {
+                    "regexp": "^(.+):(\\d+): (?:lines \\d+-(\\d+)|character(?:s (\\d+)-| )(\\d+)) : (?:(Warning) : )?(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "endLine": 3,
+                    "column": 4,
+                    "endColumn": 5,
+                    "severity": 6,
+                    "message": 7
+                }
+            },
+            "group": {
+                "_id": "build",
+                "isDefault": false
+            }
+        }
+    ]
+}

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Proxy.DynamicAccess
 {
-    public abstract class HashlinkObjDynamicAccess( HashlinkObj obj ) : DynamicObject, 
+    public class HashlinkObjDynamicAccess( HashlinkObj obj ) : DynamicObject, 
         IHashlinkPointer, IExtraData, IExtraDataItem
     {
         public HashlinkObj HashlinkObject
@@ -44,7 +44,7 @@ namespace Hashlink.Proxy.DynamicAccess
             {
                 return new HashlinkObjectDynamicAccess(dyn);
             }
-            throw new NotSupportedException();
+            return new HashlinkObjDynamicAccess(obj);
         }
 
         public override bool TryConvert( ConvertBinder binder, out object? result )

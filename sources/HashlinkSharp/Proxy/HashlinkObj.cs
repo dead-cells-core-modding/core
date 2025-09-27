@@ -1,11 +1,16 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Marshaling.ObjHandle;
+using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Reflection.Types;
 using System.Diagnostics.CodeAnalysis;
+using System.Dynamic;
+using System.Linq.Expressions;
 
 namespace Hashlink.Proxy
 {
-    public abstract unsafe partial class HashlinkObj : IHashlinkPointer
+    public abstract unsafe partial class HashlinkObj : 
+        IHashlinkPointer
+        //,IDynamicMetaObjectProvider
     {
         [MemberNotNull(nameof(nativeType))]
         [MemberNotNull(nameof(type))]
@@ -47,6 +52,13 @@ namespace Hashlink.Proxy
                 Handle.IsStateless = false;
             }
         }
+
+        public DynamicMetaObject GetMetaObject( Expression parameter )
+        {
+            dynamicAccess ??= (HashlinkObjDynamicAccess) HashlinkObjDynamicAccess.Create(this);
+            return dynamicAccess.GetMetaObject(parameter);
+        }
+
         public HashlinkObjHandle? Handle
         {
             get; 
@@ -56,6 +68,7 @@ namespace Hashlink.Proxy
         private HL_type* nativeType;
         private HashlinkType? type;
 
+        private HashlinkObjDynamicAccess? dynamicAccess;
         public HashlinkType Type => type!;
         public HL_type* NativeType => nativeType;
         public virtual nint HashlinkPointer
