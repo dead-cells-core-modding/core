@@ -3,7 +3,7 @@ if(WIN32)
     set(SDL2_PATH ${HDLLS_INCLUDE}/sdl)
     set(SDL2_INCLUDE_DIR ${SDL2_PATH}/include)
 
-    find_library(SDL2_LIBRARY SDL2 PATHS  ${SDL2_PATH}/lib)
+    find_library(SDL2_LIBRARY SDL2 PATHS ${SDL2_PATH}/lib/x64)
 endif()
 
 add_library(sdl.hdll SHARED
