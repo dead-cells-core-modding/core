@@ -48,7 +48,16 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /Ob0 /DEBUG /OPT:ICF")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /Ob0 /DEBUG /OPT:ICF")
 endif()
 
-
+set(WITH_DISCORD off)
+set(WITH_UV off)
+set(WITH_UI off)
+set(WITH_SSL off)
+set(WITH_SQLITE off)
+set(WITH_SDL off)
+set(WITH_OPENAL off)
+set(WITH_FMT off)
+set(WITH_DIRECTX off)
+set(WITH_VIDEO off)
 
 add_subdirectory ("3rd/hashlink")
 
