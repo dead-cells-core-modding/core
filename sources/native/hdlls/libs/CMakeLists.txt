@@ -1,9 +1,5 @@
 ﻿
-list(APPEND CMAKE_MODULE_PATH
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake
-)
-
-set(INCLUDES_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+get_filename_component(INCLUDES_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../include" ABSOLUTE)
 
 function(set_as_hdll target)
     set_target_properties(${target}.hdll

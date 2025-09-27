@@ -44,8 +44,8 @@ add_definitions(-D_CRT_SECURE_NO_WARNINGS=1 -DUNICODE -D_UNICODE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zi /Ob0 /MP${CPU_NUMBER_OF_LOGICAL_CORES}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zi /Ob0 /MP${CPU_NUMBER_OF_LOGICAL_CORES}")
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /Ob0 /DEBUG /OPT:ICF")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /Ob0 /DEBUG /OPT:ICF")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG /OPT:ICF")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEBUG /OPT:ICF")
 endif()
 
 set(WITH_DISCORD off)
@@ -62,6 +62,8 @@ set(WITH_VIDEO off)
 add_subdirectory ("3rd/hashlink")
 
 include_directories("3rd/hashlink/src")
+
+get_filename_component(HDLLS_INCLUDE "3rd/hashlink/include" ABSOLUTE)
 
 add_subdirectory ("modcorenative")
 add_subdirectory ("hdlls/libs")

@@ -1,8 +1,7 @@
 ﻿
 if(WIN32)
-    set(SDL2_PATH ${INCLUDES_BASE_DIR}/sdl)
+    set(SDL2_PATH ${HDLLS_INCLUDE}/sdl)
 endif()
-
 
 add_library(sdl.hdll SHARED
     sdl.c
