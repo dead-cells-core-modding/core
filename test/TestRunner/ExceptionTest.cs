@@ -32,7 +32,7 @@ namespace TestRunner
             }
         }
 
-        //[Fact]
+       // [Fact]
         public void Test_ExceptionThrow()
         {
             HashlinkMarshal.EnsureThreadRegistered();

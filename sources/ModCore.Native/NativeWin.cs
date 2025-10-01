@@ -80,14 +80,6 @@ namespace ModCore.Native
         {
             c.push(rcx);
 
-            c.sub(rsp, 32);
-
-            c.mov(rcx, rsp);
-            c.mov(rax, (long)&Data->capture_current_frame);
-
-            //c.call(__qword_ptr[rax]);
-
-            c.add(rsp, 32);
 
             c.pop(rcx);
 

@@ -25,9 +25,13 @@ jobs:
       with:
          files: win-x64.zip
 
+  #Test multiple times to minimize random bugs
   test-win-x64:
     runs-on: windows-latest
     needs: build-win-x64
+    strategy:
+      matrix:
+        run: [1, 2, 3, 4, 5, 6]
     steps:
     - uses: actions/checkout@v4
       with:
@@ -52,10 +56,12 @@ jobs:
     - name: Build ModCore
       run: |
         ./buildWin.ps1 -BuildNative 0 -BuildMDK 0
-    - name: Run Tests
+    - name: Run Tests (attempt ${{ matrix.run }})
       run: |
         cd sources
+        
         dotnet test
+
 
   test-build-samples:
     runs-on: windows-latest

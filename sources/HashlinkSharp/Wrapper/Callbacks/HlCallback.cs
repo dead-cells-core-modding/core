@@ -44,9 +44,7 @@ namespace Hashlink.Wrapper.Callbacks
 
             Native.Current.Data->dotnet_runtime_pinvoke_wrapper = (nint)(*helperPtr);
 
-            int oldFlag = 0;
-
-            Native.Current.MakePageWritable(ptr, out oldFlag);
+            Native.Current.MakePageWritable(ptr, out var oldFlag);
 
             *helperPtr = (ulong)Native.Current.asm_hl2cs_store_return_ptr;
 
