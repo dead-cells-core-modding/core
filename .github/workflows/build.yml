@@ -29,9 +29,6 @@ jobs:
   test-win-x64:
     runs-on: windows-latest
     needs: build-win-x64
-    strategy:
-      matrix:
-        run: [1, 2, 3, 4, 5, 6]
     steps:
     - uses: actions/checkout@v4
       with:
@@ -56,12 +53,22 @@ jobs:
     - name: Build ModCore
       run: |
         ./buildWin.ps1 -BuildNative 0 -BuildMDK 0
-    - name: Run Tests (attempt ${{ matrix.run }})
+    - name: Run Tests
+      shell: pwsh
       run: |
         cd sources
         
         dotnet test
 
+        $repeat = 10  
+        for ($i = 1; $i -le $repeat; $i++) {
+            Write-Host "==== Run $i ===="
+            dotnet test --no-build --verbosity normal
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "❌ Run $i failed, stopping further runs."
+              exit $LASTEXITCODE
+            }
+          }
 
   test-build-samples:
     runs-on: windows-latest
