@@ -104,6 +104,6 @@ namespace ModCore.Native
         protected abstract void Generate_asm_hl2cs_store_return_ptr( Assembler c );
         protected abstract void Generate_asm_hook_break_on_trap_Entry( Assembler c );
         protected abstract void Generate_asm_hook_GetProcAddress_Entry( Assembler c );
-        public abstract ReadOnlySpan<byte> GetHlbootDataFromExe( string exePath );
+
     }
 }

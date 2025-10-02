@@ -43,6 +43,7 @@ namespace ModCore.Native
                    new((IOnNativeEvent.EventId)eventId, data));
 
         }
+
         private static readonly NativeEventHandleDelegate del_NativeEventHandler = NativeEventHandler;
 
         #region Hooks
@@ -76,6 +77,8 @@ namespace ModCore.Native
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
                 new(IOnNativeEvent.EventId.HL_EV_GC_SEARCH_ROOT, (nint)(&roots)));
 
+            Current.GcScanManagedRef(new(roots.roots, roots.nroots));
+
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
                 new(IOnNativeEvent.EventId.HL_EV_GC_AFTER_MARK, 0));
         }
@@ -85,9 +88,22 @@ namespace ModCore.Native
         {
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
                 new(IOnNativeEvent.EventId.HL_EV_BEGORE_GC, 0));
+
             ((delegate* unmanaged< void >)orig_gc_major)();
+
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
                 new(IOnNativeEvent.EventId.HL_EV_AFTER_GC, 0));
+        }
+
+        private static nint orig_gc_mark_stack;
+        [UnmanagedCallersOnly]
+        private static void Hook_gc_mark_stack( nint start, nint end )
+        {
+            if (start == 0 || end == 0)
+            {
+                return;
+            }
+            ((delegate* unmanaged<nint, nint, void>)orig_gc_mark_stack)(start, end);
         }
 
         [UnmanagedCallersOnly]
@@ -117,8 +133,6 @@ namespace ModCore.Native
 
             var ptr = hook.MethodHandle.GetFunctionPointer();
 
-            ((delegate* unmanaged< void >)ptr)();
-
             return Current.CreateNativeHookForHL(srcName, 
                 ptr, out orig);
         }
@@ -133,6 +147,7 @@ namespace ModCore.Native
             var detour = DetourFactory.Current.CreateNativeDetour(
                     src, dst, true);
             orig = detour.OrigEntrypoint;
+            Debug.Assert(orig != 0);
             detours.Add(detour);
             return detour;
         }
@@ -142,17 +157,23 @@ namespace ModCore.Native
             var phLibhl = NativeLibrary.Load("libhl");
 
             CreateNativeHookForHL("break_on_trap", asm_hook_break_on_trap_Entry, out Data->orig_break_on_trap);
-            //CreateNativeHookForHL("gc_mark", nameof(Hook_gc_mark), out orig_gc_mark);
-            //CreateNativeHookForHL("gc_major", nameof(Hook_gc_major), out orig_gc_major);
+            CreateNativeHookForHL("gc_mark_stack", nameof(Hook_gc_mark_stack), out orig_gc_mark_stack);
+            CreateNativeHookForHL("gc_mark", nameof(Hook_gc_mark), out orig_gc_mark);
+            CreateNativeHookForHL("gc_major", nameof(Hook_gc_major), out orig_gc_major);
+
             Data->trap_filter = (nint)(delegate* unmanaged< nint, HL_trap_ctx*, nint, nint >)&Hook_trap_filter;
 
             Data->return_from_managed = (nint)(delegate* unmanaged< void >)&Return_From_Managed;
             Data->capture_current_frame = (nint)(delegate* unmanaged< nint, void >)&Capture_Current_Frame;
         }
         #endregion
-        public virtual void InitGame(ReadOnlySpan<byte> hlboot, out VMContext context)
+
+        public abstract void FixThreadCurrentStackFrame( HL_thread_info* t );
+        public virtual void InitializeGame(ReadOnlySpan<byte> hlboot, out VMContext context)
         {
+            InitializeNative();
             InitNativeHooks();
+
             HL_code* code;
             byte* err;
             context = new();
@@ -197,8 +218,15 @@ namespace ModCore.Native
 
 
         }
+        public virtual void InitializeNative()
+        {
+            var phLibhl = NativeLibrary.Load("libhl");
 
+            phl_gc_page_map = (HL_gc_pheader***) NativeLibrary.GetExport(phLibhl, "hl_gc_page_map");
+            pglobal_mark_stack = (HL_gc_mstack*)NativeLibrary.GetExport(phLibhl, "global_mark_stack");
+        }
         public abstract void MakePageWritable( nint ptr, out int old );
-        public abstract void RestorePageProtect( nint ptr, int val );
+        public abstract void RestorePageProtect( nint ptr, int val ); 
+        public abstract ReadOnlySpan<byte> GetHlbootDataFromExe( string exePath );
     }
 }

@@ -13,5 +13,6 @@ namespace Hashlink.Wrapper.Callbacks
     {
         public nint directRoute;
         public DelegateInfo entry;
+        public HlCallback callback;
     }
 }

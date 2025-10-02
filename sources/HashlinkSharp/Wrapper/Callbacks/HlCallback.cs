@@ -21,6 +21,7 @@ namespace Hashlink.Wrapper.Callbacks
         internal HlCallback(MethodInfo callbackMI)
         {
             this.callbackMI = callbackMI;
+            info.callback = this;
         }
 
         public nint RedirectTarget

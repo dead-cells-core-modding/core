@@ -60,7 +60,7 @@ namespace ModCore
             try
             {
                 logger.Information("Initializing game");
-                Native.Native.Current.InitGame(codeData, out var ctx);
+                Native.Native.Current.InitializeGame(codeData, out var ctx);
                 logger.Information("Starting game");
 
                 EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(

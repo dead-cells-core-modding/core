@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Windows.Win32.Foundation;
 
+#pragma warning disable CA1401
 
 namespace Hashlink
 {
@@ -208,5 +209,19 @@ namespace Hashlink
         public static partial int hl_module_init( HL_module* m, int hot_reload );
         [LibraryImport(LIBHL)]
         public static partial void hl_blocking( int b );
+        [LibraryImport(LIBHL)]
+        public static partial void hl_add_root( void* v );
+        [LibraryImport(LIBHL)]
+        public static partial void hl_remove_root( void* v );
+        [LibraryImport(LIBHL)]
+        public static partial HL_gc_threads* hl_gc_threads_info(); 
+        [LibraryImport(LIBHL)]
+        public static partial void gc_global_lock( [MarshalAs(UnmanagedType.I1)] bool b );
+        [LibraryImport(LIBHL)]
+        public static partial int gc_allocator_get_block_id( HL_gc_pheader* page, void* block );
+        [LibraryImport(LIBHL)] 
+        public static partial int gc_flush_mark( HL_gc_mstack* st, [MarshalAs(UnmanagedType.I1)] bool single );
+        [LibraryImport(LIBHL)]
+        public static partial void** hl_gc_mark_grow( HL_gc_mstack* stack );
     }
 }

@@ -6,3 +6,9 @@ LoadResource
 LockResource
 FreeLibrary
 VirtualProtect
+
+ResumeThread
+SuspendThread
+OpenThread
+GetCurrentThreadId
+GetThreadId

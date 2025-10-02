@@ -428,6 +428,33 @@ namespace Hashlink
         public HL_vdynamic* tcheck;
     }
     [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_gc_threads
+    {
+        public int count;
+        public bool stopping_world;
+        public HL_thread_info** threads;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_gc_pheader
+    {
+        // const
+        public byte* @base;
+	    public byte* bmp;
+        public int page_size;
+        public int page_kind;
+
+        //Reserve
+        public fixed byte alloc[56];
+        public HL_gc_pheader* next_page;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_gc_mstack 
+    {
+        public void** cur;
+        public void** end;
+        public int size;
+    }
+    [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_thread_info
     {
         public int thread_id;

@@ -1,4 +1,6 @@
-﻿using ModCore.Events;
+﻿using Hashlink.Proxy;
+using Hashlink.Proxy.Objects;
+using ModCore.Events;
 using ModCore.Events.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -53,8 +55,19 @@ namespace Hashlink.Marshaling.ObjHandle
         private static int currentPageStartIndex = 0;
         private static int currentIndex = 0;
 
+        private static readonly HashlinkObj gcTrapObj;
+        private static readonly nint* gcTrapRoot = (nint*)NativeMemory.AllocZeroed(8);
+
         static HashlinkObjManager()
         {
+            gcTrapObj = new HashlinkString("gc protecting trap");
+            gcTrapObj.MarkStateful();
+
+            *gcTrapRoot = gcTrapObj.HashlinkPointer;
+
+            hl_add_root(gcTrapRoot);
+
+
             EventSystem.AddReceiver(new NativeEventReceiver());
         }
 
@@ -169,6 +182,8 @@ namespace Hashlink.Marshaling.ObjHandle
                         ref var sr = ref GetObjHandle(i).strongRef;
                         if (sr != null)
                         {
+                            Debug.Assert(sr is HashlinkObjHandle oh &&
+                                oh.Target != gcTrapObj);
                             freeCount++;
                             genCount += GC.GetGeneration(sr);
                             sr = null;
@@ -186,6 +201,7 @@ namespace Hashlink.Marshaling.ObjHandle
                 if (ev.EventId == IOnNativeEvent.EventId.HL_EV_BEGORE_GC)
                 {
                     gcLock.EnterWriteLock();
+
                     GC.Collect(1, GCCollectionMode.Optimized, true);
                 }
                 else if (ev.EventId == IOnNativeEvent.EventId.HL_EV_AFTER_GC)

@@ -15,14 +15,19 @@ using static Windows.Win32.PInvoke;
 
 using static iced::Iced.Intel.AssemblerRegisters;
 using Decoder = iced::Iced.Intel.Decoder;
+using Hashlink;
+using Windows.Win32.Foundation;
+using System.Diagnostics;
 
-#pragma warning disable CA1416 
+#pragma warning disable CA1416
 
 namespace ModCore.Native
 {
     [SupportedOSPlatform("windows")]
-    internal unsafe class NativeWin : Native
+    internal unsafe partial class NativeWin : Native
     {
+        [LibraryImport("Kernel32")]
+        private static partial int GetThreadContext( nint handle, void* ctx );
         public override void MakePageWritable( nint ptr, out int old )
         {
             var pageStart = ptr & ~(Environment.SystemPageSize - 1);
@@ -216,6 +221,35 @@ namespace ModCore.Native
             c.mov(rax, __[r11 + 8]); //Target 
 
             c.jmp(rax);
+        }
+
+        public override unsafe void FixThreadCurrentStackFrame( HL_thread_info* t )
+        {
+            if (!Environment.Is64BitProcess)
+            {
+                throw new PlatformNotSupportedException();
+            }
+            if (t->thread_id == GetCurrentThreadId())
+            {
+                t->stack_cur = &t;
+                return;
+            }
+            using var th = OpenThread_SafeHandle(Windows.Win32.System.Threading.THREAD_ACCESS_RIGHTS.THREAD_GET_CONTEXT
+                | Windows.Win32.System.Threading.THREAD_ACCESS_RIGHTS.THREAD_SUSPEND_RESUME, false, (uint) t->thread_id);
+
+            
+            SuspendThread(th);
+
+            byte* buffer = stackalloc byte[2048];
+            *((int*)(buffer + 48)) = (0x00100000 | 0x00000001);
+            var err = GetThreadContext(th.DangerousGetHandle(), buffer);
+            Debug.Assert(err != 0);
+            var rsp = *((nint*)(buffer + 152));
+            Debug.Assert(rsp != 0);
+
+            t->stack_cur = (void*) rsp;
+
+            ResumeThread(th);
         }
     }
 }

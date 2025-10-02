@@ -71,7 +71,7 @@ namespace TestRunner
             gameThread.Start();
             gameInitEvent.WaitOne();
 
-            HashlinkMarshal.RegisterHashlinkThread();
+            HashlinkThread.RegisterThread();
         }
     }
 }
