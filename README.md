@@ -21,12 +21,10 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 - [x] Simple Hook
 - [x] Basic interoperability
 - [x] Game object proxy objects in .NET
-	- [x] Enum support
-	- [x] Object support
-	- [x] Virtual support
-	- [x] Closure support
-	- [x] Override Virtual Method
 - [x] Edit game bytecode dynamically
+- [ ] hlmod compatible
+	- [ ] Using hooks to support standard vm
+	- [ ] Updating from Hashlink v10 to Hashlink v15
 - [ ] More convenient BuildSystem
 - [ ] Linux platform support
 
