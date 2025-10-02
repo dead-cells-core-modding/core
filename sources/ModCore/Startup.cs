@@ -6,6 +6,7 @@ using ModCore.Native;
 using ModCore.Storage;
 using Serilog;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -73,6 +74,7 @@ namespace ModCore
             catch (Exception ex)
             {
                 logger.Fatal(ex, "Uncaught .NET Exception");
+                Debugger.BreakForUserUnhandledException(ex);
                 throw;
             }
         }

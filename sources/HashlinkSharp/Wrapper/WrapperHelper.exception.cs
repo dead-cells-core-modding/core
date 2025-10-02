@@ -65,9 +65,7 @@ namespace Hashlink.Wrapper
         }
 
         private static readonly ConditionalWeakTable<Exception, HashlinkObjHandle> caughtException = [];
-        private static readonly AsmHelperData* asmhelper_data_pool =
-            (AsmHelperData*)hl_alloc_executable_memory(81920); //TODO: 
-        private static int asmhelper_data_id = 0;
+        private static readonly ExecutableMemoryManager<AsmHelperData> asmhelper_data_pool = new();
         [ThreadStatic]
         private static Dictionary<nint, HashlinkError>? hlerrorCache;
 
@@ -175,12 +173,7 @@ namespace Hashlink.Wrapper
         {
             if (prepare_exception_handle_data == null)
             {
-                var id = Interlocked.Increment(ref asmhelper_data_id);
-                if (id >= 2222)
-                {
-                    throw new InvalidProgramException(); //TODO: 
-                }
-                prepare_exception_handle_data = asmhelper_data_pool + id;
+                prepare_exception_handle_data = &asmhelper_data_pool.Alloc()->value;
                 AsmHelperData.call_code_x64.CopyTo(new Span<byte>(prepare_exception_handle_data->shellcode, 12));
                 *(long*)&prepare_exception_handle_data->shellcode[2] = Native.Current.asm_cs_hl_store_context;
             }
@@ -304,7 +297,7 @@ namespace Hashlink.Wrapper
                         id = -id - 1;
                         var ip = ti->exc_stack_trace[id];
                         var size = 0x100;
-                        module_resolve_symbol_ex((void*)ip, (char*)hlbuf, ref size, false);
+                        module_resolve_symbol((void*)ip, (char*)hlbuf, ref size);
                         var str = new string((char*)hlbuf);
 
                         var lastDot = str.LastIndexOf('.');

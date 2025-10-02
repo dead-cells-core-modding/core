@@ -233,10 +233,10 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 
                         if (info.isConstant)
                         {
-                            val.Instruction.OpCode = OpCodes.Nop;
-                            val.Instruction.Operand = REMOVED_NOP;
-                            it.OpCode = OpCodes.Nop;
-                            it.Operand = REMOVED_NOP;
+                            //val.Instruction.OpCode = OpCodes.Nop;
+                            //val.Instruction.Operand = REMOVED_NOP;
+                            //it.OpCode = OpCodes.Nop;
+                            //it.Operand = REMOVED_NOP;
                         }
                         else
                         {

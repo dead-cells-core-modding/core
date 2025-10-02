@@ -42,8 +42,8 @@ namespace ModCore.Native
 
             // hl2cs helper
 
+            public uint tls_stackframe_id;
             public nint hl_throw;
-            public nint dotnet_runtime_pinvoke_wrapper;
             public nint capture_current_frame;
         }
 

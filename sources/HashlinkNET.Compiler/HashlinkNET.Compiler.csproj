@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <Compile Remove="Data\SpecialTypes\**" />
+    <Compile Remove="Pseudocode\Steps\Backend\CFG\**" />
+    <EmbeddedResource Remove="Pseudocode\Steps\Backend\CFG\**" />
+    <None Remove="Pseudocode\Steps\Backend\CFG\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,10 +23,6 @@
     <ProjectReference Include="..\HashlinkNET.Bytecode\HashlinkNET.Bytecode.csproj" />
     <ProjectReference Include="..\HaxeProxy\HaxeProxy.csproj" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Pseudocode\Steps\Backend\CFG\" />
   </ItemGroup>
 
 </Project>

@@ -83,12 +83,9 @@ namespace ModCore.Native
          */
         protected override void Generate_asm_hl2cs_store_return_ptr( Assembler c )
         {
-            c.push(rcx);
+            Data->tls_stackframe_id = TlsAlloc();
 
-
-            c.pop(rcx);
-
-            c.mov(rax, (long)&Data->dotnet_runtime_pinvoke_wrapper);
+            c.pop(rax);
             c.jmp(__qword_ptr[rax]);
         }
 

@@ -8,11 +8,25 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static Hashlink.Wrapper.WrapperHelper;
 
 namespace Hashlink.Wrapper.Callbacks
 {
     public unsafe class HlCallback
     {
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        private struct PreCode
+        {
+            public static readonly byte[] call_code_x64 = [
+                0x48, 0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, //mov rax, 0xffffffffffffffff
+                0xFF, 0xD0 //call rax
+             ];
+            public fixed byte shellcode[12];
+            public nint realTarget;
+        }
+        private static readonly ExecutableMemoryManager<PreCode> memoryManager = new();
+
+        private ExecutableMemoryManager<PreCode>.Cell* precode;
         private nint routerPtr;
         private Delegate? callback;
         private Delegate? target;
@@ -36,22 +50,6 @@ namespace Hashlink.Wrapper.Callbacks
             set => info.entry = new(target = value!);
         }
 
-        private static void PatchEntry( nint ptr )
-        {
-            var helperPtr = (ulong*)(ptr + 10 + 2);
-
-            Debug.Assert(Native.Current.Data->dotnet_runtime_pinvoke_wrapper == 0 ||
-                        (ulong)Native.Current.Data->dotnet_runtime_pinvoke_wrapper == * helperPtr);
-
-            Native.Current.Data->dotnet_runtime_pinvoke_wrapper = (nint)(*helperPtr);
-
-            Native.Current.MakePageWritable(ptr, out var oldFlag);
-
-            *helperPtr = (ulong)Native.Current.asm_hl2cs_store_return_ptr;
-
-            Native.Current.RestorePageProtect(ptr, oldFlag);
-        }
-
         public nint NativePointer
         {
             get
@@ -59,9 +57,13 @@ namespace Hashlink.Wrapper.Callbacks
                 if (routerPtr == 0)
                 {
                     callback = callbackMI.CreateAnonymousDelegate(info, true);
-                    routerPtr = Marshal.GetFunctionPointerForDelegate(callback);
 
-                    PatchEntry(routerPtr);
+                    precode = memoryManager.Alloc();
+                    PreCode.call_code_x64.CopyTo(new Span<byte>(precode->value.shellcode, 12));
+                    *(long*)&precode->value.shellcode[2] = Native.Current.asm_hl2cs_store_return_ptr;
+                    precode->value.realTarget = Marshal.GetFunctionPointerForDelegate(callback);
+
+                    routerPtr = (nint)precode->value.shellcode;
                 }
                 return routerPtr;
             }

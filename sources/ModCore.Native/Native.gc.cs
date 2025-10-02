@@ -120,8 +120,6 @@ namespace ModCore.Native
                     GC_SET_ALIVE(page, bid);
                 }
             }
-
-            total = total;
         }
     }
 }

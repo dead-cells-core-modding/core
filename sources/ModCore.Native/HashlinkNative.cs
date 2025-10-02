@@ -158,7 +158,7 @@ namespace Hashlink
         [return: MarshalAs(UnmanagedType.Bool)]
         public static partial bool module_resolve_pos( HL_module* m, void* addr, out int fidx, out int fpos );
         [LibraryImport(LIBHL)]
-        public static partial char* module_resolve_symbol_ex( void* addr, char* @out, ref int outSize, [MarshalAs(UnmanagedType.Bool)] bool needFileInfo );
+        public static partial char* module_resolve_symbol( void* addr, char* @out, ref int outSize );
         [LibraryImport(LIBHL)]
         public static partial void hl_gc_set_flags( HL_GC_Flags flags );
         [LibraryImport(LIBHL)]

@@ -12,3 +12,7 @@ SuspendThread
 OpenThread
 GetCurrentThreadId
 GetThreadId
+
+TlsAlloc
+TlsGetValue
+TlsSetValue

@@ -37,15 +37,6 @@ namespace ModCore.Native
             public HL_vclosure c;
         }
 
-        private static void NativeEventHandler(int eventId, nint data)
-        {
-            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
-                   new((IOnNativeEvent.EventId)eventId, data));
-
-        }
-
-        private static readonly NativeEventHandleDelegate del_NativeEventHandler = NativeEventHandler;
-
         #region Hooks
 
         private readonly List<ICoreNativeDetour> detours = [];
@@ -106,6 +97,58 @@ namespace ModCore.Native
             ((delegate* unmanaged<nint, nint, void>)orig_gc_mark_stack)(start, end);
         }
 
+        private static nint orig_resolve_library;
+        [UnmanagedCallersOnly]
+        private static nint Hook_resolve_library( byte* lib )
+        {
+            HLEV_native_resolve_event ev = new()
+            {
+                libName = lib,
+            };
+            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(new(
+                IOnNativeEvent.EventId.HL_EV_RESOLVE_NATIVE, (nint) (&ev)));
+            if (ev.result != null)
+            {
+                return (nint)ev.result;
+            }
+            return ((delegate* unmanaged<byte*, nint>)orig_resolve_library)(lib);
+        }
+
+        private static nint orig_hl_module_init_natives;
+        [UnmanagedCallersOnly]
+        private static void Hook_hl_module_init_natives( HL_module* m )
+        {
+            ((delegate* unmanaged< HL_module*, void >)orig_hl_module_init_natives)(m);
+
+            for (int i = 0; i < m->code->nnatives; i++)
+            {
+                var native = m->code->natives + i;
+
+                HLEV_native_resolve_event ev = new()
+                {
+                    libName = native->lib,
+                    functionName = native->name
+                };
+                EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(new(
+                    IOnNativeEvent.EventId.HL_EV_RESOLVE_NATIVE, (nint)(&ev)));
+                if (ev.result != null)
+                {
+                    m->functions_ptrs[native->findex] = ev.result;
+                }
+            }
+        }
+
+        private static nint orig_gc_allocator_alloc;
+        [UnmanagedCallersOnly]
+        private static nint Hook_gc_allocator_alloc( int* size, int page_kind )
+        {
+            *size += 8;
+            var result = ((delegate*unmanaged<int*, int, nint>)orig_gc_allocator_alloc)(size, page_kind);
+            *((nint*)(result + *size - 8)) = 0;
+            //*size -= 8;
+            return result;
+        }
+
         [UnmanagedCallersOnly]
         private static void Return_From_Managed()
         {
@@ -116,6 +159,7 @@ namespace ModCore.Native
         {
             
         }
+
 
         public Native()
         {
@@ -152,7 +196,7 @@ namespace ModCore.Native
             return detour;
         }
 
-        protected virtual void InitNativeHooks()
+        protected virtual void InitializeNativeHooks()
         {
             var phLibhl = NativeLibrary.Load("libhl");
 
@@ -160,7 +204,9 @@ namespace ModCore.Native
             CreateNativeHookForHL("gc_mark_stack", nameof(Hook_gc_mark_stack), out orig_gc_mark_stack);
             CreateNativeHookForHL("gc_mark", nameof(Hook_gc_mark), out orig_gc_mark);
             CreateNativeHookForHL("gc_major", nameof(Hook_gc_major), out orig_gc_major);
-
+            CreateNativeHookForHL("resolve_library", nameof(Hook_resolve_library), out orig_resolve_library);
+            CreateNativeHookForHL("hl_module_init_natives", nameof(Hook_hl_module_init_natives), out orig_hl_module_init_natives);
+            CreateNativeHookForHL("gc_allocator_alloc", nameof(Hook_gc_allocator_alloc), out orig_gc_allocator_alloc);
             Data->trap_filter = (nint)(delegate* unmanaged< nint, HL_trap_ctx*, nint, nint >)&Hook_trap_filter;
 
             Data->return_from_managed = (nint)(delegate* unmanaged< void >)&Return_From_Managed;
@@ -172,18 +218,12 @@ namespace ModCore.Native
         public virtual void InitializeGame(ReadOnlySpan<byte> hlboot, out VMContext context)
         {
             InitializeNative();
-            InitNativeHooks();
+            InitializeNativeHooks();
 
             HL_code* code;
             byte* err;
             context = new();
             var ctx = (VMContext*) Unsafe.AsPointer(ref context);
-
-            //
-
-            hl_event_set_handler(del_NativeEventHandler);
-
-            //
 
             hl_global_init();
             fixed (byte* data = hlboot)
