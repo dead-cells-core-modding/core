@@ -13,6 +13,7 @@ using Serilog.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -120,7 +121,7 @@ namespace ModCore.Hooks
                 callback.RedirectTarget = this.hook.Original;
             }
         }
-
+        [DebuggerDisableUserUnhandledExceptions]
         private object? HookEntry( object?[] args )
         {
             try

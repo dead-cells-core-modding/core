@@ -18,6 +18,19 @@ namespace DeadCellsModding
             {
                 gameRoot = Path.GetDirectoryName(Environment.ProcessPath!)!;
             }
+
+            var steamid = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath!)!, "steam_appid.txt");
+            if (!File.Exists(steamid))
+            {
+                try
+                {
+                    File.WriteAllText(steamid, "588650");
+                }
+                catch (Exception)
+                {
+                }
+            }
+
             string? modcore = null;
             gameRoot = Path.GetFullPath(gameRoot);
             while (!string.IsNullOrEmpty(gameRoot))

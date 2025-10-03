@@ -18,6 +18,7 @@ using Decoder = iced::Iced.Intel.Decoder;
 using Hashlink;
 using Windows.Win32.Foundation;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 #pragma warning disable CA1416
 
@@ -78,12 +79,48 @@ namespace ModCore.Native
 
         /***
          * This operation must be performed in an unmanaged environment
+         */
+        protected override void Generate_asm_hl2cs_throw_exception( Assembler c )
+        {
+            AsmGetTlsDataPtrRax(c, ref tls_template->prev_hl_error_ptr);
+
+            c.mov(rcx, __[rax]);
+
+            c.sub(rsp, 56);
+
+            AsmGetTlsDataPtrRax(c, ref tls_template->hl_throw_ptr);
+
+            c.jmp(__qword_ptr[rax]);
+        }
+
+        /***
+         * This operation must be performed in an unmanaged environment
          * Get the return address storage location to facilitate return address hijacking
          * 
          */
         protected override void Generate_asm_hl2cs_store_return_ptr( Assembler c )
         {
-            Data->tls_stackframe_id = TlsAlloc();
+
+            AsmGetTlsDataPtrRax(c, ref tls_template->hl2cs_return_pointers);
+
+            c.cmp(rax, 0x1000); //Tls is null
+            c.jl(c.F);
+
+            c.mov(r11, __[rax]);
+            c.cmp(r11, 0); // null
+            c.je(c.F);
+
+            c.mov(r10, __[r11]); // full or overflow
+            c.cmp(r10, 1);
+            c.je(c.F);
+
+            c.lea(r10, __[rsp + 8]);
+            c.mov(__[r11], r10);
+
+            c.add(r11, 8);
+            c.mov(__[rax], r11);
+
+            c.AnonymousLabel();
 
             c.pop(rax);
             c.jmp(__qword_ptr[rax]);
@@ -119,14 +156,14 @@ namespace ModCore.Native
             c.cmp(rax, 0xff);
             c.jl(fallback);
 
-            // Restore
+            // Restore Execution Context
             // This operation must be performed in an unmanaged environment
 
             c.mov(rsp, __[rax + 16]);
 
             c.pop(r10); //Checksum
             c.cmp(r10, STACK_CHUCK_SUM);
-            c.jnz(c.F);
+            Assert(c);
 
             c.pop(r15);
             c.pop(r14);
@@ -136,15 +173,27 @@ namespace ModCore.Native
             c.pop(rdi);
             c.pop(rbp);
             c.pop(rbx);
+
+            c.pop(r10); //Checksum
+            c.cmp(r10, STACK_CHUCK_SUM);
+            Assert(c);
+
             c.pop(rax);
 
+            c.pop(r10); //Checksum
+            c.cmp(r10, STACK_CHUCK_SUM);
+            Assert(c);
+
+            c.pop(r11); //!!!!!!!!!!!!
+
             c.mov(rsp, rax);
-            //c.ret();
 
             c.mov(rax, (long)&Data->return_from_managed);
-            c.mov(r11, __[rax]);
 
-            c.jmp(r11);
+            c.mov(__[rsp], r11); // Fix return ptr
+                                 // It's dangerous but effective
+
+            c.jmp(__qword_ptr[rax]);
 
             c.AnonymousLabel();
             c.int3();
@@ -159,8 +208,7 @@ namespace ModCore.Native
             c.pop(rcx);
 
             c.mov(rax, (long)&Data->orig_break_on_trap);
-            c.mov(r11, __[rax]);
-            c.jmp(r11);
+            c.jmp(__qword_ptr[rax]);
         }
 
         /**
@@ -191,14 +239,24 @@ namespace ModCore.Native
             c.jmp(r11);
         }
 
-        protected virtual void Generate_asm_cs_hl_store_context( Assembler c )
+        protected override void Generate_asm_cs_hl_store_context( Assembler c )
         {
-            c.lea(rax, __[rsp + 8]); //Original Stack
+            c.pop(r11); //Data Table Pointer
+            c.mov(r10, __[rsp]); // Return IP
+      
+            c.mov(rax, rsp); //Original Stack
 
-            c.mov(r11, __[rsp]); //Data Table Pointer
             c.mov(rsp, __[r11]); //Register Store
 
+            c.push(r10); // Return IP
+
+            c.mov(r10, STACK_CHUCK_SUM);
+            c.push(r10); //Checksum
+
             c.push(rax); //RSP
+
+            c.push(r10); //Checksum
+
             c.push(rbx);
             c.push(rbp);
             c.push(rdi);
@@ -209,15 +267,13 @@ namespace ModCore.Native
             c.push(r15);
 
             //Checksum
-            c.mov(r10, STACK_CHUCK_SUM);
             c.push(r10);
 
             c.mov(__[r11 + 16], rsp); //Save rsp (Register store)
 
             c.mov(rsp, rax);
-            c.mov(rax, __[r11 + 8]); //Target 
 
-            c.jmp(rax);
+            c.jmp(__qword_ptr[r11 + 8]);//Target 
         }
 
         public override unsafe void FixThreadCurrentStackFrame( HL_thread_info* t )
@@ -248,5 +304,40 @@ namespace ModCore.Native
 
             ResumeThread(th);
         }
+
+        public override void SetTlsValue( int index, nint val )
+        {
+            TlsSetValue((uint)index, (void*)val);
+        }
+
+        public override nint GetTlsValue( int index )
+        {
+            return (nint) TlsGetValue((uint)index);
+        }
+
+        protected override void AsmGetTlsDataPtrRax<T>( Assembler c, ref T offset )
+        {
+            var ofs = (nint)Unsafe.AsPointer(ref offset) - (nint)tls_template;
+            var tls_id = Data->tls_slot_index;
+            c.push(rcx);
+            if (tls_id < 0x40)
+            {
+                c.mov(rcx, __.gs[5248 + tls_id * 8]);
+            }
+            else
+            {
+                c.mov(rax, __.gs[0x1780]);
+                c.mov(rcx, __[rax + 8 * (tls_id - 64)]);
+            }
+            c.lea(rax, __[rcx + (int)ofs]);
+            c.pop(rcx);
+        }
+
+        public override int AllocTls()
+        {
+            return (int) TlsAlloc();
+        }
+
+        
     }
 }

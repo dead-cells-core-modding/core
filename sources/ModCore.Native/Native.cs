@@ -21,6 +21,9 @@ namespace ModCore.Native
 {
     internal unsafe abstract partial class Native
     {
+        public nint phl_throw;
+        public nint phl_rethrow;
+
         public static Native Current
         {
             get;
@@ -262,8 +265,11 @@ namespace ModCore.Native
         {
             var phLibhl = NativeLibrary.Load("libhl");
 
-            phl_gc_page_map = (HL_gc_pheader***) NativeLibrary.GetExport(phLibhl, "hl_gc_page_map");
+            phl_gc_page_map = (HL_gc_pheader***)NativeLibrary.GetExport(phLibhl, "hl_gc_page_map");
             pglobal_mark_stack = (HL_gc_mstack*)NativeLibrary.GetExport(phLibhl, "global_mark_stack");
+
+            phl_throw = NativeLibrary.GetExport(phLibhl, "hl_throw");
+            phl_rethrow = NativeLibrary.GetExport(phLibhl, "hl_rethrow");
         }
         public abstract void MakePageWritable( nint ptr, out int old );
         public abstract void RestorePageProtect( nint ptr, int val ); 

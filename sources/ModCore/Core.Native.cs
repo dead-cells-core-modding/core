@@ -64,7 +64,7 @@ namespace ModCore
         private static nint phLibhl;
         internal static void InitializeNative()
         {
-            AddPath();
+            //AddPath();
 
             phLibhl = NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl"));
             //_ = NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("modcorenative"));

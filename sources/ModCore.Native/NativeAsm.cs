@@ -28,6 +28,9 @@ namespace ModCore.Native
         [StructLayout(LayoutKind.Sequential)]
         public struct NativeAsmData
         {
+            // Tls
+            public int tls_slot_index;
+
             // Hook GetProcAddress
 
             public nint orig_GetProcAddress;
@@ -41,17 +44,29 @@ namespace ModCore.Native
             public nint return_from_managed;
 
             // hl2cs helper
-
-            public uint tls_stackframe_id;
             public nint hl_throw;
             public nint capture_current_frame;
         }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct NativeThreadLocal
+        {
+            public nint hl2cs_return_pointers;
+
+            public nint prev_hl_error_ptr;
+            public nint hl_throw_ptr;
+        }
+
+        public NativeThreadLocal* TlsData => (NativeThreadLocal*)GetTlsValue(Data->tls_slot_index);
 
         public NativeAsmData* Data
         {
             get;
         } = (NativeAsmData*)NativeMemory.AlignedAlloc(
             (nuint)sizeof(NativeAsmData), 16);
+
+        protected readonly NativeThreadLocal* tls_template = (NativeThreadLocal*)NativeMemory.Alloc(
+            (nuint)sizeof(NativeThreadLocal));
 
         protected virtual void InitializeAsm()
         {
@@ -95,15 +110,29 @@ namespace ModCore.Native
         public nint asm_cs_hl_store_context;
 
         public nint asm_hl2cs_store_return_ptr;
+        public nint asm_hl2cs_throw_exception;
 
         public nint asm_hook_break_on_trap_Entry;
 
         public nint asm_hook_GetProcAddress_Entry;
 
+        protected void Assert( Assembler c )
+        {
+            var suc = c.CreateLabel();
+            c.je(suc);
+            c.int3();
+            c.Label(ref suc);
+        }
 
+        public abstract void SetTlsValue( int index, nint val );
+        public abstract nint GetTlsValue( int index );
+        public abstract int AllocTls();
+        protected abstract void AsmGetTlsDataPtrRax<T>( Assembler c, ref T offset );
+        protected abstract void Generate_asm_hl2cs_throw_exception( Assembler c );
         protected abstract void Generate_asm_hl2cs_store_return_ptr( Assembler c );
         protected abstract void Generate_asm_hook_break_on_trap_Entry( Assembler c );
         protected abstract void Generate_asm_hook_GetProcAddress_Entry( Assembler c );
 
+        protected abstract void Generate_asm_cs_hl_store_context( Assembler c );
     }
 }

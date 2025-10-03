@@ -154,18 +154,37 @@ namespace Hashlink.Wrapper
             return (nint)outErrorTable;
         }
 
+        public static void CallbackCleanup()
+        {
+            var th = HashlinkThread.Current;
+            int t = 0;
 
+            th.CleanupInvalidReturnPointers((nint)Unsafe.AsPointer(ref t));
+            th.NativeData.hl2cs_return_pointers -= sizeof(nint);
+            Debug.Assert(th.ReturnPointerCount >= 0);
+        }
         public static void ThrowNetException( Exception ex )
         {
+            var th = HashlinkThread.Current;
+
+            th.CleanupInvalidReturnPointers((nint)Unsafe.AsPointer(ref ex));
+            *(nint*)th.ReturnPointers[^1] = Native.Current.asm_hl2cs_throw_exception; //Hijacking the return address
+
+            th.NativeData.hl_throw_ptr = Native.Current.phl_rethrow;
+
             if (ex is HashlinkError err)
             {
-                hl_rethrow((HL_vdynamic*)err.Error);
+                th.NativeData.prev_hl_error_ptr = err.Error;
             }
-            if (caughtException.TryGetValue(ex, out var eh))
+            else if (caughtException.TryGetValue(ex, out var eh))
             {
-                hl_rethrow((HL_vdynamic*)eh.nativeHLPtr);
+                th.NativeData.prev_hl_error_ptr = eh.nativeHLPtr;
             }
-            hl_throw((HL_vdynamic*)new HashlinkNETExceptionObj(ex).HashlinkPointer);
+            else
+            {
+                th.NativeData.hl_throw_ptr = Native.Current.phl_throw;
+                th.NativeData.prev_hl_error_ptr = new HashlinkNETExceptionObj(ex).HashlinkPointer;
+            }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [StackTraceHidden]
@@ -185,6 +204,7 @@ namespace Hashlink.Wrapper
             {
                 return target;
             }
+            HashlinkThread.Current.CleanupInvalidReturnPointers((nint)Unsafe.AsPointer(ref handle));
 
             handle.trap_ctx.prev = ti->trap_current;
             handle.trap_ctx.tcheck = (HL_vdynamic*)0x4e455445;
@@ -335,7 +355,7 @@ namespace Hashlink.Wrapper
             {
                 return;
             }
-
+            HashlinkThread.Current.CleanupInvalidReturnPointers((nint)Unsafe.AsPointer(ref handle));
             if (ti->trap_current == (HL_trap_ctx*)Unsafe.AsPointer(ref handle.trap_ctx))
             {
                 ti->trap_current = handle.trap_ctx.prev;

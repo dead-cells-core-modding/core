@@ -6,6 +6,7 @@ namespace ModCore
 {
     internal static class LogInitializer
     {
+        private const string OUTPUT_FORMAT_TEMPLATE = "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}";
         internal static void InitializeLog()
         {
             var latest = Path.Combine(FolderInfo.Logs.FullPath, "log_latest.log");
@@ -24,17 +25,25 @@ namespace ModCore
               .MinimumLevel.Debug()
               .WriteTo.File(
                 latest,
-                outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}"
+                outputTemplate: OUTPUT_FORMAT_TEMPLATE
                 )
               .WriteTo.File(
                   Path.Combine(FolderInfo.Logs.FullPath, "log_.log"),
-                  outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}",
+                  outputTemplate: OUTPUT_FORMAT_TEMPLATE,
                   rollingInterval: RollingInterval.Minute
               );
+
+
             if (!Core.Config.Value.NoConsole)
             {
                 configuration.WriteTo.Console(Serilog.Events.LogEventLevel.Verbose,
-                  outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}");
+                  outputTemplate: OUTPUT_FORMAT_TEMPLATE);
+            }
+            else
+            {
+                configuration.WriteTo.Trace(
+                    outputTemplate: OUTPUT_FORMAT_TEMPLATE
+                    );
             }
             Log.Logger = configuration.CreateLogger();
         }

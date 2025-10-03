@@ -13,6 +13,7 @@ namespace ModCore.Native
 {
     internal unsafe partial class Native
     {
+
         private HL_gc_pheader*** phl_gc_page_map;
         private HL_gc_mstack* pglobal_mark_stack;
 
@@ -121,5 +122,6 @@ namespace ModCore.Native
                 }
             }
         }
+
     }
 }

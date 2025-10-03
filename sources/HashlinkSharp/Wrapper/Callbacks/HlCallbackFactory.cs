@@ -28,9 +28,11 @@ namespace Hashlink.Wrapper.Callbacks
         private static readonly MethodInfo MI_WrapperHelper_GetObjectFromPtr = typeof(WrapperHelper)
             .GetMethod(nameof(WrapperHelper.GetObjectFromPtr))!;
         private static readonly MethodInfo MI_WrapperHelper_ThrowNETException = typeof(WrapperHelper)
-            .GetMethod(nameof(WrapperHelper.ThrowNetException))!;
+            .GetMethod(nameof(WrapperHelper.ThrowNetException))!; 
+        private static readonly MethodInfo MI_WrapperHelper_CallbackCleanup = typeof(WrapperHelper)
+            .GetMethod(nameof(WrapperHelper.CallbackCleanup))!;
         private static readonly MethodInfo MI_hl_blocking = typeof(HashlinkNative)
-            .GetMethod(nameof(HashlinkNative.hl_blocking))!;
+            .GetMethod(nameof(hl_blocking))!;
 
         private static Type GetNativeType( TypeKind kind )
         {
@@ -168,8 +170,7 @@ namespace Hashlink.Wrapper.Callbacks
             ilg.BeginCatchBlock(typeof(Exception));
 
             ilg.Emit(OpCodes.Call, MI_WrapperHelper_ThrowNETException);
-            ilg.Emit(OpCodes.Ldnull);
-            ilg.Emit(OpCodes.Throw);
+            ilg.Emit(OpCodes.Leave, endOfMethod);
 
             ilg.EndExceptionBlock();
 
@@ -182,6 +183,8 @@ namespace Hashlink.Wrapper.Callbacks
 
             ilg.Emit(OpCodes.Ldc_I4_0);
             ilg.Emit(OpCodes.Call, MI_hl_blocking);
+
+            ilg.Emit(OpCodes.Call, MI_WrapperHelper_CallbackCleanup);
 
             ilg.Emit(OpCodes.Ret);
 

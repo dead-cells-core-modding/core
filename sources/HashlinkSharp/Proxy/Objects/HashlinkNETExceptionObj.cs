@@ -12,7 +12,7 @@ namespace Hashlink.Proxy.Objects
             hl_alloc_obj(NETExcepetionError.ErrorType)
             ))
         {
-            Handle!.IsStateless = false;
+            MarkStateful();
             Exception = ex;
         }
 

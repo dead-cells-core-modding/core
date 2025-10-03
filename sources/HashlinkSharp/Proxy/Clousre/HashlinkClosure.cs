@@ -4,6 +4,7 @@ using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper;
 using Hashlink.Wrapper.Callbacks;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Hashlink.Proxy.Clousre

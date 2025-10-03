@@ -1,6 +1,7 @@
 ﻿using dc;
 using dc.en;
 using dc.haxe;
+using dc.hxd;
 using dc.pr;
 using dc.spine;
 using dc.tool;
@@ -70,6 +71,7 @@ namespace ModCore.Modules
 
         private virtual_cb_help_inter_isEnable_t_<bool> Hook_TitleScreen_addMenu( Hook_TitleScreen.orig_addMenu orig, TitleScreen self, dc.String str, HlAction cb, dc.String help, bool? isEnable, Ref<int> color )
         {
+            throw null;
             var s = self;
             var menuItems = s.menuItems;
             if (menuItems.length == 3 && s.isMainMenu)
@@ -119,19 +121,25 @@ namespace ModCore.Modules
             Hook_Boot.init += Hook_Boot_init1;
             Hook_Boot.endInit += Hook_Boot_endInit1;
             Hook_Boot.update += Hook_Boot_update1;
+            Hook_Boot.mainLoop += Hook_Boot_mainLoop;
 
             Hook__Save.delete += Hook__Save_delete;
             Hook__Save.copy += Hook__Save_copy;
             Hook__Save.tryLoad += Hook__Save_tryLoad;
             Hook__Save.save += Hook__Save_save;
-
-            Hook__MainLoop.tick += Hook__MainLoop_tick;
         }
 
-        //Record .NET Stacktrace
-        private double Hook__MainLoop_tick( Hook__MainLoop.orig_tick orig )
+        private void Hook_Boot_mainLoop( Hook_Boot.orig_mainLoop orig, Boot self )
         {
-            return orig();
+            try
+            {
+                orig(self);
+            }
+            catch (Exception ex)
+            {
+                Debugger.BreakForUserUnhandledException(ex);
+                throw;
+            }
         }
 
         private void Hook_TitleScreen_setMiscTexts( Hook_TitleScreen.orig_setMiscTexts orig, 

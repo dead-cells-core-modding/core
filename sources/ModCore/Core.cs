@@ -3,6 +3,7 @@ using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Modules;
 using ModCore.Storage;
+using Newtonsoft.Json;
 using Serilog;
 using System.Collections.Concurrent;
 using System.Reflection;
@@ -101,6 +102,9 @@ namespace ModCore
                    RuntimeInformation.FrameworkDescription, RuntimeInformation.RuntimeIdentifier);
             Log.Logger.Information("Core Version: {version}",
                 Version);
+
+            Log.Logger.Information("Core Config: {config}", JsonConvert.SerializeObject(Config.Value,
+                Config.SerializerOptions));
 
             Log.Logger.Information("Initalizing");
 

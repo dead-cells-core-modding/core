@@ -22,7 +22,7 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 - [x] Basic interoperability
 - [x] Game object proxy objects in .NET
 - [x] Edit game bytecode dynamically
-- [ ] Exception across .NET-Hashlink boundary
+- [x] Exception across .NET-Hashlink boundary
 - [ ] hlmod compatible
 	- [ ] Using hooks to support standard vm
 	- [ ] Updating from Hashlink v10 to Hashlink v15

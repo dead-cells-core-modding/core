@@ -32,7 +32,7 @@ namespace TestRunner
             }
         }
 
-        //[Fact]
+        [Fact]
         public void Test_ExceptionThrow()
         {
             HashlinkMarshal.EnsureThreadRegistered();
@@ -51,7 +51,6 @@ namespace TestRunner
             catch (TargetInvocationException ex)
             {
                 Assert.Equal("Test Exception", ex.InnerException?.Message);
-                Console.WriteLine("BBB");
             }
 
         }
