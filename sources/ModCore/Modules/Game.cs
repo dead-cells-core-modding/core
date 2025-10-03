@@ -71,7 +71,6 @@ namespace ModCore.Modules
 
         private virtual_cb_help_inter_isEnable_t_<bool> Hook_TitleScreen_addMenu( Hook_TitleScreen.orig_addMenu orig, TitleScreen self, dc.String str, HlAction cb, dc.String help, bool? isEnable, Ref<int> color )
         {
-            throw null;
             var s = self;
             var menuItems = s.menuItems;
             if (menuItems.length == 3 && s.isMainMenu)
