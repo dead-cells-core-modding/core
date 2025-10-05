@@ -55,6 +55,7 @@ namespace Hashlink
         HMETHOD = 20,
         HSTRUCT = 21,
         HPACKED = 22,
+        HGUID = 23,
         // ---------
         HLAST = 23,
         _H_FORCE_INT = 0x7FFFFFFF
@@ -196,20 +197,24 @@ namespace Hashlink
         public int size;
         public int nmethods;
         public int nbindings;
+        public byte pad_size;
+        public byte largest_field;
         public bool hasPtr;
         public void** methods;
         public int* fields_indexes;
         public HL_runtime_binding* bindings;
         public HL_runtime_obj* parent;
 
-        public delegate* unmanaged[Cdecl]< HL_vdynamic*, char* > toStringFun;
-        public delegate* unmanaged[Cdecl]< HL_vdynamic*, HL_vdynamic*, int > compareFun;
-        public delegate* unmanaged[Cdecl]< HL_vdynamic*, HL_type*, HL_vdynamic* > castFun;
-        public delegate* unmanaged[Cdecl]< HL_vdynamic*, int, HL_vdynamic* > getFieldFun;
+        public delegate* unmanaged< HL_vdynamic*, char* > toStringFun;
+        public delegate* unmanaged< HL_vdynamic*, HL_vdynamic*, int > compareFun;
+        public delegate* unmanaged< HL_vdynamic*, HL_type*, HL_vdynamic* > castFun;
+        public delegate* unmanaged< HL_vdynamic*, int, HL_vdynamic* > getFieldFun;
 
         // relative
         public int nlookup;
+        public int ninterfaces;
         public HL_field_lookup* lookup;
+        public int* interfaces;
     }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_type_obj
@@ -298,7 +303,7 @@ namespace Hashlink
         public HL_type* type;
         public void* fun;
         public int hasValue;
-        public int __padding;
+        public int stackCount;
         public void* value;
     }
     [StructLayout(LayoutKind.Sequential)]
@@ -313,13 +318,13 @@ namespace Hashlink
     {
         public HL_code* code;
         public int codesize;
+        public int globals_size;
         public int* globals_indexes;
-        public byte* globals_data;
+        public void* globals_data;
         public void** functions_ptrs;
         public int* functions_indexes;
-        public int* functions_signs;
-        public int* functions_hashs;
         public void* jit_code;
+        public void* hash;
         public HL_debug_infos* jit_debug;
 
         [StructLayout(LayoutKind.Sequential)]
@@ -470,6 +475,7 @@ namespace Hashlink
         public int exc_flags;
         public int exc_stack_count;
         // extra
+        public fixed byte thread_name[128];
         public C_jmpbuf gc_regs;
         [InlineArray(0x100)]
         public struct EXC_STACK_ARRAY
@@ -477,7 +483,8 @@ namespace Hashlink
             public nint ptr;
         }
         public EXC_STACK_ARRAY exc_stack_trace; //As void* [0x100]
-        public EXC_STACK_ARRAY exc_stack_ptrs;
+        public EXC_STACK_ARRAY extra_stack_data;
+        public int extra_stack_size;
     }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_array

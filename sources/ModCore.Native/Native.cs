@@ -44,10 +44,10 @@ namespace ModCore.Native
 
         private readonly List<ICoreNativeDetour> detours = [];
 
-        private ICoreNativeDetour? detourBreakOnTrap;
+        private VMContext* context;
 
         [UnmanagedCallersOnly]
-        private static nint Hook_trap_filter( nint t, HL_trap_ctx* ctx, nint v )
+        protected static nint Hook_trap_filter( nint t, HL_trap_ctx* ctx, nint v )
         {
             if ((nint)ctx->tcheck != 0x4e455445)
             {
@@ -60,7 +60,7 @@ namespace ModCore.Native
 
         private static nint orig_gc_mark;
         [UnmanagedCallersOnly]
-        private static void Hook_gc_mark()
+        protected static void Hook_gc_mark()
         {
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
                 new(IOnNativeEvent.EventId.HL_EV_GC_BEFORE_MARK, 0));
@@ -78,7 +78,7 @@ namespace ModCore.Native
         }
         private static nint orig_gc_major;
         [UnmanagedCallersOnly]
-        private static void Hook_gc_major()
+        protected static void Hook_gc_major()
         {
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
                 new(IOnNativeEvent.EventId.HL_EV_BEGORE_GC, 0));
@@ -91,7 +91,7 @@ namespace ModCore.Native
 
         private static nint orig_gc_mark_stack;
         [UnmanagedCallersOnly]
-        private static void Hook_gc_mark_stack( nint start, nint end )
+        protected static void Hook_gc_mark_stack( nint start, nint end )
         {
             if (start == 0 || end == 0)
             {
@@ -102,7 +102,7 @@ namespace ModCore.Native
 
         private static nint orig_resolve_library;
         [UnmanagedCallersOnly]
-        private static nint Hook_resolve_library( byte* lib )
+        protected static nint Hook_resolve_library( byte* lib, int is_opt )
         {
             HLEV_native_resolve_event ev = new()
             {
@@ -114,12 +114,12 @@ namespace ModCore.Native
             {
                 return (nint)ev.result;
             }
-            return ((delegate* unmanaged<byte*, nint>)orig_resolve_library)(lib);
+            return ((delegate* unmanaged<byte*, int, nint>)orig_resolve_library)(lib, is_opt);
         }
 
         private static nint orig_hl_module_init_natives;
         [UnmanagedCallersOnly]
-        private static void Hook_hl_module_init_natives( HL_module* m )
+        protected static void Hook_hl_module_init_natives( HL_module* m )
         {
             ((delegate* unmanaged< HL_module*, void >)orig_hl_module_init_natives)(m);
 
@@ -141,9 +141,45 @@ namespace ModCore.Native
             }
         }
 
+        private static nint orig_module_capture_stack;
+        [UnmanagedCallersOnly]
+        protected static void Hook_module_capture_stack( void** stack, int size )
+        {
+            ((delegate*unmanaged<void**, int, void>)orig_module_capture_stack)(stack, size);
+
+            int count = 0;
+            void** stack_ptr = (void**)&stack;
+            void* stack_bottom = stack_ptr;
+            void* stack_top = hl_get_thread()->stack_top;
+            var m = Current.context->m;
+            var code = (nint)m->jit_code;
+            int code_size = m->codesize;
+            if (m->jit_debug != null)
+            {
+                int s = m->jit_debug[0].start;
+                code += s;
+                code_size -= s;
+            }
+            while (stack_ptr < (void**)stack_top)
+            {
+                void* stack_addr = *stack_ptr++; // EBP
+                if (stack_addr > stack_bottom && stack_addr < stack_top)
+                {
+                    void* module_addr = *stack_ptr; // EIP
+                    if (module_addr >= (void*)code && module_addr < (void*)(code + code_size))
+                    {
+                        if (count == size)
+                            break;
+                        Debug.Assert(stack[count] == module_addr);
+                        Current.TlsData->exc_stack_ptrs[count++] = (nint)stack_ptr;
+                    }
+                }
+            }
+        }
+
         private static nint orig_gc_allocator_alloc;
         [UnmanagedCallersOnly]
-        private static nint Hook_gc_allocator_alloc( int* size, int page_kind )
+        protected static nint Hook_gc_allocator_alloc( int* size, int page_kind )
         {
             *size += 8;
             var result = ((delegate*unmanaged<int*, int, nint>)orig_gc_allocator_alloc)(size, page_kind);
@@ -170,11 +206,12 @@ namespace ModCore.Native
             
         }
 
-        private static ICoreNativeDetour CreateNativeHookForHL( string srcName, string hookName, out nint orig )
+        protected ICoreNativeDetour CreateNativeHookForHL( string srcName, string hookName, out nint orig )
         {
-            var hook = typeof(Native).GetMethod(hookName, BindingFlags.Static | 
+            var hook = GetType().GetMethod(hookName, BindingFlags.Static | 
                 BindingFlags.NonPublic |
-                BindingFlags.Public);
+                BindingFlags.Public |
+                BindingFlags.FlattenHierarchy);
 
             Debug.Assert(hook != null);
 
@@ -202,7 +239,7 @@ namespace ModCore.Native
         protected virtual void InitializeNativeHooks()
         {
             var phLibhl = NativeLibrary.Load("libhl");
-
+            CreateNativeHookForHL("module_capture_stack", nameof(Hook_module_capture_stack), out orig_module_capture_stack);
             CreateNativeHookForHL("break_on_trap", asm_hook_break_on_trap_Entry, out Data->orig_break_on_trap);
             CreateNativeHookForHL("gc_mark_stack", nameof(Hook_gc_mark_stack), out orig_gc_mark_stack);
             CreateNativeHookForHL("gc_mark", nameof(Hook_gc_mark), out orig_gc_mark);
@@ -226,7 +263,7 @@ namespace ModCore.Native
             HL_code* code;
             byte* err;
             context = new();
-            var ctx = (VMContext*) Unsafe.AsPointer(ref context);
+            var ctx = this.context = (VMContext*)Unsafe.AsPointer(ref context);
 
             hl_global_init();
             fixed (byte* data = hlboot)
@@ -247,7 +284,7 @@ namespace ModCore.Native
             {
                 throw new InvalidProgramException("Failed to alloc module");
             }
-            if (hl_module_init(ctx->m, 0) == 0)
+            if (hl_module_init(ctx->m, 0, 0) == 0)
             {
                 throw new InvalidProgramException("Failed to init module");
             }

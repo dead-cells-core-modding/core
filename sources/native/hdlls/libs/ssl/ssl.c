@@ -1,7 +1,8 @@
-#define HL_NAME(n) ssl_##n
+﻿#define HL_NAME(n) ssl_##n
 
 #define _WINSOCKAPI_
 #include <hl.h>
+#include <hlsystem.h>
 #ifdef HL_WIN
 #include <winsock2.h>
 #include <wincrypt.h>

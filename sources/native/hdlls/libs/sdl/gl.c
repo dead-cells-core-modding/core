@@ -1,5 +1,8 @@
-#define HL_NAME(n) sdl_##n
+﻿#define HL_NAME(n) sdl_##n
 #include <hl.h>
+#undef _GUID
+
+#include <hlsystem.h>
 
 #if defined(HL_IOS) || defined (HL_TVOS)
 #	include <SDL2/SDL.h>

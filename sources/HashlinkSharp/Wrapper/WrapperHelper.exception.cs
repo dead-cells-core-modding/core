@@ -225,7 +225,7 @@ namespace Hashlink.Wrapper
 
             return (nint)prepare_exception_handle_data->shellcode;
         }
-        [StackTraceHidden]
+        //[StackTraceHidden]
         private static void FixExceptionTrace( Exception ex, nint stackTop )
         {
             static ref sbyte[] GetStackTraceData( ref object stackTrace )
@@ -242,7 +242,7 @@ namespace Hashlink.Wrapper
 
             ref object stackTrace = ref GetStackTrace(ex);
             ref sbyte[] stackTraceData = ref GetStackTraceData(ref stackTrace);
-
+            ref var exc_stack_ptrs = ref Native.Current.TlsData->exc_stack_ptrs;
             Span<int> buffer = stackalloc int[0x400];
             int buffer_index = 0;
 
@@ -260,7 +260,7 @@ namespace Hashlink.Wrapper
                         var curFrame = old[i];
                         while (index < ti->exc_stack_count)
                         {
-                            var sp = ti->exc_stack_ptrs[index];
+                            var sp = exc_stack_ptrs[index];
                             if (sp < 0)
                             {
                                 index++;
@@ -271,14 +271,14 @@ namespace Hashlink.Wrapper
                                 break;
                             }
                             buffer[buffer_index++] = -(index + 1);
-                            ti->exc_stack_ptrs[index++] = -sp;
+                            exc_stack_ptrs[index++] = -sp;
                         }
                         buffer[buffer_index++] = i;
                     }
 
                     while (index < ti->exc_stack_count)
                     {
-                        var sp = ti->exc_stack_ptrs[index];
+                        var sp = exc_stack_ptrs[index];
                         if (sp < 0)
                         {
                             index++;
@@ -289,7 +289,7 @@ namespace Hashlink.Wrapper
                             break;
                         }
                         buffer[buffer_index++] = -(index + 1);
-                        ti->exc_stack_ptrs[index++] = -sp;
+                        exc_stack_ptrs[index++] = -sp;
                     }
                     
                 }
@@ -336,7 +336,7 @@ namespace Hashlink.Wrapper
                         var fk = FakeStackTraceManager.RequestFakeMethods(req)[req];
                         newdata[i] = new()
                         {
-                            sp = -ti->exc_stack_ptrs[id],
+                            sp = -exc_stack_ptrs[id],
                             ip = fk.IP,
                             flags = 2,
                             pFunc = fk.Method.MethodHandle.Value
@@ -370,7 +370,7 @@ namespace Hashlink.Wrapper
             {
                 ((delegate* unmanaged< void >)Native.Current.asm_empty_method)();
                 var ex = last_exception;
-                FixExceptionTrace(last_exception, (nint)Unsafe.AsPointer(ref handle));
+                //FixExceptionTrace(last_exception, (nint)Unsafe.AsPointer(ref handle));
                 last_exception = null;
                 ExceptionDispatchInfo.Throw(ex);
             }

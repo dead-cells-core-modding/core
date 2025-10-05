@@ -1,5 +1,6 @@
-#define HL_NAME(n) discord_##n
+﻿#define HL_NAME(n) discord_##n
 #include <hl.h>
+#include <hlsystem.h>
 #include <tchar.h>
 #include <discord_rpc.h>
 #include <time.h>

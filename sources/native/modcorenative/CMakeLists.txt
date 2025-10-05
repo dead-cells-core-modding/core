@@ -5,9 +5,20 @@ file(GLOB SOURCES ./*.c)
 
 remove_definitions(-DLIBHL_EXPORTS)
 
-add_library (modcorenative SHARED ${ASM_HELPER_SRC} ${SOURCES} ${PLATFORM_SOURCES})
 
 
+set(HL_SRC_ROOT ../3rd/hashlink/src)
+
+file(GLOB hl_srcs 
+        ${HL_SRC_ROOT}/code.c
+        ${HL_SRC_ROOT}/jit.c
+        ${HL_SRC_ROOT}/main.c
+        ${HL_SRC_ROOT}/module.c
+        ${HL_SRC_ROOT}/debugger.c
+        ${HL_SRC_ROOT}/profile.c)
+
+
+add_library (modcorenative SHARED ${ASM_HELPER_SRC} ${SOURCES} ${PLATFORM_SOURCES} ${hl_srcs})
 
 if (WIN32)
 target_link_libraries(modcorenative dbghelp)
@@ -42,3 +53,10 @@ if(MSVC)
         endif()
     endforeach()
 endif()
+
+#Copy libhl
+add_custom_command(TARGET modcorenative POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${LIBHL_OUTPUT_DIR}"
+            "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+)

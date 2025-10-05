@@ -55,6 +55,8 @@ namespace ModCore.Native
 
             public nint prev_hl_error_ptr;
             public nint hl_throw_ptr;
+
+            public HL_thread_info.EXC_STACK_ARRAY exc_stack_ptrs;
         }
 
         public NativeThreadLocal* TlsData => (NativeThreadLocal*)GetTlsValue(Data->tls_slot_index);

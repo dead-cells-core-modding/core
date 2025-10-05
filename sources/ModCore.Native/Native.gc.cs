@@ -20,14 +20,12 @@ namespace ModCore.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private HL_gc_pheader* GC_GET_PAGE( nint ptr )
         {
-            var a = ((ulong)(ptr) & 0x0000000FFFFFFFFF) >> (16 + 10);
-            var b = (((ulong)(ptr) & 0x0000000FFFFFFFFF) >> 16) & ((1 << 10) - 1);
-            return (phl_gc_page_map)[a][b];
+            return hl_gc_get_page((void*)ptr);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool GC_IN_PAGE( HL_gc_pheader* page, nint ptr )
         {
-            return ptr >= (nint)page->@base && ptr < (nint)(page)->@base + page->page_size;
+            return true;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool GC_IS_ALIVE( HL_gc_pheader* page, int bid )

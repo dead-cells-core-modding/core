@@ -1,4 +1,4 @@
-﻿using Hashlink.Patch.Reader;
+﻿
 using Hashlink.Proxy.Clousre;
 using Hashlink.Reflection.Types;
 using Hashlink.Wrapper;
@@ -61,10 +61,6 @@ namespace Hashlink.Reflection.Members
         public override string? Name => FuncType.Name;
         public HashlinkFuncType FuncType => cachedFuncType ??= GetMemberFrom<HashlinkFuncType>(func->type);
 
-        public HlNativeOpCodeReader CreateOpCodeReader()
-        {
-            return new(func->ops, func->nops);
-        }
 
         public HashlinkClosure CreateClosure( nint entry = 0 )
         {

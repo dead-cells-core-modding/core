@@ -65,9 +65,8 @@ namespace ModCore
                 logger.Information("Starting game");
 
                 EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
-                    new(IOnNativeEvent.EventId.HL_EV_START_GAME, (nint)Unsafe.AsPointer(ref ctx)));
+                    new(IOnNativeEvent.EventId.HL_EV_START_GAME, (nint) Unsafe.AsPointer(ref ctx)));
 
-                GC.KeepAlive(ctx);
                 return 0;
                 
             }

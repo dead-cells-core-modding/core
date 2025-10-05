@@ -171,10 +171,6 @@ namespace Hashlink
         [SuppressGCTransition]
         [return: MarshalAs(UnmanagedType.I1)]
         public static partial bool hl_is_gc_ptr( void* ptr );
-        [LibraryImport(LIBHL)]
-        [SuppressGCTransition]
-        [return: MarshalAs(UnmanagedType.I1)]
-        public static partial bool hl_ptr_is_alive( void* ptr );
 
         [LibraryImport(LIBHL)]
         public static partial void* hl_jit_alloc( );
@@ -191,10 +187,6 @@ namespace Hashlink
         public static partial int hl_gc_get_memsize( void* ptr ); 
         [LibraryImport(LIBHL)]
         public static partial HL_array* hl_exception_stack( );
-        [LibraryImport(LIBHL)]
-        public static partial HL_array* hl_exception_stack_ex();
-        [LibraryImport(LIBHL)]
-        public static partial HL_array* hl_capture_exc_stack();
 
         public delegate void NativeEventHandleDelegate( int eventId, nint data);
         [LibraryImport(LIBHL)]
@@ -206,7 +198,7 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial HL_module* hl_module_alloc( HL_code* c );
         [LibraryImport(LIBHL)]
-        public static partial int hl_module_init( HL_module* m, int hot_reload );
+        public static partial int hl_module_init( HL_module* m, int hot_reload, int vtune_later );
         [LibraryImport(LIBHL)]
         public static partial void hl_blocking( int b );
         [LibraryImport(LIBHL)]
@@ -223,5 +215,7 @@ namespace Hashlink
         public static partial int gc_flush_mark( HL_gc_mstack* st, [MarshalAs(UnmanagedType.I1)] bool single );
         [LibraryImport(LIBHL)]
         public static partial void** hl_gc_mark_grow( HL_gc_mstack* stack );
+        [LibraryImport(LIBHL)]
+        public static partial HL_gc_pheader* hl_gc_get_page( void* v );
     }
 }

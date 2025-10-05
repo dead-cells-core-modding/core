@@ -11,7 +11,7 @@ namespace Hashlink.Marshaling
             get;
         }
 
-        [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+        [UnmanagedCallersOnly()]
         private static char* ExceptionToString( HL_vdynamic* vdy )
         {
             var ex = HashlinkMarshal.ConvertHashlinkObject<HashlinkNETExceptionObj>(vdy);

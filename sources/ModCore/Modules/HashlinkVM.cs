@@ -85,8 +85,7 @@ namespace ModCore.Modules
 
             Logger.Information("Hooking functions");
 
-            //orig_hl_exception_stack = NativeHooks.Instance.CreateHook<hl_exception_stack_handler>(
-            //    NativeLibrary.GetExport(LibhlHandle, "hl_exception_stack"), Hook_hl_exception_stack);
+     
         }
 
         void IOnHashlinkVMReady.OnHashlinkVMReady()

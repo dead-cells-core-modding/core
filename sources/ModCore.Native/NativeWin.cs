@@ -43,7 +43,24 @@ namespace ModCore.Native
                 (Windows.Win32.System.Memory.PAGE_PROTECTION_FLAGS)val, out _);
         }
 
+        [UnmanagedCallersOnly]
+        protected static int Hook_throw_handler( int code )
+        {
+            return 0;
+        }
 
+        protected override void InitializeNativeHooks()
+        {
+            base.InitializeNativeHooks();
+
+            try
+            {
+                CreateNativeHookForHL("throw_handler", nameof(Hook_throw_handler), out _);
+            }
+            catch (Exception) { }
+
+
+        }
 
         public override ReadOnlySpan<byte> GetHlbootDataFromExe( string exePath )
         {

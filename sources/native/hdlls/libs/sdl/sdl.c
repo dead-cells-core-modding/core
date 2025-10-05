@@ -1,6 +1,9 @@
-#define HL_NAME(n) sdl_##n
+﻿#define HL_NAME(n) sdl_##n
 
 #include <hl.h>
+#undef _GUID
+
+#include <hlsystem.h>
 
 #if defined(_WIN32) || defined(__ANDROID__)
 #	include <SDL.h>

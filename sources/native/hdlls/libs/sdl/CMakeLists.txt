@@ -17,7 +17,7 @@ message("SDL include: ${SDL2_INCLUDE_DIR}")
 target_include_directories(sdl.hdll
     PRIVATE
     ${SDL2_INCLUDE_DIR}
-    ${HDLLS_INCLUDE}/gl
+    ${INCLUDES_BASE_DIR}/gl
 )
 
 target_link_libraries(sdl.hdll
