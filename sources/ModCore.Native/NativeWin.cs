@@ -55,7 +55,7 @@ namespace ModCore.Native
 
             try
             {
-                CreateNativeHookForHL("throw_handler", nameof(Hook_throw_handler), out _);
+                CreateNativeHookForHL("global_handler", nameof(Hook_throw_handler), out _);
             }
             catch (Exception) { }
 

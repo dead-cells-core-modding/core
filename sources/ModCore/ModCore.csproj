@@ -7,11 +7,6 @@
 
     <NoWarn>$(NoWarn);SYSLIB1054</NoWarn>
     
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-
-    <OutputPath>../../bin/core/host/</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

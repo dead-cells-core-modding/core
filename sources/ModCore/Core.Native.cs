@@ -47,13 +47,10 @@ namespace ModCore
                 {
                     var nameStr = Marshal.PtrToStringAnsi((nint)name)!;
                     //Find in non public
-                    //Console.WriteLine($"Loading sym from: {nameStr}");
 
                     var info = nativeMembers.Resolve(nameStr);
-                    if (info == null)
-                    {
-                        return result;
-                    }
+                    Debug.Assert(info != null);
+
                     if (!NativeLibrary.TryLoad(info.ModuleName, out var baseAddr))
                     {
                         if (!NativeLibrary.TryLoad(info.ModuleName + ".dll", out baseAddr))

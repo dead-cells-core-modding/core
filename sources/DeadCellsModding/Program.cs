@@ -9,7 +9,7 @@ namespace DeadCellsModding
     {
         private static string CombineModCore( string root )
         {
-            return Path.Combine(root, "coremod", "core", "host", "ModCore.dll");
+            return Path.Combine(root, "coremod", "core", "host", "DCCMShell.dll");
         }
         private static void StartGame()
         {
@@ -48,14 +48,14 @@ namespace DeadCellsModding
 
             if (modcore == null || !File.Exists(modcore))
             {
-                throw new FileNotFoundException(null, "ModCore.dll");
+                throw new FileNotFoundException(null, "DCCMShell.dll");
             }
 
             Directory.SetCurrentDirectory(gameRoot!);
 
             var core = Assembly.LoadFrom(modcore);
-            var startup = core.GetType("ModCore.Startup");
-            startup!.GetMethod("StartGame")!.CreateDelegate<Func<int>>()();
+            var startup = core.GetType("DCCMShell.Shell");
+            startup!.GetMethod("StartFromShell")!.CreateDelegate<Action>()();
         }
         private static void Main( string[] args )
         {

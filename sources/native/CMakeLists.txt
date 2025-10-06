@@ -9,7 +9,8 @@ SET(CMAKE_ASM_NASM_FLAGS "-g")
 
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin/core/native/)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
 
 
@@ -52,27 +53,32 @@ set(WITH_FMT off)
 set(WITH_DIRECTX off)
 set(WITH_VIDEO off)
 
-list(APPEND CMAKE_MODULE_PATH
-    ${CMAKE_CURRENT_SOURCE_DIR}/hdlls/other/cmake
-)
+# Compile native libraries only on Windows platforms
+if(WIN32)
+    
+    list(APPEND CMAKE_MODULE_PATH
+        ${CMAKE_CURRENT_SOURCE_DIR}/hdlls/other/cmake
+    )
+    
+    add_subdirectory ("3rd/hashlink")
+    
+    include_directories("3rd/hashlink/src")
+    
+    get_filename_component(HDLLS_INCLUDE "3rd/hashlink/include" ABSOLUTE)
+    
+    set(LIBHL_OUTPUT_DIR $<TARGET_FILE_DIR:libhl>)
+    
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR})
+    set(OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    
+    foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+        string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+        #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endforeach()
 
-add_subdirectory ("3rd/hashlink")
-
-include_directories("3rd/hashlink/src")
-
-get_filename_component(HDLLS_INCLUDE "3rd/hashlink/include" ABSOLUTE)
-
-set(LIBHL_OUTPUT_DIR $<TARGET_FILE_DIR:libhl>)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR})
-set(OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
-foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
-    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-endforeach()
+endif()
 
 add_subdirectory ("hdlls/libs")
 add_subdirectory ("modcorenative")

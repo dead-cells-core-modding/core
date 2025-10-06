@@ -12,10 +12,6 @@ namespace TestMod
         {
             modIsLoaded = true;
 
-            dc.haxe.Log.Class.trace = (obj, info) =>
-            {
-
-            };
             var cl = (HashlinkClosure) dc.haxe.Log.Class.HashlinkObj.AsDynamic().trace;
             cl.Handle!.dontCollect = true;
         }
