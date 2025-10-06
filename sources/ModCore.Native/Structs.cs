@@ -327,15 +327,7 @@ namespace Hashlink
         public void* hash;
         public HL_debug_infos* jit_debug;
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct Context
-        {
-            public HL_alloc_block* alloc;
-            public void** functions_ptrs;
-            public HL_type** functions_types;
-        }
-
-        public Context ctx;
+        public HL_module_context ctx;
     }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_native
@@ -381,6 +373,7 @@ namespace Hashlink
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_alloc_block
     {
+       
         public int size;
         public HL_alloc_block* next;
         public byte* p;
@@ -419,7 +412,7 @@ namespace Hashlink
         public HL_alloc_block* falloc;
     }
 
-    [StructLayout(LayoutKind.Explicit, Size = 256)]
+    [StructLayout(LayoutKind.Explicit, Size = 256, Pack = 16)]
     public struct C_jmpbuf
     {
 
@@ -443,13 +436,18 @@ namespace Hashlink
     public unsafe struct HL_gc_pheader
     {
         // const
-        public byte* @base;
+        public void* @base;
 	    public byte* bmp;
         public int page_size;
         public int page_kind;
 
         //Reserve
-        public fixed byte alloc[56];
+        [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 56)]
+        public struct gc_allocator_page_data
+        {
+
+        }
+        public gc_allocator_page_data alloc;
         public HL_gc_pheader* next_page;
     }
     [StructLayout(LayoutKind.Sequential)]
@@ -477,13 +475,18 @@ namespace Hashlink
         // extra
         public fixed byte thread_name[128];
         public C_jmpbuf gc_regs;
-        [InlineArray(0x100)]
+        [InlineArray(128)]
         public struct EXC_STACK_ARRAY
         {
             public nint ptr;
         }
+        [InlineArray(64)]
+        public struct EXC_STACK_EXTRA_ARRAY
+        {
+            public nint ptr;
+        }
         public EXC_STACK_ARRAY exc_stack_trace; //As void* [0x100]
-        public EXC_STACK_ARRAY extra_stack_data;
+        public EXC_STACK_EXTRA_ARRAY extra_stack_data; // As void* [64]
         public int extra_stack_size;
     }
     [StructLayout(LayoutKind.Sequential)]

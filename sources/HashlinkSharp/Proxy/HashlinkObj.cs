@@ -61,9 +61,22 @@ namespace Hashlink.Proxy
 
         public HashlinkObjHandle? Handle
         {
-            get; 
+            get; private set;
         }
         public TypeKind TypeKind => Type.TypeKind;
+
+        public void Detach()
+        {
+            nativeType = null;
+            type = null;
+            if (Handle != null)
+            {
+                Handle.Target = null;
+                Handle = null;
+            }
+            HashlinkPointer = 0;
+
+        }
 
         private HL_type* nativeType;
         private HashlinkType? type;
@@ -73,7 +86,7 @@ namespace Hashlink.Proxy
         public HL_type* NativeType => nativeType;
         public virtual nint HashlinkPointer
         {
-            get; 
+            get; private set;
         }
     }
 }

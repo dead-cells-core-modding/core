@@ -16,6 +16,8 @@ namespace ModCore.Native
 
         private HL_gc_pheader*** phl_gc_page_map;
         private HL_gc_mstack* pglobal_mark_stack;
+        private byte* pmark_threads_active;
+        private void** pmark_threads_done;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private HL_gc_pheader* GC_GET_PAGE( nint ptr )
@@ -30,7 +32,7 @@ namespace ModCore.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool GC_IS_ALIVE( HL_gc_pheader* page, int bid )
         {
-            return (page->bmp[bid >> 3] & (1 << (bid & 7))) == 1;
+            return (page->bmp[bid >> 3] & (1 << (bid & 7))) != 0;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void GC_SET_ALIVE( HL_gc_pheader* page, int bid )
@@ -76,6 +78,15 @@ namespace ModCore.Native
                     continue;
                 }
                 var bid = gc_allocator_get_block_id(page, (void*)ptr);
+                if (bid < 0)
+                {
+                    continue;
+                }
+
+                var s = hl_is_gc_ptr((void*)ptr);
+                var alive = GC_IS_ALIVE(page, bid);
+                Debug.Assert(s == alive);
+
                 if (bid >= 0 && (page->page_kind & 2) == 2 && !GC_IS_ALIVE(page, bid))
                 {
                     needRemark = true;
@@ -95,10 +106,13 @@ namespace ModCore.Native
             Debug.Assert(totalRequest > 0);
 
             //Remark
-            var total = gc_flush_mark(pglobal_mark_stack, true);
-            Debug.Assert(totalRequest <= total);
-
+            gc_dispatch_mark(pglobal_mark_stack, true);
             Debug.Assert(GC_STACK_COUNT(pglobal_mark_stack) == 0);
+
+            while (*pmark_threads_active != 0)
+            {
+                hl_semaphore_acquire(pmark_threads_done);
+            }
 
             for (int i = 0; i < roots.Length; i++)
             {
@@ -113,6 +127,12 @@ namespace ModCore.Native
                     continue;
                 }
                 var bid = gc_allocator_get_block_id(page, (void*)ptr);
+                if (bid < 0)
+                {
+                    continue;
+                }
+
+                
                 if (bid >= 0 && !GC_IS_ALIVE(page, bid))
                 {
                     roots[i] = 0;

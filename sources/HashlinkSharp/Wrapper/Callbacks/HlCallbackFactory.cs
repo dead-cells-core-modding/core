@@ -71,6 +71,8 @@ namespace Hashlink.Wrapper.Callbacks
             var dm = new DynamicMethod("hl_to_cs+" + sign.ToString(),
                 GetNativeType(sign.ReturnType.TypeKind), targs, true);
 
+           
+
             var ilg = dm.GetILGenerator();
 
             var resultLoc = dm.ReturnType == typeof(void) ? null : ilg.DeclareLocal(dm.ReturnType);

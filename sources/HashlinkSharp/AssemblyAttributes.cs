@@ -10,3 +10,4 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("ModCore")]
 [assembly: InternalsVisibleTo("HaxeProxy")]
+[assembly: InternalsVisibleTo("TestMod")]

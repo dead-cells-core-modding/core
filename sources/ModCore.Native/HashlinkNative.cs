@@ -212,10 +212,12 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial int gc_allocator_get_block_id( HL_gc_pheader* page, void* block );
         [LibraryImport(LIBHL)] 
-        public static partial int gc_flush_mark( HL_gc_mstack* st, [MarshalAs(UnmanagedType.I1)] bool single );
+        public static partial void gc_dispatch_mark( HL_gc_mstack* st, [MarshalAs(UnmanagedType.I1)] bool all );
         [LibraryImport(LIBHL)]
         public static partial void** hl_gc_mark_grow( HL_gc_mstack* stack );
         [LibraryImport(LIBHL)]
-        public static partial HL_gc_pheader* hl_gc_get_page( void* v );
+        public static partial HL_gc_pheader* hl_gc_get_page( void* v ); 
+        [LibraryImport(LIBHL)]
+        public static partial void hl_semaphore_acquire( void* sem );
     }
 }

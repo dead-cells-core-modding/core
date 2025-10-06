@@ -23,11 +23,12 @@ namespace Hashlink.Marshaling.ObjHandle
             public bool valid;
             public nint hlPtr;
             public GCHandle weakRef;
-            public object? strongRef;
+            public HashlinkObjHandle? strongRef;
 
             public void Free()
             {
                 Debug.Assert(valid);
+                strongRef = null;
                 valid = false;
                 *GetObjWrapperPtr((void*)hlPtr) = 0;
                 hlPtr = 0;
@@ -36,6 +37,7 @@ namespace Hashlink.Marshaling.ObjHandle
             {
                 valid = true;
                 hlPtr = hlptr;
+                strongRef = null;
                 if (!weakRef.IsAllocated)
                 {
                     weakRef = GCHandle.Alloc(h, GCHandleType.WeakTrackResurrection);
@@ -55,12 +57,19 @@ namespace Hashlink.Marshaling.ObjHandle
         private static int currentPageStartIndex = 0;
         private static int currentIndex = 0;
 
-        private static readonly HashlinkObj gcTrapObj;
+        private static readonly GCTrapObject gcTrapObj;
         private static readonly nint* gcTrapRoot = (nint*)NativeMemory.AllocZeroed(8);
+
+        private class GCTrapObject : HashlinkString
+        {
+            public GCTrapObject() : base("gc protecting trap")
+            {
+            }
+        }
 
         static HashlinkObjManager()
         {
-            gcTrapObj = new HashlinkString("gc protecting trap");
+            gcTrapObj = new GCTrapObject();
             gcTrapObj.MarkStateful();
 
             *gcTrapRoot = gcTrapObj.HashlinkPointer;
@@ -182,8 +191,11 @@ namespace Hashlink.Marshaling.ObjHandle
                         ref var sr = ref GetObjHandle(i).strongRef;
                         if (sr != null)
                         {
-                            Debug.Assert(sr is HashlinkObjHandle oh &&
-                                oh.Target != gcTrapObj);
+                            Debug.Assert(sr.Target is not GCTrapObject);
+                            if (sr.dontCollect)
+                            {
+                                throw new InvalidProgramException();
+                            }
                             freeCount++;
                             genCount += GC.GetGeneration(sr);
                             sr = null;
@@ -207,6 +219,7 @@ namespace Hashlink.Marshaling.ObjHandle
                 else if (ev.EventId == IOnNativeEvent.EventId.HL_EV_AFTER_GC)
                 {
                     CleanStrongRef();
+                    Debug.Assert(GetObjHandle(gcTrapObj.Handle!.handleIndex).strongRef != null);
                     gcLock.ExitWriteLock();
                     
                 }

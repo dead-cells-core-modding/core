@@ -67,14 +67,20 @@ namespace ModCore.Native
 
             ((delegate* unmanaged< void >)orig_gc_mark)();
 
+            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
+                new(IOnNativeEvent.EventId.HL_EV_GC_AFTER_MARK, 0));
+        }
+        private static nint orig_gc_allocator_after_mark;
+        [UnmanagedCallersOnly]
+        protected static void Hook_gc_allocator_after_mark()
+        {
             IOnNativeEvent.Event_gc_roots roots = new();
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
                 new(IOnNativeEvent.EventId.HL_EV_GC_SEARCH_ROOT, (nint)(&roots)));
 
             Current.GcScanManagedRef(new(roots.roots, roots.nroots));
 
-            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
-                new(IOnNativeEvent.EventId.HL_EV_GC_AFTER_MARK, 0));
+            ((delegate* unmanaged< void >)orig_gc_allocator_after_mark)();
         }
         private static nint orig_gc_major;
         [UnmanagedCallersOnly]
@@ -143,9 +149,9 @@ namespace ModCore.Native
 
         private static nint orig_module_capture_stack;
         [UnmanagedCallersOnly]
-        protected static void Hook_module_capture_stack( void** stack, int size )
+        protected static int Hook_module_capture_stack( void** stack, int size )
         {
-            ((delegate*unmanaged<void**, int, void>)orig_module_capture_stack)(stack, size);
+            var result = ((delegate*unmanaged<void**, int, int>)orig_module_capture_stack)(stack, size);
 
             int count = 0;
             void** stack_ptr = (void**)&stack;
@@ -168,6 +174,12 @@ namespace ModCore.Native
                     void* module_addr = *stack_ptr; // EIP
                     if (module_addr >= (void*)code && module_addr < (void*)(code + code_size))
                     {
+                        
+                        while (stack[count] != module_addr &&
+                            count < size)
+                        {
+                            count++;
+                        }
                         if (count == size)
                             break;
                         Debug.Assert(stack[count] == module_addr);
@@ -175,6 +187,10 @@ namespace ModCore.Native
                     }
                 }
             }
+
+            Debug.Assert(count == result);
+
+            return result;
         }
 
         private static nint orig_gc_allocator_alloc;
@@ -239,6 +255,7 @@ namespace ModCore.Native
         protected virtual void InitializeNativeHooks()
         {
             var phLibhl = NativeLibrary.Load("libhl");
+
             CreateNativeHookForHL("module_capture_stack", nameof(Hook_module_capture_stack), out orig_module_capture_stack);
             CreateNativeHookForHL("break_on_trap", asm_hook_break_on_trap_Entry, out Data->orig_break_on_trap);
             CreateNativeHookForHL("gc_mark_stack", nameof(Hook_gc_mark_stack), out orig_gc_mark_stack);
@@ -247,6 +264,8 @@ namespace ModCore.Native
             CreateNativeHookForHL("resolve_library", nameof(Hook_resolve_library), out orig_resolve_library);
             CreateNativeHookForHL("hl_module_init_natives", nameof(Hook_hl_module_init_natives), out orig_hl_module_init_natives);
             CreateNativeHookForHL("gc_allocator_alloc", nameof(Hook_gc_allocator_alloc), out orig_gc_allocator_alloc);
+            CreateNativeHookForHL("gc_allocator_after_mark", nameof(Hook_gc_allocator_after_mark), out orig_gc_allocator_after_mark);
+            
             Data->trap_filter = (nint)(delegate* unmanaged< nint, HL_trap_ctx*, nint, nint >)&Hook_trap_filter;
 
             Data->return_from_managed = (nint)(delegate* unmanaged< void >)&Return_From_Managed;
@@ -304,6 +323,8 @@ namespace ModCore.Native
 
             phl_gc_page_map = (HL_gc_pheader***)NativeLibrary.GetExport(phLibhl, "hl_gc_page_map");
             pglobal_mark_stack = (HL_gc_mstack*)NativeLibrary.GetExport(phLibhl, "global_mark_stack");
+            pmark_threads_active = (byte*)NativeLibrary.GetExport(phLibhl, "mark_threads_active");
+            pmark_threads_done = (void**)NativeLibrary.GetExport(phLibhl, "mark_threads_done");
 
             phl_throw = NativeLibrary.GetExport(phLibhl, "hl_throw");
             phl_rethrow = NativeLibrary.GetExport(phLibhl, "hl_rethrow");

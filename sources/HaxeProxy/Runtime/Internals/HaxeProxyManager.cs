@@ -58,13 +58,12 @@ namespace HaxeProxy.Runtime.Internals
             *(nint*)obj.HashlinkPointer = (nint)cht.nativeType;
             obj.RefreshTypeInfo(cht.nativeType, false);
         }
-        public static HaxeProxyBase CreateProxy( HashlinkObj obj )
+        public static Type GetTypeFromHashlinkType( HashlinkType ht, HashlinkObj? obj = null )
         {
-            var ht = obj.Type;
             Type type;
             if (ht.TypeIndex >= 0)
             {
-                if (ht.IsEnum)
+                if (ht.IsEnum && obj != null)
                 {
                     var hle = (HashlinkEnum)obj;
                     type = subTypes[HaxeProxyBindingAttribute.GetSubTypeId(ht.TypeIndex,
@@ -77,16 +76,28 @@ namespace HaxeProxy.Runtime.Internals
             }
             else if (ht is CustomHaxeType.ReflectType rt)
             {
-                if (!obj.isChangedTypeInfo)
-                {
-                    throw new InvalidProgramException();
-                }
                 type = rt.CustomType.Data.type;
             }
             else
             {
                 throw new NotSupportedException();
             }
+            return type;
+        }
+        public static HaxeProxyBase CreateProxy( HashlinkObj obj )
+        {
+            var ht = obj.Type;
+
+            if (ht is CustomHaxeType.ReflectType rt)
+            {
+                if (!obj.isChangedTypeInfo)
+                {
+                    throw new InvalidProgramException();
+                }
+            }
+
+            var type = GetTypeFromHashlinkType(ht, obj);
+
             Debug.Assert(type != null);
             Debug.Assert(!type.IsAbstract);
 

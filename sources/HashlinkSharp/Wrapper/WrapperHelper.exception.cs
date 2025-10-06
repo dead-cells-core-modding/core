@@ -225,7 +225,7 @@ namespace Hashlink.Wrapper
 
             return (nint)prepare_exception_handle_data->shellcode;
         }
-        //[StackTraceHidden]
+        [StackTraceHidden]
         private static void FixExceptionTrace( Exception ex, nint stackTop )
         {
             static ref sbyte[] GetStackTraceData( ref object stackTrace )
@@ -261,7 +261,7 @@ namespace Hashlink.Wrapper
                         while (index < ti->exc_stack_count)
                         {
                             var sp = exc_stack_ptrs[index];
-                            if (sp < 0)
+                            if (sp <= 0)
                             {
                                 index++;
                                 continue;
@@ -370,7 +370,7 @@ namespace Hashlink.Wrapper
             {
                 ((delegate* unmanaged< void >)Native.Current.asm_empty_method)();
                 var ex = last_exception;
-                //FixExceptionTrace(last_exception, (nint)Unsafe.AsPointer(ref handle));
+                FixExceptionTrace(last_exception, (nint)Unsafe.AsPointer(ref handle));
                 last_exception = null;
                 ExceptionDispatchInfo.Throw(ex);
             }

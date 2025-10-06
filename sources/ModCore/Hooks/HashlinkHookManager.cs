@@ -4,9 +4,13 @@ using Hashlink.Proxy.Clousre;
 using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
+using Hashlink.Virtuals;
 using Hashlink.Wrapper;
 using Hashlink.Wrapper.Callbacks;
+using HaxeProxy.Runtime;
+using HaxeProxy.Runtime.Internals;
 using ModCore.Modules;
+using ModCore.Utitities;
 using MonoMod.Utils;
 using Serilog;
 using Serilog.Core;
@@ -48,6 +52,8 @@ namespace ModCore.Hooks
                 callback.NativePointer, true);
             callback.RedirectTarget = hook.Original;
             callback.Target = CreateDelegateAdapt().CreateAnonymousDelegate(this);
+
+            
         }
 
         private DynamicMethod CreateDelegateAdapt(  )

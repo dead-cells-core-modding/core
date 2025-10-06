@@ -30,6 +30,7 @@ namespace Hashlink.Marshaling
         {
             var type = (HL_type*)NativeMemory.AllocZeroed((nuint)sizeof(HL_type));
             type->kind = TypeKind.HOBJ;
+            type->vobj_proto = (void**)NativeMemory.AllocZeroed((nuint)sizeof(void*));
             type->mark_bits = null;
             var tobj = (HL_type_obj*)NativeMemory.AllocZeroed((nuint)sizeof(HL_type_obj));
             type->data.obj = tobj;
@@ -37,6 +38,7 @@ namespace Hashlink.Marshaling
             tobj->nbindings = 0;
             tobj->nfields = 0;
             tobj->nproto = 0;
+            //tobj->m = &HashlinkMarshal.Module.NativeModule->ctx;
             var rtobj = (HL_runtime_obj*)NativeMemory.AllocZeroed((nuint)sizeof(HL_runtime_obj));
             tobj->rt = rtobj;
             rtobj->nfields = 0;

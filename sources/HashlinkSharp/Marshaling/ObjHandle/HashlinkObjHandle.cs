@@ -15,6 +15,7 @@ namespace Hashlink.Marshaling.ObjHandle
 
         internal int handleIndex = 0;
         internal readonly nint nativeHLPtr;
+        internal bool dontCollect;
         internal HashlinkObjHandle( nint objPtr, int index )
         {
             nativeHLPtr = objPtr;

@@ -1,4 +1,6 @@
-﻿using ModCore.Mods;
+﻿using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.DynamicAccess;
+using ModCore.Mods;
 
 namespace TestMod
 {
@@ -14,6 +16,8 @@ namespace TestMod
             {
 
             };
+            var cl = (HashlinkClosure) dc.haxe.Log.Class.HashlinkObj.AsDynamic().trace;
+            cl.Handle!.dontCollect = true;
         }
     }
 }

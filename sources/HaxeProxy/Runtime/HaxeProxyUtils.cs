@@ -1,10 +1,13 @@
-﻿using Hashlink.Proxy;
+﻿using Hashlink.Marshaling;
+using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
+using HaxeProxy.Runtime.Internals;
 using HaxeProxy.Runtime.Internals.Inheritance;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,11 +33,25 @@ namespace HaxeProxy.Runtime
         }
         public static HashlinkObjectType GetHashlinkType( Type type )
         {
+            var ca = type.GetCustomAttribute<HashlinkTIndexAttribute>();
+            if (ca is not null)
+            {
+                return (HashlinkObjectType) HashlinkMarshal.Module.Types[ca.Index];
+            }
             InheritanceManager.Check(type, null, out var cht);
             return cht.Type;
         }
+        public static Type GetProxyType( HashlinkType type )
+        {
+            return HaxeProxyManager.GetTypeFromHashlinkType( type );
+        }
         public static TClass GetClass<TClass>( Type type ) where TClass : HaxeProxyBase
         {
+            var ca = type.GetCustomAttribute<HashlinkTIndexAttribute>();
+            if (ca is not null)
+            {
+                return ((HashlinkObjectType)HashlinkMarshal.Module.Types[ca.Index]).GlobalValue!.AsHaxe<TClass>();
+            }
             InheritanceManager.Check(type, null, out var cht);
             return cht.Data.globalValue.AsHaxe<TClass>();
         }
