@@ -21,5 +21,6 @@
   
   <Target Name="WriteModCoreVersionFile" AfterTargets="Build">
     <WriteLinesToFile File="$(OutputPath)../../ModCoreVersion.txt" Lines="$(Version)" Overwrite="true" />
+    <Message Importance="high" Text="Writing version file to $(OutputPath)../../ModCoreVersion.txt" />
   </Target>
 </Project>
