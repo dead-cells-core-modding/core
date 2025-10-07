@@ -5,6 +5,7 @@
     <RepositoryUrl>https://github.com/dead-cells-core-modding/core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Company>Dead Cells Core Modding</Company>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
 </Project>
