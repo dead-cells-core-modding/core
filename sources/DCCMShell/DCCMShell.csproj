@@ -16,5 +16,8 @@
   <ItemGroup>
     <ProjectReference Include="..\ModCore\ModCore.csproj" />
   </ItemGroup>
-
+  
+  <Target Name="WriteModCoreVersionFile" AfterTargets="Build">
+    <WriteLinesToFile File="$(OutputPath)../../ModCoreVersion.txt" Lines="$(Version)" Overwrite="true" />
+  </Target>
 </Project>

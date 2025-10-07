@@ -3,7 +3,7 @@
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    
 
     <NoWarn>$(NoWarn);SYSLIB1054</NoWarn>
     
@@ -42,7 +42,5 @@
     </Using>
   </ItemGroup>
 
-  <Target Name="WriteModCoreVersionFile" AfterTargets="Build">
-    <WriteLinesToFile File="$(OutputPath)../../ModCoreVersion.txt" Lines="$(Version)" Overwrite="true" />
-  </Target>
+  
 </Project>
