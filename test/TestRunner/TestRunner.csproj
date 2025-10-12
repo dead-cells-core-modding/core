@@ -8,6 +8,8 @@
     <ModType>library</ModType>
     <NoModCore>true</NoModCore>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
     
     <!--
     To enable the Microsoft Testing Platform 'dotnet test' experience, add property:

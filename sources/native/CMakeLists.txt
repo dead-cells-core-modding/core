@@ -3,10 +3,6 @@ cmake_minimum_required (VERSION 3.20)
 
 project ("native")
 
-SET(CMAKE_ASM_NASM_SOURCE_FILE_EXTENSIONS asm) 
-ENABLE_LANGUAGE(ASM_NASM)
-SET(CMAKE_ASM_NASM_FLAGS "-g") 
-
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin/core/native/)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -26,7 +22,7 @@ endif()
 add_definitions(-DX64)
 
 cmake_host_system_information(RESULT CPU_NUMBER_OF_LOGICAL_CORES QUERY NUMBER_OF_LOGICAL_CORES)
-#add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP${CPU_NUMBER_OF_LOGICAL_CORES}>)
+add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP${CPU_NUMBER_OF_LOGICAL_CORES}>)
 
 if(MSVC)
 

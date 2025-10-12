@@ -3,7 +3,7 @@
         set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")
     endif()
 
-    find_library(Discord_LIBRARY Discord-RPC PATHS ./lib/amd64)
+    get_filename_component(Discord_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/lib/amd64/discord-rpc.lib ABSOLUTE)
 
     add_library(discord.hdll SHARED src/hldiscord.cpp)
 

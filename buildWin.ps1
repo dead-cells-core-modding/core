@@ -31,9 +31,14 @@ if($BuildNative) {
     cmake . --preset=win-x64-release
     cmake --build ./out/build/win-x64-release
 
+    $nativedir = $PSScriptRoot + "/bin/core/native/win-x64"
+
+    echo "Scan non public members"
+    dotnet run -c Release --no-launch-profile --project $PSScriptRoot/tools/NonPublicMemberScanner $nativedir 
+
     echo "Copying 3rd library"
 
-    $nativedir = $PSScriptRoot + "/bin/core/native/win-x64"
+    
     $thirdparty = $PSScriptRoot + "/3rd"
 
     cd $nativedir
