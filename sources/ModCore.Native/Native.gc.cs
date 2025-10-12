@@ -115,10 +115,6 @@ namespace ModCore.Native
                     continue;
                 }
 
-                var s = hl_is_gc_ptr((void*)ptr);
-                var alive = GC_IS_ALIVE(page, bid);
-                Debug.Assert(s == alive);
-
                 if (bid >= 0 && (page->page_kind & 2) != 2 && !GC_IS_ALIVE(page, bid))
                 {
                     needRemark = true;

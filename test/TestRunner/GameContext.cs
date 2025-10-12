@@ -31,6 +31,10 @@ namespace TestRunner
                 GeneratePseudocodeAssembly = true,
                 NoConsole = !Debugger.IsAttached,
             };
+            ContextConfig.Config = ContextConfig.Default with
+            {
+                consoleOutput = Debugger.IsAttached
+            };
             EventSystem.AddReceiver(this);
             Startup.StartGame();
         }
