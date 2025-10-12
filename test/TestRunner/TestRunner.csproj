@@ -44,6 +44,7 @@
   <ItemGroup>
     <ProjectReference Include="../../sources/ModCore/ModCore.csproj" />
     <ProjectReference Include="..\..\sources\DCCMShell\DCCMShell.csproj" />
+    <ProjectReference Include="..\..\sources\ModCore.Native\ModCore.Native.csproj" />
     <ProjectReference Include="..\TestMod\TestMod.csproj" />
   </ItemGroup>
 

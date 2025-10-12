@@ -21,7 +21,7 @@ namespace HaxeProxy.Runtime
             val = default;
             return new(ref val!);
         }
-        public static Ref<T> In(in T val )
+        public static Ref<T> In( [UnscopedRef] in T val )
         {
 #pragma warning disable CS8500
             fixed (void* ptr = &val)

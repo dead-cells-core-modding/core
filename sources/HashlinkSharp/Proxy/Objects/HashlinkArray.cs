@@ -1,6 +1,7 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Reflection.Types;
 using System.Collections;
+using System.Diagnostics;
 
 namespace Hashlink.Proxy.Objects
 {
@@ -10,7 +11,7 @@ namespace Hashlink.Proxy.Objects
         public HashlinkArray( HashlinkType elementType, int size ) : 
             this(HashlinkObjPtr.Get(hl_alloc_array(elementType.NativeType, size)))
         {
-
+            Debug.Assert(Handle != null || elementType.IsDyn || size == 0);
         }
         private HashlinkType? cachedElementType;
         public HashlinkType ElementType => cachedElementType ??= HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(NativeElementType);

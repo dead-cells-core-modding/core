@@ -47,10 +47,8 @@ namespace Hashlink.Proxy
 
         public void MarkStateful()
         {
-            if (Handle != null)
-            {
-                Handle.IsStateless = false;
-            }
+            ArgumentNullException.ThrowIfNull(Handle, nameof(Handle));
+            Handle.IsStateless = false;
         }
 
         public DynamicMetaObject GetMetaObject( Expression parameter )
@@ -64,7 +62,8 @@ namespace Hashlink.Proxy
             get; private set;
         }
         public TypeKind TypeKind => Type.TypeKind;
-
+        public bool IsValid => nativeType != null && type != null &&
+            HashlinkPointer != 0 && hl_gc_get_memsize((void*)HashlinkPointer) > 0;
         public void Detach()
         {
             nativeType = null;

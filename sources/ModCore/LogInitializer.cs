@@ -34,7 +34,7 @@ namespace ModCore
               );
 
 
-            if (!Core.Config.Value.NoConsole)
+            if (ContextConfig.Config.consoleOutput)
             {
                 configuration.WriteTo.Console(Serilog.Events.LogEventLevel.Verbose,
                   outputTemplate: OUTPUT_FORMAT_TEMPLATE);

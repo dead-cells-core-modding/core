@@ -27,6 +27,7 @@ namespace ModCore
         public static string Version { get; } = typeof(Core).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
                 "Unknown";
         public static Thread MainThread { get; } = Thread.CurrentThread;
+        public static bool IsSlaveMode => ContextConfig.Config.slaveMode;
         public static void ThrowIfNotMainThread()
         {
             if (Thread.CurrentThread != MainThread)

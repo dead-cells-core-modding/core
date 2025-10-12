@@ -1,6 +1,7 @@
 ﻿using Hashlink.Marshaling;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace Hashlink.Proxy.Objects
     {
         public HashlinkDynObj() : this(HashlinkObjPtr.Get(hl_alloc_dynobj()))
         {
-        
+            Debug.Assert(Handle != null);
         }
 
         public override object? GetFieldValue( int hashedName )

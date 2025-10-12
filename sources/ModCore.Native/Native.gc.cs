@@ -16,8 +16,8 @@ namespace ModCore.Native
 
         private HL_gc_pheader*** phl_gc_page_map;
         private HL_gc_mstack* pglobal_mark_stack;
-        private byte* pmark_threads_active;
-        private void** pmark_threads_done;
+        private volatile byte* pmark_threads_active;
+        private volatile void** pmark_threads_done;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private HL_gc_pheader* GC_GET_PAGE( nint ptr )
@@ -35,6 +35,13 @@ namespace ModCore.Native
             return (page->bmp[bid >> 3] & (1 << (bid & 7))) != 0;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool GC_IS_ALIVE(nint ptr )
+        {
+            var page = GC_GET_PAGE(ptr);
+            var bid = gc_allocator_get_block_id(page, (void*)ptr);
+            return GC_IS_ALIVE(page, bid);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void GC_SET_ALIVE( HL_gc_pheader* page, int bid )
         {
             //Ensure single-threaded operation
@@ -43,7 +50,7 @@ namespace ModCore.Native
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void GC_PUSH_GEN( HL_gc_mstack* st, nint ptr, HL_gc_pheader* page )
         {
-            if (((page->page_kind) & 2) == 2)
+            if (((page->page_kind) & 2) != 2)
             {
                 if (st->cur == st->end)
                 {
@@ -57,6 +64,31 @@ namespace ModCore.Native
         {
             return (int)((st)->size - ((nint)(st)->end - (nint)(st)->cur)/ sizeof(nint) - 1);
         }
+
+        private void VerifyGCValidity(ReadOnlySpan<nint> roots)
+        {
+            foreach (var v in roots)
+            {
+                var size = hl_gc_get_memsize((void*)v);
+                for (int i = 0; i < size / sizeof(nint); i++)
+                {
+                    var p = ((nint*)v)[i];
+                    var page = GC_GET_PAGE(p);
+                    if (page == null)
+                    {
+                        continue;
+                    }
+                    var bid = gc_allocator_get_block_id(page, (void*)p);
+                    if (bid < 0)
+                    {
+                        continue;
+                    }
+                    
+                    Debug.Assert(GC_IS_ALIVE(page, bid));
+                }
+            }
+        }
+
         private void GcScanManagedRef(Span<nint> roots)
         {
             if (roots.IsEmpty)
@@ -87,7 +119,7 @@ namespace ModCore.Native
                 var alive = GC_IS_ALIVE(page, bid);
                 Debug.Assert(s == alive);
 
-                if (bid >= 0 && (page->page_kind & 2) == 2 && !GC_IS_ALIVE(page, bid))
+                if (bid >= 0 && (page->page_kind & 2) != 2 && !GC_IS_ALIVE(page, bid))
                 {
                     needRemark = true;
 
@@ -102,17 +134,22 @@ namespace ModCore.Native
                 return;
             }
 
-            var totalRequest = GC_STACK_COUNT(pglobal_mark_stack);
-            Debug.Assert(totalRequest > 0);
+            Debug.Assert(GC_STACK_COUNT(pglobal_mark_stack) > 0);
+            var c = GC_STACK_COUNT(pglobal_mark_stack);
 
             //Remark
             gc_dispatch_mark(pglobal_mark_stack, true);
+
             Debug.Assert(GC_STACK_COUNT(pglobal_mark_stack) == 0);
 
             while (*pmark_threads_active != 0)
             {
-                hl_semaphore_acquire(pmark_threads_done);
+                hl_semaphore_acquire(*pmark_threads_done);
             }
+
+#if DEBUG
+            VerifyGCValidity(roots);
+#endif
 
             for (int i = 0; i < roots.Length; i++)
             {

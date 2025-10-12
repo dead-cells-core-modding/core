@@ -188,9 +188,6 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial HL_array* hl_exception_stack( );
 
-        public delegate void NativeEventHandleDelegate( int eventId, nint data);
-        [LibraryImport(LIBHL)]
-        public static partial void hl_event_set_handler( NativeEventHandleDelegate handler );
         [LibraryImport(LIBHL)]
         public static partial void hl_sys_init( void** args, int nargs, void* hlfile );
         [LibraryImport(LIBHL)]
@@ -210,14 +207,20 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial void gc_global_lock( [MarshalAs(UnmanagedType.I1)] bool b );
         [LibraryImport(LIBHL)]
+        [SuppressGCTransition]
         public static partial int gc_allocator_get_block_id( HL_gc_pheader* page, void* block );
         [LibraryImport(LIBHL)] 
         public static partial void gc_dispatch_mark( HL_gc_mstack* st, [MarshalAs(UnmanagedType.I1)] bool all );
         [LibraryImport(LIBHL)]
         public static partial void** hl_gc_mark_grow( HL_gc_mstack* stack );
         [LibraryImport(LIBHL)]
+        [SuppressGCTransition]
         public static partial HL_gc_pheader* hl_gc_get_page( void* v ); 
         [LibraryImport(LIBHL)]
+        public static partial void gc_flush_mark(HL_gc_mstack* stack );
+        [LibraryImport(LIBHL)]
         public static partial void hl_semaphore_acquire( void* sem );
+        [LibraryImport(LIBHL)]
+        public static partial void hl_gc_major();
     }
 }

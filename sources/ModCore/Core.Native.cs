@@ -70,7 +70,7 @@ namespace ModCore
         {
             //AddPath();
 
-            phLibhl = NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl"));
+            
             
             _ = NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("modcorenative"));
 
@@ -85,16 +85,23 @@ namespace ModCore
                 }
             }
 
+            //Load hashlink libraries
+
+            foreach (var v in ContextConfig.Config.hashlinkLibraries)
+            {
+                if (!NativeLibrary.TryLoad(v, out _))
+                {
+                    NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath(v));
+                }
+                nativeMembers.LoadAndActivateModule(v);
+            }
+
+            phLibhl = NativeLibrary.Load("libhl");
+
             //TODO
             //**
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                
-
-                bool loadlibhl = nativeMembers.LoadAndActivateModule("libhl");
-                bool loadhl = nativeMembers.LoadAndActivateModule("modcorenative");
-                Debug.Assert(loadlibhl && loadhl);
-
                 var k32 = NativeLibrary.Load("kernelbase.dll");
                 var getprocaddress = NativeLibrary.GetExport(k32, "GetProcAddressForCaller");
 

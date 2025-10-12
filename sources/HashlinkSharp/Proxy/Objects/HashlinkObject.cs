@@ -1,4 +1,5 @@
 ﻿using Hashlink.Reflection.Types;
+using System.Diagnostics;
 
 namespace Hashlink.Proxy.Objects
 {
@@ -8,7 +9,7 @@ namespace Hashlink.Proxy.Objects
             hl_alloc_obj(objType.NativeType))
             )
         {
-
+            Debug.Assert(Handle != null);
         }
         public HL_runtime_obj* RuntimeObj => NativeType->data.obj->rt;
         

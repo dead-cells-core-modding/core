@@ -1,4 +1,5 @@
 ﻿using Hashlink.Marshaling;
+using System.Diagnostics;
 
 namespace Hashlink.Proxy.Objects
 {
@@ -10,7 +11,7 @@ namespace Hashlink.Proxy.Objects
                 )
             )
         {
-            
+            Debug.Assert(Handle != null);
         }
 
         public override string ToString()

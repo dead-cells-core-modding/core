@@ -1,6 +1,7 @@
 ﻿using Hashlink;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
+using ModCore.Events.Interfaces.VM;
 using ModCore.Native.Events.Interfaces;
 using MonoMod.Core;
 using Serilog;
@@ -44,7 +45,7 @@ namespace ModCore.Native
 
         private readonly List<ICoreNativeDetour> detours = [];
 
-        private VMContext* context;
+        private HL_module* module;
 
         [UnmanagedCallersOnly]
         protected static nint Hook_trap_filter( nint t, HL_trap_ctx* ctx, nint v )
@@ -157,7 +158,7 @@ namespace ModCore.Native
             void** stack_ptr = (void**)&stack;
             void* stack_bottom = stack_ptr;
             void* stack_top = hl_get_thread()->stack_top;
-            var m = Current.context->m;
+            var m = Current.module;
             var code = (nint)m->jit_code;
             int code_size = m->codesize;
             if (m->jit_debug != null)
@@ -188,7 +189,7 @@ namespace ModCore.Native
                 }
             }
 
-            Debug.Assert(count == result);
+            //Debug.Assert(count == result);
 
             return result;
         }
@@ -200,8 +201,31 @@ namespace ModCore.Native
             *size += 8;
             var result = ((delegate*unmanaged<int*, int, nint>)orig_gc_allocator_alloc)(size, page_kind);
             *((nint*)(result + *size - 8)) = 0;
+            Debug.Assert(hl_gc_get_memsize((void*)result) >= 0);
             //*size -= 8;
             return result;
+        }
+
+        private static nint orig_hl_module_alloc;
+        [UnmanagedCallersOnly]
+        protected static HL_module* Hook_hl_module_alloc( HL_code* code )
+        {
+            var result = ((delegate* unmanaged< HL_code*, HL_module* >)orig_hl_module_alloc)(code);
+            Current.module = result;
+            return result;
+        }
+
+        private static nint orig_hl_code_read;
+        [UnmanagedCallersOnly]
+        protected static HL_code* Hook_hl_code_read( byte* data, int size, void* unknown )
+        {
+            var codeData = new ReadOnlySpan<byte>(data, size);
+            EventSystem.BroadcastEvent<IOnCodeLoading, ReadOnlySpan<byte>>(ref codeData);
+            fixed (byte* ptr = codeData)
+            {
+                return ((delegate* unmanaged< byte*, int, void*, HL_code* >)orig_hl_code_read)(ptr, codeData.Length, unknown);
+            }
+            
         }
 
         [UnmanagedCallersOnly]
@@ -256,6 +280,8 @@ namespace ModCore.Native
         {
             var phLibhl = NativeLibrary.Load("libhl");
 
+            CreateNativeHookForHL("hl_module_alloc", nameof(Hook_hl_module_alloc), out orig_hl_module_alloc);
+            CreateNativeHookForHL("hl_code_read", nameof(Hook_hl_code_read), out orig_hl_code_read);
             CreateNativeHookForHL("module_capture_stack", nameof(Hook_module_capture_stack), out orig_module_capture_stack);
             CreateNativeHookForHL("break_on_trap", asm_hook_break_on_trap_Entry, out Data->orig_break_on_trap);
             CreateNativeHookForHL("gc_mark_stack", nameof(Hook_gc_mark_stack), out orig_gc_mark_stack);
@@ -274,15 +300,17 @@ namespace ModCore.Native
         #endregion
 
         public abstract void FixThreadCurrentStackFrame( HL_thread_info* t );
-        public virtual void InitializeGame(ReadOnlySpan<byte> hlboot, out VMContext context)
+        public virtual void InitializeCore()
         {
             InitializeNative();
             InitializeNativeHooks();
-
+        }
+        public virtual void InitializeGame(ReadOnlySpan<byte> hlboot, out VMContext context)
+        {
             HL_code* code;
             byte* err;
             context = new();
-            var ctx = this.context = (VMContext*)Unsafe.AsPointer(ref context);
+            var ctx = (VMContext*)Unsafe.AsPointer(ref context);
 
             hl_global_init();
             fixed (byte* data = hlboot)

@@ -13,17 +13,13 @@ if(WIN32)
         ${HL_SRC_ROOT}/module.c
         ${HL_SRC_ROOT}/debugger.c
         ${HL_SRC_ROOT}/profile.c)
+    add_library(hljit SHARED  ${hl_srcs})
+    target_link_libraries(hljit libhl)
 endif()
 
-add_library (modcorenative SHARED ${ASM_HELPER_SRC} ${SOURCES} ${PLATFORM_SOURCES} ${hl_srcs})
+add_library (modcorenative SHARED ${ASM_HELPER_SRC} ${SOURCES} ${PLATFORM_SOURCES})
 
 target_compile_features(modcorenative PRIVATE cxx_std_20)
-
-if(WIN32)
-
-target_link_libraries(modcorenative libhl)
-
-endif()
 
 # Find nethost
 if(WIN32)

@@ -3,6 +3,7 @@ using Hashlink.Reflection.Members.Enum;
 using Hashlink.Reflection.Types;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace Hashlink.Proxy.Values
         public HashlinkEnum( HashlinkEnumType type, int index ) : 
             this(HashlinkObjPtr.Get(hl_alloc_enum(type.NativeType, index)))
         {
-            
+            Debug.Assert(Handle != null);
         }
         public HashlinkEnumType EnumType => (HashlinkEnumType)Type;
         public HashlinkEnumConstruct CurrentConstruct => EnumType.Constructs[Index];

@@ -313,6 +313,7 @@ namespace Hashlink.Marshaling.ObjHandle
             var wp = GetObjWrapperPtr((void*)ptr);
             if (wp == null)
             {
+                Debug.Assert(!hl_is_gc_ptr((void*)ptr));
                 return null;
             }
             HashlinkObjHandle? handle;

@@ -88,5 +88,6 @@ DCCM_API int try_load_dccm(char_t* gamePath) {
         L""
     };
     entry(args, sizeof(args));
+    return 0;
 }
 

@@ -30,6 +30,6 @@ namespace ModCore.Hooks
                 );
             callback.Target = target.CreateAdaptDelegate();
         }
-        public override nint HashlinkPointer => throw new NotSupportedException();
+        public override nint HashlinkPointer => 0;
     }
 }

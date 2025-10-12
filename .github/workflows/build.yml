@@ -45,7 +45,7 @@ jobs:
     - name: Copy hlboot
       run: |
         echo "DEAD_CELLS_GAME_PATH=$env:GITHUB_WORKSPACE/ctx" >> $env:GITHUB_ENV    
-        Copy-Item -Path ./hlboots/hlboot-directx-steam.dat -Destination "./ctx/hlboot.dat" -Recurse -Force
+        Copy-Item -Path ./hlboots/hlboot-opengl-steam.dat -Destination "./ctx/hlboot.dat" -Recurse -Force
     - name: Install MDK
       uses: dead-cells-core-modding/setup-mdk@main
       with:
