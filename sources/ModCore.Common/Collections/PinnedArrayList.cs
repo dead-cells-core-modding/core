@@ -9,7 +9,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ModCore.Collections
 {
-    public unsafe class PinnedArrayList<T> where T : struct
+    internal unsafe class PinnedArrayList<T> where T : struct
     {
         private const int BLOCK_SIZE = 4096;
         private readonly List<T[]> arrays = [];

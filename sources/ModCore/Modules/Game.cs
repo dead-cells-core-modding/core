@@ -28,13 +28,21 @@ using System.Threading.Tasks;
 
 namespace ModCore.Modules
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     public class Game : CoreModule<Game>,
         IOnBeforeGameInit,
         IOnFrameUpdate,
         IOnAdvancedModuleInitializing
     {
+        /// <inheritdoc/>
         public override int Priority => ModulePriorities.Game;
+
+        /// <summary>
+        /// Get an instance of Hero
+        /// </summary>
         public Hero? HeroInstance
         {
             get; private set;

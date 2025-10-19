@@ -15,11 +15,19 @@ using GT = dc.libs.data.GetText;
 
 namespace ModCore.Modules
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     public class GetText : CoreModule<GetText>
     {
+        ///<inheritdoc/>
         public override int Priority => ModulePriorities.Game;
-
+        /// <summary>
+        /// Get localized strings
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
         public string GetString( string str )
         {
             var s = str.AsHaxeString();

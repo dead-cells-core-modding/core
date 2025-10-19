@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace HaxeProxy.Events
 {
     [Event]
-    public interface IOnRegisterCustomType
+    internal interface IOnRegisterCustomType
     {
         public record class Data(Type Type, HashlinkObjectType ObjectType, HashlinkObjectType TemplateType);
         void OnRegisterCustomType( Data data );

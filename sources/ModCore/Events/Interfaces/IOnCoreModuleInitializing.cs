@@ -1,7 +1,7 @@
 ﻿namespace ModCore.Events.Interfaces
 {
     [Event(true)]
-    public interface IOnCoreModuleInitializing
+    internal interface IOnCoreModuleInitializing
     {
         void OnCoreModuleInitializing();
     }

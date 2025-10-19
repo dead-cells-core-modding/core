@@ -5,8 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+#pragma warning disable CS1591
+
 namespace ModCore.Mods
 {
+    /// <summary>
+    /// Indicates mod information
+    /// </summary>
     public class ModInfo
     {
         [JsonProperty("name")]

@@ -1,4 +1,6 @@
-﻿namespace ModCore.Modules
+﻿#pragma warning disable CS1591
+
+namespace ModCore.Modules
 {
     public static class ModulePriorities
     {

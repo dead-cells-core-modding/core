@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 namespace ModCore.Storage
 {
+    /// <summary>
+    /// Cache File
+    /// </summary>
     public class CacheFile
     {
         private class Metadata
@@ -21,11 +23,18 @@ namespace ModCore.Storage
             Environment.GetEnvironmentVariable("DCCM_DEBUG_OPTION_CACHE_INVALID") == "true";
         private bool isValid;
         private readonly Metadata metadata;
+
+        /// <summary>
+        /// Cache file storage location
+        /// </summary>
         public string CachePath
         {
             get;
         }
 
+        /// <summary>
+        /// A value indicating whether the cache is valid
+        /// </summary>
         public bool IsValid => isValid;
 
         private string MetadataPath
@@ -33,6 +42,10 @@ namespace ModCore.Storage
             get;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name">The name of the cache file</param>
         public CacheFile( string name )
         {
             CachePath = Path.Combine(FolderInfo.Cache.FullPath, name);
@@ -62,6 +75,11 @@ namespace ModCore.Storage
             File.WriteAllText(MetadataPath, JsonConvert.SerializeObject(metadata));
         }
 
+        /// <summary>
+        /// Update the metadata of cached files
+        /// </summary>
+        /// <param name="name">The name of the metadata</param>
+        /// <param name="data">Metadata content</param>
         public void UpdateMetadata( string name, ReadOnlySpan<byte> data )
         {
             if (data.Length > 384)
@@ -81,16 +99,31 @@ namespace ModCore.Storage
             }
             metadata.metadata[name] = data.ToArray();
         }
+
+        /// <summary>
+        /// Update the metadata of cached files
+        /// </summary>
+        /// <param name="name">The name of the metadata</param>
+        /// <param name="data">Metadata content</param>
         public void UpdateMetadata( string name, string data )
         {
             UpdateMetadata( name, Encoding.UTF8.GetBytes(data) );
         }
+
+        /// <summary>
+        /// Update cache file
+        /// </summary>
+        /// <param name="data">Data</param>
         public void UpdateCache( ReadOnlySpan<byte> data )
         {
             File.WriteAllBytes(MetadataPath, data);
 
             UpdateCacheMetadata(SHA384.HashData(data));
         }
+
+        /// <summary>
+        /// Reports that the current cache file is valid
+        /// </summary>
         public void UpdateCache()
         {
             using var fs = File.OpenRead(CachePath);
@@ -104,6 +137,12 @@ namespace ModCore.Storage
             SaveMetadata();
             isValid = true;
         }
+
+        /// <summary>
+        /// Try to get the cache file contents.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>A value indicating whether the cache is valid</returns>
         public bool TryGetCache( out ReadOnlySpan<byte> data )
         {
             if (!isValid)

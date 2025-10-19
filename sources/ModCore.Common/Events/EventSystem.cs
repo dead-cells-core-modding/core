@@ -5,9 +5,18 @@ using System.Runtime.ExceptionServices;
 
 namespace ModCore.Events
 {
+    /// <summary>
+    /// DCCM Event System
+    /// </summary>
     public static class EventSystem
     {
+        /// <summary>
+        /// It is triggered when an event receiver is added.
+        /// </summary>
         public static event Action<IEventReceiver>? OnAddReceiver;
+        /// <summary>
+        /// It is triggered when an event receiver is removed.
+        /// </summary>
         public static event Action<IEventReceiver>? OnRemoveReceiver;
         private static ILogger Logger { get; } = Log.Logger.ForContext("SourceContext", "EventSystem");
         [Flags]
@@ -22,23 +31,40 @@ namespace ModCore.Events
         }
         private static readonly EventReceiverList eventReceivers = [];
 
-        
 
+        /// <summary>
+        /// Add an event receiver
+        /// </summary>
+        /// <param name="receiver"></param>
         public static void AddReceiver( IEventReceiver receiver )
         {
             eventReceivers.Add(receiver);
             OnAddReceiver?.Invoke(receiver);
         }
+        /// <summary>
+        /// Remove an event receiver
+        /// </summary>
+        /// <param name="receiver"></param>
         public static void RemoveReceiver( IEventReceiver receiver )
         {
             eventReceivers.Remove(receiver);
             OnRemoveReceiver?.Invoke(receiver);
         }
 
+        /// <summary>
+        /// Search for an event receiver of a specified type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T? FindReceiver<T>()
         {
             return eventReceivers.OfType<T>().FirstOrDefault();
         }
+        /// <summary>
+        /// Search for event receivers of a specified type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static IEnumerable<T> FindReceivers<T>()
         {
             return eventReceivers.OfType<T>();
@@ -66,6 +92,7 @@ namespace ModCore.Events
         {
             return BroadcastEvent<TEvent, TArg, TResult>(ref arg, flags);
         }
+
         public static EventResult<TResult> BroadcastEvent<TEvent, TArg, TResult>( ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
                         where TArg : allows ref struct
         {

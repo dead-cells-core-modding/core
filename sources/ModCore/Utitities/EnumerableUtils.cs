@@ -10,8 +10,16 @@ using System.Threading.Tasks;
 
 namespace ModCore.Utitities
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class EnumerableUtils
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
         public static IEnumerator<dynamic> GetEnumerator( this ArrayBase array )
         {
             for (int i = 0; i < array.length; i++)
@@ -19,6 +27,11 @@ namespace ModCore.Utitities
                 yield return array.getDyn(i);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
         public static IEnumerator<dynamic> GetEnumerator( this ArrayDyn array )
         {
             for (int i = 0; i < array.get_length(); i++)
@@ -26,6 +39,12 @@ namespace ModCore.Utitities
                 yield return array.getDyn(i);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
         public static IEnumerator<dynamic> GetEnumerator( this ArrayAccess array )
         {
             if (array is ArrayBase ab)
@@ -35,7 +54,12 @@ namespace ModCore.Utitities
             else
                 throw new NotSupportedException();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="iter"></param>
+        /// <returns></returns>
         public static IEnumerator<T> GetEnumerator<T>( this virtual_hasNext_next_<HlFunc<T>> iter )
         {
             while (iter.hasNext())

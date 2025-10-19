@@ -16,6 +16,9 @@ using System.Text;
 
 namespace ModCore.Modules
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     public unsafe class HashlinkVM : CoreModule<HashlinkVM>,
         IOnCoreModuleInitializing,
@@ -23,12 +26,19 @@ namespace ModCore.Modules
         IOnNativeEvent,
         IOnResolveNativeFunction
     {
+        /// <inheritdoc/>
         public override int Priority => ModulePriorities.HashlinkVM;
 
+        /// <summary>
+        /// Get the library handle of libhl
+        /// </summary>
         public nint LibhlHandle
         {
             get; private set;
         }
+        /// <summary>
+        /// Get the thread that first initializes DCCM (may not be the main thread)
+        /// </summary>
         public Thread MainThread { get; private set; } = null!;
 
        

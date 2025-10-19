@@ -10,8 +10,12 @@ using System.Threading.Tasks;
 
 namespace ModCore.Serialization.Converters
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class HxbitConverter : JsonConverter<HaxeObject>
     {
+        ///<inheritdoc/>
         public override HaxeObject? ReadJson( JsonReader reader, Type objectType, 
             HaxeObject? existingValue, bool hasExistingValue, JsonSerializer serializer )
         {
@@ -29,7 +33,7 @@ namespace ModCore.Serialization.Converters
             var obj = ctx.hxbitObjects[uid];
             return obj;
         }
-
+        ///<inheritdoc/>
         public override void WriteJson( JsonWriter writer, HaxeObject? value, 
             JsonSerializer serializer )
         {

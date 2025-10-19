@@ -2,7 +2,7 @@
 
 namespace DCCMShell
 {
-    public class Shell
+    public static class Shell
     {
         public static void StartFromShell()
         {

@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 
 namespace ModCore.Modules
 {
+    /// <summary>
+    /// A type for managing Hashlink Hooks
+    /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     public unsafe class HashlinkHooks : CoreModule<HashlinkHooks>,
         IOnAddHashlinkHook,
@@ -20,6 +23,9 @@ namespace ModCore.Modules
         private readonly Dictionary<nint, HashlinkHookManager> managers = [];
         private readonly List<HookHandle> hooks = [];
 
+        /// <summary>
+        /// A Hashlink hook
+        /// </summary>
         public class HookHandle
         {
             internal HookHandle( Delegate hook, HashlinkHookManager manager )
@@ -31,14 +37,23 @@ namespace ModCore.Modules
             {
                 get;
             }
+            /// <summary>
+            /// 
+            /// </summary>
             public Delegate Hook
             {
                 get;
             }
+            /// <summary>
+            /// Enable hook
+            /// </summary>
             public void Enable()
             {
                 Manager.AddHook(Hook);
             }
+            /// <summary>
+            /// Disable Hook
+            /// </summary>
             public void Disable()
             {
                 Manager.RemoveHook( Hook );
@@ -53,10 +68,25 @@ namespace ModCore.Modules
             }
             return manager;
         }
+        /// <summary>
+        /// Create a Hashlink Hook
+        /// </summary>
+        /// <param name="typeName">The name of the type</param>
+        /// <param name="protoName">The name of the target method</param>
+        /// <param name="hook">Hook</param>
+        /// <param name="enableByDefault">A value indicating whether the hook should be automatically enabled</param>
+        /// <returns></returns>
         public HookHandle CreateHook( string typeName, string protoName, Delegate hook, bool enableByDefault = true)
         {
             return CreateHook(HashlinkMarshal.FindFunction(typeName, protoName), hook, enableByDefault);
         }
+        /// <summary>
+        /// Create a Hashlink Hook
+        /// </summary>
+        /// <param name="func">The target method</param>
+        /// <param name="hook">Hook</param>
+        /// <param name="enableByDefault">A value indicating whether the hook should be automatically enabled</param>
+        /// <returns></returns>
         public HookHandle CreateHook(HashlinkFunction func, Delegate hook, bool enableByDefault = true )
         {
             ArgumentNullException.ThrowIfNull(func);

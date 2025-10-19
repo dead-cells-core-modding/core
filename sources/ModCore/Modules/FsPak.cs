@@ -17,11 +17,18 @@ using System.Threading.Tasks;
 
 namespace ModCore.Modules
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     public class FsPak : CoreModule<FsPak>,
         IOnBeforeGameInit
     {
+        /// <inheritdoc/>
         public override int Priority => ModulePriorities.Game;
+        /// <summary>
+        /// Get the game's pak loader
+        /// </summary>
         public dc.hxd.fmt.pak.FileSystem FileSystem { get; private set; } = null!;
 
         void IOnBeforeGameInit.OnBeforeGameInit()
