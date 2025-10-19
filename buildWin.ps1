@@ -10,7 +10,7 @@ dotnet run -c Release --no-launch-profile --project ./tools/HaxeProxyGenerator .
 
 if($BuildMDK) {
     echo "Building MDK"
-    dotnet build -c Release ./mdk
+    dotnet build ./mdk
     mkdir "./bin/core/mdk" -Force
     Get-ChildItem -Path "./mdk/bin" | Copy-Item -Destination "./bin/core/mdk" -Force -Recurse
 }
