@@ -112,8 +112,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9
-    - name: Setup NASM
-      uses: ilammy/setup-nasm@v1
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      with: 
+        arch: x64
     - name: Download Dependencies
       run: |
         cd ./sources/native/3rd/hashlink/include
