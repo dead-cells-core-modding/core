@@ -1,0 +1,43 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/3rd/" />
+  <Folder Name="/ci/">
+    <File Path="../.github/workflows/build.yml" />
+    <File Path="../buildWin.ps1" />
+  </Folder>
+  <Folder Name="/hxproxy/">
+    <Project Path="HashlinkNET.Bytecode/HashlinkNET.Bytecode.csproj" />
+    <Project Path="HashlinkNET.Compiler/HashlinkNET.Compiler.csproj" />
+    <Project Path="HaxeProxy/HaxeProxy.csproj" />
+  </Folder>
+  <Folder Name="/plugins/">
+    <Project Path="ModCore.ModLoader.Default/ModCore.ModLoader.Default.csproj" />
+  </Folder>
+  <Folder Name="/shell/">
+    <Project Path="DCCMShell/DCCMShell.csproj" />
+    <Project Path="DeadCellsModding/DeadCellsModding.csproj">
+      <BuildDependency Project="DCCMShell/DCCMShell.csproj" />
+      <BuildDependency Project="ModCore.ModLoader.Default/ModCore.ModLoader.Default.csproj" />
+      <BuildDependency Project="ModCore/ModCore.csproj" />
+      <Platform Project="x64" />
+    </Project>
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="../.gitignore" />
+    <File Path="../Directory.Build.props" />
+    <File Path="../LICENSE" />
+    <File Path="../README.md" />
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="../test/TestMod/TestMod.csproj" />
+    <Project Path="../test/TestRunner/TestRunner.csproj" />
+  </Folder>
+  <Project Path="HashlinkSharp/HashlinkSharp.csproj" />
+  <Project Path="ModCore.Common/ModCore.Common.csproj" />
+  <Project Path="ModCore.Native/ModCore.Native.csproj" />
+  <Project Path="ModCore/ModCore.csproj" />
+  <Project Path="NonPublicNativeMembers/NonPublicNativeMembers.csproj" />
+</Solution>
