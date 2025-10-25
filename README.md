@@ -31,7 +31,7 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 
 ## Requirement
 
-- .NET 9 runtime or higher
+- .NET 9 runtime
 - Microsoft Visual C++ Redistributable package (2015-2022)
 
 ## Installation
@@ -147,7 +147,6 @@ mods
 
 - .NET SDK 9
 - CMake
-- nasm
 
 ### Build
 

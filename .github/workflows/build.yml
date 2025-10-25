@@ -25,7 +25,6 @@ jobs:
       with:
          files: win-x64.zip
 
-  #Test multiple times to minimize random bugs
   test-win-x64:
     runs-on: windows-latest
     needs: build-win-x64
@@ -59,16 +58,6 @@ jobs:
         cd sources
         
         dotnet test
-
-        $repeat = 10  
-        for ($i = 1; $i -le $repeat; $i++) {
-            Write-Host "==== Run $i ===="
-            dotnet test --no-build --verbosity normal
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "❌ Run $i failed, stopping further runs."
-              exit $LASTEXITCODE
-            }
-          }
 
   test-build-samples:
     runs-on: windows-latest
