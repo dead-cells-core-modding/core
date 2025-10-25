@@ -61,7 +61,11 @@ namespace HaxeProxy.Runtime.Internals
         public static Type GetTypeFromHashlinkType( HashlinkType ht, HashlinkObj? obj = null )
         {
             Type type;
-            if (ht.TypeIndex >= 0)
+            if (ht.TypeKind == TypeKind.HDYNOBJ)
+            {
+                type = typeof(HaxeDynObj);
+            }
+            else if (ht.TypeIndex >= 0)
             {
                 if (ht.IsEnum && obj != null)
                 {

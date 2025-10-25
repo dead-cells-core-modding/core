@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Proxy.DynamicAccess
 {
+    [Obsolete]
     public class HashlinkObjDynamicAccess( HashlinkObj obj ) : DynamicObject, 
         IHashlinkPointer, IExtraData, IExtraDataItem
     {

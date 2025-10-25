@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Proxy.DynamicAccess
 {
+    [Obsolete]
     internal class HashlinkArrayDynamicAccess( HashlinkArray array ) : HashlinkObjDynamicAccess(array),
         ICollection
     {

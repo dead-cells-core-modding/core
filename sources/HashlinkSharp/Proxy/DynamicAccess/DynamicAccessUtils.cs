@@ -21,7 +21,9 @@ namespace Hashlink.Proxy.DynamicAccess
             {
                 return null;
             }
+#pragma warning disable CS0612
             return HashlinkObjDynamicAccess.Create( obj );
+#pragma warning restore CS0612
         }
         [return: NotNullIfNotNull(nameof(obj))]
         public static dynamic? AsDynamic( object? obj )

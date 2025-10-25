@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Hashlink.Proxy.DynamicAccess
 {
+    [Obsolete]
     internal class HashlinkClosureDynamicAccess(HashlinkClosure cl) : HashlinkObjDynamicAccess(cl)
     {
         public override bool TryInvoke( InvokeBinder binder, object?[]? args, out object? result )

@@ -2,6 +2,7 @@
 using Hashlink.Reflection.Types;
 using System.Collections;
 using System.Diagnostics;
+using System.Dynamic;
 
 namespace Hashlink.Proxy.Objects
 {
@@ -37,6 +38,26 @@ namespace Hashlink.Proxy.Objects
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count, nameof(index));
                 HashlinkMarshal.WriteData((void*)((nint)Data + (ElementSize * index)), value, ElementType);
             }
+        }
+
+        public override bool TryGetIndex( GetIndexBinder binder, object[] indexes, out object? result )
+        {
+            if (indexes.Length != 1)
+            {
+                result = null;
+                return false;
+            }
+            result = this[(int)indexes[0]];
+            return true;
+        }
+        public override bool TrySetIndex( SetIndexBinder binder, object[] indexes, object? value )
+        {
+            if (indexes.Length != 1)
+            {
+                return false;
+            }
+            this[(int)indexes[0]] = value;
+            return true;
         }
     }
 }

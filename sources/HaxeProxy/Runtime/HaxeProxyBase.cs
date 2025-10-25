@@ -6,6 +6,7 @@ using Hashlink.Reflection.Types;
 using HaxeProxy.Runtime.Internals;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace HaxeProxy.Runtime
     {
         protected HaxeProxyBase( HashlinkObj obj )
         {
+            Debug.Assert( obj != null );
             HashlinkObj = obj;
             if (!createByManager)
             {

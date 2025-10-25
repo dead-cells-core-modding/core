@@ -1,6 +1,8 @@
 ﻿using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Reflection.Types;
+using System.Dynamic;
 
 namespace Hashlink.Proxy.Objects
 {
@@ -55,6 +57,29 @@ namespace Hashlink.Proxy.Objects
             {
                 SetFieldValue(hl_hash_gen(pname, false), value);
             }
+        }
+
+        public override bool TryGetMember( GetMemberBinder binder, out object? result )
+        {
+            result = DynamicAccessUtils.AsDynamic(GetFieldValue(binder.Name));
+            return true;
+        }
+        public override bool TryInvokeMember( InvokeMemberBinder binder, object?[]? args, out object? result )
+        {
+            var name = binder.Name;
+            var func = GetFieldValue(name);
+            if (func == null)
+            {
+                result = null;
+                return false;
+            }
+            result = DynamicAccessUtils.AsDynamic(((HashlinkClosure)func).DynamicInvoke(args));
+            return true;
+        }
+        public override bool TrySetMember( SetMemberBinder binder, object? value )
+        {
+            SetFieldValue(binder.Name, value);
+            return true;
         }
     }
 }

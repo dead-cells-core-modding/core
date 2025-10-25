@@ -14,6 +14,7 @@ using HaxeProxy.Runtime.Internals.Cache;
 using HaxeProxy.Runtime.Internals.Hooks;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -117,13 +118,17 @@ namespace HaxeProxy.Runtime.Internals
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HaxeProxyBase? GetGlobal( int globalIndex, ref HaxeProxyBase? cache )
         {
-            if (cache != null)
+            var global = (HashlinkObj?) HashlinkMarshal.Module.Globals[globalIndex].Value;
+
+            Debug.Assert(global != null);
+
+            if (cache != null && cache.HashlinkPointer == global.HashlinkPointer)
             {
                 return cache;
             }
 
             return cache = (HaxeProxyBase?)GetProxy<HaxeProxyBase>(
-                HashlinkMarshal.Module.Globals[globalIndex].Value
+               global
                 );
         }
         [return: NotNullIfNotNull(nameof(val))]

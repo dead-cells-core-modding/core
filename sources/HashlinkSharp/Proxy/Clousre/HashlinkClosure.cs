@@ -1,4 +1,5 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
@@ -6,6 +7,7 @@ using Hashlink.Wrapper;
 using Hashlink.Wrapper.Callbacks;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Dynamic;
 
 namespace Hashlink.Proxy.Clousre
 {
@@ -124,6 +126,21 @@ namespace Hashlink.Proxy.Clousre
                 EnsureNativePointer((HL_vclosure*) base.HashlinkPointer);
                 return base.HashlinkPointer;
             }
+        }
+
+        public override bool TryInvoke( InvokeBinder binder, object?[]? args, out object? result )
+        {
+            result = DynamicAccessUtils.AsDynamic(DynamicInvoke(args ?? []));
+            return true;
+        }
+        public override bool TryConvert( ConvertBinder binder, out object? result )
+        {
+            if (binder.Type.IsAssignableTo(typeof(Delegate)))
+            {
+                result = CreateDelegate(binder.Type);
+                return true;
+            }
+            return base.TryConvert(binder, out result);
         }
     }
 }

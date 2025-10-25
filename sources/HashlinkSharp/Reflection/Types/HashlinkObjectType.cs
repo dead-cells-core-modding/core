@@ -82,8 +82,22 @@ namespace Hashlink.Reflection.Types
                 return cachedFields;
             }
         }
-        public HashlinkObject? GlobalValue => (nint)TypeData->global_value == 0 ? null :
-            cachedGlobalValue ??= HashlinkMarshal.ConvertHashlinkObject<HashlinkObject>(*TypeData->global_value);
+        public HashlinkObject GlobalValue
+        {
+            get
+            {
+                return (nint)TypeData->global_value != 0 ? 
+                    Utils.TryGetFromPointerWithCache((nint)(*TypeData->global_value), ref cachedGlobalValue) :
+                    throw new InvalidOperationException();
+            }
+            set
+            {
+                ArgumentNullException.ThrowIfNull(value);
+                *TypeData->global_value = (void*)value.HashlinkPointer;
+                cachedGlobalValue = value;
+            }
+        }
+
         public bool HasField( string name )
         {
             return TryFindField(name, out _);

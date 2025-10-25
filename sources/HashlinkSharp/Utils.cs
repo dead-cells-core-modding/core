@@ -1,5 +1,7 @@
-﻿using Hashlink.Proxy;
+﻿using Hashlink.Marshaling;
+using Hashlink.Proxy;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -8,6 +10,25 @@ namespace Hashlink
 {
     internal static unsafe class Utils
     {
+
+        public static T TryGetFromPointerWithCache<T>( nint ptr, ref T? cache ) where T : HashlinkObj
+        {
+            if (cache != null)
+            {
+                if (cache.HashlinkPointer != ptr)
+                {
+                    cache = null;
+                }
+            }
+            if (cache != null)
+            {
+                return cache;
+            }
+            cache = HashlinkMarshal.ConvertHashlinkObject<T>(HashlinkObjPtr.Get(ptr));
+            Debug.Assert(cache != null);
+            return cache;
+        }
+
         private static readonly ConcurrentDictionary<Type, MethodInfo> delegateInvokeCache = [];
         [StructLayout(LayoutKind.Explicit)]
         private struct BoxedStruct

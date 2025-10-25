@@ -47,6 +47,11 @@ namespace TestRunner
 
             dyn.normalize();
             Assert.Equal(1d, dyn.x);
+
+            dyn.x = 123456d;
+            var cl = dyn.normalize;
+            cl();
+            Assert.Equal(1d, dyn.x);
         }
 
         [Fact]

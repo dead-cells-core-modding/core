@@ -1,7 +1,10 @@
 ﻿using Hashlink.Marshaling;
+using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.DynamicAccess;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +28,29 @@ namespace Hashlink.Proxy.Objects
             nint v;
             HashlinkMarshal.WriteData(&v, value, HashlinkMarshal.Module.KnownTypes.Dynamic);
             hl_dyn_setp(TypedRef, hashedName, InternalTypes.hlt_dyn, (void*)v);
+        }
+
+        public override bool TryGetMember( GetMemberBinder binder, out object? result )
+        {
+            result = DynamicAccessUtils.AsDynamic(GetFieldValue(binder.Name));
+            return true;
+        }
+        public override bool TryInvokeMember( InvokeMemberBinder binder, object?[]? args, out object? result )
+        {
+            var name = binder.Name;
+            var func = GetFieldValue(name);
+            if (func == null)
+            {
+                result = null;
+                return false;
+            }
+            result = DynamicAccessUtils.AsDynamic(((HashlinkClosure)func).DynamicInvoke(args));
+            return true;
+        }
+        public override bool TrySetMember( SetMemberBinder binder, object? value )
+        {
+            SetFieldValue(binder.Name, value);
+            return true;
         }
     }
 }
