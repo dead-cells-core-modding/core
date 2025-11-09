@@ -15,7 +15,7 @@ namespace TestRunner
         private readonly GameContext gameContext;
         public DCCMTestFramework()
         {
-            Console.WriteLine("Init game context");
+            //Console.WriteLine("Init game context");
             gameContext = new();
         }
     }
