@@ -3,14 +3,14 @@
 #include <nethost.h>
 #include <coreclr_delegates.h>
 
-#define DCCM_NATIVE_LIB
-#include "modcorenative.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 
 #include <filesystem>
 #include <string>
+
+#define DCCM_NATIVE_LIB
+#include "modcorenative.h"
 
 #if WIN32
 #define load_library(path) LoadLibraryW(path)
@@ -23,6 +23,8 @@ hostfxr_initialize_for_runtime_config_fn init_for_config_fptr;
 hostfxr_get_runtime_delegate_fn get_delegate_fptr;
 hostfxr_run_app_fn run_app_fptr;
 hostfxr_close_fn close_fptr;
+
+static tagDCCM_MAPIS managed_apis;
 
 int load_hostfxr() {
     char_t buffer[MAX_PATH];
@@ -61,9 +63,32 @@ load_assembly_and_get_function_pointer_fn get_dotnet_load_assembly(const char_t*
     return (load_assembly_and_get_function_pointer_fn)load_assembly_and_get_function_pointer;
 }
 
-DCCM_API int try_load_dccm(char_t* gamePath) {
+DCCM_API DCCM_API_INFOS get_managed_api_info() {
+    memset(&managed_apis, 0, sizeof(DCCM_MAPIS));
+    
+    int apisCount = 0;
+#define DCCM_MANAGED_API(name, ret, ...) apisCount++;
+#include "managed_apis.h"
+#undef DCCM_MANAGED_API
+    
+    DCCM_API_INFOS info = {};
+    info.count = apisCount;
+    info.names = (const char**) new char* [apisCount];
+    info.ptr = new void* [apisCount];
+
+    int apiIndex = 0;
+
+#define DCCM_MANAGED_API(name, ret, ...) info.names[apiIndex] = ""#name; info.ptr[apiIndex++] = &managed_apis.##name;
+#include "managed_apis.h"
+#undef DCCM_MANAGED_API
+
+    return info;
+}
+
+DCCM_API PDCCM_MAPIS try_load_dccm(char_t* gamePath, const void** args, int argc, const char** err) {
     if (!load_hostfxr()) {
-        return -1;
+        *err = "Unable to load hostfxr";
+        return nullptr;
     }
     std::filesystem::path gameRoot(gamePath);
     gameRoot /= "coremod";
@@ -74,20 +99,32 @@ DCCM_API int try_load_dccm(char_t* gamePath) {
     gameRoot /= "DCCMShell.runtimeconfig.json";
     load_assembly_and_get_function_pointer_fn gfp = get_dotnet_load_assembly(gameRoot.wstring().c_str());
     if (gfp == nullptr) {
-        return -2;
+        *err = "Unable to initialize coreclr";
+        return nullptr;
     }
     hostRoot /= "DCCMShell.dll";
     component_entry_point_fn entry = nullptr;
     if (
         gfp(hostRoot.wstring().c_str(), L"DCCMShell.Shell,DCCMShell", L"StartFromNative", nullptr, nullptr, (void**)&entry)
         ) {
-        return -3;
+        *err = "Unable to find entry point";
+        return nullptr;
     }
 
-    const wchar_t* args[] = {
-        L""
+    DCCM_API_INFOS info = get_managed_api_info();
+
+    struct {
+        const char** err;
+        int argc;
+        const void** args;
+        DCCM_API_INFOS* api_infos;
+    } in_args = {
+            err,
+            argc,
+            args,
+            &info
     };
-    entry(args, sizeof(args));
+    entry(&in_args, sizeof(in_args));
     return 0;
 }
 

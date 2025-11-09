@@ -10,20 +10,13 @@
     <ModMain>SampleSimple.SimpleMod</ModMain>
     <AutoInstallMod>true</AutoInstallMod>
     <Authors>Frostbite</Authors>
+
+    <GenerateDiffCDB>true</GenerateDiffCDB>
+    <GameVersion>35</GameVersion>
   </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="DeadCellsCoreModding.MDK" Version="1.0.1" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <None Update="res.pak">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <OutputFiles Include="res.pak" />
   </ItemGroup>
 
 </Project>

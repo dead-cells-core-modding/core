@@ -17,7 +17,7 @@ if(WIN32)
     target_link_libraries(hljit libhl)
 endif()
 
-add_library (modcorenative SHARED ${ASM_HELPER_SRC} ${SOURCES} ${PLATFORM_SOURCES})
+add_library (modcorenative SHARED ${SOURCES})
 
 target_compile_features(modcorenative PRIVATE cxx_std_20)
 
@@ -53,10 +53,6 @@ target_include_directories(modcorenative PRIVATE ${NETHOST_PACK_PATH})
 find_library(NetHost_LIBRARY libnethost PATHS ${NETHOST_PACK_PATH})
 target_link_libraries(modcorenative ${NetHost_LIBRARY})
 message(${NetHost_LIBRARY})
-
-if (WIN32)
-target_link_libraries(modcorenative dbghelp)
-endif()
 
 SET_TARGET_PROPERTIES(modcorenative PROPERTIES 
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}

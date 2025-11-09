@@ -36,12 +36,18 @@ namespace ModCore.Modules
             dc.hxd.fmt.pak.Hook_Reader.readHeader += Hook_Reader_readHeader1;
             dc.hxd.fmt.pak.Hook_FileSystem.loadPak += Hook_FileSystem_loadPak1;
             Hook__Assets.init += Hook__Assets_init;
+            Hook__Boot.initRes += Hook__Boot_initRes;
+        }
+
+        private void Hook__Boot_initRes( Hook__Boot.orig_initRes orig )
+        {
+            orig();
+            EventSystem.BroadcastEvent<IOnAfterLoadingAssets>();
         }
 
         private bool Hook__Assets_init( Hook__Assets.orig_init orig )
         {
             var result = orig();
-            EventSystem.BroadcastEvent<IOnAfterLoadingAssets>();
             Data.Class.loadJson(CDBManager.Class.instance.getAlteredCDB(), default);
             return result;
         }

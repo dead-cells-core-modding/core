@@ -20,10 +20,10 @@
 #define DCCM_API EXTERNC DCCM_IMPORT
 #endif
 
-#ifndef DCCM_MANAGED_API
-#define DCCM_MANAGED_API(name, ret, ...)  \
-	typedef ret (*type_dccm_##name)(__VA_ARGS__);\
-	DCCM_API extern type_dccm_##name dccm_##name;
-#endif
+typedef struct {
+	int count;
+	const char** names;
+	void** ptr;
+} DCCM_API_INFOS;
 
-#include "managed_apis.h"
+#include "dccm_api.h"

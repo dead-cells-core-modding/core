@@ -3,6 +3,7 @@ using dc.en;
 using dc.en.inter;
 using dc.tool;
 using dc.tool.mod;
+using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Mods;
@@ -19,10 +20,8 @@ namespace SampleSimple
 {
     public class SimpleMod(ModInfo info) : ModBase(info),
         IOnHeroUpdate,
-        IOnGameEndInit
+        IOnAfterLoadingAssets
     {
-        public static ILogger logger;
-
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         private static extern short GetAsyncKeyState(int vkey);
 
@@ -32,7 +31,6 @@ namespace SampleSimple
 
         public override void Initialize()
         {
-            logger = Logger;
 
             Logger.Information("Frostbite向你问候!");
 
@@ -49,7 +47,7 @@ namespace SampleSimple
         void IOnHeroUpdate.OnHeroUpdate(double dt)
         {
             bool isCurrentFramePressed = (GetAsyncKeyState(VK_OEM_5) & 0x8000) != 0;
-            Hero hero = Game.Instance.HeroInstance;
+            Hero hero = Game.Instance.HeroInstance!;
             if (isCurrentFramePressed && !isLastFramePressed && hero != null )
             {   
                 // 按下"\"之后执行效果 
@@ -71,11 +69,10 @@ namespace SampleSimple
             itemDrop.dx = hero.dx; // 不知道为什么要有这一步，但是原版代码这么写的
         }
 
-        void IOnGameEndInit.OnGameEndInit()
+        void IOnAfterLoadingAssets.OnAfterLoadingAssets()
         {
             var res = Info.ModRoot!.GetFilePath("res.pak");
             FsPak.Instance.FileSystem.loadPak(res.AsHaxeString());
-            Data.Class.loadJson(CDBManager.Class.instance.getAlteredCDB(), default);
         }
     }
 }

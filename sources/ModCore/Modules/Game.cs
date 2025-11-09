@@ -134,6 +134,21 @@ namespace ModCore.Modules
             Hook__Save.copy += Hook__Save_copy;
             Hook__Save.tryLoad += Hook__Save_tryLoad;
             Hook__Save.save += Hook__Save_save;
+
+            Hook__Data.loadFrom += Hook__Data_loadFrom;
+            Hook__Data.loadJson += Hook__Data_loadJson;
+        }
+
+        private void Hook__Data_loadJson( Hook__Data.orig_loadJson orig, dc.String json, Ref<bool> allowReload )
+        {
+            orig(json, allowReload);
+            EventSystem.BroadcastEvent<IOnAfterLoadingCDB, _Data>(Data.Class);
+        }
+
+        private void Hook__Data_loadFrom( Hook__Data.orig_loadFrom orig, dc.String path, Ref<bool> allowReload )
+        {
+            orig(path, allowReload);
+            EventSystem.BroadcastEvent<IOnAfterLoadingCDB, _Data>(Data.Class);
         }
 
         private void Hook_Boot_mainLoop( Hook_Boot.orig_mainLoop orig, Boot self )
