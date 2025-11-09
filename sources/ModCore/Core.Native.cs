@@ -70,7 +70,7 @@ namespace ModCore
         {
             //AddPath();
 
-            _ = NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("modcorenative"));
+            _ = NativeLibrary.TryLoad(FolderInfo.CurrentNativeRoot.GetFilePath("modcorenative"), out _);
 
 
             foreach (var v in Directory.EnumerateFiles(FolderInfo.CurrentNativeRoot.FullPath, "*.json"))
