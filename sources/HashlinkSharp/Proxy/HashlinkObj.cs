@@ -10,7 +10,6 @@ namespace Hashlink.Proxy
 {
     public abstract unsafe partial class HashlinkObj : 
         IHashlinkPointer
-        //,IDynamicMetaObjectProvider
     {
         [MemberNotNull(nameof(nativeType))]
         [MemberNotNull(nameof(type))]
@@ -51,11 +50,6 @@ namespace Hashlink.Proxy
             Handle.IsStateless = false;
         }
 
-        public DynamicMetaObject GetMetaObject( Expression parameter )
-        {
-            dynamicAccess ??= (HashlinkObjDynamicAccess) HashlinkObjDynamicAccess.Create(this);
-            return dynamicAccess.GetMetaObject(parameter);
-        }
 
         public HashlinkObjHandle? Handle
         {
@@ -80,7 +74,6 @@ namespace Hashlink.Proxy
         private HL_type* nativeType;
         private HashlinkType? type;
 
-        private HashlinkObjDynamicAccess? dynamicAccess;
         public HashlinkType Type => type!;
         public HL_type* NativeType => nativeType;
         public virtual nint HashlinkPointer

@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace ModCore.Events.Interfaces.Game
 {
-    // <summary>
+    ///<summary>
     /// An event fired after the game attempts to load cdb
-    /// </summary>
+    ///</summary>
     [Event]
     public interface IOnAfterLoadingCDB
     {
