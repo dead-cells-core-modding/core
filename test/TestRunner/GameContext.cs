@@ -23,6 +23,7 @@ namespace TestRunner
 
         private void GameThread()
         {
+            Console.WriteLine("Setup Core Config");
             Core.Config.Value = new()
             {
                 AllowCloseConsole = false,
@@ -35,7 +36,9 @@ namespace TestRunner
             {
                 consoleOutput = Debugger.IsAttached
             };
+            Console.WriteLine("Setup receiver");
             EventSystem.AddReceiver(this);
+            Console.WriteLine("Start game");
             Startup.StartGame();
         }
 
@@ -51,6 +54,7 @@ namespace TestRunner
 
         public GameContext()
         {
+            Console.WriteLine("Setup enviroment variables");
             var testRoot = Path.Combine(
                      Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!,
                     "coremod",
@@ -66,15 +70,19 @@ namespace TestRunner
             Environment.SetEnvironmentVariable("DCCM_OverridePath_CORE_LOGS",
                  Path.Combine(testRoot,
                     "logs"
-                    )); 
+                    ));
+
+            Console.WriteLine("Start game thread");
             gameThread = new Thread(GameThread)
             {
                 Name = "Game Thread",
                 IsBackground = true
             };
             gameThread.Start();
-            gameInitEvent.WaitOne();
 
+            Console.WriteLine("Waiting game init");
+            gameInitEvent.WaitOne();
+            Console.WriteLine("Test inited");
             HashlinkThread.RegisterThread();
         }
     }
