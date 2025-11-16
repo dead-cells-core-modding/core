@@ -1,6 +1,7 @@
 ﻿
 
 using ModCore.Events.Interfaces.VM;
+using ModCore.Storage;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("TestRunner")]
@@ -8,3 +9,5 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("DCCMShell")]
 
 [assembly: TypeForwardedTo(typeof(IOnCodeLoading))]
+[assembly: TypeForwardedTo(typeof(FolderInfo))]
+[assembly: TypeForwardedTo(typeof(CacheFile))]

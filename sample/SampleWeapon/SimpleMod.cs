@@ -74,5 +74,7 @@ namespace SampleSimple
             var res = Info.ModRoot!.GetFilePath("res.pak");
             FsPak.Instance.FileSystem.loadPak(res.AsHaxeString());
         }
+
+       
     }
 }
