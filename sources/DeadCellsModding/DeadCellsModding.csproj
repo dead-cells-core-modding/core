@@ -10,7 +10,7 @@
 
     <PublishReadyToRun>true</PublishReadyToRun>
 
-    <RollForward>LatestMajor</RollForward>
+    <RollForward>Minor</RollForward>
 
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
 
