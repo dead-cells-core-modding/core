@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>net9</TargetFramework>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -10,11 +11,14 @@
 
     <PublishReadyToRun>true</PublishReadyToRun>
 
-    <RollForward>Minor</RollForward>
+    <RollForward>LatestMajor</RollForward>
 
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
 
     <PublishDir>../../bin/core/host/startup</PublishDir>
+
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
 
     <Platforms>x64</Platforms>
 

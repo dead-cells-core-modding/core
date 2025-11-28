@@ -2,6 +2,9 @@
     [bool]$BuildNative = $true,
     [bool]$BuildMDK = $true
 )
+
+$ErrorActionPreference = "Stop"
+
 cd $PSScriptRoot
 
 echo "Generating Haxe Proxy"
@@ -34,7 +37,7 @@ if($BuildNative) {
     $nativedir = $PSScriptRoot + "/bin/core/native/win-x64"
 
     echo "Scan non public members"
-    dotnet run -c Release --no-launch-profile --project $PSScriptRoot/tools/NonPublicMemberScanner $nativedir 
+    dotnet run -c Release --no-launch-profile --project $PSScriptRoot/tools/NonPublicMemberScanner $nativedir hljit.dll libhl.dll
 
     echo "Copying 3rd library"
 

@@ -19,7 +19,14 @@ jobs:
         path: win-x64
     - name: Pack
       run: |
-        zip -r win-x64.zip ./win-x64/*
+        cd win-x64
+
+        zip -r ../win-x64.zip ./*
+
+        find . -type f -name "*.pdb" -exec rm -f {} \;
+        rm -rf ./core/mdk
+
+        zip -r ../win-x64-no-mdk.zip ./*
     - name: Release
       uses: softprops/action-gh-release@v1
       with:

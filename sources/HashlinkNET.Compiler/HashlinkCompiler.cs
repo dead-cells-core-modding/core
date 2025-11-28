@@ -106,6 +106,10 @@ namespace HashlinkNET.Compiler
             }
             #endregion
 
+            #region Modifiers
+            AddStep<ApplyBuiltinModifierStep>();
+            #endregion
+
             #region Pseudocode
             if (Config.GeneratePseudocode)
             {
@@ -126,6 +130,7 @@ namespace HashlinkNET.Compiler
             data.AddGlobalData(new GlobalData(
                 Config: Config,
                 Assembly: output,
+                Modifiers: [],
                 Module: output.MainModule,
                 Code: code,
                 BytecodeMappingData: BytecodeMappingData

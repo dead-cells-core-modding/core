@@ -35,6 +35,7 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference attrTIndexCtor;
         public MethodReference attrDynamic; 
         public MethodReference attrObsolete;
+        public MethodReference attrIgnoreAccessCheck;
         public MethodReference jsonIgnoreCtor;
 
         public MethodReference delegateDynInvokeMethod;

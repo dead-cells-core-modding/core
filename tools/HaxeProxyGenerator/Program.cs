@@ -20,7 +20,7 @@ static void Run(string[] args){
 
 #if DEBUG
     config.AllowParalle = false;
-    config.GeneratePseudocode = true;
+    config.GeneratePseudocode = false;
     config.GenerateBytecodeMapping = true;
 #endif
 

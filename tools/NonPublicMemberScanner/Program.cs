@@ -9,13 +9,9 @@ var libPath = args[0];
 
 List<string> libs = [];
 
-foreach (var v in Directory.EnumerateFiles(libPath))
+foreach (var v in args[1..])
 {
-    var name = Path.GetFileNameWithoutExtension(v);
-    if(name == "modcorenative")
-    {
-        continue;
-    }
+    var p = Path.Combine(libPath, v);
     var ext = Path.GetExtension(v);
     if(ext != ".so" && ext != ".dll")
     {
@@ -23,12 +19,12 @@ foreach (var v in Directory.EnumerateFiles(libPath))
     }
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     {
-        if (!File.Exists(Path.ChangeExtension(v, "pdb")))
+        if (!File.Exists(Path.ChangeExtension(p, "pdb")))
         {
             continue;
         }
     }
-    libs.Add(v);
+    libs.Add(p);
 }
 
 var manager = NativeMembersManager.Create();

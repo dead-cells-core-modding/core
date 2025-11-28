@@ -1,5 +1,6 @@
 ﻿using BytecodeMapping;
 using HashlinkNET.Bytecode;
+using HaxeProxy.Codegen;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace HashlinkNET.Compiler.Data
         CompileConfig Config,
         AssemblyDefinition Assembly,
         ModuleDefinition Module,
+        List<BuiltinModifier> Modifiers,
         HlCode Code,
         BytecodeMappingData BytecodeMappingData
     );

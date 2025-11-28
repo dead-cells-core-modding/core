@@ -3,6 +3,7 @@ using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using Hashlink.UnsafeUtilities;
 using HashlinkNET.Compiler.Data;
+using HaxeProxy.Codegen;
 using HaxeProxy.Runtime;
 using HaxeProxy.Runtime.Internals;
 using HaxeProxy.Runtime.Internals.Cache;
@@ -127,6 +128,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.attrTIndexCtor = ImportAttribute<HashlinkTIndexAttribute>();
             rdata.attrDynamic = ImportAttribute<DynamicAttribute>();
             rdata.attrObsolete = ImportAttribute<ObsoleteAttribute>(1);
+            rdata.attrIgnoreAccessCheck = ImportAttribute<IgnoresAccessChecksToAttribute>();
             rdata.jsonIgnoreCtor = ImportAttribute<JsonIgnoreAttribute>();
 
             rdata.funcTypes = new TypeReference[FUNC_MAX_ARGS_COUNT];
@@ -145,6 +147,16 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
                     rtAsm.GetType("HaxeProxy.Runtime.HlAction`" + i, true)
                     );
             }
+
+            gdata.Assembly.CustomAttributes.Add(new(rdata.attrIgnoreAccessCheck)
+            {
+                ConstructorArguments =
+                {
+                    new(gdata.Assembly.MainModule.TypeSystem.String, typeof(HaxeProxyHelper).Assembly.GetName().Name)
+                }
+            });
+
+           
         }
     }
 }
