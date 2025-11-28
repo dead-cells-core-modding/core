@@ -30,7 +30,9 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-         files: win-x64.zip
+         files: |
+             win-x64.zip
+             ../win-x64-no-mdk.zip
 
   test-win-x64:
     runs-on: windows-latest
