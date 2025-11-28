@@ -32,7 +32,7 @@ jobs:
       with:
          files: |
              win-x64.zip
-             ../win-x64-no-mdk.zip
+             win-x64-no-mdk.zip
 
   test-win-x64:
     runs-on: windows-latest

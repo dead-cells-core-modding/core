@@ -7,7 +7,8 @@
 
 A Dead Cells Modding API/loader. 
 
-Docs in [English Documentation](https://dead-cells-core-modding.github.io/docs-en/docs/) or [中文文档](https://dead-cells-core-modding.github.io/docs-zh/docs)
+[Documentation](https://dead-cells-core-modding.github.io/docs/docs)
+
 > I'm sorry I don't have time to maintain English documentation.
 
 
