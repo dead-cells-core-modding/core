@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using MonoMod.Utils;
 using System.Runtime.CompilerServices;
@@ -31,6 +32,8 @@ namespace Hashlink.UnsafeUtilities
         private static readonly ConcurrentDictionary<(MethodInfo, Type?), MethodInfo> adaptDelegates = [];
         private static readonly ConcurrentDictionary<Type, MethodInfo> closureDelegates = [];
         private static readonly HashSet<(MethodInfo, Type)> safeCastList = [];
+
+        private static int delegateIndex = 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static T CastObjectEx<T>( object obj ) where T : class, IExtraDataItem
@@ -124,7 +127,7 @@ namespace Hashlink.UnsafeUtilities
         private static Type CreateDelegate( string name, Type ret, params Type[] args )
         {
             var typeBuilder = moduleBuilder.DefineType(
-            name,
+            (name.length > 512 ? name[..511] : name) + Interlocked.Increase(ref delegateIndex),
             TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed,
             typeof(MulticastDelegate));
 
