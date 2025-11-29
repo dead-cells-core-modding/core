@@ -127,7 +127,7 @@ namespace Hashlink.UnsafeUtilities
         private static Type CreateDelegate( string name, Type ret, params Type[] args )
         {
             var typeBuilder = moduleBuilder.DefineType(
-            (name.length > 512 ? name[..511] : name) + Interlocked.Increase(ref delegateIndex),
+            (name.Length > 512 ? name[..511] : name) + Interlocked.Increase(ref delegateIndex),
             TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed,
             typeof(MulticastDelegate));
 
