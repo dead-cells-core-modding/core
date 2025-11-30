@@ -1,4 +1,4 @@
-﻿using Hashlink.Marshaling;
+using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using System.Collections.Concurrent;
 using System.Diagnostics;

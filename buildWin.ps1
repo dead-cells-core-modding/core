@@ -16,6 +16,12 @@ if($BuildMDK) {
     dotnet publish /p:Platform="Any CPU" ./mdk
     mkdir "./bin/core/mdk" -Force
     Get-ChildItem -Path "./mdk/bin" | Copy-Item -Destination "./bin/core/mdk" -Force -Recurse
+
+    $env:DCCM_MDK_ROOT = (Resolve-Path ./bin/core/mdk).Path
+    echo "Set DCCM_MDK_ROOT to $env:DCCM_MDK_ROOT "
+
+    dotnet nuget add source "./bin/core/mdk/packages"  --name DeadCoreModdingMDK
+
 }
 
 echo "Building ModCore"
@@ -24,6 +30,8 @@ cd sources
 
 dotnet build -c Release ./DCCMShell
 dotnet build -c Release ./ModCore.ModLoader.Default
+
+dotnet build -c Release ./ModCore.Assets
 
 echo "Building Shell"
 dotnet publish -c Release -r win-x64 ./DeadCellsModding

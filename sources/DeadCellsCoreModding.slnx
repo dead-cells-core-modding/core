@@ -36,6 +36,7 @@
     <Project Path="../test/TestRunner/TestRunner.csproj" />
   </Folder>
   <Project Path="HashlinkSharp/HashlinkSharp.csproj" />
+  <Project Path="ModCore.Assets/ModCore.Assets.csproj" Id="74c363b3-adde-42c7-94d8-d19d6ad00e13" />
   <Project Path="ModCore.Common/ModCore.Common.csproj" />
   <Project Path="ModCore.Native/ModCore.Native.csproj" />
   <Project Path="ModCore/ModCore.csproj" />

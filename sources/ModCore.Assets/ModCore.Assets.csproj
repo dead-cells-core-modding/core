@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ModType>mod</ModType>
+    <GenerateSinglePakFile>true</GenerateSinglePakFile>
+    <AutoInstallMod>true</AutoInstallMod>
+    <ModMain>ModCore.Assets.ModCoreAssetsMod</ModMain>
+    <NoModCore>true</NoModCore>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DeadCellsCoreModding.MDK" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackAssets Include="raw_assets\**\*" RootInPak="dccm-core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="GameProxy" />
+    <ProjectReference Include="..\ModCore\ModCore.csproj" />
+  </ItemGroup>
+  
+  
+
+</Project>

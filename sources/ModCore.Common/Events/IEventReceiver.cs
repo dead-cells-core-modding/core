@@ -10,7 +10,10 @@
         /// </summary>
         int Priority
         {
-            get;
-        }
+            get
+            {
+                return 0;
+            }
+        } 
     }
 }

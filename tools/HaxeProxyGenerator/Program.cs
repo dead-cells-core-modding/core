@@ -19,8 +19,8 @@ static void Run(string[] args){
     };
 
 #if DEBUG
-    config.AllowParalle = false;
-    config.GeneratePseudocode = false;
+    config.AllowParalle = true;
+    config.GeneratePseudocode = true;
     config.GenerateBytecodeMapping = true;
 #endif
 
