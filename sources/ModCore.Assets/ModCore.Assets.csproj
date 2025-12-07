@@ -3,10 +3,8 @@
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <ModType>mod</ModType>
+    <ModType>library</ModType>
     <GenerateSinglePakFile>true</GenerateSinglePakFile>
-    <AutoInstallMod>true</AutoInstallMod>
-    <ModMain>ModCore.Assets.ModCoreAssetsMod</ModMain>
     <NoModCore>true</NoModCore>
   </PropertyGroup>
 
@@ -18,11 +16,10 @@
     <PackAssets Include="raw_assets\**\*" RootInPak="dccm-core" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="GameProxy" />
-    <ProjectReference Include="..\ModCore\ModCore.csproj" />
-  </ItemGroup>
-  
+  <Target Name="CopyResPak" AfterTargets="MergeAllPaks">
+    <Copy SourceFiles="$(MergedPakPath)"
+          DestinationFiles="../../bin/core/host/res.pak" UseHardlinksIfPossible="true" />
+  </Target>
   
 
 </Project>

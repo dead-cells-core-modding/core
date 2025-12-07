@@ -1,4 +1,5 @@
-﻿using ModCore;
+using ModCore;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace DCCMShell
@@ -22,6 +23,20 @@ namespace DCCMShell
         }
         public static void StartFromShell()
         {
+            var err = Startup.CheckEnv(out var errMsg);
+            if(err != Startup.CheckEnvResult.Success)
+            {
+                if (err == Startup.CheckEnvResult.DotnetVersionTooLow)
+                {
+                    Console.Error.WriteLine($"DCCM requires .NET 10 or higher.If you see this prompt repeatedly, try updating {Path.GetFileName(Environment.ProcessPath)}.");
+                }
+                else
+                {
+                    Console.Error.WriteLine(err + ":" + errMsg);
+                }
+                Thread.Sleep(TimeSpan.FromSeconds(5));
+                Environment.Exit(-1);
+            }
             Startup.StartGame();
         }
         public static void StartFromNative( IntPtr args, int sizeBytes )
@@ -29,6 +44,12 @@ namespace DCCMShell
             NativeArgs* pargs = (NativeArgs*)args;
             try
             {
+                if (Startup.CheckEnv(out string? err) != Startup.CheckEnvResult.Success)
+                {
+                    Console.Error.WriteLine(err);
+                    *pargs->err = (char*)Marshal.StringToHGlobalAnsi(err);
+                    return;
+                }
                 InitializeManagedAPIs(pargs->api_info);
                 Startup.StartGame();
             }

@@ -84,7 +84,7 @@ Here are some [examples](https://github.com/dead-cells-core-modding/core/tree/ma
 
 ### Preparation
 
-1. Install .NET SDK 9
+1. Install .NET SDK 10
 2. Install Dead Cells Core Modding as above
 3. Run `<DeadCellsGameRoot>/coremod/core/mdk/install.ps1` to configure the environment
 
@@ -146,7 +146,7 @@ mods
 
 ### Requirement
 
-- .NET SDK 9
+- .NET SDK 10
 - CMake
 
 ### Build

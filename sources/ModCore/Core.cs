@@ -1,4 +1,4 @@
-﻿
+
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Modules;
@@ -15,7 +15,7 @@ namespace ModCore
     {
         private static bool init = false;
         public static readonly List<string> dllSearchPath = [
-            Path.GetDirectoryName(typeof(Core).Assembly.Location),
+            Path.GetDirectoryName(typeof(Core).Assembly.Location)!,
             FolderInfo.Plugins.FullPath,
             FolderInfo.Mods.FullPath,
             ];

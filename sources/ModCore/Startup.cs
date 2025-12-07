@@ -1,4 +1,4 @@
-﻿
+
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
@@ -6,6 +6,7 @@ using ModCore.Native;
 using ModCore.Storage;
 using Serilog;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.CompilerServices;
@@ -15,9 +16,31 @@ namespace ModCore
 {
     internal static unsafe class Startup
     {
+        public enum CheckEnvResult
+        {
+            Success = 0,
+            DotnetVersionTooLow = 1,
+        }
+        public static CheckEnvResult CheckEnv([NotNullWhen(false)] out string? err)
+        {
+            err = null;
+
+            if (Environment.Version.Major < 10)
+            {
+                err = "DCCM requires .NET 10 or higher.";
+                return CheckEnvResult.DotnetVersionTooLow;
+            }
+
+            return CheckEnvResult.Success;
+        }
 
         public static int StartGame()
         {
+            if (CheckEnv(out _) != CheckEnvResult.Success)
+            {
+                return -1;
+            }
+
             ContextConfig.SetReadonly();
 
             LogInitializer.InitializeLog();
