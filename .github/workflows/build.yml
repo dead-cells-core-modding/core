@@ -126,14 +126,14 @@ jobs:
         Expand-Archive -LiteralPath ./SDL.zip -DestinationPath . -Force
         Move-Item -Path ./SDL2-2.32.8 -Destination ./sdl -Force
 
-    - name: Build MDK & Native
+    - name: Build Core
       run: |
         ./buildWin.ps1 -BuildAssets 0
     - name: Install MDK
       uses: dead-cells-core-modding/setup-mdk@main
       with:
         modcoreroot: ./bin
-    - name: Build
+    - name: Build Assets
       run: |
         ./buildWin.ps1 -BuildNative 0 -BuildMDK 0 -BuildCore 0 -BuildAssets 1
 
