@@ -128,14 +128,14 @@ jobs:
 
     - name: Build MDK & Native
       run: |
-        ./buildWin.ps1 -BuildNative 1 -BuildMDK 1 -BuildCore 0
+        ./buildWin.ps1 -BuildAssets 0
     - name: Install MDK
       uses: dead-cells-core-modding/setup-mdk@main
       with:
         modcoreroot: ./bin
     - name: Build
       run: |
-        ./buildWin.ps1 -BuildNative 0 -BuildMDK 0 -BuildCore 1
+        ./buildWin.ps1 -BuildNative 0 -BuildMDK 0 -BuildCore 0 -BuildAssets 1
 
     - name: Upload
       uses: actions/upload-artifact@v4.6.0

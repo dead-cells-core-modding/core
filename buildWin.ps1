@@ -1,7 +1,8 @@
 ﻿param (
     [bool]$BuildNative = $true,
     [bool]$BuildMDK = $true,
-    [bool]$BuildCore = $true
+    [bool]$BuildCore = $true,
+    [bool]$BuildAssets = $true
 )
 
 $ErrorActionPreference = "Stop"
@@ -29,12 +30,17 @@ if($BuildCore) {
     dotnet build -c Release ./DCCMShell
     dotnet build -c Release ./ModCore.ModLoader.Default
 
-    dotnet build -c Release ./ModCore.Assets
-
     echo "Building Shell"
     dotnet publish -c Release -r win-x64 ./DeadCellsModding
 
     cd $PSScriptRoot
+}
+
+if($$BuildAssets) {
+     cd sources
+
+     dotnet build -c Release ./ModCore.Assets
+     cd $PSScriptRoot
 }
 
 if($BuildNative) {
