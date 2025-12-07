@@ -60,7 +60,7 @@ jobs:
         modcoreroot: ./ctx/coremod
     - name: Build ModCore
       run: |
-        ./buildWin.ps1 -BuildNative 0 -BuildMDK 0 -BuildAssets 0
+        ./buildWin.ps1 -BuildNative 0 -BuildMDK 1 -BuildAssets 0
     - name: Run Tests
       shell: pwsh
       run: |
