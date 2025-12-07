@@ -36,7 +36,7 @@ if($BuildCore) {
     cd $PSScriptRoot
 }
 
-if($$BuildAssets) {
+if($BuildAssets) {
      cd sources
 
      dotnet build -c Release ./ModCore.Assets
