@@ -1,4 +1,4 @@
-﻿using dc.hxbit;
+using dc.hxbit;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using HaxeProxy.Runtime;

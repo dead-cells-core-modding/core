@@ -1,4 +1,4 @@
-﻿using Hashlink.Marshaling;
+using Hashlink.Marshaling;
 using Hashlink.Marshaling.ObjHandle;
 using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Reflection.Types;
@@ -15,6 +15,7 @@ namespace Hashlink.Proxy
         [MemberNotNull(nameof(type))]
         internal void RefreshTypeInfo( HL_type* ptr, bool clearExtraData )
         {
+            *(nint*)HashlinkPointer = (nint)ptr;
             nativeType = ptr;
             type = HashlinkMarshal.Module.GetMemberFrom<HashlinkType>(nativeType);
             isChangedTypeInfo = true;

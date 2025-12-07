@@ -1,4 +1,4 @@
-﻿using Hashlink;
+using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
@@ -7,6 +7,7 @@ using HaxeProxy.Runtime.Internals;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 namespace HaxeProxy.Runtime
 {
     public abstract unsafe class HaxeProxyBase : 
+        DynamicObject,
         IExtraData,
         IExtraDataItem,
         IHashlinkPointer
@@ -55,6 +57,15 @@ namespace HaxeProxy.Runtime
         {
         }
 
+        public override bool TryConvert( ConvertBinder binder, out object? result )
+        {
+            if (binder.Type.IsAssignableTo(typeof(HashlinkObj)))
+            {
+                result = HashlinkObj;
+                return true;
+            }
+            return base.TryConvert(binder, out result);
+        }
         public T ToVirtual<T>() where T : HaxeVirtual
         {
             var tid = HaxeProxyManager.type2typeId[typeof(T)];

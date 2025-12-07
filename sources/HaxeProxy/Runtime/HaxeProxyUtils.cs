@@ -1,4 +1,4 @@
-﻿using Hashlink.Marshaling;
+using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
@@ -33,7 +33,7 @@ namespace HaxeProxy.Runtime
         }
         public static HashlinkObjectType GetHashlinkType( Type type )
         {
-            var ca = type.GetCustomAttribute<HashlinkTIndexAttribute>();
+            var ca = type.GetCustomAttribute<HashlinkTIndexAttribute>(false);
             if (ca is not null)
             {
                 return (HashlinkObjectType) HashlinkMarshal.Module.Types[ca.Index];
@@ -47,7 +47,7 @@ namespace HaxeProxy.Runtime
         }
         public static TClass GetClass<TClass>( Type type ) where TClass : HaxeProxyBase
         {
-            var ca = type.GetCustomAttribute<HashlinkTIndexAttribute>();
+            var ca = type.GetCustomAttribute<HashlinkTIndexAttribute>(false);
             if (ca is not null)
             {
                 return ((HashlinkObjectType)HashlinkMarshal.Module.Types[ca.Index]).GlobalValue!.AsHaxe<TClass>();
