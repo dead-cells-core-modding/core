@@ -1,0 +1,41 @@
+﻿<Project>
+  <Target Name="PackAssetsIntoPak"
+          BeforeTargets="MergeAllPaks"
+          Inputs="@(PackAssets)"
+          Outputs="$(IntermediateOutputPath)/_pack_assets.pak">
+    <PropertyGroup>
+      <PackedAssetsPakPath>$(IntermediateOutputPath)/_pack_assets.pak</PackedAssetsPakPath>
+
+      <PackAssetsCommandLine> -o "$(PackedAssetsPakPath)" -i @(PackAssets->' "%(FullPath)=%(RootInPak)/%(RecursiveDir)%(Filename)%(Extension)" ', ' ') $(PackAssetsCommandLine)</PackAssetsCommandLine>
+    </PropertyGroup>
+    <Exec Command="$(_DCCM_Tools) pack-pak-with-files $(PackAssetsCommandLine)"
+          />
+
+    <ItemGroup>
+      <PakFile Include="$(PackedAssetsPakPath)" />
+    </ItemGroup>
+    
+    
+  </Target>
+
+  <PropertyGroup>
+    <OutputPakName Condition="'$(OutputPakName)' == ''">res.pak</OutputPakName>
+  </PropertyGroup>
+
+  <Target Name="MergeAllPaks"
+          BeforeTargets="CopyOutputFiles"
+          Inputs="@(PakFile)"
+          Outputs="$(IntermediateOutputPath)/$(OutputPakName)">
+    <PropertyGroup>
+      <MergedPakPath>$(IntermediateOutputPath)/$(OutputPakName)</MergedPakPath>
+      <MergeAllPaksCommandLine> -o "$(MergedPakPath)" -i @(PakFile->' "%(FullPath)" ', ' ') $(MergeAllPaksCommandLine) </MergeAllPaksCommandLine>
+    </PropertyGroup>
+
+    <Exec Command="$(_DCCM_Tools) merge-paks $(MergeAllPaksCommandLine) "
+          />
+
+    <ItemGroup>
+      <OutputFiles Include="$(MergedPakPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

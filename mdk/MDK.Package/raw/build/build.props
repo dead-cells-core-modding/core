@@ -1,0 +1,32 @@
+﻿<Project>
+  <PropertyGroup>
+    <_DCCM_MDK_BuildFileDir>$(MSBuildThisFileDirectory)</_DCCM_MDK_BuildFileDir>
+    <_DCCM_MDK_Root>$(MSBuildThisFileDirectory)../</_DCCM_MDK_Root>
+    <_DCCM_MDK_ModBuild_Root>$(_DCCM_MDK_Root)modbuild/</_DCCM_MDK_ModBuild_Root>
+
+    <_DCCM_Root>$(DCCM_ROOT)</_DCCM_Root>
+    <_DCCM_Root Condition="!Exists('$(_DCCM_Root)/ModCoreVersion.txt')">$(DEAD_CELLS_GAME_PATH)/coremod/</_DCCM_Root>
+    <_DCCM_Root Condition="!Exists('$(_DCCM_Root)/ModCoreVersion.txt')">$(_DCCM_MDK_Root)../../</_DCCM_Root>
+
+    <_DCCM_Mods_Root>$(_DCCM_Root)mods/</_DCCM_Mods_Root>
+    <_DCCM_Core_Root>$(_DCCM_Root)core/</_DCCM_Core_Root>
+    <_DCCM_Core_Host_Root>$(_DCCM_Core_Root)host/</_DCCM_Core_Host_Root>
+    <_DCCM_Task_DLL>$(_DCCM_MDK_Root)ModCore.Tasks.dll</_DCCM_Task_DLL>
+    <_DCCM_Databases_Root>$(_DCCM_MDK_Root)/databases</_DCCM_Databases_Root>
+    <_DCCM_Tools>dotnet "$(_DCCM_MDK_Root)/tools/DCCMTool.dll" </_DCCM_Tools>
+    
+    <_DCCM_Exec_BS>dotnet "$(_DCCM_BS_DLL)" </_DCCM_Exec_BS>
+
+    <MDKBuildUtils>$(_DCCM_MDK_BuildFileDir)utils/</MDKBuildUtils>
+    <MDKTargetPath>$(_DCCM_MDK_BuildFileDir)build.targets</MDKTargetPath>
+
+    <ModInfoTemplate>$(MSBuildProjectDirectory)/modinfo.json</ModInfoTemplate>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GenerateModInfo>true</GenerateModInfo>
+    <NoModCore>false</NoModCore>
+  </PropertyGroup>
+
+  <UsingTask TaskName="ResolveModDependencies" AssemblyFile="$(_DCCM_Task_DLL)" />
+</Project>

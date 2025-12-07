@@ -1,0 +1,17 @@
+﻿<Project>
+  
+  <PropertyGroup>
+    <_DCCM_MDK_Root>$(DCCM_MDK_ROOT)</_DCCM_MDK_Root>
+
+    <_DCCM_MDK_Build_Root>$(_DCCM_MDK_Root)\build\</_DCCM_MDK_Build_Root>
+  </PropertyGroup>
+
+  <Import Condition="Exists('$(_DCCM_MDK_Build_Root)build.props')" 
+          Project="$(_DCCM_MDK_Build_Root)build.props"/>
+
+  <Target Name="ResolveMDKBuildError" BeforeTargets="ResolveReferences"
+          Condition="!Exists('$(_DCCM_MDK_Build_Root)build.props')">
+    <Error Text="The installed Dead Celss Core Modding MDK was not found. Please confirm whether the environment variable 'DCCM_MDK_ROOT' is added correctly." />
+  </Target>
+  
+</Project>

@@ -1,0 +1,42 @@
+﻿<Project>
+  <PropertyGroup>
+    <CdbFile Condition="'$(CdbFileName)' == ''">$(MSBuildProjectDirectory)/data.cdb</CdbFile>
+  </PropertyGroup>
+
+  <Target Name="LocateTemplateCDB" Condition="$([System.IO.File]::Exists('$(TemplateCdbFile)')) == false">
+    <Error Condition="'$(GameVersion)' == ''" 
+           Text="Make sure to fill in the GameVersion property to help locate the template cdb." />
+
+    <PropertyGroup>
+      <TemplateCdbFile>$(_DCCM_Databases_Root)/v$(GameVersion)/data.cdb</TemplateCdbFile>
+    </PropertyGroup>
+
+    <Error Condition="$([System.IO.File]::Exists('$(TemplateCdbFile)')) == false" 
+           Text="$(TemplateCdbFile) cannot be found. Please verify that the game version v$(GameVersion) is correct." />
+  </Target>
+
+  <Target Name="GenerateDiffPak" 
+          Inputs="$(CdbFile);$(TemplateCdbFile)"
+          Outputs="$(IntermediateOutputPath)/_diffCDB.pak"
+          BeforeTargets="MergeAllPaks" 
+          DependsOnTargets="LocateTemplateCDB">
+    <PropertyGroup>
+      <CdbFile>$([System.IO.Path]::GetFullPath('$(CdbFile)'))</CdbFile>
+      <TemplateCdbFile>$([System.IO.Path]::GetFullPath('$(TemplateCdbFile)'))</TemplateCdbFile>
+
+      <DiffCDBPakPath>$(IntermediateOutputPath)/_diffCDB.pak</DiffCDBPakPath>
+    </PropertyGroup>
+    
+    <Error Condition="$([System.IO.File]::Exists('$(CdbFile)')) == false"
+           Text="The data.cdb file cannot be found."  />
+           
+
+    <Exec Command="$(_DCCM_Tools) diff-cdb -i &quot;$(CdbFile)&quot; -t &quot;$(TemplateCdbFile)&quot; -o &quot;$(DiffCDBPakPath)&quot;"
+          />
+
+    <ItemGroup>
+      <PakFile Include="$(DiffCDBPakPath)" />
+    </ItemGroup>
+    
+  </Target>
+</Project>

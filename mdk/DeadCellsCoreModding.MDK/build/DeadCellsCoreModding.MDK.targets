@@ -1,0 +1,8 @@
+﻿<Project>
+  <PropertyGroup>
+    
+  </PropertyGroup>
+
+  <Import Condition="Exists('$(_DCCM_MDK_Build_Root)build.targets')"
+          Project="$(_DCCM_MDK_Build_Root)build.targets"/>
+</Project>

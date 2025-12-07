@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+
+    <BinOutputPath>../bin</BinOutputPath>
+    <PublishDir>$(TEMP)</PublishDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ModCore.Tasks\ModCore.Tasks.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <RawFiles Include="raw/**/*" />
+    <RawFiles Include="Newtonsoft.Json.dll" />
+    <RawFiles Include="*.ps1" />
+
+    <None Include="@(RawFiles)" />
+  </ItemGroup>
+
+  <Target Name="CopyPackages" AfterTargets="Build">
+    <MakeDir Directories="$(OutputPath)packages" />
+    <ItemGroup>
+      <PackageFiles Include="..\DeadCellsCoreModding.MDK\bin\$(Configuration)\*.nupkg" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RawFiles)" DestinationFiles="@(RawFiles->'$(OutputPath)/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" UseHardlinksIfPossible="true" />
+    <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(OutputPath)packages" SkipUnchangedFiles="true" UseHardlinksIfPossible="true" />
+
+    <ItemGroup>
+      <OutputFiles Include="$(OutputPath)/**/*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(OutputFiles)" DestinationFiles="@(OutputFiles->'$(BinOutputPath)/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" UseHardlinksIfPossible="true" Retries="1" ContinueOnError="true" />
+  </Target>
+
+</Project>

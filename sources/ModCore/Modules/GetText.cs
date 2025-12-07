@@ -4,6 +4,7 @@ using dc.hxd;
 using dc.libs.data;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.DynamicAccess;
+using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Storage;
@@ -82,6 +83,8 @@ namespace ModCore.Modules
                 }
                 self.readNextMo(bytes);
             }
+
+            EventSystem.BroadcastEvent<IOnLoadingLanguage, string>(Lang.Class.LANG.ToString());
         }
     }
 }

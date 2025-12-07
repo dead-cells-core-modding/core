@@ -1,9 +1,6 @@
 [submodule "sources/native/3rd/hashlink"]
 	path = sources/native/3rd/hashlink
 	url = git@github.com:HaxeFoundation/hashlink.git
-[submodule "mdk"]
-	path = mdk
-	url = git@github.com:dead-cells-core-modding/mdk.git
 [submodule "sources/native/hdlls/include/Steamworks-SDK"]
 	path = sources/native/hdlls/include/Steamworks-SDK
 	url = https://github.com/ExperimentFailed/Steamworks-SDK.git

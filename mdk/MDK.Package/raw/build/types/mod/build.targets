@@ -1,0 +1,57 @@
+﻿<Project>
+  <PropertyGroup>
+    <GenerateSinglePakFile Condition="$(GenerateDiffCDB) == true">true</GenerateSinglePakFile>
+  </PropertyGroup>
+  
+  <Import Project="$(MDKBuildUtils)DependenciesResolver.targets"/>
+
+  <Import Project="$(MDKBuildUtils)GenerateSinglePakFile.targets"
+          Condition="$(GenerateSinglePakFile) == true"/>
+  <Import Project="$(MDKBuildUtils)DiffCDBGenerator.targets"
+          Condition="$(GenerateDiffCDB) == true"/>
+
+  <ItemGroup>
+    <ModAssembly Include="$(AssemblyName)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(NoModCore) != true">
+    <Reference Include="ModCore;ModCore.Common;HaxeProxy;Serilog;HashlinkSharp;Newtonsoft.Json">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="GameProxy">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <_MDK_ModAssembly_Pdb Include="@(ModAssembly->'$(OutputPath)/%(Identity).pdb')" />
+    <_MDK_ModAssembly_Dll Include="@(ModAssembly->'$(OutputPath)/%(Identity).dll')" />
+    <OutputFiles Include="@(_MDK_ModAssembly_Pdb->Exists());@(_MDK_ModAssembly_Dll)" />
+  </ItemGroup>
+
+
+  <PropertyGroup>
+    <MDKBuildModInfoString>
+      $(MDKBuildModInfoString)"""
+      {
+      "assemblies": [
+      @(ModAssembly->Distinct()->'"%(Identity).dll"', ',')
+      ]
+      }
+    </MDKBuildModInfoString>
+    <MDKBuildModInfoString Condition="$(MDKDefaultIsLibrary) != true">
+      $(MDKBuildModInfoString)"""
+      {
+      "main": "$(ModMain)"
+      }
+    </MDKBuildModInfoString>
+  </PropertyGroup>
+
+  <Target Name="ResolveModAssemblies" 
+          BeforeTargets="ResolveAssemblyReferences" 
+          DependsOnTargets="ResolveMods">
+    <PropertyGroup>
+      <AssemblySearchPaths>@(ResolvedMods->'%(ModRoot)');$(_DCCM_Core_Host_Root);$(_DCCM_MDK_Root)ref;$(AssemblySearchPaths);</AssemblySearchPaths>
+    </PropertyGroup>
+  </Target>
+</Project>

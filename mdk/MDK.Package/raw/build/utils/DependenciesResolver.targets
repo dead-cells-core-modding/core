@@ -1,0 +1,23 @@
+﻿<Project>
+  <PropertyGroup>
+    <ModsRoot>$(_DCCM_Mods_Root)</ModsRoot>
+  </PropertyGroup>
+
+  <Target Name="ResolveMods" BeforeTargets="ResolveReferences">
+    
+    <ResolveModDependencies ModNames="@(ModDependency)" ModsRoot="$(_DCCM_Mods_Root)">
+      <Output TaskParameter="Output" ItemName="ResolvedMods" />
+    </ResolveModDependencies>
+    <PropertyGroup>
+      <MDKBuildModInfoString>
+        $(MDKBuildModInfoString)"""
+        {
+        "dependencies": [
+        @(ResolvedMods->'"%(Name)"', ',')
+        ]
+        }
+      </MDKBuildModInfoString>
+    </PropertyGroup>
+    
+  </Target>
+</Project>
