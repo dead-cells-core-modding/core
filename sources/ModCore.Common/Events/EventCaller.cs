@@ -1,4 +1,4 @@
-﻿using Mono.Cecil.Cil;
+using Mono.Cecil.Cil;
 using MonoMod.Utils;
 using System.Diagnostics;
 using System.Reflection;
@@ -20,6 +20,7 @@ namespace ModCore.Events
         {
             get;
         }
+        public static EventAttribute.EventKind Kind => Attribute.Kind;
         public static MethodInfo EventMethod
         {
             get;

@@ -1,4 +1,4 @@
-﻿using ModCore.Events.Collections;
+using ModCore.Events.Collections;
 using Serilog;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -102,13 +102,16 @@ namespace ModCore.Events
         public static unsafe EventResult<TResult> BroadcastEvent<TEvent, TArg, TResult>( ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
                         where TArg : allows ref struct
         {
+            if(EventCaller<TEvent>.Kind.HasFlag(EventAttribute.EventKind.ShowInLog))
+            {
+                Logger.Debug("Broadcast Global Event: {Name}", typeof(TEvent).Name);
+            }
             if (EventCaller<TEvent>.IsCallOnce)
             {
                 if (EventCaller<TEvent>.IsCalled)
                 {
                     throw new InvalidOperationException("An event that should only be called once was called multiple times");
                 }
-                Logger.Debug("Broadcast Global Event: {Name}", typeof(TEvent).Name);
             }
 
             fixed (void* parg = &arg)

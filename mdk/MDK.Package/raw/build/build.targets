@@ -80,7 +80,7 @@
     
     <MakeDir Directories="$(MDKOutputPath)" />
     <Copy SourceFiles="@(_MDK_OutFiles)" DestinationFolder="$(MDKOutputPath)%(RecursiveDir)" 
-          SkipUnchangedFiles="true" />
+          SkipUnchangedFiles="false" />
   </Target>
   <Target Name="InstallMod" AfterTargets="CopyOutputFiles" Condition="$(AutoInstallMod) == true">
     <PropertyGroup>
