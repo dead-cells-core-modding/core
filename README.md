@@ -32,7 +32,7 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 
 ## Requirement
 
-- .NET 9 runtime
+- .NET 10 runtime
 - Microsoft Visual C++ Redistributable package (2015-2022)
 
 ## Installation
@@ -90,7 +90,7 @@ Here are some [examples](https://github.com/dead-cells-core-modding/core/tree/ma
 
 ### Create a mod project
 
-1. Create a library project based on .NET 9
+1. Create a library project based on .NET 10
 2. Add package reference `DeadCellsCoreModding.MDK`
 3. Add the following to your csproj file
 ```xml

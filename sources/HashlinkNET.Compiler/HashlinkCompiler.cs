@@ -1,4 +1,4 @@
-﻿using BytecodeMapping;
+using BytecodeMapping;
 using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Pseudocode.Steps;
@@ -108,6 +108,7 @@ namespace HashlinkNET.Compiler
 
             #region Modifiers
             AddStep<ApplyBuiltinModifierStep>();
+            AddStep<SolveNameConflictStep>();
             #endregion
 
             #region Pseudocode

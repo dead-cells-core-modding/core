@@ -1,4 +1,4 @@
-﻿using dc;
+using dc;
 using dc.en;
 using dc.haxe;
 using dc.hxd;
@@ -142,13 +142,13 @@ namespace ModCore.Modules
         private void Hook__Data_loadJson( Hook__Data.orig_loadJson orig, dc.String json, Ref<bool> allowReload )
         {
             orig(json, allowReload);
-            EventSystem.BroadcastEvent<IOnAfterLoadingCDB, _Data>(Data.Class);
+            EventSystem.BroadcastEvent<IOnAfterLoadingCDB, _Data_>(Data.Class);
         }
 
         private void Hook__Data_loadFrom( Hook__Data.orig_loadFrom orig, dc.String path, Ref<bool> allowReload )
         {
             orig(path, allowReload);
-            EventSystem.BroadcastEvent<IOnAfterLoadingCDB, _Data>(Data.Class);
+            EventSystem.BroadcastEvent<IOnAfterLoadingCDB, _Data_>(Data.Class);
         }
 
         private void Hook_Boot_mainLoop( Hook_Boot.orig_mainLoop orig, Boot self )

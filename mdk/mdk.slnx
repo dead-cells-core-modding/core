@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/deps/">
     <Project Path="../sources/HashlinkNET.Compiler/HashlinkNET.Compiler.csproj" />
+    <Project Path="../sources/NonPublicNativeMembers/NonPublicNativeMembers.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="../sources/HaxeDocs/HaxeDocs.csproj" Id="dc9df1fe-c6db-4d82-b6c7-e8ab94cbbb15" />

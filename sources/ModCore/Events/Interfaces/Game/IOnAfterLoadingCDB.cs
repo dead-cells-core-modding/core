@@ -1,4 +1,4 @@
-﻿using dc;
+using dc;
 using dc.tool.mod;
 using System;
 using System.Collections.Generic;
@@ -18,6 +18,6 @@ namespace ModCore.Events.Interfaces.Game
         /// 
         /// </summary>
         /// <param name="cdb"></param>
-        public void OnAfterLoadingCDB( _Data cdb );
+        public void OnAfterLoadingCDB( _Data_ cdb );
     }
 }
