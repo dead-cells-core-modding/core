@@ -1,4 +1,4 @@
-﻿using Hashlink.Reflection.Types;
+using Hashlink.Reflection.Types;
 using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Data.Interfaces;
@@ -121,8 +121,7 @@ namespace HashlinkNET.Compiler.Utils
         {
             var rdata = container.GetGlobalData<RuntimeImports>();
             var cache = GetHlFieldInfoCache(type, name, rdata);
-            if (ft is GenericParameter || 
-                ft.Namespace == "System" && ft.Name.StartsWith("Nullable^1") && ft.IsValueType)
+            if (ft.Namespace == "System" && ft.Name.StartsWith("Nullable^1") && ft.IsValueType)
             {
                 il.Emit(OpCodes.Ldstr, name);
                 il.Emit(OpCodes.Ldsflda, cache);
@@ -134,6 +133,14 @@ namespace HashlinkNET.Compiler.Utils
                 il.Emit(OpCodes.Ldstr, name);
                 il.Emit(OpCodes.Ldsflda, cache);
                 il.Emit(OpCodes.Call, rdata.hGetValueFieldById.MakeInstance(ft));
+            }
+            else if (ft.IsGenericParameter)
+            {
+                il.Emit(OpCodes.Ldstr, name);
+                il.Emit(OpCodes.Ldsflda, cache);
+                il.Emit(OpCodes.Call, rdata.hGetFieldById.MakeInstance(rdata.objectType));
+                il.Emit(OpCodes.Call, rdata.hGetProxy.MakeInstance(ft));
+                il.Emit(OpCodes.Unbox_Any, ft);
             }
             else
             {

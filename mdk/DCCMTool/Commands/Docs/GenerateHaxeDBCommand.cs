@@ -16,8 +16,13 @@ namespace DCCMTool.Commands.Docs
     {
         private static async Task<string> SendCommand(NetworkStream stream, string command, bool requestResult = false)
         {
-            await stream.WriteAsync(Encoding.UTF8.GetBytes(command + "\n\x00"));
+            await stream.WriteAsync(Encoding.UTF8.GetBytes(command + "\n"));
             await stream.FlushAsync();
+
+            if(!requestResult)
+            {
+                return "";
+            }
 
             using var buffer = new MemoryStream();
             var buf = ArrayPool<byte>.Shared.Rent(4096);
@@ -100,7 +105,7 @@ namespace DCCMTool.Commands.Docs
                 using NetworkStream stream = new(socket, true);
 
                 await SendCommand(stream, $"--cwd \"{td}\"");
-                await SendCommand(stream, "--lib heaps");
+                await SendCommand(stream, "--library heaps");
                 await Display(stream, "import ");
 
             }

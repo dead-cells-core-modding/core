@@ -15,6 +15,16 @@ namespace ModCore.Utitities
         extension(dc.String)
         {
             /// <summary>
+            /// Creates a new Haxe string representation from the specified .NET string.
+            /// </summary>
+            /// <param name="str">The .NET string to convert to a Haxe string. Can be null or empty.</param>
+            /// <returns>A Haxe string equivalent to the specified .NET string. If <paramref name="str"/> is null, returns a Haxe
+            /// string representing an empty value.</returns>
+            public static dc.String Create( string str )
+            {
+                return str.AsHaxeString();
+            }
+            /// <summary>
             /// Determines whether two dc.String instances have equal string content.
             /// </summary>
             /// <remarks>Comparison is based on the result of ToString() for each dc.String instance.

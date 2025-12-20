@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Dynamic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -11,12 +12,12 @@ namespace Hashlink.Proxy
 {
     public partial class HashlinkObj : IExtraData
     {
-        private object? extendData;
+        private object? extraData;
         private readonly ReaderWriterLockSlim dataLock = new();
 
         private void ClearExtraData()
         {
-            extendData = null;
+            extraData = null;
         }
 
         T IExtraData.GetOrCreateData<T>( Func<HashlinkObj, object> factory )
@@ -28,34 +29,34 @@ namespace Hashlink.Proxy
             }
             _RETRY:
             dataLock.EnterReadLock();
-            if (extendData is T t)
+            if (extraData is T t)
             {
                 dataLock.ExitReadLock();
                 return t;
             }
-            if (extendData == null)
+            if (extraData == null)
             {
                 dataLock.ExitReadLock();
                 dataLock.EnterWriteLock();
 
-                if (extendData != null)
+                if (extraData != null)
                 {
                     dataLock.ExitWriteLock();
                     goto _RETRY;
                 }
 
                 t = (T)factory(this);
-                extendData = t;
+                extraData = t;
 
                 dataLock.ExitWriteLock();
                 return t;
             }
-            var list = extendData as ImmutableList<object>;
+            var list = extraData as ImmutableList<object>;
             
             if (list == null)
             {
-                list = [extendData];
-                extendData = list;
+                list = [extraData];
+                extraData = list;
             }
             var lc = list.Count;
             for (int i = 0; i < lc; i++)
@@ -76,7 +77,7 @@ namespace Hashlink.Proxy
             }
 
             t = (T)factory(this);
-            extendData = list.Add(t);
+            extraData = list.Add(t);
 
             dataLock.ExitWriteLock();
 

@@ -1,4 +1,4 @@
-﻿using Hashlink.Marshaling;
+using Hashlink.Marshaling;
 using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
@@ -86,6 +86,23 @@ namespace Hashlink.Proxy.Clousre
                     ..args
                 ] : args
                 );
+        }
+
+        public Delegate CreateDelegate()
+        {
+            if (callback != null)
+            {
+                return callback.Target!;
+            }
+            CheckWrapper();
+            if (TypedRef->hasValue > 0)
+            {
+                return cachedWrapper.Bind(BindingThis);
+            }
+            else
+            {
+                return cachedWrapper;
+            }
         }
 
         public Delegate CreateDelegate(Type type)

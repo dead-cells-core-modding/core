@@ -11,6 +11,7 @@ using ModCore.Storage;
 using ModCore.Utitities;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -53,11 +54,15 @@ namespace ModCore.Modules
         void IOnAdvancedModuleInitializing.OnAdvancedModuleInitializing()
         {
             Hook_GetText.readMo += Hook_GetText_readMo;
+
+            RegisterMod("dccm-core");
         }
 
         private void Hook_GetText_readMo( Hook_GetText.orig_readMo orig, GT self, dc.haxe.io.Bytes r )
         {
             orig(self, r);
+
+            CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(Lang.Class.LANG.ToString());
 
             foreach (var v in registeredLangName)
             {
@@ -81,7 +86,11 @@ namespace ModCore.Modules
                 {
                     continue;
                 }
-                self.readNextMo(bytes);
+                var texts = new MoReader(bytes).parse();
+                foreach (var k in texts.keys())
+                {
+                    self.texts.set(k, texts.get(k));
+                }
             }
 
             EventSystem.BroadcastEvent<IOnLoadingLanguage, string>(Lang.Class.LANG.ToString());

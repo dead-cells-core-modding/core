@@ -1,4 +1,4 @@
-﻿using dc;
+using dc;
 using dc.tool.mod;
 using dc.ui;
 using Hashlink.Marshaling;
@@ -9,6 +9,8 @@ using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.VM;
+using ModCore.Storage;
+using ModCore.Utitities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +24,8 @@ namespace ModCore.Modules
     /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     public class FsPak : CoreModule<FsPak>,
-        IOnBeforeGameInit
+        IOnBeforeGameInit,
+        IOnGameInit
     {
         /// <inheritdoc/>
         public override int Priority => ModulePriorities.Game;
@@ -69,6 +72,11 @@ namespace ModCore.Modules
             var data = orig(self);
             data.stampHash = null;
             return data;
+        }
+
+        void IOnGameInit.OnGameInit()
+        {
+            FileSystem.loadPak(FolderInfo.CoreRoot.GetFilePath("core/host/res.pak").AsHaxeString());
         }
     }
 }

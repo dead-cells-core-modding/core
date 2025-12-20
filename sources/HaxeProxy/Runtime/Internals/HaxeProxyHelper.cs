@@ -1,4 +1,4 @@
-﻿using Hashlink;
+using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
@@ -142,6 +142,10 @@ namespace HaxeProxy.Runtime.Internals
             if (val is T && typeof(T) != typeof(object))
             {
                 return val;
+            }
+            if (typeof(T) == typeof(object) && val is HashlinkClosure cl)
+            {
+                return cl.CreateDelegate();
             }
             if (typeof(T).IsAssignableTo(typeof(Delegate)))
             {
