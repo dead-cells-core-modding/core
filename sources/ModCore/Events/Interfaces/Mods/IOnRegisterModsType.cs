@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +9,7 @@ namespace ModCore.Events.Interfaces.Mods
     /// <summary>
     /// An event triggered when the mods loader searches for a valid mod type.
     /// </summary>
-    [Event(true)]
+    [Event(true)] 
     public interface IOnRegisterModsType
     {
         /// <summary>
