@@ -21,7 +21,7 @@ namespace DCCMShell
             public void** args;
             public ManagedAPIInfo* api_info;
         }
-        public static void StartFromShell()
+        public static void StartFromShell( nint _, int _1 )
         {
             var err = Startup.CheckEnv(out var errMsg);
             if(err != Startup.CheckEnvResult.Success)
@@ -60,7 +60,7 @@ namespace DCCMShell
         }
         public static void Main( string[] args )
         {
-            Startup.StartGame();
+            StartFromShell(0, 0);
         }
     }
 }

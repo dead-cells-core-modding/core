@@ -1,4 +1,4 @@
-﻿#define NETHOST_USE_AS_STATIC
+#define NETHOST_USE_AS_STATIC
 #include <hostfxr.h>
 #include <nethost.h>
 #include <coreclr_delegates.h>
@@ -17,6 +17,12 @@
 #define get_export(handle, name) GetProcAddress((HMODULE)handle, name)
 #include <Windows.h>
 #endif
+
+extern "C"
+{
+    __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
 
 hostfxr_initialize_for_dotnet_command_line_fn init_for_cmd_line_fptr;
 hostfxr_initialize_for_runtime_config_fn init_for_config_fptr;

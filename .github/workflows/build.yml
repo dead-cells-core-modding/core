@@ -24,6 +24,7 @@ jobs:
         zip -r ../win-x64.zip ./*
 
         find . -type f -name "*.pdb" -exec rm -f {} \;
+        find . -type f -name "*.xml" -exec rm -f {} \;
         rm -rf ./core/mdk
 
         zip -r ../win-x64-no-mdk.zip ./*

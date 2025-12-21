@@ -1,4 +1,4 @@
-﻿
+
 include_directories (./includes)
 file(GLOB SOURCES ./*.c ./*.cpp)
 
@@ -91,3 +91,12 @@ add_custom_command(TARGET modcorenative POST_BUILD
             "${LIBHL_OUTPUT_DIR}"
             "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
 )
+
+#Copy nethost
+if(WIN32)
+add_custom_command(TARGET modcorenative POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${NETHOST_PACK_PATH}/nethost.dll"
+            "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/"
+)
+endif()
