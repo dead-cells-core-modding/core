@@ -46,8 +46,9 @@ namespace SteamStartShell
 
             if (!state.HasFlag(EItemState.k_EItemStateSubscribed))
             {
-                Logger.Warning("Not subscribed to DCCM.");
+                //Logger.Warning("Not subscribed to DCCM.");
                 SteamUGC.SubscribeItem(new(MAPI_PFID));
+                await Task.Delay(1000);
                 goto _RE_TRY;
             }
 
