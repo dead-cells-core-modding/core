@@ -38,7 +38,8 @@ namespace DCCMTool.Commands.Steam
 
             SteamUGC.SetItemContent(updateHandle, Arguments.InputDir);
 
-            var uploadC = await SteamUGC.SubmitItemUpdate(updateHandle, "Upload").Wait<RemoteStorageUpdatePublishedFileResult_t>();
+            var ver = File.ReadAllText(Path.Combine(Arguments.InputDir, "ModCoreVersion.txt")).Trim();
+            var uploadC = await SteamUGC.SubmitItemUpdate(updateHandle, $"Upload to v{ver}").Wait<RemoteStorageUpdatePublishedFileResult_t>();
            
             Console.WriteLine($"{result:x}");
         }
