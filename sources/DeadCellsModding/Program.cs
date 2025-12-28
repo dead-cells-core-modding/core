@@ -24,7 +24,7 @@ namespace DeadCellsModding
         [LibraryImport("hostfxr")]
         private static partial int hostfxr_run_app( nint hostContext );
 
-        private static void LoadHost(string shellPath)
+        private static int LoadHost(string shellPath)
         {
             var nethostPath = Path.Combine(Path.GetDirectoryName(shellPath)!, "..", "native", "win-x64", "nethost.dll");
             NativeLibrary.Load(nethostPath);
@@ -35,12 +35,18 @@ namespace DeadCellsModding
 
             var hostfxrPath = new string(hostfxrPathBuf);
 
+            if(string.IsNullOrEmpty(hostfxrPath) || !File.Exists(hostfxrPath))
+            {
+                Console.Error.WriteLine("You must install or update .NET 10 to run this application.");
+                return -1;
+            }
+
             NativeLibrary.Load(hostfxrPath);
 
             hostfxr_initialize_for_dotnet_command_line(1, [shellPath], 0, out var ctx);
-            _ = hostfxr_run_app(ctx);
+            return hostfxr_run_app(ctx);
         }
-        private static void StartGame()
+        private static int StartGame()
         {
             var gameRoot = Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH");
             if (string.IsNullOrEmpty(gameRoot))
@@ -48,17 +54,7 @@ namespace DeadCellsModding
                 gameRoot = Path.GetDirectoryName(Environment.ProcessPath!)!;
             }
 
-            var steamid = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath!)!, "steam_appid.txt");
-            if (!File.Exists(steamid))
-            {
-                try
-                {
-                    File.WriteAllText(steamid, "588650");
-                }
-                catch (Exception)
-                {
-                }
-            }
+            Environment.SetEnvironmentVariable("SteamAPPId", "588650");
 
             string? modcore = null;
             gameRoot = Path.GetFullPath(gameRoot);
@@ -87,15 +83,16 @@ namespace DeadCellsModding
                 var core = Assembly.LoadFrom(modcore);
                 var startup = core.GetType("DCCMShell.Shell");
                 startup!.GetMethod("StartFromShell")!.CreateDelegate<Action<nint, int>>()(0, 0);
+                return 0;
             }
             else
             {
-                LoadHost(modcore);
+                return LoadHost(modcore);
             }
         }
-        private static void Main( string[] args )
+        private static int Main( string[] args )
         {
-            StartGame();
+            return StartGame();
         }
     }
 }

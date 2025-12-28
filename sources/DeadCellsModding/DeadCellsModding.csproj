@@ -22,7 +22,7 @@
 
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
      <PublishAot Condition="'$(Configuration)' != 'Debug'">true</PublishAot>
-    <OptimizationPreference>Size</OptimizationPreference>
+      <OptimizationPreference>Size</OptimizationPreference>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">

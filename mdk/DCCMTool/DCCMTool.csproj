@@ -21,6 +21,13 @@
     <ProjectReference Include="..\..\tools\BytecodeMapping\BytecodeMapping.csproj" />
     <ProjectReference Include="..\..\sources\NonPublicNativeMembers\NonPublicNativeMembers.csproj" />
     <ProjectReference Include="..\GameRes.Core\GameRes.Core.csproj" />
+    <Reference Include="./Steamworks.NET.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="steam_api64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
