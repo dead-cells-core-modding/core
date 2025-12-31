@@ -33,9 +33,11 @@ namespace DeadCellsModding
 
             get_hostfxr_path(hostfxrPathBuf, hostfxrPathBuf.Length, 0);
 
-            var hostfxrPath = new string(hostfxrPathBuf);
+            var hostfxrPath = new string(hostfxrPathBuf).Trim();
 
-            if(string.IsNullOrEmpty(hostfxrPath) || !File.Exists(hostfxrPath))
+            NativeLibrary.Load(hostfxrPath);
+
+            if (string.IsNullOrEmpty(hostfxrPath))
             {
                 Console.Error.WriteLine("You must install or update .NET 10 to run this application.");
                 return -1;

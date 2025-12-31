@@ -20,19 +20,24 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-     <PublishAot Condition="'$(Configuration)' != 'Debug'">true</PublishAot>
-      <OptimizationPreference>Size</OptimizationPreference>
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT' and '$(Configuration)' != 'Debug'">
+    <UseNativeAOT>true</UseNativeAOT>
+
+    <OptimizationPreference>Size</OptimizationPreference>
+    <PublishAot>true</PublishAot>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseNativeAOT)' == 'true'">
+    <NativeLibrary Include="../../bin/core/native/win-x64/host_lib.lib" />
+
+    <LinkerArg Include="/DEF:./exports.def" />
+  </ItemGroup>
   
-  <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+  <PropertyGroup Condition="'$(UseNativeAOT)' != 'true'">
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>false</SelfContained>
-
     <PublishReadyToRun>true</PublishReadyToRun>
-
     <RollForward>LatestMajor</RollForward>
-
   </PropertyGroup>
 
   <ItemGroup>

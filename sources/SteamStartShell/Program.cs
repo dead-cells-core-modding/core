@@ -28,8 +28,9 @@ namespace SteamStartShell
             }
 
 
-
             _RE_TRY:
+
+            await Task.Delay(100);
 
             var state = (EItemState)SteamUGC.GetItemState(new(MAPI_PFID));
 
@@ -136,7 +137,16 @@ namespace SteamStartShell
                     {
                         if (fi is FileInfo f)
                         {
-                            f.CopyTo(Path.Combine(dst.FullName, f.Name), true);
+                            var tf = Path.GetFullPath(Path.Combine(dst.FullName, f.Name));
+                            try
+                            {
+                                f.CopyTo(tf, true);
+                            }
+                            catch(IOException ex) when (tf != Environment.ProcessPath)
+                            {
+                                
+                                Log.Logger.Error("Failed to copy file {file}: {err}", tf, ex);
+                            }
                         }
                         else if (fi is DirectoryInfo d)
                         {
@@ -153,71 +163,81 @@ namespace SteamStartShell
         }
         static async Task<int> Main( string[] args )
         {
-            if(args.Length > 0 && args[0] == "--update")
+            try
             {
-                var pid = int.Parse(args[1]);
-                var dst = args[2];
 
-                try
+                if (args.Length > 0 && args[0] == "--update")
                 {
-                    var proc = Process.GetProcessById(pid);
-                    proc.WaitForExit();
-                }
-                catch(Exception ex)
-                {
-                    Console.Error.WriteLine(ex);
-                }
+                    var pid = int.Parse(args[1]);
+                    var dst = args[2];
 
-                File.Copy(Environment.ProcessPath!, dst, true);
-
-                Process.Start(dst);
-
-                return 0;
-            }
-
-            gameRoot = Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!;
-            if (string.IsNullOrEmpty(gameRoot))
-            {
-                gameRoot = Path.GetDirectoryName(Environment.ProcessPath!)!;
-            }
-
-            gameRoot = Path.GetFullPath(gameRoot);
-            while (!string.IsNullOrEmpty(gameRoot))
-            {
-                var modcore = Path.GetFullPath(Path.Combine(gameRoot, "deadcells_gl.exe"));
-#if DEBUG
-                Console.WriteLine("Try find deadcells_gl in " + modcore);
-#endif
-                if (File.Exists(modcore))
-                {
-                    if (Environment.ProcessPath != modcore)
+                    try
                     {
-                        break;
+                        var proc = Process.GetProcessById(pid);
+                        proc.WaitForExit();
                     }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine(ex);
+                    }
+
+                    File.Copy(Environment.ProcessPath!, dst, true);
+
+                    Process.Start(dst);
+
+                    return 0;
                 }
-                gameRoot = Path.GetDirectoryName(gameRoot)!;
-            }
 
-            if (string.IsNullOrEmpty(gameRoot))
+                gameRoot = Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!;
+                if (string.IsNullOrEmpty(gameRoot))
+                {
+                    gameRoot = Path.GetDirectoryName(Environment.ProcessPath!)!;
+                }
+
+                gameRoot = Path.GetFullPath(gameRoot);
+                while (!string.IsNullOrEmpty(gameRoot))
+                {
+                    var modcore = Path.GetFullPath(Path.Combine(gameRoot, "deadcells_gl.exe"));
+#if DEBUG
+                    Console.WriteLine("Try find deadcells_gl in " + modcore);
+#endif
+                    if (File.Exists(modcore))
+                    {
+                        if (Environment.ProcessPath != modcore)
+                        {
+                            break;
+                        }
+                    }
+                    gameRoot = Path.GetDirectoryName(gameRoot)!;
+                }
+
+                if (string.IsNullOrEmpty(gameRoot))
+                {
+                    Logger.Error("Game directory not found.");
+                    Environment.Exit(-1);
+                }
+
+                Directory.SetCurrentDirectory(gameRoot!);
+
+                LogInitializer.InitializeLog();
+
+                await SteamWork();
+
+                Environment.SetEnvironmentVariable("DEAD_CELLS_GAME_PATH", gameRoot);
+                Environment.SetEnvironmentVariable("DOTNET_ROOT", Path.Combine(gameRoot, "coremod", ".dotnet"));
+
+                var game = Process.Start(Path.Combine(gameRoot, "coremod", "core", "host", "startup", "DeadCellsModding.exe"));
+
+                await game.WaitForExitAsync();
+
+                return game.ExitCode;
+            }
+            catch (Exception ex)
             {
-                Logger.Error("Game directory not found.");
-                Environment.Exit(-1);
+                Logger.Fatal(ex, "Fatal error occurred: {Message}", ex.Message);
+                await Task.Delay(5000);
+                throw;
             }
-
-            Directory.SetCurrentDirectory(gameRoot!);
-
-            LogInitializer.InitializeLog();
-
-            await SteamWork();
-
-            Environment.SetEnvironmentVariable("DEAD_CELLS_GAME_PATH", gameRoot);
-            Environment.SetEnvironmentVariable("DOTNET_ROOT", Path.Combine(gameRoot, "coremod", ".dotnet"));
-
-            var game = Process.Start(Path.Combine(gameRoot, "coremod", "core", "host", "startup", "DeadCellsModding.exe"));
-
-            await game.WaitForExitAsync();
-
-            return game.ExitCode;
         }
     }
 }

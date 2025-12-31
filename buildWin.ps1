@@ -9,40 +9,6 @@ $ErrorActionPreference = "Stop"
 
 cd $PSScriptRoot
 
-if($BuildMDK) {
-    echo "Generating Haxe Proxy"
-    mkdir "./bin/core/mdk/ref" -Force
-    dotnet run -c Release --no-launch-profile --project ./tools/HaxeProxyGenerator ./hlboots/hlboot-opengl-steam.dat ./bin/core/mdk/ref/GameProxy.dll
-
-    echo "Building MDK"
-    dotnet publish /p:Platform="Any CPU" ./mdk
-    mkdir "./bin/core/mdk" -Force
-    Get-ChildItem -Path "./mdk/bin" | Copy-Item -Destination "./bin/core/mdk" -Force -Recurse
-
-    cd $PSScriptRoot
-}
-
-if($BuildCore) {
-    echo "Building ModCore"
-
-    cd sources
-
-    dotnet build -c Release ./DCCMShell
-    dotnet build -c Release ./ModCore.ModLoader.Default
-
-    echo "Building Shell"
-    dotnet publish -c Release -r win-x64 ./DeadCellsModding
-
-    cd $PSScriptRoot
-}
-
-if($BuildAssets) {
-     cd sources
-
-     dotnet build -c Release ./ModCore.Assets
-     cd $PSScriptRoot
-}
-
 if($BuildNative) {
 
     echo "Building Native"
@@ -68,6 +34,43 @@ if($BuildNative) {
     Copy-Item -Path $goldberg -Destination "./goldberg" -Recurse -Force
 
     cd $PSScriptRoot
+}
+
+
+
+if($BuildMDK) {
+    echo "Generating Haxe Proxy"
+    mkdir "./bin/core/mdk/ref" -Force
+    dotnet run -c Release --no-launch-profile --project ./tools/HaxeProxyGenerator ./hlboots/hlboot-opengl-steam.dat ./bin/core/mdk/ref/GameProxy.dll
+
+    echo "Building MDK"
+    dotnet publish /p:Platform="Any CPU" ./mdk
+    mkdir "./bin/core/mdk" -Force
+    Get-ChildItem -Path "./mdk/bin" | Copy-Item -Destination "./bin/core/mdk" -Force -Recurse
+
+    cd $PSScriptRoot
+}
+
+if($BuildCore) {
+    echo "Building ModCore"
+
+    cd sources
+
+    dotnet build -c Release ./DCCMShell
+    dotnet build -c Release ./ModCore.ModLoader.Default
+
+    echo "Building Shell"
+    dotnet publish -c Release -r win-x64 ./DeadCellsModding
+    dotnet publish -c Release -r win-x64 ./SteamStartShell
+
+    cd $PSScriptRoot
+}
+
+if($BuildAssets) {
+     cd sources
+
+     dotnet build -c Release ./ModCore.Assets
+     cd $PSScriptRoot
 }
 
 

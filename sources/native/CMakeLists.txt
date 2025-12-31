@@ -1,4 +1,4 @@
-﻿
+
 cmake_minimum_required (VERSION 3.20)
 
 project ("native")
@@ -80,3 +80,9 @@ endif()
 
 add_subdirectory ("hdlls/libs")
 add_subdirectory ("modcorenative")
+
+if(WIN32)
+
+add_subdirectory ("host_lib")
+
+endif()
