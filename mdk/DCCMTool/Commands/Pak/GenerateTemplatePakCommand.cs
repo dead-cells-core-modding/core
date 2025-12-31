@@ -12,7 +12,7 @@ namespace DCCMTool.Commands.Pak
     internal class GenerateTemplatePakCommand : CommandBase<GenerateTemplatePakCommand.Options>
     {
         public const string TEMPLATE_MARK_NAME = ".dccm_tools_pak_diff_template";
-        public override void Execute()
+        public override int Execute()
         {
             using var inputFS = File.OpenRead(Arguments.Input);
             var input = new PakFile(inputFS);
@@ -49,6 +49,7 @@ namespace DCCMTool.Commands.Pak
 
             using var outputFS = File.OpenWrite(Arguments.Output);
             output.Write(new(outputFS));
+            return 0;
         }
 
         [Verb("generate-template-pak")]

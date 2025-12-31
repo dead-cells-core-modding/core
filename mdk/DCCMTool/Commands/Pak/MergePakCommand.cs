@@ -13,7 +13,7 @@ namespace DCCMTool.Commands.Pak
 {
     internal class MergePakCommand : CommandBase<MergePakCommand.Options>
     {
-        public override void Execute()
+        public override int Execute()
         {
             PakFile pak = new();
 
@@ -123,6 +123,8 @@ namespace DCCMTool.Commands.Pak
             }
             using var stream = File.OpenWrite(Arguments.Output);
             pak.Write(new(stream));
+
+            return 0;
         }
 
         [Verb("merge-paks", HelpText = "Merge multiple PAK files into a single pak file.")]

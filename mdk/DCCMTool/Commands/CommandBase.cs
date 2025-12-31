@@ -10,7 +10,7 @@ namespace DCCMTool.Commands
     {
         abstract static Type GetArgType();
         void SetArguments(object args);
-        Task ExecuteAsync();
+        Task<int> ExecuteAsync();
     }
     internal abstract class CommandBase<TArg> : ICommandBase
     {
@@ -20,15 +20,14 @@ namespace DCCMTool.Commands
             return typeof(TArg);
         }
 
-        public virtual void Execute()
+        public virtual int Execute()
         {
             throw new NotImplementedException();
         }
 
-        public virtual Task ExecuteAsync()
+        public virtual Task<int> ExecuteAsync()
         {
-            Execute();
-            return Task.CompletedTask;
+            return Task.FromResult(Execute());
         }
 
         public void SetArguments(object args)

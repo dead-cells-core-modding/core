@@ -17,14 +17,17 @@ namespace SteamStartShell
         private static void FindMods()
         {
             Logger.Information("Finding mods...");
+
+            var ssrPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "SteamworkshopRoot.txt");
+
             if (string.IsNullOrEmpty(knownWorkshopRoot))
             {
-                if (!File.Exists("SteamworkshopRoot.txt"))
+                if (!File.Exists(ssrPath))
                 {
                     Logger.Warning("Unable to find Steam Workshop root for mods.");
                     return;
                 }
-                knownWorkshopRoot = File.ReadAllText("SteamworkshopRoot.txt").Trim();
+                knownWorkshopRoot = File.ReadAllText(ssrPath).Trim();
             }
             if (!Directory.Exists(knownWorkshopRoot))
             {
@@ -32,7 +35,7 @@ namespace SteamStartShell
                 return;
             }
 
-            File.WriteAllTextAsync("SteamworkshopRoot.txt", knownWorkshopRoot);
+            File.WriteAllTextAsync(ssrPath, knownWorkshopRoot);
 
             List<string> mods = [];
 
@@ -65,12 +68,24 @@ namespace SteamStartShell
                 return;
             }
 
+            bool firstAttempt = true;
 
             _RE_TRY:
 
             await Task.Delay(100);
 
             var state = (EItemState)SteamUGC.GetItemState(new(MAPI_PFID));
+
+            if (!firstAttempt)
+            {
+                if (!SteamUser.BLoggedOn())
+                {
+                    Logger.Warning("Offline.");
+                    return;
+                }
+            }
+
+            firstAttempt = false;
 
             if (state.HasFlag(EItemState.k_EItemStateDownloading) || state.HasFlag(EItemState.k_EItemStateDownloadPending))
             {
@@ -270,9 +285,9 @@ namespace SteamStartShell
 
                 Logger.Information("Starting game...");
 
-                var game = Process.Start(Path.Combine(gameRoot, "coremod", "core", "host", "startup", "DeadCellsModding.exe"));
+                var game = Process.Start(new ProcessStartInfo(Path.Combine(gameRoot, "coremod", "core", "host", "startup", "DeadCellsModding")));
 
-                await game.WaitForExitAsync();
+                await game!.WaitForExitAsync();
 
                 return game.ExitCode;
             }

@@ -59,7 +59,7 @@ namespace DCCMTool.Commands.Docs
             return doc;
         }
 
-        public override async Task ExecuteAsync()
+        public override async Task<int> ExecuteAsync()
         {
             var port = Arguments.Port;
             var td = Arguments.TempDir;
@@ -114,6 +114,7 @@ namespace DCCMTool.Commands.Docs
                 proc?.Kill();
             }
             await Task.Delay(-1);
+            return 0;
         }
         [Verb("generate-haxe-db", Hidden = true)]
         public class Options

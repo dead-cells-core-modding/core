@@ -13,7 +13,7 @@ namespace DCCMTool.Commands.Cdb
 {
     internal class DiffCdbCommand : CommandBase<DiffCdbCommand.Options>
     {
-        public override void Execute()
+        public override int Execute()
         {
             var templateText = File.ReadAllText(Arguments.TemplateCDB);
             var srcText = File.ReadAllText(Arguments.CDBPath);
@@ -81,6 +81,8 @@ namespace DCCMTool.Commands.Cdb
                 using var stream = File.OpenWrite(Arguments.DiffPakPath);
                 pak.Write(new(stream));
             }
+
+            return 0;
         }
 
         [Verb("diff-cdb", HelpText = "Compare the differences between two CDBs.")]

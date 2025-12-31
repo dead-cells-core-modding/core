@@ -23,7 +23,7 @@ namespace DCCMTool.Commands.MSBuild
         public record class ResolvedMod(string Name, string Version, string ModInfoPath, 
             string ModRoot, string? RequestVersion);
 
-        public override void Execute()
+        public override int Execute()
         {
             List<ResolvedMod> result = [];
             bool hasMissing = false;
@@ -82,13 +82,14 @@ namespace DCCMTool.Commands.MSBuild
         
             if(hasMissing)
             {
-                return;
+                return -1;
             }
 
             foreach(var v in result)
             {
                 Console.WriteLine($"{v.Name};{v.Version};{v.ModRoot}");
             }
+            return 0;
         }
     }
 }

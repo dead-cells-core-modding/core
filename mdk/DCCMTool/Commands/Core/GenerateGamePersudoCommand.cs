@@ -82,7 +82,7 @@ namespace DCCMTool.Commands.Core
                 corelibRef.Name = mscorlibRef.Name;
             }
         }
-        public override void Execute()
+        public override int Execute()
         {
             using AssemblyDefinition output = AssemblyDefinition.CreateAssembly(new(Arguments.Name, new()),
                 Arguments.Name, ModuleKind.Dll);
@@ -114,6 +114,7 @@ namespace DCCMTool.Commands.Core
                 File.WriteAllBytes(Path.ChangeExtension(outputPath, "bcm.bin"),
                     compiler.BytecodeMappingData.Write());
             }
+            return 0;
         }
 
         [Verb("generate-game-persudo",

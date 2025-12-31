@@ -12,7 +12,7 @@ namespace DCCMTool.Commands
     internal class HaxeDebugInfoCommand : 
         CommandBase<HaxeDebugInfoCommand.Options>
     {
-        public override void Execute()
+        public override int Execute()
         {
             var db = BytecodeMappingData.ReadFrom(File.ReadAllBytes(Arguments.DatabasePath));
             int fid = -1;
@@ -69,6 +69,7 @@ namespace DCCMTool.Commands
             }
 
             Console.WriteLine($"{fun.Name}{{IL Index: {bestFit.ILIndex}}}");
+            return 0;
         }
 
         [Verb("resolve-line-to-il", false, [

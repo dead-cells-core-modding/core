@@ -19,7 +19,7 @@ namespace DCCMTool.Commands.Core
             public required string Output { get; set; }
         }
 
-        public override void Execute()
+        public override int Execute()
         {
 
             var manager = NativeMembersManager.Create();
@@ -35,6 +35,7 @@ namespace DCCMTool.Commands.Core
                 
 
             File.WriteAllBytes(Path.Combine(Arguments.Output), manager.Save());
+            return 0;
 
         }
     }

@@ -22,7 +22,7 @@ namespace DCCMTool.Commands.Atlas
             public required string OutputDir { get; set; }
         }
 
-        public override void Execute()
+        public override int Execute()
         {
             Directory.CreateDirectory(Arguments.OutputDir);
 
@@ -39,6 +39,8 @@ namespace DCCMTool.Commands.Atlas
                 new ImageWriter().WritePng(img.Data, img.Width, img.Height, StbImageWriteSharp.ColorComponents.RedGreenBlueAlpha,
                     output);
             }
+
+            return 0;
         }
     }
 }

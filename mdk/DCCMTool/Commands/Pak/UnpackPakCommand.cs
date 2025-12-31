@@ -11,7 +11,7 @@ namespace DCCMTool.Commands.Pak
 {
     internal class UnpackPakCommand: CommandBase<UnpackPakCommand.Options>
     {
-        public override void Execute()
+        public override int Execute()
         {
             var output = new DirectoryInfo(Arguments.OutputDir);
             output.Create();
@@ -71,6 +71,8 @@ namespace DCCMTool.Commands.Pak
                     }
                 } 
             }
+
+            return 0;
         }
 
         [Verb("unpack-pak", false, [

@@ -21,7 +21,7 @@ namespace DCCMTool.Commands.Atlas
             [Option('o', "output", HelpText = "The directory to output the ecoded files to.", Required = true)]
             public required string OutputDir { get; set; }
         }
-        public override void Execute()
+        public override int Execute()
         {
             var imgs = Arguments.Inputs.Select(x => ImageResult.FromMemory(File.ReadAllBytes(x), StbImageSharp.ColorComponents.RedGreenBlueAlpha)).ToArray();
             
@@ -45,7 +45,7 @@ namespace DCCMTool.Commands.Atlas
                 using var imgFile = File.OpenWrite(Path.Combine(Arguments.OutputDir, Path.GetFileName(v)));
                 new ImageWriter().WritePng(img.Data, img.Width, img.Height, StbImageWriteSharp.ColorComponents.RedGreenBlueAlpha, imgFile);
             }
-
+            return 0;
         }
     }
 }

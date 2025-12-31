@@ -12,7 +12,7 @@ namespace DCCMTool.Commands.Pak
 {
     internal class PackDirToPakCommand : CommandBase<PackDirToPakCommand.Options>
     {
-        public override async Task ExecuteAsync()
+        public override async Task<int> ExecuteAsync()
         {
             PakFile pak = new();
 
@@ -57,6 +57,7 @@ namespace DCCMTool.Commands.Pak
 
             using var stream = File.OpenWrite(Arguments.Output);
             pak.Write(new(stream));
+            return 0;
         }
 
         [Verb("pack-pak", false, [

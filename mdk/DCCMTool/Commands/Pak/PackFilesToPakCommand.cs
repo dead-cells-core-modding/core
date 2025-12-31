@@ -12,7 +12,7 @@ namespace DCCMTool.Commands.Pak
 {
     internal class PackFilesToPakCommand : CommandBase<PackFilesToPakCommand.Options>
     {
-        public override void Execute()
+        public override int Execute()
         {
             PakFile pak = new();
             if (!string.IsNullOrEmpty(Arguments.Stamp))
@@ -53,6 +53,7 @@ namespace DCCMTool.Commands.Pak
 
             using var stream = File.OpenWrite(Arguments.Output);
             pak.Write(new(stream));
+            return 0;
         }
 
         [Verb("pack-pak-with-files", false, [], HelpText = "Pack files into a pak file.")]

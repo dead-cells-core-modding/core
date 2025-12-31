@@ -24,7 +24,7 @@ namespace DCCMTool.Commands.MSBuild
             public required string Output { get; set; }
         }
 
-        public override async Task ExecuteAsync()
+        public override async Task<int> ExecuteAsync()
         {
             List<JObject> inputs = [];
 
@@ -91,6 +91,7 @@ namespace DCCMTool.Commands.MSBuild
             }
 
             await File.WriteAllTextAsync(Arguments.Output, root.ToString(Newtonsoft.Json.Formatting.Indented));
+            return 0;
         }
     }
 }
