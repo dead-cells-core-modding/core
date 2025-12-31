@@ -1,4 +1,4 @@
-﻿using SharpPdb.Native;
+using SharpPdb.Native;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,14 +23,25 @@ namespace NonPublicNativeMembers.Win
         {
             foreach (var v in modules)
             {
+                using var pdb = new PdbFileReader(Path.ChangeExtension(v, "pdb"));
+
+                var pdbGuid = pdb.PdbFile.InfoStream.Header.Guid;
+
+                var moduleContent = File.ReadAllBytes(v);
+
+                if (moduleContent.AsSpan().IndexOf(pdbGuid.ToByteArray()) == -1)
+                {
+                    throw new InvalidOperationException("PDB and module mismatch.");
+                }
+
                 var moduleName = Path.GetFileNameWithoutExtension(v);
                 var moduleInfo = new NativeMembersData.ModuleInfo()
                 {
                     Name = moduleName,
-                    Hash = SHA256.HashData(File.ReadAllBytes(v))
+                    Hash = SHA256.HashData(moduleContent)
                 };
                 data.Modules.Add(moduleInfo);
-                using var pdb = new PdbFileReader(Path.ChangeExtension(v, "pdb"));
+                
 
                 foreach (var f in pdb.Functions)
                 {
