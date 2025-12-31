@@ -34,7 +34,12 @@
       "repositoryUrl": "$(RepositoryUrl)"
       }
     </MDKBuildModInfoString>
-    
+    <MDKBuildModInfoString Condition="'$(_DCCM_Version)' != ''">
+      $(MDKBuildModInfoString)"""
+      {
+      "dccmversion": "$(_DCCM_Version)"
+      }
+    </MDKBuildModInfoString>
   </PropertyGroup>
 
   <Target Name="GenerateModInfo" BeforeTargets="CopyOutputFiles"

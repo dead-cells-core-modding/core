@@ -8,6 +8,9 @@
     <_DCCM_Root Condition="!Exists('$(_DCCM_Root)/ModCoreVersion.txt')">$(DEAD_CELLS_GAME_PATH)/coremod/</_DCCM_Root>
     <_DCCM_Root Condition="!Exists('$(_DCCM_Root)/ModCoreVersion.txt')">$(_DCCM_MDK_Root)../../</_DCCM_Root>
 
+    <_DCCM_Version Condition="Exists('$(_DCCM_Root)/ModCoreVersion.txt')">$([System.IO.File]::ReadAllText('$(_DCCM_Root)/ModCoreVersion.txt'))</_DCCM_Version>
+    <_DCCM_Version Condition="Exists('$(_DCCM_Root)/ModCoreVersion.txt')">$(_DCCM_Version.Trim())</_DCCM_Version>
+    
     <_DCCM_Mods_Root>$(_DCCM_Root)mods/</_DCCM_Mods_Root>
     <_DCCM_Core_Root>$(_DCCM_Root)core/</_DCCM_Core_Root>
     <_DCCM_Core_Host_Root>$(_DCCM_Core_Root)host/</_DCCM_Core_Host_Root>

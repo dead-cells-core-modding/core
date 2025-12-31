@@ -12,6 +12,44 @@ namespace SteamStartShell
 
         public static string gameRoot = ""!;
 
+        public static string? knownWorkshopRoot;
+
+        private static void FindMods()
+        {
+            Logger.Information("Finding mods...");
+            if (string.IsNullOrEmpty(knownWorkshopRoot))
+            {
+                if (!File.Exists("SteamworkshopRoot.txt"))
+                {
+                    Logger.Warning("Unable to find Steam Workshop root for mods.");
+                    return;
+                }
+                knownWorkshopRoot = File.ReadAllText("SteamworkshopRoot.txt").Trim();
+            }
+            if (!Directory.Exists(knownWorkshopRoot))
+            {
+                Logger.Warning("Steam Workshop root for mods does not exist: {path}", knownWorkshopRoot);
+                return;
+            }
+
+            File.WriteAllTextAsync("SteamworkshopRoot.txt", knownWorkshopRoot);
+
+            List<string> mods = [];
+
+            foreach(var v in new DirectoryInfo(knownWorkshopRoot).EnumerateDirectories("*", SearchOption.TopDirectoryOnly))
+            {
+                var modinfoPath = Path.Combine(v.FullName, "modinfo.json");
+                if (!File.Exists(modinfoPath))
+                {
+                    continue;
+                }
+                Logger.Information("Found workshop mod: {path}", modinfoPath);
+                mods.Add(v.FullName);
+            }
+
+            Environment.SetEnvironmentVariable("DCCM_EXTRA_MODS_PATHS", string.Join(';', mods));
+        }
+
         private static async Task SteamWork()
         {
 
@@ -75,6 +113,8 @@ namespace SteamStartShell
             }
 
             Logger.Information("DCCM Workshop Version Path: {path}", mapiFolder);
+
+            knownWorkshopRoot = Path.GetDirectoryName(mapiFolder);
 
             // Check for shell update
             var shellPath = Path.Combine(mapiFolder, "core", "host", "startup", "steam", "deadcells.exe");
@@ -223,8 +263,12 @@ namespace SteamStartShell
 
                 await SteamWork();
 
+                FindMods();
+
                 Environment.SetEnvironmentVariable("DEAD_CELLS_GAME_PATH", gameRoot);
                 Environment.SetEnvironmentVariable("DOTNET_ROOT", Path.Combine(gameRoot, "coremod", ".dotnet"));
+
+                Logger.Information("Starting game...");
 
                 var game = Process.Start(Path.Combine(gameRoot, "coremod", "core", "host", "startup", "DeadCellsModding.exe"));
 

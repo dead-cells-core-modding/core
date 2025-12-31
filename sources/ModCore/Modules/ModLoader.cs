@@ -1,4 +1,4 @@
-﻿using ModCore.Events;
+using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Mods;
 using ModCore.Events.Interfaces.VM;
@@ -19,7 +19,7 @@ namespace ModCore.Modules
     {
         public const string MODINFO_NAME = "modinfo.json";
         public override int Priority => ModulePriorities.ModLoader;
-        public readonly List<ModInfo> modInfos = [];
+        public readonly Dictionary<string, ModInfo> modInfos = [];
 
         void IOnCoreModuleInitializing.OnCoreModuleInitializing()
         {
@@ -31,9 +31,26 @@ namespace ModCore.Modules
                 modsType.Add(type.ToLower(), info);
             });
             Logger.Information("Collecting mods information");
-            foreach(var dir in FolderInfo.Mods.Info.EnumerateDirectories("*", SearchOption.TopDirectoryOnly))
+
+            List<string> mods = [.. FolderInfo.Mods.Info.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Select(x => x.FullName)];
+
+            var modsPathStr = Environment.GetEnvironmentVariable("DCCM_EXTRA_MODS_PATHS");
+            if (!string.IsNullOrWhiteSpace(modsPathStr))
             {
-                var p = Path.Combine(dir.FullName, MODINFO_NAME);
+                mods.AddRange(
+                    modsPathStr.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(Path.GetFullPath)
+                    );
+            }
+
+            EventSystem.BroadcastEvent<IOnFindingMods, Action<string>>(path =>
+            {
+                path = Path.GetFullPath(path);
+                mods.Add(path);
+            });
+
+            foreach (var dir in mods)
+            {
+                var p = Path.Combine(dir, MODINFO_NAME);
                 if(!File.Exists(p))
                 {
                     continue;
@@ -43,6 +60,11 @@ namespace ModCore.Modules
                 {
                     JObject jinfo = JObject.Parse(File.ReadAllText(p));
                     var name = jinfo["name"]!.ToString();
+                    if (modInfos.ContainsKey(name))
+                    {
+                        Logger.Warning("Mod with name {name} already collected, skipping", name);
+                        continue;
+                    }
                     Logger.Information("Collect mod info: {name} {version}", name, jinfo["version"]);
 
                     var type = jinfo["type"]!.ToString().ToLower();
@@ -57,9 +79,9 @@ namespace ModCore.Modules
                         Logger.Error("Unable to create mod info object", type);
                         continue;
                     }
-                    info.ModRoot = new("ModRoot_" + name, dir.FullName);
+                    info.ModRoot = new("ModRoot_" + name, dir);
                     EventSystem.BroadcastEvent<IOnCollectedModInfo, ModInfo>(info);
-                    modInfos.Add(info);
+                    modInfos.Add(name, info);
                 }
                 catch (Exception ex)
                 {

@@ -1,4 +1,4 @@
-﻿using ModCore.Storage;
+using ModCore.Storage;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -26,6 +26,8 @@ namespace ModCore.Mods
         public string RepositoryUrl { get; set; } = "";
         [JsonProperty("license")]
         public string License { get; set; } = "";
+        [JsonProperty("dccmversion")]
+        public string? DCCMVersion { get; set; }
 
         [JsonIgnore]
         public FolderInfo? ModRoot { get; set; }
