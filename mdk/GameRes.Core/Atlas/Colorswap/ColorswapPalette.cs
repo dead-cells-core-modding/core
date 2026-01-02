@@ -31,18 +31,17 @@ namespace GameRes.Core.Atlas.Colorswap
         public ColorswapPalette(ImageResult palette)
         {
             this.palette = palette;
-            var s = palette.Comp switch
+
+            if(palette.Comp != ColorComponents.RedGreenBlueAlpha)
             {
-                ColorComponents.RedGreenBlueAlpha => 4,
-                ColorComponents.RedGreenBlue => 3,
-                _ => throw new InvalidOperationException()
-            };
+                throw new InvalidOperationException();
+            }
 
             for (int y = 0; y < palette.Height; y++)
             {
                 for (int x = 0; x < palette.Width; x++)
                 {
-                    var col = Color32.Read(palette.Data.AsSpan((y * palette.Width + x) * s, s), palette.SourceComp);
+                    var col = Color32.Read(palette.Data.AsSpan((y * palette.Width + x) * 4, 4), palette.SourceComp);
                     colorMapping[y, x] = col;
                     mapping[col] = new(x, y);
                 }

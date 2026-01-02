@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\sources\HashlinkNET.Compiler\HashlinkNET.Compiler.csproj" />
+    <ProjectReference Include="..\..\sources\HaxeDocs\HaxeDocs.csproj" />
     <ProjectReference Include="..\..\tools\BytecodeMapping\BytecodeMapping.csproj" />
     <ProjectReference Include="..\..\sources\NonPublicNativeMembers\NonPublicNativeMembers.csproj" />
     <ProjectReference Include="..\GameRes.Core\GameRes.Core.csproj" />

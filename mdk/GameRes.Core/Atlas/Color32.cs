@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace GameRes.Core.Atlas
 {
+    [StructLayout(LayoutKind.Explicit, Size = 4)]
     public readonly record struct Color32
     {
         public Color32(byte r, byte g, byte b, byte a)
@@ -16,9 +18,13 @@ namespace GameRes.Core.Atlas
             A = a;
         }
 
+        [field: FieldOffset(0)]
         public byte R { get; }
+        [field: FieldOffset(1)]
         public byte G { get; }
+        [field: FieldOffset(2)]
         public byte B { get; }
+        [field: FieldOffset(3)]
         public byte A { get; }
 
         public static Color32 FromArgb(byte a, byte r, byte g, byte b) => new(r, g, b, a);
