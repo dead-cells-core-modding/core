@@ -18,7 +18,8 @@ static void Run(string[] args){
     {
         AllowParalle = true,
         GeneratePseudocode = false,
-        HaxeDocument = JsonConvert.DeserializeObject<HaxeDocument>(File.ReadAllText("haxedoc.json"))
+        HaxeDocument = JsonConvert.DeserializeObject<HaxeDocument>(File.ReadAllText(
+            Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "haxedoc.json")))
     };
 
 #if DEBUG
