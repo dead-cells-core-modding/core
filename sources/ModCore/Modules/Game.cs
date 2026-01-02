@@ -20,6 +20,7 @@ using ModCore.Events.Interfaces.Game.Save;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Utitities;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -37,6 +38,29 @@ namespace ModCore.Modules
         IOnFrameUpdate,
         IOnAdvancedModuleInitializing
     {
+        private static readonly ConcurrentQueue<(SendOrPostCallback, object?)> queues = [];
+        class SyncContext : SynchronizationContext
+        {
+            public override void Post( SendOrPostCallback d, object? state )
+            {
+                queues.Enqueue((d, state));
+            }
+            public override void Send( SendOrPostCallback d, object? state )
+            {
+                EventWaitHandle wait = new(false, EventResetMode.ManualReset);
+                queues.Enqueue((state =>
+                {
+                    d(state);
+                    wait.Set();
+                }, state));
+                wait.WaitOne();
+                wait.Dispose();
+            }
+        }
+        /// <summary>
+        /// Gets the synchronization context used to marshal execution to the appropriate thread or context.
+        /// </summary>
+        public static SynchronizationContext SynchronizationContext { get; } = new SyncContext();
         /// <inheritdoc/>
         public override int Priority => ModulePriorities.Game;
 
@@ -155,6 +179,11 @@ namespace ModCore.Modules
         {
             try
             {
+                while (queues.TryDequeue(out var req))
+                {
+                    req.Item1(req.Item2);
+                }
+
                 orig(self);
             }
             catch (Exception ex)
