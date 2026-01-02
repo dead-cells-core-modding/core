@@ -2,8 +2,10 @@
 
 using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler;
+using HaxeDocs;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime;
@@ -15,7 +17,8 @@ static void Run(string[] args){
     var config = new CompileConfig()
     {
         AllowParalle = true,
-        GeneratePseudocode = false
+        GeneratePseudocode = false,
+        HaxeDocument = JsonConvert.DeserializeObject<HaxeDocument>(File.ReadAllText("haxedoc.json"))
     };
 
 #if DEBUG
@@ -137,6 +140,7 @@ static void Run(string[] args){
     });
     File.WriteAllBytes(Path.ChangeExtension(args[1], "bcm.bin"),
         compiler.BytecodeMappingData.Write());
+    File.WriteAllText(Path.ChangeExtension(args[1], "xml"), compiler.XmlDocument.ToString());
 }
 
 Run(args); 

@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\tools\BytecodeMapping\BytecodeMapping.csproj" />
     <ProjectReference Include="..\HashlinkNET.Bytecode\HashlinkNET.Bytecode.csproj" />
+    <ProjectReference Include="..\HaxeDocs\HaxeDocs.csproj" />
     <ProjectReference Include="..\HaxeProxy\HaxeProxy.csproj" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>

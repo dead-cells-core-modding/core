@@ -18,6 +18,7 @@ using HashlinkNET.Compiler.Steps.Virtual;
 using Mono.Cecil;
 using System.Collections;
 using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace HashlinkNET.Compiler
 {
@@ -32,6 +33,10 @@ namespace HashlinkNET.Compiler
         } = config ?? new();
         public AssemblyDefinition Output => output;
         public BytecodeMappingData BytecodeMappingData
+        {
+            get;
+        } = new();
+        public XDocument XmlDocument
         {
             get;
         } = new();
@@ -122,6 +127,13 @@ namespace HashlinkNET.Compiler
                 AddStep<GeneratePseudocodeStep>();
                 AddStep<PostGeneratePseudocodeStep>();
             }
+            else
+            {
+                if (Config.HaxeDocument != null)
+                {
+                    AddStep<GenerateXmlDocsStep>();
+                }
+            }
             #endregion
         }
 
@@ -134,7 +146,8 @@ namespace HashlinkNET.Compiler
                 Modifiers: [],
                 Module: output.MainModule,
                 Code: code,
-                BytecodeMappingData: BytecodeMappingData
+                BytecodeMappingData: BytecodeMappingData,
+                XmlDocument: XmlDocument
             ));
         }
     }

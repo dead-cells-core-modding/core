@@ -103,6 +103,7 @@ namespace DCCMTool.Commands.Docs
             var str = jobj.ToString(Newtonsoft.Json.Formatting.None);
             var result = await SendCommand(haxe, stdin,
                 [
+                "-D", "display-detail",
                 ..(extraArgs ?? []),
                 ..(commonDisplayLibraryArgs ?? []),
                 $"--display", str

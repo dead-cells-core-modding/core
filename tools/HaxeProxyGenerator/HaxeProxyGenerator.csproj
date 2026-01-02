@@ -13,4 +13,10 @@
     <ProjectReference Include="../../sources/HashlinkNET.Compiler/HashlinkNET.Compiler.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="haxedoc.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

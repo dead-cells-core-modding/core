@@ -1,4 +1,4 @@
-﻿using BytecodeMapping;
+using BytecodeMapping;
 using HashlinkNET.Bytecode;
 using HaxeProxy.Codegen;
 using Mono.Cecil;
@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace HashlinkNET.Compiler.Data
 {
@@ -21,7 +22,8 @@ namespace HashlinkNET.Compiler.Data
         ModuleDefinition Module,
         List<BuiltinModifier> Modifiers,
         HlCode Code,
-        BytecodeMappingData BytecodeMappingData
+        BytecodeMappingData BytecodeMappingData,
+        XDocument XmlDocument
     );
     internal record class VirtualTypeList
     (
