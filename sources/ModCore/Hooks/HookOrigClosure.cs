@@ -1,15 +1,10 @@
-﻿using Hashlink;
+using Hashlink;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper.Callbacks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore.Hooks
 {

@@ -1,10 +1,6 @@
-﻿
-using ModCore;
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Windows.Win32.Foundation;
 
 #pragma warning disable CA1401
 

@@ -1,17 +1,9 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using MonoMod.Utils;
 using System.Runtime.CompilerServices;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy;
-using System.Diagnostics;
-using Serilog;
 
 namespace Hashlink.UnsafeUtilities
 {

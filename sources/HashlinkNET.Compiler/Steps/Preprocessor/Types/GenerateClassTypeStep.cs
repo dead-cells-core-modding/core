@@ -1,13 +1,7 @@
-﻿using HashlinkNET.Bytecode;
+using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
 {

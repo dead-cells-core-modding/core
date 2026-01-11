@@ -1,4 +1,4 @@
-﻿using dc;
+using dc;
 using dc.tool.mod;
 using HaxeProxy.Runtime;
 using ModCore.Events.Interfaces.Game;
@@ -7,11 +7,6 @@ using ModCore.Mods;
 using ModCore.Modules;
 using ModCore.Plugins;
 using ModCore.Utitities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore.ModLoader.Default
 {

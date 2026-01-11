@@ -1,10 +1,6 @@
-using dc.haxe.io;
 using dc.hl.types;
 using Hashlink.Marshaling;
-using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace ModCore.Utitities
 {

@@ -1,9 +1,8 @@
-﻿
+
 using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using Hashlink.UnsafeUtilities;
 using HashlinkNET.Compiler.Data;
-using HaxeProxy.Codegen;
 using HaxeProxy.Runtime;
 using HaxeProxy.Runtime.Internals;
 using HaxeProxy.Runtime.Internals.Cache;

@@ -1,10 +1,9 @@
-﻿using Hashlink;
+using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Types;
 using HaxeProxy.Runtime.Internals.Inheritance;
-using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reflection;

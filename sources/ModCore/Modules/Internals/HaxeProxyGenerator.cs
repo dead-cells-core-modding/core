@@ -1,4 +1,3 @@
-﻿using dc.en.mob.boss.giant;
 using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler;
 using HaxeProxy.Runtime.Internals;
@@ -7,15 +6,8 @@ using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Storage;
 using Mono.Cecil;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Runtime;
-using System.Runtime.Loader;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore.Modules.Internals
 {

@@ -1,16 +1,6 @@
-﻿using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
-using Hashlink.Proxy.DynamicAccess;
-using Hashlink.Proxy.Objects;
-using Hashlink.Proxy.Values;
-using Hashlink.Reflection.Types;
-using ModCore.Events;
 using ModCore.Events.Interfaces;
-using ModCore.Events.Interfaces.Game;
-using ModCore.Events.Interfaces.Game.Hero;
-using ModCore.Events.Interfaces.VM;
-using System.Diagnostics;
 
 namespace ModCore.Modules
 {

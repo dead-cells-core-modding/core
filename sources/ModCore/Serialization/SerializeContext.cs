@@ -1,20 +1,11 @@
-﻿using dc;
 using dc.haxe.io;
 using dc.hxbit;
 using HaxeProxy.Runtime;
 using ModCore.Storage;
-using MonoMod.Cil;
 using MonoMod.Utils;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Hashing;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using static dc.hxsl.FunctionKind;
 
 namespace ModCore.Serialization
 {

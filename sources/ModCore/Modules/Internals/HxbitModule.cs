@@ -1,11 +1,6 @@
-﻿using dc;
 using dc.haxe.io;
 using dc.hl;
 using dc.hxbit;
-using dc.hxsl;
-using Hashlink.Proxy;
-using Hashlink.Reflection.Types;
-using HaxeProxy.Events;
 using HaxeProxy.Runtime;
 using HaxeProxy.Runtime.Internals.Inheritance;
 using ModCore.Events.Interfaces;
@@ -13,16 +8,8 @@ using ModCore.Serialization;
 using ModCore.Serialization.Converters;
 using ModCore.Storage;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Hashing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore.Modules.Internals
 {

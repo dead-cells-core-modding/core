@@ -1,9 +1,4 @@
-﻿using HashlinkNET.Compiler.Pseudocode.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HashlinkNET.Compiler.Pseudocode.Data;
 
 namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
 {

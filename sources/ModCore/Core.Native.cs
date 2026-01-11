@@ -1,17 +1,10 @@
-﻿using ModCore.Native;
 using ModCore.Storage;
 using MonoMod.Core;
 using NonPublicNativeMembers;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 using NN = ModCore.Native.Native;
 

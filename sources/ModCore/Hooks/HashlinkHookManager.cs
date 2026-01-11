@@ -1,30 +1,17 @@
-﻿using Hashlink;
+using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
-using Hashlink.Virtuals;
-using Hashlink.Wrapper;
 using Hashlink.Wrapper.Callbacks;
-using HaxeProxy.Runtime;
-using HaxeProxy.Runtime.Internals;
 using ModCore.Modules;
 using ModCore.Utitities;
-using MonoMod.Utils;
-using Serilog;
-using Serilog.Core;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.ExceptionServices;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ModCore.Hooks
 {

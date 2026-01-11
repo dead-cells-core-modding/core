@@ -1,22 +1,13 @@
-﻿extern alias iced;
+extern alias iced;
 
 using iced::Iced.Intel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Versioning;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 using static Windows.Win32.PInvoke;
 
 using static iced::Iced.Intel.AssemblerRegisters;
-using Decoder = iced::Iced.Intel.Decoder;
 using Hashlink;
-using Windows.Win32.Foundation;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 

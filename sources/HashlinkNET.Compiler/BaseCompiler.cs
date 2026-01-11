@@ -1,11 +1,4 @@
-﻿using HashlinkNET.Compiler.Steps;
-using Mono.Cecil;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HashlinkNET.Compiler.Steps;
 
 namespace HashlinkNET.Compiler
 {

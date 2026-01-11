@@ -1,14 +1,7 @@
-﻿using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Pseudocode.Data;
-using HashlinkNET.Compiler.Pseudocode.IR.FlowControl;
 using HashlinkNET.Compiler.Steps;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 {

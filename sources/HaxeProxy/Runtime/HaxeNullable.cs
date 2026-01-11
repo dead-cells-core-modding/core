@@ -1,10 +1,5 @@
-﻿using Hashlink;
+using Hashlink;
 using Hashlink.Marshaling;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 #pragma warning disable CS8500
 

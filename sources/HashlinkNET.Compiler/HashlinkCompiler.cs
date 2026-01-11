@@ -16,8 +16,6 @@ using HashlinkNET.Compiler.Steps.Preprocessor.Types;
 using HashlinkNET.Compiler.Steps.Preprocessor.Types.Virtuals;
 using HashlinkNET.Compiler.Steps.Virtual;
 using Mono.Cecil;
-using System.Collections;
-using System.Diagnostics;
 using System.Xml.Linq;
 
 namespace HashlinkNET.Compiler

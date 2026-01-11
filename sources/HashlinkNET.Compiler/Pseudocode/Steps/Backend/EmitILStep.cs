@@ -1,15 +1,7 @@
-﻿using HashlinkNET.Compiler.Data;
+using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Pseudocode.Data;
 using HashlinkNET.Compiler.Steps;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Rocks;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 {

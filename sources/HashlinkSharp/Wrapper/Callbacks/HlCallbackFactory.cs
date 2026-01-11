@@ -1,17 +1,9 @@
-﻿using Hashlink.Marshaling;
-using Hashlink.Proxy.Objects;
+using Hashlink.Marshaling;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
-using ModCore;
-using MonoMod.Utils;
-using MonoMod.Utils.Cil;
-using Serilog;
-using Serilog.Core;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Hashlink.Wrapper.Callbacks

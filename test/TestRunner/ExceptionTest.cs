@@ -1,14 +1,8 @@
-﻿using dc.haxe.xml._Access;
-using dc.hxd.fs;
+﻿using dc.hxd.fs;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.DynamicAccess;
 using HaxeProxy.Runtime;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TestRunner
 {

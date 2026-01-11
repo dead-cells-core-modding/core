@@ -1,14 +1,8 @@
-﻿using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HaxeProxy.Codegen;
 using HaxeProxy.Runtime.Internals;
 using Mono.Cecil;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HashlinkNET.Compiler.Steps
 {

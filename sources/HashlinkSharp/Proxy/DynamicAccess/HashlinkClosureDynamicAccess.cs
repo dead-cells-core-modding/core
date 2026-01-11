@@ -1,10 +1,5 @@
-﻿using Hashlink.Proxy.Clousre;
-using System;
-using System.Collections.Generic;
+using Hashlink.Proxy.Clousre;
 using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hashlink.Proxy.DynamicAccess
 {

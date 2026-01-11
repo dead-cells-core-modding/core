@@ -1,20 +1,9 @@
-﻿using Hashlink;
 using Hashlink.Marshaling;
-using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
 using HaxeProxy.Events;
-using ModCore.Collections;
 using ModCore.Events;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace HaxeProxy.Runtime.Internals.Inheritance

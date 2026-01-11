@@ -1,6 +1,5 @@
-﻿using ModCore.Storage;
+using ModCore.Storage;
 using Serilog;
-using System.Runtime.CompilerServices;
 
 namespace ModCore
 {

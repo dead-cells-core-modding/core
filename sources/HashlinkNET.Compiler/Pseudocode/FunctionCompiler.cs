@@ -1,15 +1,10 @@
-﻿using BytecodeMapping;
+using BytecodeMapping;
 using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Pseudocode.Data;
 using HashlinkNET.Compiler.Pseudocode.Steps;
 using HashlinkNET.Compiler.Pseudocode.Steps.Backend;
 using HashlinkNET.Compiler.Pseudocode.Steps.DFA;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HashlinkNET.Compiler.Pseudocode
 {

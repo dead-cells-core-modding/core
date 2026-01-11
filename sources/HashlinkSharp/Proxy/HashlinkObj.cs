@@ -1,10 +1,7 @@
 using Hashlink.Marshaling;
 using Hashlink.Marshaling.ObjHandle;
-using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Reflection.Types;
 using System.Diagnostics.CodeAnalysis;
-using System.Dynamic;
-using System.Linq.Expressions;
 
 namespace Hashlink.Proxy
 {

@@ -1,9 +1,6 @@
 using Hashlink.Proxy;
 using HaxeProxy.Runtime;
-using System;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Text;
 
 namespace ModCore.Utitities
 {

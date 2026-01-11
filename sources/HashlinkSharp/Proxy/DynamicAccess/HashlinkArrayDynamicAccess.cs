@@ -1,11 +1,6 @@
-﻿using Hashlink.Proxy.Objects;
-using System;
+using Hashlink.Proxy.Objects;
 using System.Collections;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hashlink.Proxy.DynamicAccess
 {

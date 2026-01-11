@@ -1,18 +1,9 @@
 using dc.hxbit;
-using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using HaxeProxy.Runtime;
 using ModCore.Storage;
 using MonoMod.Utils;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using static ModCore.Serialization.SerializeContext;
 
 namespace ModCore.Serialization

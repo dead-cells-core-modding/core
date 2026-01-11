@@ -1,17 +1,7 @@
-﻿using Hashlink.Proxy.Clousre;
-using Hashlink.Proxy.Objects;
 using Hashlink.Proxy;
 using Hashlink.Reflection.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Hashlink.Marshaling;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using ModCore.Events;
 
 namespace Hashlink.Wrapper

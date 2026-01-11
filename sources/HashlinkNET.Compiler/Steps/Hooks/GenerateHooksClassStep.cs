@@ -1,17 +1,8 @@
-﻿using HashlinkNET.Bytecode;
+using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
-using HashlinkNET.Compiler.Data.Interfaces;
 using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.CompilerServices.SymbolWriter;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace HashlinkNET.Compiler.Steps.Hooks
 {

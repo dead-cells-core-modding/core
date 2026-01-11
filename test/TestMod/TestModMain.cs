@@ -1,7 +1,4 @@
-﻿using dc.hl;
-using Hashlink.Proxy.Clousre;
-using Hashlink.Proxy.DynamicAccess;
-using ModCore.Mods;
+﻿using ModCore.Mods;
 
 namespace TestMod
 {

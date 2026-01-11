@@ -1,6 +1,5 @@
 
 using Serilog;
-using System.Runtime.CompilerServices;
 
 namespace ModCore
 {

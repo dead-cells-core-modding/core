@@ -1,13 +1,8 @@
-﻿using HashlinkNET.Compiler.Pseudocode.Data;
+using HashlinkNET.Compiler.Pseudocode.Data;
 using HashlinkNET.Compiler.Pseudocode.Data.DFA;
 using HashlinkNET.Compiler.Pseudocode.IR;
 using HashlinkNET.Compiler.Steps;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HashlinkNET.Compiler.Pseudocode.Steps.DFA
 {

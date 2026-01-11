@@ -1,11 +1,9 @@
-﻿using Hashlink.Marshaling.ObjHandle;
+using Hashlink.Marshaling.ObjHandle;
 using Hashlink.Proxy;
-using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection;
 using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Types;
-using ModCore;
 using System.Runtime.CompilerServices;
 
 namespace Hashlink.Marshaling

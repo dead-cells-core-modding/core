@@ -1,18 +1,10 @@
-﻿using Hashlink;
+using Hashlink;
 using Hashlink.Reflection.Members.Object;
-using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper.Callbacks;
-using ModCore.Collections;
 using MonoMod.Utils;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HaxeProxy.Runtime.Internals.Inheritance
 {

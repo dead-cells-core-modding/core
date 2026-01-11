@@ -1,5 +1,4 @@
-﻿using Hashlink.Proxy.Objects;
-using System.Runtime.CompilerServices;
+using Hashlink.Proxy.Objects;
 using System.Runtime.InteropServices;
 
 namespace Hashlink.Marshaling

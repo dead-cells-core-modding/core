@@ -1,19 +1,10 @@
-using Hashlink.Reflection.Types;
 using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Data.Interfaces;
-using Microsoft.VisualBasic.FileIO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using CallSite = Mono.Cecil.CallSite;
 
 namespace HashlinkNET.Compiler.Utils

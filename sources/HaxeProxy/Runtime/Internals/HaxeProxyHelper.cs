@@ -6,21 +6,14 @@ using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Members;
-using Hashlink.Reflection.Members.Object;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper;
 using HaxeProxy.Runtime.Internals.Cache;
 using HaxeProxy.Runtime.Internals.Hooks;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HaxeProxy.Runtime.Internals
 {

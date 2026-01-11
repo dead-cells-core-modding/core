@@ -1,20 +1,15 @@
-﻿using Hashlink.Marshaling;
+using Hashlink.Marshaling;
 using Hashlink.Marshaling.ObjHandle;
 using Hashlink.Proxy.Objects;
-using Hashlink.Reflection.Members;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Native;
 using ModCore.Native.Events.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Hashlink.Wrapper
 {

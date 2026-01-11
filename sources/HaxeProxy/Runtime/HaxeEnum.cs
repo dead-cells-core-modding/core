@@ -1,10 +1,3 @@
-﻿using Hashlink.Proxy;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace HaxeProxy.Runtime
 {
     public abstract class HaxeEnum<TEnum, TIndex> : HaxeEnum where TIndex : struct, Enum

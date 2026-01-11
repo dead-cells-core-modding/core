@@ -1,14 +1,7 @@
-﻿using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Reflection.Members;
-using Hashlink.Reflection.Types;
 using HaxeProxy.Events;
 using ModCore.Hooks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCore.Modules
 {

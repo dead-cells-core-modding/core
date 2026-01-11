@@ -4,12 +4,7 @@ using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
 using HaxeProxy.Runtime.Internals;
 using HaxeProxy.Runtime.Internals.Inheritance;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HaxeProxy.Runtime
 {

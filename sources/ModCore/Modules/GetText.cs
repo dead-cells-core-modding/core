@@ -2,19 +2,12 @@ using dc;
 using dc.haxe.io;
 using dc.hxd;
 using dc.libs.data;
-using Hashlink.Marshaling;
-using Hashlink.Proxy.DynamicAccess;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
-using ModCore.Storage;
 using ModCore.Utitities;
-using System;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using GT = dc.libs.data.GetText;
 
@@ -58,35 +51,51 @@ namespace ModCore.Modules
             RegisterMod("dccm-core");
         }
 
+        private bool LoadResByNames([NotNullWhen(true)] out Bytes? data, params ReadOnlySpan<string> names )
+        {
+            foreach (var name in names)
+            {
+                try
+                {
+                    data = Res.Class.load(name.AsHaxeString()).entry.getBytes();
+                    return true;
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+            data = null;
+            return false;
+        }
+        private static string GetMoPathString( string lang, string? ns, string name )
+        {
+            if (string.IsNullOrEmpty(ns)) {
+                return $"lang/{name}.{lang}.mo";
+            }
+            return $"{ns}/lang/{name}.{lang}.mo";
+        }
         private void Hook_GetText_readMo( Hook_GetText.orig_readMo orig, GT self, dc.haxe.io.Bytes r )
         {
             orig(self, r);
-
-            CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(Lang.Class.LANG.ToString());
+            var curLang = Lang.Class.LANG.ToString();
+            CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(curLang);
 
             foreach (var v in registeredLangName)
             {
-                var basePath = v + "/lang/main.";
-                var curPath = basePath + Lang.Class.LANG.ToString() + ".mo";
-                Bytes? bytes = null;
-                try
-                {
-                    bytes = Res.Class.load(curPath.AsHaxeString()).entry.getBytes();
-                } catch (Exception)
-                {
-                    try
-                    {
-                        bytes = Res.Class.load((basePath + "en.mo").AsHaxeString()).entry.getBytes();
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
-                if (bytes == null)
+                if (!LoadResByNames(out var data,
+                    GetMoPathString(curLang, v, "main"),
+                    GetMoPathString(curLang, v, v),
+                    GetMoPathString(curLang, null, v),
+                    GetMoPathString("en", v, "main"),
+                    GetMoPathString("en", v, v),
+                    GetMoPathString("en", null, v)
+                    ))
                 {
                     continue;
                 }
-                var texts = new MoReader(bytes).parse();
+
+                var texts = new MoReader(data).parse();
                 foreach (var k in texts.keys())
                 {
                     self.texts.set(k, texts.get(k));

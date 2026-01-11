@@ -1,6 +1,5 @@
-﻿using Hashlink.Marshaling;
+using Hashlink.Marshaling;
 using Hashlink.Reflection.Types;
-using System.Collections;
 using System.Diagnostics;
 using System.Dynamic;
 

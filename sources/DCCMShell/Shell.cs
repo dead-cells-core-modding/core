@@ -1,5 +1,4 @@
 using ModCore;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace DCCMShell

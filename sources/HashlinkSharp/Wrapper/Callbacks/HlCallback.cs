@@ -1,14 +1,7 @@
-﻿using Hashlink.UnsafeUtilities;
+using Hashlink.UnsafeUtilities;
 using ModCore.Native;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using static Hashlink.Wrapper.WrapperHelper;
 
 namespace Hashlink.Wrapper.Callbacks
 {

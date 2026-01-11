@@ -1,4 +1,3 @@
-﻿using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
 using System.Runtime.InteropServices;
 

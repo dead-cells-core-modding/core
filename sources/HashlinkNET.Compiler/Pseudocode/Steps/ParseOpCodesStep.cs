@@ -1,4 +1,4 @@
-﻿using HashlinkNET.Bytecode;
+using HashlinkNET.Bytecode;
 using HashlinkNET.Bytecode.OpCodeParser;
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Data.Interfaces;
@@ -17,13 +17,7 @@ using HashlinkNET.Compiler.Pseudocode.IR.Ref;
 using HashlinkNET.Compiler.Steps;
 using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
-using MonoMod.Utils;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HashlinkNET.Compiler.Pseudocode.Steps
 {

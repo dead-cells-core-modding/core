@@ -1,20 +1,13 @@
-﻿using Hashlink;
+using Hashlink;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Native.Events.Interfaces;
 using MonoMod.Core;
-using Serilog;
-using Serilog.Core;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 using static Hashlink.HashlinkNative;
 

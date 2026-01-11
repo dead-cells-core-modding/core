@@ -1,14 +1,10 @@
 
 using ModCore.Events;
 using ModCore.Events.Interfaces;
-using ModCore.Events.Interfaces.VM;
-using ModCore.Native;
 using ModCore.Storage;
 using Serilog;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.IO.MemoryMappedFiles;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 

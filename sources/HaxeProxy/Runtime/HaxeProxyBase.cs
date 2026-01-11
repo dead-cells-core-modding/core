@@ -2,15 +2,9 @@ using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
-using Hashlink.Reflection.Types;
 using HaxeProxy.Runtime.Internals;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HaxeProxy.Runtime
 {

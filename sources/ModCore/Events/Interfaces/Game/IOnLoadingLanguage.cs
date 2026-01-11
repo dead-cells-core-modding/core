@@ -1,8 +1,3 @@
-using dc;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace ModCore.Events.Interfaces.Game
 {
     /// <summary>

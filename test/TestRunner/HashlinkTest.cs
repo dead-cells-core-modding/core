@@ -4,14 +4,7 @@ using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
-using Hashlink.Reflection;
 using Hashlink.Reflection.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit.v3;
 
 namespace TestRunner
 {

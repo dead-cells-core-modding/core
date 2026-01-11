@@ -1,11 +1,5 @@
-﻿using HashlinkNET.Bytecode;
+using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
-using Mono.Cecil.Cil;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HashlinkNET.Compiler.Steps
 {

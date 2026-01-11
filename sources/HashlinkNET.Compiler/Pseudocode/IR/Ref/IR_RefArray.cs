@@ -1,12 +1,5 @@
-﻿using HashlinkNET.Compiler.Pseudocode.IR;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Rocks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HashlinkNET.Compiler.Pseudocode.IR.Ref
 {
