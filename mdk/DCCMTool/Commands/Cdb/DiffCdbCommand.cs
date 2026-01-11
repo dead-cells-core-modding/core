@@ -36,7 +36,7 @@ namespace DCCMTool.Commands.Cdb
                 {
                     if(tlines.TryGetValue(l.Name!, out var tline))
                     {
-                        if(tline.Value.ToString() == l.Value.ToString())
+                        if(JToken.DeepEquals(tline.Value, l.Value))
                         {
                             continue;
                         }
