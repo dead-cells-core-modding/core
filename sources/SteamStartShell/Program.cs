@@ -280,6 +280,7 @@ namespace SteamStartShell
 
                 FindMods();
 
+                Environment.SetEnvironmentVariable("DCCM_EXIT_WHEN_PROCESS_PID", Environment.ProcessId.ToString());
                 Environment.SetEnvironmentVariable("DEAD_CELLS_GAME_PATH", gameRoot);
                 Environment.SetEnvironmentVariable("DOTNET_ROOT", Path.Combine(gameRoot, "coremod", ".dotnet"));
 
