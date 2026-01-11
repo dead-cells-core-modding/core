@@ -76,6 +76,8 @@ namespace DeadCellsModding
                 throw new FileNotFoundException(null, "DCCMShell.dll");
             }
 
+            Environment.SetEnvironmentVariable("DEAD_CELLS_GAME_PATH", gameRoot);
+
             Directory.SetCurrentDirectory(gameRoot!);
 
             if (RuntimeFeature.IsDynamicCodeCompiled)
