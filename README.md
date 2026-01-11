@@ -9,24 +9,10 @@ A Dead Cells Modding API/loader.
 
 [Documentation](https://dead-cells-core-modding.github.io/docs/docs)
 
-> I'm sorry I don't have time to maintain English documentation.
-
-
-> [!WARNING]
-> This project is under active development. Breaking changes may be made to APIs with zero notice.
-
 Download the latest build [here](https://nightly.link/dead-cells-core-modding/core/workflows/build/dev)
 
 ## Roadmap
 
-- [x] Simple Hook
-- [x] Basic interoperability
-- [x] Game object proxy objects in .NET
-- [x] Edit game bytecode dynamically
-- [x] Exception across .NET-Hashlink boundary
-- [ ] hlmod compatible
-	- [x] Using hooks to support standard vm
-	- [x] Updating from Hashlink v10 to Hashlink v15
 - [ ] More convenient BuildSystem
 - [ ] Linux platform support
 
