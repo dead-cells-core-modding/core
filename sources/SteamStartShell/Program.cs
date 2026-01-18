@@ -218,6 +218,7 @@ namespace SteamStartShell
         }
         static async Task<int> Main( string[] args )
         {
+            
             try
             {
 
@@ -242,6 +243,16 @@ namespace SteamStartShell
 
                     return 0;
                 }
+
+                LogInitializer.InitializeLog();
+
+
+                if (Debugger.IsAttached)
+                {
+                    Logger.Warning("A debugger has been detected.");
+                }
+
+
 
                 gameRoot = Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!;
                 if (string.IsNullOrEmpty(gameRoot))
@@ -274,7 +285,7 @@ namespace SteamStartShell
 
                 Directory.SetCurrentDirectory(gameRoot!);
 
-                LogInitializer.InitializeLog();
+                
 
                 await SteamWork();
 

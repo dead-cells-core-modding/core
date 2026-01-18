@@ -16,6 +16,7 @@ namespace ModCore.Modules.Internals
         IOnCodeLoading,
         IOnHashlinkVMReady
     {
+        public readonly CacheFile hlbootCache = new("hlboot.dat");
         public readonly CacheFile proxyCache = new("GameProxy.dll");
         public readonly CacheFile pseudoCache = new("GamePseudocode.dll");
         public override int Priority => 1000;
@@ -27,9 +28,16 @@ namespace ModCore.Modules.Internals
             proxyCache.UpdateMetadata("code", data);
             proxyCache.UpdateMetadata("version", GetType().Assembly.GetName().Version?.ToString() ?? "None");
 
+            hlbootCache.UpdateMetadata("code", data);
+
             pseudoCache.UpdateMetadata("code", data);
             pseudoCache.UpdateMetadata("version", GetType().Assembly.GetName().Version?.ToString() ?? "None");
             pseudoCache.UpdateMetadata("enabled", Core.Config.Value.GeneratePseudocodeAssembly.ToString());
+
+            if (!hlbootCache.IsValid)
+            {
+                hlbootCache.UpdateCache(data);
+            }
 
 
             if (Core.Config.Value.GeneratePseudocodeAssembly &&

@@ -113,7 +113,7 @@ namespace ModCore.Storage
         /// <param name="data">Data</param>
         public void UpdateCache( ReadOnlySpan<byte> data )
         {
-            File.WriteAllBytes(MetadataPath, data);
+            File.WriteAllBytes(CachePath, data);
 
             UpdateCacheMetadata(SHA384.HashData(data));
         }

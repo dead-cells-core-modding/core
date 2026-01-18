@@ -20,7 +20,7 @@
     <PublishTrimmed>true</PublishTrimmed>
 
     <RootNamespace>SteamStartShell</RootNamespace>
-    
+   
   </PropertyGroup>
 
   <ItemGroup>
