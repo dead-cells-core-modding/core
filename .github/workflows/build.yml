@@ -34,6 +34,7 @@ jobs:
          files: |
              win-x64.zip
              win-x64-no-mdk.zip
+             win-x64/core/host/startup/steam/deadcells.exe
 
   test-win-x64:
     runs-on: windows-latest
