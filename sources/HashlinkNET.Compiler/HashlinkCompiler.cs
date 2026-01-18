@@ -117,6 +117,8 @@ namespace HashlinkNET.Compiler
             #region Pseudocode
             if (Config.GeneratePseudocode)
             {
+                AddStep<ScanGlobalValuesStep>();
+
                 AddStep<GenerateNativeImplClassStep>();
                 AddStep<GenerateNativeFieldsDefStep>();
 

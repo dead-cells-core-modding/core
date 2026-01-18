@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/deps/">
+    <Project Path="../sources/HashlinkNET.Bytecode/HashlinkNET.Bytecode.csproj" />
     <Project Path="../sources/HashlinkNET.Compiler/HashlinkNET.Compiler.csproj" />
+    <Project Path="../sources/HaxeProxy/HaxeProxy.csproj" />
     <Project Path="../sources/NonPublicNativeMembers/NonPublicNativeMembers.csproj" />
   </Folder>
   <Folder Name="/tools/">

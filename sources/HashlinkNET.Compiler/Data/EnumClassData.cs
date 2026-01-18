@@ -26,6 +26,10 @@ namespace HashlinkNET.Compiler.Data
             get; set;
         }
 
+        public List<int> GlobalValueIndex
+        {
+            get; set;
+        } = [];
         public required TypeDefinition TypeDef
         {
             get; set;

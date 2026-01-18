@@ -17,6 +17,7 @@ using HashlinkNET.Compiler.Pseudocode.IR.Ref;
 using HashlinkNET.Compiler.Steps;
 using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace HashlinkNET.Compiler.Pseudocode.Steps
@@ -28,6 +29,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         private TypeSystem typeSystem = null!;
         private IDataContainer container = null!;
         private string? currentAssign = null;
+
         public override void Execute( IDataContainer container )
         {
             this.container = container;
@@ -123,6 +125,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         {
             return container.GetData<IGetProto>(type).GetProto(pindex) ?? throw new InvalidOperationException();
         }
+
         private object? GetGlobalData( int idx )
         {
             if (idx == 0)
@@ -134,6 +137,15 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             {
                 var str = gdata2.Code.GetUString(gdata2.Code.Constants[gdata2.Code.ConstantIndexes[idx]].Fields[0]);
                 return str;
+            }
+            if (t.Kind == HlTypeKind.Enum)
+            {
+                var ei = container.GetData<EnumClassData>(t);
+                var eidx = ei.GlobalValueIndex.IndexOf(idx);
+                if (eidx > -1)
+                {
+                    return new IR_MakeEnum(ei.ItemCtors.Where(x => x.Parameters.Count == 0).ElementAt(eidx));
+                }
             }
             if (t is HlTypeWithAbsName absName)
             {
@@ -210,7 +222,11 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 else if (c == HlOpcodeKind.GetGlobal)
                 {
                     var gd = GetGlobalData(code.Parameters[1]);
-                    if (gd is string)
+                    if (gd is IRBase ir)
+                    {
+                        src = ir;
+                    }
+                    else if (gd is string)
                     {
                         src = new IR_LoadConst(gd);
                     }
@@ -497,7 +513,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     {
                         dstReg = code.Parameters[0];
                     }
-                    
+
                     irbb.AddIR(new IR_SetLocalReg(
                         gdata.Registers[dstReg],
                         src,
@@ -638,6 +654,13 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             else if (c == HlOpcodeKind.Assert)
             {
                 irbb.AddIR(new IR_Assert("Assert fail!"));
+            }
+            else if (c == HlOpcodeKind.SetGlobal) 
+            {
+                irbb.AddIR(new IR_SetGlobal(
+                    CreateLoadLocalReg(code.Parameters[1]),
+                    code.Parameters[0]
+                    ));
             }
             Debug.Assert(currentAssign == null);
         }

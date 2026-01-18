@@ -74,6 +74,7 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference phDynSetMethod;
         public MethodReference phCreateObject;
         public MethodReference phCreateClosure;
+        public MethodReference phSetGlobal;
         public TypeReference objectBaseType;
         public MethodReference hGetEnumIndex;
         public MethodReference phReadMem;

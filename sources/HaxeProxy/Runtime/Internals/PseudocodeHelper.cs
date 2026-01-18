@@ -34,5 +34,10 @@ namespace HaxeProxy.Runtime.Internals
         {
             throw new NotSupportedException();
         }
+
+        public static object SetGlobal(int globalIndex, object val)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
