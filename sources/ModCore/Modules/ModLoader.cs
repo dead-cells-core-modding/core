@@ -4,6 +4,7 @@ using ModCore.Events.Interfaces.Mods;
 using ModCore.Mods;
 using ModCore.Storage;
 using Newtonsoft.Json.Linq;
+using System.Text;
 
 namespace ModCore.Modules
 {
@@ -11,6 +12,7 @@ namespace ModCore.Modules
     internal class ModLoader : CoreModule<ModLoader>,
         IOnCoreModuleInitializing
     {
+        private readonly CacheFile lastLoadedExtraMods = new("last_load_extra_mods_paths");
         public const string MODINFO_NAME = "modinfo.json";
         public override int Priority => ModulePriorities.ModLoader;
         public readonly Dictionary<string, ModInfo> modInfos = [];
@@ -29,12 +31,21 @@ namespace ModCore.Modules
             List<string> mods = [.. FolderInfo.Mods.Info.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Select(x => x.FullName)];
 
             var modsPathStr = Environment.GetEnvironmentVariable("DCCM_EXTRA_MODS_PATHS");
+
+            if (modsPathStr == null && lastLoadedExtraMods.TryGetCache(out var modsPathStrBytes))
+            {
+                modsPathStr = Encoding.UTF8.GetString(modsPathStrBytes);
+            }
+
             if (!string.IsNullOrWhiteSpace(modsPathStr))
             {
                 mods.AddRange(
                     modsPathStr.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(Path.GetFullPath)
                     );
             }
+            
+            lastLoadedExtraMods.UpdateCache(Encoding.UTF8.GetBytes(modsPathStr ?? ""));
+
 
             EventSystem.BroadcastEvent<IOnFindingMods, Action<string>>(path =>
             {

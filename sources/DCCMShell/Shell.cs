@@ -38,6 +38,13 @@ namespace DCCMShell
                 Environment.Exit(-1);
             }
 
+            if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_SHOULD_WAIT_FOR_DEBUGGER"), out var shouldWaitForDebugger) && 
+                shouldWaitForDebugger)
+            {
+                Console.WriteLine("Waiting for debugger attach...");
+                Debugger.Launch();
+            }
+
             if (int.TryParse(Environment.GetEnvironmentVariable("DCCM_EXIT_WHEN_PROCESS_PID"), out var parentPID))
             {
                 try

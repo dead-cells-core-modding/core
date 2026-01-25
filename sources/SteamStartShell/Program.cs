@@ -12,45 +12,69 @@ namespace SteamStartShell
 
         public static string gameRoot = ""!;
 
-        public static string? knownWorkshopRoot;
-
-        private static void FindMods()
+        private static async Task FindMods()
         {
             Logger.Information("Finding mods...");
 
-            var ssrPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "SteamworkshopRoot.txt");
+            var count = SteamUGC.GetNumSubscribedItems(false);
 
-            if (string.IsNullOrEmpty(knownWorkshopRoot))
-            {
-                if (!File.Exists(ssrPath))
-                {
-                    Logger.Warning("Unable to find Steam Workshop root for mods.");
-                    return;
-                }
-                knownWorkshopRoot = File.ReadAllText(ssrPath).Trim();
-            }
-            if (!Directory.Exists(knownWorkshopRoot))
-            {
-                Logger.Warning("Steam Workshop root for mods does not exist: {path}", knownWorkshopRoot);
-                return;
-            }
+            var items = new PublishedFileId_t[count];
 
-            File.WriteAllTextAsync(ssrPath, knownWorkshopRoot);
+            SteamUGC.GetSubscribedItems(items, count, false);
 
             List<string> mods = [];
 
-            foreach(var v in new DirectoryInfo(knownWorkshopRoot).EnumerateDirectories("*", SearchOption.TopDirectoryOnly))
+            foreach (var v in items)
             {
-                var modinfoPath = Path.Combine(v.FullName, "modinfo.json");
-                if (!File.Exists(modinfoPath))
+                if (SteamUGC.GetItemInstallInfo(v, out var _, out var modPath, 1024, out _))
                 {
-                    continue;
+                    var modinfoPath = Path.Combine(modPath, "modinfo.json");
+                    if (!File.Exists(modinfoPath))
+                    {
+                        continue;
+                    }
+                    Logger.Information("Found workshop mod: {path}", modinfoPath);
+                    mods.Add(modPath);
                 }
-                Logger.Information("Found workshop mod: {path}", modinfoPath);
-                mods.Add(v.FullName);
             }
 
             Environment.SetEnvironmentVariable("DCCM_EXTRA_MODS_PATHS", string.Join(';', mods));
+        }
+
+        private static async Task InitSteamAPI()
+        {
+            bool firstAttempt = true;
+
+            _RE_TRY_INIT_STEAM:
+
+            var initResult = SteamAPI.InitEx(out var err);
+
+            if (initResult == ESteamAPIInitResult.k_ESteamAPIInitResult_NoSteamClient)
+            {
+                if (firstAttempt)
+                {
+                    firstAttempt = false;
+                    Logger.Information("Launching steam...");
+                    Process.Start(new ProcessStartInfo("steam://run")
+                    {
+                        UseShellExecute = true,
+                    });
+                }
+                await Task.Delay(500);
+                goto _RE_TRY_INIT_STEAM;
+            }
+
+            if (initResult == ESteamAPIInitResult.k_ESteamAPIInitResult_FailedGeneric)
+            {
+                await Task.Delay(1000);
+                goto _RE_TRY_INIT_STEAM;
+            }
+
+            if (initResult != ESteamAPIInitResult.k_ESteamAPIInitResult_OK)
+            {
+                Logger.Error("Failed to initialize Steam API: {Error} ({StateCode})", err, initResult);
+                throw new InvalidOperationException(err);
+            }
         }
 
         private static async Task SteamWork()
@@ -60,12 +84,14 @@ namespace SteamStartShell
 
             Logger.Information("Trying to load steam api");
 
-            var initResult = SteamAPI.InitEx(out var err);
-
-            if (initResult != ESteamAPIInitResult.k_ESteamAPIInitResult_OK)
+            try
             {
-                Logger.Error("Failed to initialize Steam API: {Error} ({StateCode})", err, initResult);
-                return;
+                await InitSteamAPI().WaitAsync(TimeSpan.FromSeconds(30));
+            }
+            catch (Exception)
+            {
+                Logger.Error("Unable to initialize SteamAPI. Please ensure Steam is running and you own the game.");
+                throw;
             }
 
             bool firstAttempt = true;
@@ -75,15 +101,6 @@ namespace SteamStartShell
             await Task.Delay(100);
 
             var state = (EItemState)SteamUGC.GetItemState(new(MAPI_PFID));
-
-            if (!firstAttempt)
-            {
-                if (!SteamUser.BLoggedOn())
-                {
-                    Logger.Warning("Offline.");
-                    return;
-                }
-            }
 
             firstAttempt = false;
 
@@ -128,8 +145,6 @@ namespace SteamStartShell
             }
 
             Logger.Information("DCCM Workshop Version Path: {path}", mapiFolder);
-
-            knownWorkshopRoot = Path.GetDirectoryName(mapiFolder);
 
             // Check for shell update
             var shellPath = Path.Combine(mapiFolder, "core", "host", "startup", "steam", "deadcells.exe");
@@ -214,6 +229,8 @@ namespace SteamStartShell
                 CopyDir(new(mapiFolder), new(Path.Combine(gameRoot, "coremod")));
             }
 
+            await FindMods();
+
             SteamAPI.Shutdown();
         }
         static async Task<int> Main( string[] args )
@@ -250,6 +267,8 @@ namespace SteamStartShell
                 if (Debugger.IsAttached)
                 {
                     Logger.Warning("A debugger has been detected.");
+
+                    Environment.SetEnvironmentVariable("DCCM_SHOULD_WAIT_FOR_DEBUGGER", "true");
                 }
 
 
@@ -285,11 +304,7 @@ namespace SteamStartShell
 
                 Directory.SetCurrentDirectory(gameRoot!);
 
-                
-
                 await SteamWork();
-
-                FindMods();
 
                 Environment.SetEnvironmentVariable("DCCM_EXIT_WHEN_PROCESS_PID", Environment.ProcessId.ToString());
                 Environment.SetEnvironmentVariable("DEAD_CELLS_GAME_PATH", gameRoot);
