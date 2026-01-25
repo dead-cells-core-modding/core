@@ -17,6 +17,13 @@
            Text="Unknown mod type '$(ModType)', please confirm whether the corresponding MDK has been installed"
            />
   </Target>
+  
+  <!--Find Preview-->
+  <PropertyGroup>
+    <Preview Condition="$([System.IO.File]::Exists('$(Preview)')) == false">$(MSBuildProjectDirectory)/preview.png</Preview>
+    <Preview Condition="$([System.IO.File]::Exists('$(Preview)')) == false">$(MSBuildProjectDirectory)/preview.jpg</Preview>
+    <Preview Condition="$([System.IO.File]::Exists('$(Preview)')) == false">$(MSBuildProjectDirectory)/preview.gif</Preview>
+  </PropertyGroup>
 
   <!--Mod Info-->
   <PropertyGroup>
@@ -84,8 +91,15 @@
     </ItemGroup>
     
     <MakeDir Directories="$(MDKOutputPath)" />
+    
+    <!--Copy Preview-->
+    <Copy Condition="$([System.IO.File]::Exists('$(Preview)')) == true" SourceFiles="$(Preview)"
+          DestinationFolder="$(MDKOutputPath)" />
+    
+    <!--Copy Content-->
+    
     <Copy SourceFiles="@(_MDK_OutFiles)" DestinationFolder="$(MDKOutputPath)%(RecursiveDir)" 
-          SkipUnchangedFiles="false" />
+          SkipUnchangedFiles="true" />
   </Target>
   <Target Name="InstallMod" AfterTargets="CopyOutputFiles" Condition="$(AutoInstallMod) == true">
     <PropertyGroup>
