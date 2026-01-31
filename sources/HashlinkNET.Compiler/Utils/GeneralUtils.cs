@@ -112,11 +112,11 @@ namespace HashlinkNET.Compiler.Utils
         {
             var rdata = container.GetGlobalData<RuntimeImports>();
             var cache = GetHlFieldInfoCache(type, name, rdata);
-            if (ft.Namespace == "System" && ft.Name.StartsWith("Nullable^1") && ft.IsValueType)
+            if (ft.Namespace == "System" && ft.Name.StartsWith("Nullable") && ft.IsValueType)
             {
                 il.Emit(OpCodes.Ldstr, name);
                 il.Emit(OpCodes.Ldsflda, cache);
-                il.Emit(OpCodes.Call, rdata.hGetFieldById.MakeInstance(ft));
+                il.Emit(OpCodes.Call, rdata.hGetFieldById.MakeInstance(rdata.objectType));
                 il.Emit(OpCodes.Unbox_Any, ft);
             }
             else if (ft.IsValueType)
@@ -148,7 +148,7 @@ namespace HashlinkNET.Compiler.Utils
             var cache = GetHlFieldInfoCache(type, name, rdata);
 
             if (ft is GenericParameter ||
-                ft.Namespace == "System" && ft.Name.StartsWith("Nullable^1") && ft.IsValueType
+                (ft.Namespace == "System" && ft.Name.StartsWith("Nullable") && ft.IsValueType)
                 )
             {
                 il.Emit(OpCodes.Box, ft);
