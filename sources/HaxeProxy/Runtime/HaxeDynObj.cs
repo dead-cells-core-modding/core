@@ -3,6 +3,8 @@ using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
+using HaxeProxy.Runtime.Internals;
+using System.Dynamic;
 
 namespace HaxeProxy.Runtime
 {
@@ -32,6 +34,25 @@ namespace HaxeProxy.Runtime
 
         public dynamic AsDynamic() => HashlinkObj.AsDynamic();
 
-        
+        public override bool TryGetMember( GetMemberBinder binder, out object? result )
+        {
+            result =  HaxeProxyHelper.GetProxy<object>(((HashlinkDynObj)HashlinkObj).GetFieldValue(binder.Name));
+            return true;
+        }
+        public override bool TrySetMember( SetMemberBinder binder, object? value )
+        {
+            ((HashlinkDynObj)HashlinkObj).SetFieldValue(binder.Name, value);
+            return true;
+        }
+        public override bool TryGetIndex( GetIndexBinder binder, object[] indexes, out object? result )
+        {
+            result = HaxeProxyHelper.GetProxy<object>(((HashlinkDynObj)HashlinkObj).GetFieldValue(indexes[0].ToString()!));
+            return true;
+        }
+        public override bool TrySetIndex( SetIndexBinder binder, object[] indexes, object? value )
+        {
+            ((HashlinkDynObj)HashlinkObj).SetFieldValue(indexes[0].ToString()!, value);
+            return true;
+        }
     }
 }

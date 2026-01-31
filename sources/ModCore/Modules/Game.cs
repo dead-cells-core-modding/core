@@ -70,23 +70,29 @@ namespace ModCore.Modules
 
             if (Core.Config.Value.SkipLogoSplash)
             {
-                Hook_LogoSplashscreen.update += Hook_LogoSplashscreen_update;
+                Hook_LogoSplashscreen.onResize += Hook_LogoSplashscreen_onResize;
+                Hook_Main.onSecondFrame += Hook_Main_onSecondFrame;
             }
+        }
+
+        private void Hook_LogoSplashscreen_onResize( Hook_LogoSplashscreen.orig_onResize orig, LogoSplashscreen self )
+        {
+            self.logoMT.alpha = 0;
+            self.logoEvilEmpire.alpha = 0;
+        }
+
+        private void Hook_Main_onSecondFrame( Hook_Main.orig_onSecondFrame orig, Main self )
+        {
+            orig(self);
+            Assets.Class.preInit();
+            var lss = (LogoSplashscreen)self.curProcess;
+            lss.nextProcess();
+            
         }
 
         private bool Hook__ServerApi_canSaveScore( Hook__ServerApi.orig_canSaveScore orig )
         {
             return false;
-        }
-
-        private void Hook_LogoSplashscreen_update( Hook_LogoSplashscreen.orig_update orig, LogoSplashscreen self )
-        {
-            var s = self;
-
-            Assets.Class.preInit();
-            s.secondLogo = true;
-            s.ready = true;
-            self.next(null);
         }
 
         private virtual_cb_help_inter_isEnable_t_<bool> Hook_TitleScreen_addMenu( Hook_TitleScreen.orig_addMenu orig, TitleScreen self, dc.String str, HlAction cb, dc.String help, bool? isEnable, Ref<int> color )

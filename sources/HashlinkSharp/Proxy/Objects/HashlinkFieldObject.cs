@@ -80,5 +80,15 @@ namespace Hashlink.Proxy.Objects
             SetFieldValue(binder.Name, value);
             return true;
         }
+        public override bool TryGetIndex( GetIndexBinder binder, object[] indexes, out object? result )
+        {
+            result = GetFieldValue(indexes[0].ToString()!);
+            return true;
+        }
+        public override bool TrySetIndex( SetIndexBinder binder, object[] indexes, object? value )
+        {
+            SetFieldValue(indexes[0].ToString()!, value);
+            return true;
+        }
     }
 }

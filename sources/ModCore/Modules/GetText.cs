@@ -2,6 +2,7 @@ using dc;
 using dc.haxe.io;
 using dc.hxd;
 using dc.libs.data;
+using HaxeProxy.Runtime;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
@@ -32,6 +33,26 @@ namespace ModCore.Modules
         {
             var s = str.AsHaxeString();
             return Lang.Class.t.get(s, null).ToString()!;
+        }
+
+        /// <summary>
+        /// Retrieves a formatted string by applying the specified parameters to the input template.
+        /// </summary>
+        /// <param name="str">The string template to format. This string may contain placeholders that correspond to keys in the <paramref
+        /// name="params"/> dictionary.</param>
+        /// <param name="params">A dictionary containing key-value pairs to substitute into the template. Each key should match a placeholder
+        /// in the template string.</param>
+        /// <returns>A string resulting from replacing placeholders in the template with the corresponding values from the
+        /// dictionary.</returns>
+        public string GetString( string str, IDictionary<string, string> @params )
+        {
+            var s = str.AsHaxeString();
+            dynamic param = new HaxeDynObj();
+            foreach (var v in @params)
+            {
+                param[v.Key] = v.Value.AsHaxeString();
+            }
+            return Lang.Class.t.get(s, param).ToString()!;
         }
 
         /// <summary>
