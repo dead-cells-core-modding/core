@@ -3,6 +3,7 @@ using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System.Diagnostics;
 
 namespace HashlinkNET.Compiler.Steps.Func
 {
@@ -50,16 +51,12 @@ namespace HashlinkNET.Compiler.Steps.Func
 
             if (f.Assigns != null && md.Parameters.Count > 0)
             {
-                var argNamesCount = f.Assigns.TakeWhile(x => x.Index >= 0)
-                    .Take(md.Parameters.Count).Count();
-                var ai = 0;
-                for (int i = md.Parameters.Count != argNamesCount ? 1 : 0; i < md.Parameters.Count; i++)
+                var args = f.Assigns.Where(x => x.Index == 0).ToArray();
+
+                int mpc = md.Parameters.Count - 1;
+                for (int i = args.Length - 1; i >= 0 && mpc >= 0; i--)
                 {
-                    if (ai >= f.Assigns.Length)
-                    {
-                        break;
-                    }
-                    md.Parameters[i].Name = f.Assigns[ai++].Name;
+                    md.Parameters[mpc--].Name = args[i].Name;
                 }
             }
 

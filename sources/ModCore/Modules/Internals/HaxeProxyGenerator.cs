@@ -8,6 +8,7 @@ using ModCore.Storage;
 using Mono.Cecil;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime;
 
 namespace ModCore.Modules.Internals
 {
@@ -89,6 +90,7 @@ namespace ModCore.Modules.Internals
                 proxyCache.UpdateCache();
             }
 
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
