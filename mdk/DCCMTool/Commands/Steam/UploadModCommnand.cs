@@ -65,10 +65,8 @@ namespace DCCMTool.Commands.Steam
 
                 SteamUGC.SetItemTitle(updateHandle, $"[DCCM] {modname}");
                 SteamUGC.SetItemVisibility(updateHandle, ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityPublic);
+                SteamUGC.AddItemKeyValueTag(updateHandle, "dccm_modname", modname);
             }
-
-            SteamUGC.AddItemKeyValueTag(updateHandle, "dccm_modver", ver);
-            SteamUGC.AddItemKeyValueTag(updateHandle, "dccm_modname", modname);
 
             if (string.IsNullOrEmpty(Arguments.PreviewPath))
             {

@@ -19,7 +19,7 @@ namespace ModCore.Modules.Internals
         public readonly CacheFile hlbootCache = new("hlboot.dat");
         public readonly CacheFile proxyCache = new("GameProxy.dll");
         public readonly CacheFile pseudoCache = new("GamePseudocode.dll");
-        public override int Priority => 1000;
+        public override int Priority => 10000;
 
         private Assembly? proxyAssembly;
 
@@ -39,6 +39,7 @@ namespace ModCore.Modules.Internals
                 hlbootCache.UpdateCache(data);
             }
 
+            var code = HlCode.FromBytes(data);
 
             if (Core.Config.Value.GeneratePseudocodeAssembly &&
                 !pseudoCache.IsValid)
@@ -47,7 +48,7 @@ namespace ModCore.Modules.Internals
 
                 var asm = AssemblyDefinition.CreateAssembly(new("GamePseudocode", new()), "GamePseudocode", ModuleKind.Dll);
                 var compiler = new HashlinkCompiler(
-                    HlCode.FromBytes(data), asm, new()
+                    code, asm, new()
                     {
                         AllowParalle = true,
                         GeneratePseudocode = true
@@ -71,7 +72,7 @@ namespace ModCore.Modules.Internals
 
                 var asm = AssemblyDefinition.CreateAssembly(new("GameProxy", new()), "GameProxy", ModuleKind.Dll);
                 var compiler = new HashlinkCompiler(
-                    HlCode.FromBytes(data), asm, new()
+                    code, asm, new()
                     {
                         AllowParalle = true
                     });

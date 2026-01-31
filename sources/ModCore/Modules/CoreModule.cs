@@ -1,4 +1,4 @@
-﻿
+
 using static ModCore.Modules.CoreModuleAttribute;
 
 namespace ModCore.Modules

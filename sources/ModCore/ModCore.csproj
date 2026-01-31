@@ -41,5 +41,7 @@
     </Using>
   </ItemGroup>
 
-  
+
+  <Import Project="../../IncludeSteamworkNET.props"/>
+
 </Project>

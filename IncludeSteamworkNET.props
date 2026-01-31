@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
+    <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
+    <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SteamworkNETRoot>$(MSBuildThisFileDirectory)/3rd/Steamworks.NET/</SteamworkNETRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Steamworks.NET" Condition=" '$(IsWindows)' == 'true' ">
+      <HintPath>$(SteamworkNETRoot)Windows-x64/Steamworks.NET.dll</HintPath>
+    </Reference>
+
+    <Reference Include="Steamworks.NET" Condition=" '$(IsWindows)' != 'true'">
+      <HintPath>$(SteamworkNETRoot)OSX-Linux-x64/Steamworks.NET.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

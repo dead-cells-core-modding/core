@@ -9,6 +9,7 @@ using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Events.Interfaces.Game.Save;
+using ModCore.Events.Interfaces.VM;
 using ModCore.Utitities;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -58,6 +59,7 @@ namespace ModCore.Modules
             get; private set;
         }
 
+       
         void IOnBeforeGameInit.OnBeforeGameInit()
         {
             Hook_Hero.init += Hook_Hero_init;

@@ -207,6 +207,10 @@ namespace SteamStartShell
                     {
                         if (fi is FileInfo f)
                         {
+                            if (f.Name == "ModCoreVersion.txt")
+                            {
+                                continue;
+                            }
                             var tf = Path.GetFullPath(Path.Combine(dst.FullName, f.Name));
                             try
                             {
@@ -227,6 +231,8 @@ namespace SteamStartShell
                 }
 
                 CopyDir(new(mapiFolder), new(Path.Combine(gameRoot, "coremod")));
+
+                File.WriteAllText(Path.Combine(gameRoot, "coremod", "ModCoreVersion.txt"), mccv.ToString());
             }
 
             await FindMods();
