@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2025-11-29 12:26+0800\n"
-"PO-Revision-Date: 2025-12-20 23:18+0800\n"
+"POT-Creation-Date: 2026-01-31 13:40+0800\n"
+"PO-Revision-Date: 2026-01-31 13:42+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -13,6 +13,18 @@ msgstr ""
 "X-Poedit-Basepath: ../../../ModCore\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: Modules/Game.cs:87
+#: Modules/Game.cs:99
 msgid "About Core Modding"
 msgstr "关于 Core Modding"
+
+#: Modules/Internals/HxbitModule.cs:248
+msgid "The save file has been corrupted, likely due to some mods not being found."
+msgstr "游戏存档已损毁，这可能是因为部分 Mods 未找到。"
+
+#: Modules/Internals/HxbitModule.cs:249
+msgid "You can still continue operating, but all mod data will be lost!"
+msgstr "你依然可以继续操作，但所有 Mods 的数据都将会丢失！"
+
+#: Modules/Internals/HxbitModule.cs:250
+msgid "Please check the log file for more information."
+msgstr "请检查日志文件以获取更多信息。"

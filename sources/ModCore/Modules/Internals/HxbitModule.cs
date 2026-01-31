@@ -1,24 +1,31 @@
 using dc.haxe.io;
 using dc.hl;
 using dc.hxbit;
+using dc.ui;
 using HaxeProxy.Runtime;
 using HaxeProxy.Runtime.Internals.Inheritance;
 using ModCore.Events.Interfaces;
+using ModCore.Events.Interfaces.Game;
 using ModCore.Serialization;
 using ModCore.Serialization.Converters;
 using ModCore.Storage;
+using ModCore.Utitities;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.IO.Hashing;
+using HaxeProxyUtils = HaxeProxy.Runtime.HaxeProxyUtils;
 
 namespace ModCore.Modules.Internals
 {
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     internal unsafe class HxbitModule : CoreModule<HxbitModule>,
-        IOnAdvancedModuleInitializing
+        IOnAdvancedModuleInitializing,
+        IOnFrameUpdate
     {
         public const ulong MAGIC_NUMBER_EXTRA_DATA = 0x004443434D435300;
         public static readonly int CURRENT_VERSION = 3;
+
+        private bool shouldShowErrorWarning = false;
 
         private Class? Hook_resolveClass( Func<dc.String, Class?> orig, dc.String str )
         {
@@ -62,22 +69,19 @@ namespace ModCore.Modules.Internals
             {
                 var cur = (byte*)self.input.b + self.inPos;
                 var end = (byte*)self.input.b + self.input.length;
-
+                
                 if (*((ulong*)cur) != MAGIC_NUMBER_EXTRA_DATA)
                 {
                     //No extra data
-                    orig(self);
                     return;
                 }
                 cur += sizeof(ulong);
                 var ver = Read<int>(ref cur);
                 if (ver != CURRENT_VERSION)
                 {
-                    Logger.Warning("Version number mismatch: expected {A} instead of {B}.", CURRENT_VERSION, ver);
-                    Logger.Warning("Skip extra data loading, save data may be corrupted after saving.");
-                    orig(self);
-                    return;
+                    throw new InvalidOperationException($"Version number mismatch: expected {CURRENT_VERSION} instead of {ver}.");
                 }
+
                 var size = Read<int>(ref cur) - 16;
                 var str = System.Text.Encoding.UTF8.GetString(cur, size);
                 var data = JsonConvert.DeserializeObject<SerializeContext.Data>(
@@ -99,11 +103,19 @@ namespace ModCore.Modules.Internals
                 self.setInput(new((nint)cur, data.extraHxObjSize), 0);
 
                 ctx.Begin(data);
+               
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Unable to load save!");
+                Logger.Warning("Extra saved content will be cleared.");
+                Logger.Warning("Skip extra data loading, save data may be corrupted after saving.");
 
-                orig(self);
+                shouldShowErrorWarning = true;
             }
             finally
             {
+                orig(self);
                 DeserializeContext.PopContext();
             }
         }
@@ -223,6 +235,19 @@ namespace ModCore.Modules.Internals
             finally
             {
                 SerializeContext.PopContext();
+            }
+        }
+
+        void IOnFrameUpdate.OnFrameUpdate( double dt )
+        {
+            if (shouldShowErrorWarning)
+            {
+                shouldShowErrorWarning = false;
+
+                var popup = new ModalPopUp(Ref<bool>.DontCare, null);
+                popup.text(GetText.Instance.GetString("The save file has been corrupted, likely due to some mods not being found.").AsHaxeString(), 0xff0000, Ref<bool>.DontCare);
+                popup.text(GetText.Instance.GetString("You can still continue operating, but all mod data will be lost!").AsHaxeString(), 0xff0000, Ref<bool>.DontCare);
+                popup.text(GetText.Instance.GetString("Please check the log file for more information.").AsHaxeString(), 0xff0000, Ref<bool>.DontCare);
             }
         }
     }

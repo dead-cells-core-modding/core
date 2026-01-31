@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/解决方案项/">
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Project Path="DebugMod/DebugMod.csproj" />
+  <Project Path="DoubleCells/DoubleCells.csproj" />
+  <Project Path="LibraryMod/LibraryMod.csproj" />
+  <Project Path="SampleHook/SampleHook.csproj" />
+  <Project Path="SampleSimple/SampleSimple.csproj" />
+  <Project Path="SampleWeapon/SampleWeapon.csproj" />
+</Solution>
