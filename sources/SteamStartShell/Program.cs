@@ -216,9 +216,9 @@ namespace SteamStartShell
                             {
                                 f.CopyTo(tf, true);
                             }
-                            catch(IOException ex) when (tf != Environment.ProcessPath)
+                            catch(IOException ex) when (tf == Environment.ProcessPath ||
+                                tf == Path.ChangeExtension(Environment.ProcessPath, "pdb"))
                             {
-                                
                                 Log.Logger.Error("Failed to copy file {file}: {err}", tf, ex);
                             }
                         }
