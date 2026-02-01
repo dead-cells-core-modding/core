@@ -94,15 +94,11 @@ namespace SteamStartShell
                 throw;
             }
 
-            bool firstAttempt = true;
-
             _RE_TRY:
 
             await Task.Delay(100);
 
             var state = (EItemState)SteamUGC.GetItemState(new(MAPI_PFID));
-
-            firstAttempt = false;
 
             if (state.HasFlag(EItemState.k_EItemStateDownloading) || state.HasFlag(EItemState.k_EItemStateDownloadPending))
             {

@@ -6,23 +6,10 @@ namespace DCCMShell
 {
     public unsafe static partial class Shell
     {
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct ManagedAPIInfo
-        {
-            public int count;
-            public char** names;
-            public void*** ptr;
-        }
-        [StructLayout(LayoutKind.Sequential)]
-        private struct NativeArgs
-        {
-            public char** err;
-            public int argc;
-            public void** args;
-            public ManagedAPIInfo* api_info;
-        }
         public static void StartFromShell( nint _, int _1 )
         {
+            Environment.SetEnvironmentVariable("SteamAPPId", "588650");
+
             var err = Startup.CheckEnv(out var errMsg);
             if(err != Startup.CheckEnvResult.Success)
             {
@@ -76,26 +63,7 @@ namespace DCCMShell
 
             Startup.StartGame();
         }
-
-        public static void StartFromNative( IntPtr args, int sizeBytes )
-        {
-            NativeArgs* pargs = (NativeArgs*)args;
-            try
-            {
-                if (Startup.CheckEnv(out string? err) != Startup.CheckEnvResult.Success)
-                {
-                    Console.Error.WriteLine(err);
-                    *pargs->err = (char*)Marshal.StringToHGlobalAnsi(err);
-                    return;
-                }
-                InitializeManagedAPIs(pargs->api_info);
-                Startup.StartGame();
-            }
-            catch (Exception ex)
-            {
-                *pargs->err = (char*)Marshal.StringToHGlobalAnsi(ex.ToString());
-            }
-        }
+   
         public static void Main( string[] args )
         {
             StartFromShell(0, 0);

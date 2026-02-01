@@ -54,7 +54,7 @@ namespace DeadCellsModding
                 gameRoot = Path.GetDirectoryName(Environment.ProcessPath!)!;
             }
 
-            Environment.SetEnvironmentVariable("SteamAPPId", "588650");
+
 
             string? modcore = null;
             gameRoot = Path.GetFullPath(gameRoot);
