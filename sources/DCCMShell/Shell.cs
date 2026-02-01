@@ -1,6 +1,7 @@
 using ModCore;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.Loader;
 
 namespace DCCMShell
 {
@@ -8,6 +9,13 @@ namespace DCCMShell
     {
         public static void StartFromShell( nint _, int _1 )
         {
+            var loadAssemblies = Environment.GetEnvironmentVariable("DCCM_LOAD_ADDITIONAL_ASSEMBLIES")?.Split(';', StringSplitOptions.RemoveEmptyEntries | 
+                StringSplitOptions.TrimEntries) ?? [];
+            foreach (var asmPath in loadAssemblies)
+            {
+                AssemblyLoadContext.Default.LoadFromAssemblyPath(asmPath);
+            }
+         
             Environment.SetEnvironmentVariable("SteamAPPId", "588650");
 
             var err = Startup.CheckEnv(out var errMsg);
@@ -59,6 +67,22 @@ namespace DCCMShell
                 } catch 
                 {
                 }
+            }
+
+            var customStartType = Environment.GetEnvironmentVariable("DCCM_CUSTOM_STARTUP_TYPE");
+            if(!string.IsNullOrEmpty(customStartType))
+            {
+                var type = Type.GetType(customStartType, throwOnError: true);
+                Debug.Assert(type != null);
+                var methodName = Environment.GetEnvironmentVariable("DCCM_CUSTOM_STARTUP_METHOD");
+                if(string.IsNullOrEmpty(methodName))
+                {
+                    methodName = "Main";
+                }
+                var method = type.GetMethod(methodName, System.Reflection.BindingFlags.Public | 
+                    System.Reflection.BindingFlags.Static) ?? throw new MissingMethodException(customStartType, methodName);
+                method.Invoke(null, null);
+                return;
             }
 
             Startup.StartGame();
