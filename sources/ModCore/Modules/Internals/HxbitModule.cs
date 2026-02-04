@@ -10,7 +10,6 @@ using ModCore.Serialization;
 using ModCore.Serialization.Converters;
 using ModCore.Storage;
 using ModCore.Utilities;
-using ModCore.Utitities;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.IO.Hashing;

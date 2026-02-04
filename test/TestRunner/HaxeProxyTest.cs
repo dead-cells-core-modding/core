@@ -10,7 +10,6 @@ using Hashlink.Reflection.Types;
 using Hashlink.Virtuals;
 using HaxeProxy.Runtime;
 using ModCore.Utilities;
-using ModCore.Utitities;
 
 namespace TestRunner
 {

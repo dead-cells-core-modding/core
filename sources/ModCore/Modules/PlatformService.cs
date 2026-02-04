@@ -1,12 +1,5 @@
-using dc.steam;
 using HashlinkNET.Bytecode;
-using ModCore.Events;
-using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
-using SharpPdb.Windows.SymbolRecords;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ModCore.Modules
 {

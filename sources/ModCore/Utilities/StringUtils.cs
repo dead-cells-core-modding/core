@@ -1,3 +1,6 @@
+using Hashlink.Proxy.Objects;
+using HaxeProxy.Runtime;
+
 namespace ModCore.Utilities
 {
     /// <summary>
@@ -8,6 +11,17 @@ namespace ModCore.Utilities
     /// used without instantiating the class.</remarks>
     public static class StringUtils
     {
+        /// <summary>
+        /// Convert a string to a Haxe string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static dc.String AsHaxeString( this string str )
+        {
+            var s = new HashlinkString(str).AsHaxe<dc.String>();
+            return s;
+        }
+
         extension(dc.String)
         {
             /// <summary>

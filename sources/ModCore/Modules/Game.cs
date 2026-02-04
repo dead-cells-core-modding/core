@@ -9,9 +9,7 @@ using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Events.Interfaces.Game.Save;
-using ModCore.Events.Interfaces.VM;
 using ModCore.Utilities;
-using ModCore.Utitities;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 

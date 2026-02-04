@@ -1,6 +1,5 @@
 using Hashlink;
 using Hashlink.Marshaling;
-using HashlinkNET.Bytecode;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
