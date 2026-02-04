@@ -13,7 +13,8 @@ namespace DCCMTool.Commands.Steam
     {
         public override async Task<int> ExecuteSteamAsync()
         {
-            var modinfo = JObject.Parse(File.ReadAllText(Path.Combine(Arguments.ModPath, "modinfo.json")));
+            var modroot = Path.GetFullPath(Arguments.ModPath);
+            var modinfo = JObject.Parse(File.ReadAllText(Path.Combine(modroot, "modinfo.json")));
 
             var modname = modinfo["name"]!.ToString();
             var ver = modinfo["version"]!.ToString();
@@ -78,17 +79,17 @@ namespace DCCMTool.Commands.Steam
                     if (File.Exists(rp))
                     {
                         Console.WriteLine("Found preview: " + rp);
-                        SteamUGC.SetItemPreview(updateHandle, rp);
+                        SteamUGC.SetItemPreview(updateHandle, Path.GetFullPath(rp));
                         break;
                     }
                 }
             }
             else
             {
-                SteamUGC.SetItemPreview(updateHandle, Arguments.PreviewPath);
+                SteamUGC.SetItemPreview(updateHandle, Path.GetFullPath(Arguments.PreviewPath));
             }
 
-            SteamUGC.SetItemContent(updateHandle, Arguments.ModPath);
+            SteamUGC.SetItemContent(updateHandle, modroot);
 
             if (string.IsNullOrEmpty(Arguments.UpdateText))
             {

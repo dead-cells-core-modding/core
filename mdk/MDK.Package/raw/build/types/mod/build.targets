@@ -50,6 +50,7 @@
   <Target Name="ResolveModAssemblies" 
           BeforeTargets="ResolveAssemblyReferences" 
           DependsOnTargets="ResolveMods">
+    
     <PropertyGroup>
       <AssemblySearchPaths>@(ResolvedMods->'%(ModRoot)');$(_DCCM_Core_Host_Root);$(_DCCM_MDK_Root)ref;$(AssemblySearchPaths);</AssemblySearchPaths>
     </PropertyGroup>
