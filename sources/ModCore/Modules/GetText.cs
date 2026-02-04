@@ -6,6 +6,7 @@ using HaxeProxy.Runtime;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
+using ModCore.Utilities;
 using ModCore.Utitities;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;

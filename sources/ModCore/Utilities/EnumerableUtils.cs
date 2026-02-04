@@ -2,7 +2,7 @@ using dc.hl.types;
 using Hashlink.Virtuals;
 using HaxeProxy.Runtime;
 
-namespace ModCore.Utitities
+namespace ModCore.Utilities
 {
     /// <summary>
     /// 

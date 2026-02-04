@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace ModCore.Utitities
+namespace ModCore.Utilities
 {
     /// <summary>
     /// Provides utility methods for starting and managing worker processes that execute specified static methods in

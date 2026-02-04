@@ -1,4 +1,4 @@
-namespace ModCore.Utitities
+namespace ModCore.Utilities
 {
     /// <summary>
     /// Provides utility methods and operators for comparing and working with dc.String instances.

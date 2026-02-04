@@ -2,7 +2,7 @@ using Hashlink.Proxy;
 using HaxeProxy.Runtime;
 using System.Dynamic;
 
-namespace ModCore.Utitities
+namespace ModCore.Utilities
 {
 
     /// <summary>

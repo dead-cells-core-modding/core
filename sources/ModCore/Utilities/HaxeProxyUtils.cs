@@ -1,7 +1,9 @@
 using Hashlink.Proxy.Objects;
 using HaxeProxy.Runtime;
+using ModCore.Utilities;
+using ModCore.Utitities;
 
-namespace ModCore.Utitities
+namespace ModCore.Utilities
 {
     /// <summary>
     /// 

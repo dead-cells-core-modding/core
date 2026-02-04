@@ -2,7 +2,7 @@ using dc.hl.types;
 using Hashlink.Marshaling;
 using System.Runtime.InteropServices;
 
-namespace ModCore.Utitities
+namespace ModCore.Utilities
 {
 
     /// <summary>

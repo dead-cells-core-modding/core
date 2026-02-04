@@ -1,7 +1,7 @@
 using dc.hxd;
 using dc.hxd.res;
 
-namespace ModCore.Utitities
+namespace ModCore.Utilities
 {
     public static class ResLoadUtils
     {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ModCore.Utitities
+namespace ModCore.Utilities
 {
     /// <summary>
     /// Provides utility methods for working with color values.
@@ -17,7 +17,6 @@ namespace ModCore.Utitities
         /// <param name="r">The red component of the color. Represents the most significant byte in the packed value.</param>
         /// <param name="g">The green component of the color.</param>
         /// <param name="b">The blue component of the color.</param>
-        /// <param name="a">The alpha (transparency) component of the color. Represents the least significant byte in the packed value.</param>
         /// <returns>A 32-bit integer containing the packed RGBA color value, with the red component in the highest byte and the
         /// alpha component in the lowest byte.</returns>
         public static int PackColor(byte r, byte g, byte b)

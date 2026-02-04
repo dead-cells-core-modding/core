@@ -1,7 +1,7 @@
 using dc.haxe.io;
 using System.Buffers;
 
-namespace ModCore.Utitities
+namespace ModCore.Utilities
 {
     /// <summary>
     /// 
