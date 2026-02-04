@@ -649,7 +649,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     t[j] = GetJmpTarget(irbb, index, code.Parameters[3 + j]);
                 }
                 irbb.AddIR(new IR_Switch(
-                    CreateLoadLocalReg(0), t));
+                    CreateLoadLocalReg(code.Parameters[0]), t));
             }
             else if (c == HlOpcodeKind.Assert)
             {
