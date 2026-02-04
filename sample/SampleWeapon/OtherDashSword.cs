@@ -4,7 +4,7 @@ using dc.tool;
 using dc.tool.weap;
 using HaxeProxy.Runtime;
 using ModCore.Storage;
-using ModCore.Utitities;
+using ModCore.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -8,7 +8,7 @@ using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Mods;
 using ModCore.Modules;
-using ModCore.Utitities;
+using ModCore.Utilities;
 using Serilog;
 using Serilog.Core;
 using System.Runtime.CompilerServices;
