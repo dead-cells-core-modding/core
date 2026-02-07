@@ -6,6 +6,7 @@ namespace HashlinkNET.Compiler.Data
 {
     internal class RuntimeImports
     {
+        public TypeSystem typeSystem;
         public AssemblyNameReference runtimeName;
 
         public TypeReference objBaseType;
@@ -28,7 +29,8 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference attrTypeBindingCtor;
         public MethodReference attrFIndexCtor;
         public MethodReference attrTIndexCtor;
-        public MethodReference attrDynamic; 
+        public MethodReference attrDynamic;
+        public MethodReference attrDynamic2;
         public MethodReference attrObsolete;
         public MethodReference attrIgnoreAccessCheck;
         public MethodReference jsonIgnoreCtor;

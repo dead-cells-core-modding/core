@@ -286,10 +286,50 @@ namespace HashlinkNET.Compiler.Utils
         {
             provider.CustomAttributes.Add(new(runtimeImports.attrDynamic));
         }
+
+        private static bool IsObjectType( TypeReference type )
+        {
+            return type.Namespace == "System" && type.Name == "Object";
+        }
+
+        [ThreadStatic]
+        private static List<bool>? dynamicFlagsList;
+
         public static void CheckDynamic( this ICustomAttributeProvider provider, RuntimeImports runtimeImports,
             TypeReference type )
         {
-            if (type.Namespace == "System" && type.Name == "Object")
+            dynamicFlagsList ??= [];
+
+            if (type is GenericInstanceType)
+            {
+                static void CheckDynamic2(List<bool> values, TypeReference tr)
+                {
+                    if (IsObjectType(tr))
+                    {
+                        values.Add(true);
+                        return;
+                    }
+                    values.Add(false);
+                    if (tr is GenericInstanceType git)
+                    {
+                        foreach (var v in git.GenericArguments)
+                        {
+                            CheckDynamic2(values, v);
+                        }
+                    }
+                }
+                dynamicFlagsList.Clear();
+                CheckDynamic2(dynamicFlagsList, type);
+
+                provider.CustomAttributes.Add(new(runtimeImports.attrDynamic2)
+                {
+                    ConstructorArguments = {
+                        new(runtimeImports.typeSystem.Boolean.MakeArrayType(), dynamicFlagsList.ToArray())
+                    }
+                });
+
+            }
+            else if (IsObjectType(type))
             {
                 provider.AddDynamicAttribute(runtimeImports);
             }

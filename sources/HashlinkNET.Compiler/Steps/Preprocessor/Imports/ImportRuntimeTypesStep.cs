@@ -26,7 +26,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             var rtAsm = typeof(HaxeProxyBase).Assembly;
 
             rdata.runtimeName = new AssemblyNameReference(rtAsm.GetName().Name, rtAsm.GetName().Version);
-
+            rdata.typeSystem = module.TypeSystem;
             rdata.arrowFuncCtxType = ImportType<HaxeArrowFunctionContext>();
             rdata.objBaseType = ImportType<HaxeProxyBase>();
             rdata.functionInfoCache = ImportType<FunctionInfoCache>();
@@ -127,6 +127,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.attrFIndexCtor = ImportAttribute<HashlinkFIndexAttribute>();
             rdata.attrTIndexCtor = ImportAttribute<HashlinkTIndexAttribute>();
             rdata.attrDynamic = ImportAttribute<DynamicAttribute>();
+            rdata.attrDynamic2 = ImportAttribute<DynamicAttribute>(1);
             rdata.attrObsolete = ImportAttribute<ObsoleteAttribute>(1);
             rdata.attrIgnoreAccessCheck = ImportAttribute<IgnoresAccessChecksToAttribute>();
             rdata.attrInitialValue = ImportAttribute<HashlinkInitialvalueAttribute>();
