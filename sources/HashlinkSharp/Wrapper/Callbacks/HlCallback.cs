@@ -61,5 +61,14 @@ namespace Hashlink.Wrapper.Callbacks
                 return routerPtr;
             }
         }
+
+        ~HlCallback()
+        {
+            if (precode != null)
+            {
+                memoryManager.Free(precode);
+                precode = null;
+            }
+        }
     }
 }

@@ -34,13 +34,26 @@ namespace ModCore.Modules
             public override void Send( SendOrPostCallback d, object? state )
             {
                 EventWaitHandle wait = new(false, EventResetMode.ManualReset);
+                Exception? exception = null;
                 queues.Enqueue((state =>
                 {
-                    d(state);
+                    try
+                    {
+                        d(state);
+                    }
+                    catch (Exception ex)
+                    {
+                        exception = ex;
+                    }
                     wait.Set();
                 }, state));
                 wait.WaitOne();
                 wait.Dispose();
+
+                if (exception != null)
+                {
+                    throw new AggregateException("An exception occurred while executing a callback in the synchronization context.", exception);
+                }
             }
         }
         /// <summary>

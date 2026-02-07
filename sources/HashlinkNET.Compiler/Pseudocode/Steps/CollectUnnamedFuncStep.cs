@@ -1,5 +1,6 @@
 using HashlinkNET.Compiler.Data;
 using Mono.Cecil;
+using System.Diagnostics;
 
 namespace HashlinkNET.Compiler.Steps.Func
 {
@@ -25,6 +26,12 @@ namespace HashlinkNET.Compiler.Steps.Func
                     unnamedFunType.Methods.Add(md);
                 }
             }
+
+            var entry = gdata.Code.GetFunctionById(gdata.Code.Entrypoint);
+            
+            Debug.Assert(entry != null);
+
+            container.GetData<MethodDefinition>(entry).Name = "Entrypoint";
         }
     }
 }

@@ -7,7 +7,7 @@ namespace ModCore.Native
 {
     internal unsafe class ExecutableMemoryManager<T> where T : unmanaged
     {
-        private static readonly int PAGE_SIZE = 4096;
+        private static readonly int PAGE_SIZE = Environment.SystemPageSize;
         public struct Cell
         {
             internal volatile int ownerThread;
@@ -57,7 +57,7 @@ namespace ModCore.Native
         private void FreeCell( Cell* cell )
         {
             cell->ownerThread = -1;
-            Page* page = (Page*)((nint)cell & (PAGE_SIZE - 1));
+            Page* page = (Page*)((nint)cell & ~(PAGE_SIZE - 1));
             int cellIndex = (int)(((nint)cell - (nint)(&page->groups[0])) / sizeof(Cell));
             Interlocked.And(ref page->usedBits[cellIndex / 32], ~(1 << (cellIndex & 31)));
         }
@@ -90,7 +90,7 @@ namespace ModCore.Native
                     if (Interlocked.CompareExchange(ref group[j].ownerThread, Environment.CurrentManagedThreadId, -1)
                         == -1)
                     {
-                        Interlocked.Or(ref pg->usedBits[i], ~(1 << j));
+                        Interlocked.Or(ref pg->usedBits[i], (1 << j));
                         return (Cell*)Unsafe.AsPointer(ref group[j]);
                     }
                 }

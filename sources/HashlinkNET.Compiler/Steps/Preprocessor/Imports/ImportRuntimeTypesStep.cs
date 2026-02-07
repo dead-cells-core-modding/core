@@ -129,6 +129,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.attrDynamic = ImportAttribute<DynamicAttribute>();
             rdata.attrObsolete = ImportAttribute<ObsoleteAttribute>(1);
             rdata.attrIgnoreAccessCheck = ImportAttribute<IgnoresAccessChecksToAttribute>();
+            rdata.attrInitialValue = ImportAttribute<HashlinkInitialvalueAttribute>();
             rdata.jsonIgnoreCtor = ImportAttribute<JsonIgnoreAttribute>();
 
             rdata.funcTypes = new TypeReference[FUNC_MAX_ARGS_COUNT];
