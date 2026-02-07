@@ -287,6 +287,11 @@ namespace HashlinkNET.Compiler.Utils
             provider.CustomAttributes.Add(new(runtimeImports.attrDynamic));
         }
 
+        public static HlType GetLocalRegType( this HlFunction func, int idx )
+        {
+            return func.LocalVariables[idx].Value;
+        }
+
         private static bool IsObjectType( TypeReference type )
         {
             return type.Namespace == "System" && type.Name == "Object";
@@ -302,10 +307,12 @@ namespace HashlinkNET.Compiler.Utils
 
             if (type is GenericInstanceType)
             {
-                static void CheckDynamic2(List<bool> values, TypeReference tr)
+                bool anyDynamic = false;
+                void CheckDynamic2(List<bool> values, TypeReference tr)
                 {
                     if (IsObjectType(tr))
                     {
+                        anyDynamic = true;
                         values.Add(true);
                         return;
                     }
@@ -321,13 +328,16 @@ namespace HashlinkNET.Compiler.Utils
                 dynamicFlagsList.Clear();
                 CheckDynamic2(dynamicFlagsList, type);
 
-                provider.CustomAttributes.Add(new(runtimeImports.attrDynamic2)
+                if (anyDynamic)
                 {
-                    ConstructorArguments = {
+
+                    provider.CustomAttributes.Add(new(runtimeImports.attrDynamic2)
+                    {
+                        ConstructorArguments = {
                         new(runtimeImports.typeSystem.Boolean.MakeArrayType(), dynamicFlagsList.ToArray())
                     }
-                });
-
+                    });
+                }
             }
             else if (IsObjectType(type))
             {

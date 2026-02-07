@@ -88,6 +88,9 @@ namespace HashlinkNET.Compiler
             AddStep<GenerateClassGlobalPropStep>();
             AddStep<GenerateClassMethodDefStep>();
             AddStep<GenerateClassCtorStep>();
+
+            AddStep<FindCastExplicitTypesStep>();
+            AddStep<GenerateClassExplicitCastStep>();
             #endregion
             
             #region Arrow Function 

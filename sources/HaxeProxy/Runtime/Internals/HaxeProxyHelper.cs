@@ -124,6 +124,15 @@ namespace HaxeProxy.Runtime.Internals
                global
                 );
         }
+        public static T ToObject<T>( HaxeProxyBase val )  where T : HaxeObject
+        {
+            return val.AsObject<T>();
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T ToVirtual<T>( HaxeProxyBase val ) where T : HaxeVirtual
+        {
+            return val.ToVirtual<T>();
+        }
         [return: NotNullIfNotNull(nameof(val))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetProxy<T>( object? val )

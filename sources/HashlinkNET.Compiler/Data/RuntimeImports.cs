@@ -50,6 +50,8 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference hGetNullableProxy;
         public MethodReference hGetCallInfoById;
         public MethodReference hCreateEnumInstance;
+        public MethodReference hToVirtual;
+        public MethodReference hToObject;
 
         public MethodReference hAddHook;
         public MethodReference hRemoveHook;
@@ -83,5 +85,6 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference phWriteMem;
         public MethodReference hGetTypeIndexFromType;
         public MethodReference attrInitialValue;
+        
     }
 }

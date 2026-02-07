@@ -94,6 +94,8 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.hCreateEnumInstance = ImportHelperMethod(nameof(HaxeProxyHelper.CreateEnumInstance));
             rdata.hGetEnumIndex = ImportMethod(typeof(HaxeEnum), "get_RawIndex");
             rdata.hGetTypeIndexFromType = ImportHelperMethod(nameof(HaxeProxyHelper.GetTypeIndexFromType));
+            rdata.hToVirtual = ImportHelperMethod(nameof(HaxeProxyHelper.ToVirtual));
+            rdata.hToObject = ImportHelperMethod(nameof(HaxeProxyHelper.ToObject));
 
             rdata.hAddHook = ImportHelperMethod(nameof(HaxeProxyHelper.AddHook));
             rdata.hRemoveHook = ImportHelperMethod(nameof(HaxeProxyHelper.RemoveHook));

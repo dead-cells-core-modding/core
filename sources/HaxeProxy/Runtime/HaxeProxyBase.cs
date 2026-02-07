@@ -60,7 +60,7 @@ namespace HaxeProxy.Runtime
             }
             return base.TryConvert(binder, out result);
         }
-        public T ToVirtual<T>() where T : HaxeVirtual
+        public virtual T ToVirtual<T>() where T : HaxeVirtual
         {
             var tid = HaxeProxyManager.type2typeId[typeof(T)];
             var vt = HashlinkMarshal.Module.Types[tid];
@@ -69,7 +69,7 @@ namespace HaxeProxy.Runtime
                 )!;
             return result.AsHaxe<T>();
         }
-        public T AsObject<T>() where T : HaxeObject
+        public virtual T AsObject<T>() where T : HaxeObject
         {
             if (this is T result)
             {

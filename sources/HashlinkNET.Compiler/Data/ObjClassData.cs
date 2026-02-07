@@ -1,6 +1,7 @@
 using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data.Interfaces;
 using Mono.Cecil;
+using System.Collections.Concurrent;
 using IObjComparable = HashlinkNET.Compiler.Data.Interfaces.IObjComparable;
 
 namespace HashlinkNET.Compiler.Data
@@ -28,7 +29,10 @@ namespace HashlinkNET.Compiler.Data
         {
             get; set;
         }
-
+        public ConcurrentDictionary<TypeReference, bool> CastExplicitTypes
+        {
+            get; set;
+        } = [];
         public List<PropertyDefinition> Fields
         {
             get;
