@@ -25,7 +25,9 @@
     </Project>
   </Folder>
   <Folder Name="/shell/steam/">
-    <Project Path="SteamStartShell/SteamStartShell.csproj" Id="0c142aa5-a130-463a-8c10-91c7e0be8184" />
+    <Project Path="SteamStartShell/SteamStartShell.csproj" Id="0c142aa5-a130-463a-8c10-91c7e0be8184">
+      <BuildDependency Project="DeadCellsModding/DeadCellsModding.csproj" />
+    </Project>
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../.gitignore" />

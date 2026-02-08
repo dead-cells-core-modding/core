@@ -19,6 +19,15 @@ namespace HaxeProxy.Runtime.Internals
 {
     public static unsafe class HaxeProxyHelper
     {
+        private class VirtualCastCache<T>(T value) : IExtraDataItem where T : HaxeVirtual
+        {
+            public static object Create( HashlinkObj obj )
+            {
+                return new VirtualCastCache<T>(obj.AsHaxe().ToVirtual<T>());
+            }
+            public T Value => value;
+        }
+
         [ThreadStatic]
         private static bool nextCallOrig;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -131,7 +140,7 @@ namespace HaxeProxy.Runtime.Internals
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T ToVirtual<T>( HaxeProxyBase val ) where T : HaxeVirtual
         {
-            return val.ToVirtual<T>();
+            return ((IExtraData)val).GetData<VirtualCastCache<T>>().Value;
         }
         [return: NotNullIfNotNull(nameof(val))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
