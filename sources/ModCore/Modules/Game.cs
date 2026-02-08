@@ -29,10 +29,20 @@ namespace ModCore.Modules
         {
             public override void Post( SendOrPostCallback d, object? state )
             {
+                if (Core.InMainThread)
+                {
+                    d(state);
+                    return;
+                }
                 queues.Enqueue((d, state));
             }
             public override void Send( SendOrPostCallback d, object? state )
             {
+                if (Core.InMainThread)
+                {
+                    d(state);
+                    return;
+                }
                 EventWaitHandle wait = new(false, EventResetMode.ManualReset);
                 Exception? exception = null;
                 queues.Enqueue((state =>
@@ -153,6 +163,8 @@ namespace ModCore.Modules
 
         void IOnAdvancedModuleInitializing.OnAdvancedModuleInitializing()
         {
+            System.Threading.SynchronizationContext.SetSynchronizationContext(SynchronizationContext);
+
             Hook_TitleScreen.setMiscTexts += Hook_TitleScreen_setMiscTexts;
             Hook__Boot.main += Hook__Boot_main;
             Hook_Boot.init += Hook_Boot_init1;
@@ -185,6 +197,7 @@ namespace ModCore.Modules
         {
             try
             {
+                System.Threading.SynchronizationContext.SetSynchronizationContext(SynchronizationContext);
                 while (queues.TryDequeue(out var req))
                 {
                     req.Item1(req.Item2);
