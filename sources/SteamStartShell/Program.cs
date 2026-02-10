@@ -359,6 +359,15 @@ You can report or contact us via:
                 Environment.SetEnvironmentVariable("DEAD_CELLS_GAME_PATH", gameRoot);
                 Environment.SetEnvironmentVariable("DOTNET_ROOT", Path.Combine(gameRoot, "coremod", ".dotnet"));
 
+                bool diagnosticMode = false;
+
+                if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "diagnostic_mode.txt")))
+                {
+                    diagnosticMode = true;
+                    Logger.Warning("Diagnostic mode enabled.");
+                }
+
+
                 Logger.Information("Starting game...");
 
                 Process? game;
@@ -369,7 +378,7 @@ You can report or contact us via:
                         new ProcessStartInfo(Path.Combine(gameRoot, "coremod", "core", "host", "startup", "DeadCellsModding"))
                         {
                             RedirectStandardError = true,
-                            RedirectStandardOutput = false,
+                            RedirectStandardOutput = diagnosticMode,
                         }
                         );
                 }
@@ -389,6 +398,7 @@ You can report or contact us via:
                 Debug.Assert(game != null);
 
                 StringBuilder errOutputBuilder = new();
+                StringBuilder outputBuilder = new();
 
                 game.ErrorDataReceived += ( sender, ev ) =>
                 {
@@ -401,6 +411,16 @@ You can report or contact us via:
                 };
 
                 game.BeginErrorReadLine();
+
+                if (diagnosticMode)
+                {
+                    game.OutputDataReceived += (sender, ev) =>
+                    {
+                        outputBuilder.AppendLine(ev.Data);
+                        Console.WriteLine(ev.Data);
+                    };
+                    game.BeginOutputReadLine();
+                }
 
                 await game.WaitForExitAsync();
 
@@ -428,12 +448,17 @@ You can report or contact us via:
                     errText.AppendLine();
                 }
 
-
-
                 if (!string.IsNullOrEmpty(gameLogLatest))
                 {
                     errText.AppendLine("\n:============ BELOW IS THE GAME LOG ============:\n");
                     errText.AppendLine(File.ReadAllText(gameLogLatest));
+                    errText.AppendLine();
+                }
+
+                if (outputBuilder.Length > 0)
+                {
+                    errText.AppendLine("\n:============ BELOW IS FULL OUTPUT ============:\n");
+                    errText.AppendLine(outputBuilder.ToString());
                     errText.AppendLine();
                 }
 
