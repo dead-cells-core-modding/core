@@ -1,7 +1,12 @@
 using ModCore;
 using Serilog;
 using Steamworks;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using System.Numerics;
+using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SteamStartShell
 {
@@ -11,7 +16,25 @@ namespace SteamStartShell
         private static ILogger Logger => Log.Logger;
 
         public static string gameRoot = ""!;
+        public static readonly string ERROR_REPORT_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "last_error.txt");
+        public static readonly string ERROR_REPORT_HEADER = $"""
 
+A Fatal Error / Unhandled Exception has occurred and the game has crashed.
+
+When reporting the issue, please include:
+
+- Crash logs ({ERROR_REPORT_PATH})
+- Reproduction steps
+- System and version information
+
+You can report or contact us via:
+
+- Discord: https://discord.gg/qH5gw7hwx7
+
+""";
+
+        public static bool enableReporter = true;
+        public static string? gameLogLatest;
         private static async Task FindMods()
         {
             Logger.Information("Finding mods...");
@@ -203,20 +226,15 @@ namespace SteamStartShell
                     {
                         if (fi is FileInfo f)
                         {
-                            if (f.Name == "ModCoreVersion.txt")
+                            if (f.Name == "ModCoreVersion.txt" ||
+                                f.Name == "deadcells.exe" ||
+                                f.Name == "deadcells" ||
+                                f.Name == "deadcells.pdb")
                             {
                                 continue;
                             }
                             var tf = Path.GetFullPath(Path.Combine(dst.FullName, f.Name));
-                            try
-                            {
-                                f.CopyTo(tf, true);
-                            }
-                            catch(IOException ex) when (tf == Environment.ProcessPath ||
-                                tf == Path.ChangeExtension(Environment.ProcessPath, "pdb"))
-                            {
-                                Log.Logger.Error("Failed to copy file {file}: {err}", tf, ex);
-                            }
+                            f.CopyTo(tf, true);
                         }
                         else if (fi is DirectoryInfo d)
                         {
@@ -271,9 +289,21 @@ namespace SteamStartShell
                     Logger.Warning("A debugger has been detected.");
 
                     Environment.SetEnvironmentVariable("DCCM_SHOULD_WAIT_FOR_DEBUGGER", "true");
+
+                    enableReporter = false;
                 }
 
+                if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_DISABLE_REPORTER"), out var disableReporter) && 
+                    disableReporter)
+                {
+                    enableReporter = false;
+                }
 
+                if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_ENABLE_REPORTER"), out var enableReporterEnv) &&
+                   enableReporterEnv)
+                {
+                    enableReporter = true;
+                }
 
                 gameRoot = Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!;
                 if (string.IsNullOrEmpty(gameRoot))
@@ -314,9 +344,89 @@ namespace SteamStartShell
 
                 Logger.Information("Starting game...");
 
-                var game = Process.Start(new ProcessStartInfo(Path.Combine(gameRoot, "coremod", "core", "host", "startup", "DeadCellsModding")));
+                Process? game;
 
-                await game!.WaitForExitAsync();
+                try
+                {
+                    game = Process.Start(
+                        new ProcessStartInfo(Path.Combine(gameRoot, "coremod", "core", "host", "startup", "DeadCellsModding"))
+                        {
+                            RedirectStandardError = true,
+                            RedirectStandardOutput = false,
+                        }
+                        );
+                }
+                catch (Win32Exception ex) when (ex.NativeErrorCode == 2) //File not found
+                {
+                    File.Delete(Path.Combine(gameRoot, "coremod", "ModCoreVersion.txt"));
+                    Logger.Error("Failed to start the game process. Please restart the game via Steam to fix DCCM.");
+                    throw;
+                }
+                catch (Exception)
+                {
+                    Logger.Error("Failed to start the game process. Please try deleting {path} to reset DCCM.",
+                    Path.GetFullPath(Path.Combine(gameRoot, "coremod")));
+                    throw;
+                }
+
+                Debug.Assert(game != null);
+
+                StringBuilder errOutputBuilder = new();
+
+                game.ErrorDataReceived += ( sender, ev ) =>
+                {
+                    if (ev.Data?.StartsWith("[DCCMLOGLATEST]") ?? false)
+                    {
+                        gameLogLatest = ev.Data["[DCCMLOGLATEST]".Length..].Trim();
+                        return;
+                    }
+                    errOutputBuilder.AppendLine(ev.Data);
+                };
+
+                game.BeginErrorReadLine();
+
+                await game.WaitForExitAsync();
+
+                if(game.ExitCode == 0)
+                {
+                    return 0;
+                }
+
+                if (!enableReporter)
+                {
+                    return game.ExitCode;
+                }
+
+                Logger.Error(ERROR_REPORT_HEADER);
+                Logger.Information("Please check the log file for more detailed information: {path}", ERROR_REPORT_PATH);
+
+                var errText = new StringBuilder();
+
+                errText.AppendLine(ERROR_REPORT_HEADER);
+
+                if (errOutputBuilder.Length > 0)
+                {
+                    errText.AppendLine("\n:============ BELOW IS THE ERRORS ============:\n");
+                    errText.AppendLine(errOutputBuilder.ToString());
+                    errText.AppendLine();
+                }
+
+
+
+                if (!string.IsNullOrEmpty(gameLogLatest))
+                {
+                    errText.AppendLine("\n:============ BELOW IS THE GAME LOG ============:\n");
+                    errText.AppendLine(File.ReadAllText(gameLogLatest));
+                    errText.AppendLine();
+                }
+
+               
+                File.WriteAllText(ERROR_REPORT_PATH, errText.ToString());
+
+                Process.Start(new ProcessStartInfo(ERROR_REPORT_PATH)
+                {
+                    UseShellExecute = true
+                });
 
                 return game.ExitCode;
             }

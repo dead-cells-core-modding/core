@@ -9,6 +9,12 @@ namespace ModCore
         internal static void InitializeLog()
         {
             var latest = Path.Combine(FolderInfo.Logs.FullPath, "log_latest.log");
+
+            if (Console.IsErrorRedirected)
+            {
+                Console.Error.WriteLine("\n[DCCMLOGLATEST]" + latest);
+            }
+
             if (File.Exists(latest))
             {
                 try
@@ -36,7 +42,14 @@ namespace ModCore
             if (ContextConfig.Config.consoleOutput)
             {
                 configuration.WriteTo.Console(Serilog.Events.LogEventLevel.Verbose,
-                  outputTemplate: OUTPUT_FORMAT_TEMPLATE);
+                  outputTemplate: OUTPUT_FORMAT_TEMPLATE, applyThemeToRedirectedOutput: true);
+
+                if (Console.IsErrorRedirected)
+                {
+                    configuration.WriteTo.Console(Serilog.Events.LogEventLevel.Error,
+                        outputTemplate: OUTPUT_FORMAT_TEMPLATE, standardErrorFromLevel: Serilog.Events.LogEventLevel.Error,
+                            applyThemeToRedirectedOutput: false);
+                }
             }
             else
             {

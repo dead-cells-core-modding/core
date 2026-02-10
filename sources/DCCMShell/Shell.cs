@@ -64,8 +64,9 @@ namespace DCCMShell
                     {
                         IsBackground = true
                     }.Start();
-                } catch 
+                } catch
                 {
+                    Environment.Exit(-1);
                 }
             }
 

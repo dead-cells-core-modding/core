@@ -5,7 +5,7 @@ namespace ModCore
 {
     internal static class LogInitializer
     {
-        private const string OUTPUT_FORMAT_TEMPLATE = "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}";
+        private const string OUTPUT_FORMAT_TEMPLATE = "[{Timestamp:HH:mm:ss} {Level:u3}][SteamShell] {Message:lj}{NewLine}{Exception}";
         internal static void InitializeLog()
         {
 

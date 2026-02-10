@@ -2,6 +2,8 @@ using dc;
 using dc.en;
 using dc.pr;
 using dc.tool;
+using Hashlink.Marshaling;
+using Hashlink.Proxy;
 using Hashlink.Virtuals;
 using HaxeProxy.Runtime;
 using ModCore.Events;
@@ -89,12 +91,23 @@ namespace ModCore.Modules
             Hook_TitleScreen.addMenu += Hook_TitleScreen_addMenu;
 
             Hook__ServerApi.canSaveScore += Hook__ServerApi_canSaveScore;
+            Hook__ErrorHandler.init += Hook__ErrorHandler_init;
 
             if (Core.Config.Value.SkipLogoSplash)
             {
                 Hook_LogoSplashscreen.onResize += Hook_LogoSplashscreen_onResize;
                 Hook_Main.onSecondFrame += Hook_Main_onSecondFrame;
             }
+        }
+
+        private unsafe void Hook__ErrorHandler_init( Hook__ErrorHandler.orig_init orig )
+        {
+            dc.hxd.System.Class.reportError = err =>
+            {
+                nint ptr = 0;
+                HashlinkMarshal.WriteData(&ptr, err, null);
+                throw new HashlinkError(ptr);
+            };
         }
 
         private void Hook_LogoSplashscreen_onResize( Hook_LogoSplashscreen.orig_onResize orig, LogoSplashscreen self )
