@@ -64,13 +64,19 @@ You can report or contact us via:
             Environment.SetEnvironmentVariable("DCCM_EXTRA_MODS_PATHS", string.Join(';', mods));
         }
 
-        private static async Task InitSteamAPI()
+        private static async Task InitSteamAPI(bool noVerify)
         {
             bool firstAttempt = true;
 
             _RE_TRY_INIT_STEAM:
 
             var initResult = SteamAPI.InitEx(out var err);
+
+            if (noVerify && 
+                initResult != ESteamAPIInitResult.k_ESteamAPIInitResult_OK)
+            {
+                throw new InvalidOperationException("Failed to init Steam API.");
+            }
 
             if (initResult == ESteamAPIInitResult.k_ESteamAPIInitResult_NoSteamClient)
             {
@@ -100,7 +106,7 @@ You can report or contact us via:
             }
         }
 
-        private static async Task SteamWork()
+        private static async Task SteamWork(bool noVerify)
         {
 
             Environment.SetEnvironmentVariable("SteamAPPId", "588650");
@@ -109,11 +115,15 @@ You can report or contact us via:
 
             try
             {
-                await InitSteamAPI().WaitAsync(TimeSpan.FromSeconds(30));
+                await InitSteamAPI(noVerify).WaitAsync(TimeSpan.FromSeconds(30));
             }
             catch (Exception)
             {
                 Logger.Error("Unable to initialize SteamAPI. Please ensure Steam is running and you own the game.");
+                if (noVerify)
+                {
+                    return;
+                }
                 throw;
             }
 
@@ -336,7 +346,14 @@ You can report or contact us via:
 
                 Directory.SetCurrentDirectory(gameRoot!);
 
-                await SteamWork();
+                bool noVerify = false;
+                if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "skip_verify_steam.txt")))
+                {
+                    noVerify = true;
+                    Logger.Warning("Skipping Steam API verification due to the presence of skip_verify_steam.txt. This may cause issues if Steam is not running or the game is not launched via Steam.");
+                }
+
+                await SteamWork(noVerify);
 
                 Environment.SetEnvironmentVariable("DCCM_EXIT_WHEN_PROCESS_PID", Environment.ProcessId.ToString());
                 Environment.SetEnvironmentVariable("DEAD_CELLS_GAME_PATH", gameRoot);
