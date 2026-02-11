@@ -15,7 +15,7 @@ namespace DCCMTool.Commands.Core
             public string? BaseDir { get; set; }
 
             [CommandOption("-i|--inputs", true)]
-            public required IEnumerable<string> Inputs { get; set; }
+            public required string[] Inputs { get; set; }
 
             [CommandOption("-o|--output", true)]
             public required string Output { get; set; }

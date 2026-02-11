@@ -68,7 +68,7 @@ namespace DCCMTool.Commands.Pak
             public required string Output { get; set; }
             [CommandOption("-i|--inputs", true)]
             [Description("The path to the input folder.")]
-            public required IEnumerable<string> Inputs { get; set; }
+            public required string[] Inputs { get; set; }
         }
     }
 }

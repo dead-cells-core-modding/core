@@ -132,16 +132,16 @@ namespace DCCMTool.Commands.Pak
         {
             [CommandOption("-i|--inputs <paks>", true)]
             [Description("The path to the input pak files.")]
-            public required IEnumerable<string> Inputs { get; set; }
+            public required string[] Inputs { get; set; } = [];
             [CommandOption("-o|--output <output>", true)]
             [Description("The path to the output pak file.")]
             public required string Output { get; set; }
             [CommandOption("--remove-items")]
             [Description("Remove files from output pak file.")]
-            public IEnumerable<string>? RemoveItems { get; set; }
+            public string[]? RemoveItems { get; set; }
             [CommandOption("--remove-same-items")]
             [Description("Input the template pak file to remove duplicate entries.")]
-            public IEnumerable<string>? RemoveSameItems { get; set; }
+            public string[]? RemoveSameItems { get; set; }
         }
     }
 }

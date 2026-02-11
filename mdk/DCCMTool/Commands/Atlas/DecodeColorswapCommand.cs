@@ -17,7 +17,7 @@ namespace DCCMTool.Commands.Atlas
         {
             [CommandOption("-i|--inputs", true)]
             [Description("The path(s) to the colorswap file(s) to decode.")]
-            public required IEnumerable<string> Inputs { get; set; }
+            public required string[] Inputs { get; set; }
 
             [CommandOption("-p|--palette", true)]
             [Description("The path to the colorswap palette file.")]

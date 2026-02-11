@@ -362,7 +362,7 @@ namespace DCCMTool.Commands.Docs
             public required string Output { get; set; }
 
             [CommandOption("-l|--library", true)]
-            public IEnumerable<string>? Libraries { get; set; }
+            public string[]? Libraries { get; set; }
             
             [CommandOption("-j|--jobs")]
             public int? Jobs { get; set; }

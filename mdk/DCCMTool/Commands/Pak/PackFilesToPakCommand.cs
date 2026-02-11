@@ -60,11 +60,11 @@ namespace DCCMTool.Commands.Pak
         {
             [CommandOption("-o|--output", true)]
             [Description("The path to the output pak file.")]
-            public required string Output { get; set; }
+            public string Output { get; set; } = "";
 
             [CommandOption("-i|--inputs", true)]
             [Description("The path to the input files.")]
-            public required IEnumerable<string> Inputs { get; set; }
+            public string[] Inputs { get; set; } = [];
         }
     }
 }

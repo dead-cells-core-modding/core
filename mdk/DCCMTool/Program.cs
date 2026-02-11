@@ -22,6 +22,12 @@ namespace DCCMTool
 
             app.Configure(config =>
             {
+                config.PropagateExceptions();
+
+                config.SetApplicationName("DCCMTool");
+                config.SetApplicationVersion(typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
+                    .InformationalVersion);
+
                 config.AddBranch("internal", inter =>
                 {
                     inter.AddCommand<GenerateTemplatePakCommand>("gen-pak-template");

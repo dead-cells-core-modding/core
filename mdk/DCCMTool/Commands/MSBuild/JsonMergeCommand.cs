@@ -17,7 +17,7 @@ namespace DCCMTool.Commands.MSBuild
         public class Settings : CommandSettings
         {
             [CommandOption("-i|--input <inputs>")]
-            public IEnumerable<string>? Inputs { get; set; }
+            public string[]? Inputs { get; set; }
             [CommandOption("-b|--base64 <inputBase64>")]
             public string? InputBase64 { get; set; }
             [CommandOption("-o|--output <output>", true)]

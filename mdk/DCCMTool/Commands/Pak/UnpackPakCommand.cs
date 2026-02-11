@@ -78,11 +78,12 @@ namespace DCCMTool.Commands.Pak
         public class Settings : PakCommandSettings
         {
             [CommandOption("-i|--inputs", true)]
-            public required IEnumerable<string> PakPath { get; set; }
+            [Description("The path to the pak file(s) to be unpacked.")]
+            public required string[] PakPath { get; set; }
 
             [CommandOption("-f|--files", false)]
             [Description("The path to the file or directory to be unpacked.Leave blank to unpack all.")]
-            public IEnumerable<string>? Files { get; set; }
+            public string[]? Files { get; set; }
 
             [CommandOption("-o|--output", true)]
             [Description("The path to the output directory.")]
