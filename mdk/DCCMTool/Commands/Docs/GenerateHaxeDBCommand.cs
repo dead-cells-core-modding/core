@@ -2,6 +2,7 @@
 using HaxeDocs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
 using System.Buffers;
@@ -70,11 +71,11 @@ namespace DCCMTool.Commands.Docs
             {
                 if (l[0] == 0x01)
                 {
-                    Console.WriteLine("Haxe Print: " + l[1..]);
+                     AnsiConsole.WriteLine("Haxe Print: " + l[1..]);
                 }
                 else if (l[0] == 0x02)
                 {
-                    Console.Error.WriteLine("Haxe Error: " + l[1..]);
+                     AnsiConsole.WriteLine("Haxe Error: " + l[1..]);
 
                 }
                 else
@@ -231,7 +232,7 @@ namespace DCCMTool.Commands.Docs
                     catch (JsonReaderException) { }
                     catch (HaxeCompilerException ex)
                     {
-                        Console.Error.WriteLine(ex);
+                         AnsiConsole.WriteException(ex);
                     }
                 }
 
@@ -239,7 +240,7 @@ namespace DCCMTool.Commands.Docs
                 await LoadMemberInfo(false);
             }
             haxe.Process.Kill();
-            Console.WriteLine("Job Finished");
+             AnsiConsole.WriteLine("Job Finished");
         }
 
         public override async Task<int> ExecuteAsync()
@@ -250,7 +251,7 @@ namespace DCCMTool.Commands.Docs
                 jobsCount = Environment.ProcessorCount;
             }
 
-            Console.WriteLine("Jobs Count: " + jobsCount);
+             AnsiConsole.WriteLine("Jobs Count: " + jobsCount);
 
             var td = Arguments.TempDir;
             if (string.IsNullOrEmpty(td))
@@ -262,7 +263,7 @@ namespace DCCMTool.Commands.Docs
 
             if(Arguments.Libraries != null)
             {
-                Console.WriteLine("Parsing libraries...");
+                 AnsiConsole.WriteLine("Parsing libraries...");
                 var hxlib = Process.Start(new ProcessStartInfo("haxelib", " path " + string.Join(' ', Arguments.Libraries)){
                     RedirectStandardOutput = true,
                 });
@@ -278,11 +279,11 @@ namespace DCCMTool.Commands.Docs
                     }
                     sb.AppendLine(v);
                 }
-                Console.WriteLine(sb);
+                 AnsiConsole.WriteLine(sb.ToString());
                 commonDisplayLibraryArgs = [ sb.ToString() ];
             }
             
-            Console.WriteLine("Starting haxe language server...");
+             AnsiConsole.WriteLine("Starting haxe language server...");
 
             var defHaxe = CreateHaxeInstance();
 
@@ -292,13 +293,13 @@ namespace DCCMTool.Commands.Docs
                 (int)initResult["haxeVersion"]["minor"],
                 (int)initResult["haxeVersion"]["patch"]);
 
-            Console.WriteLine("Haxe Version: " + version);
+             AnsiConsole.WriteLine("Haxe Version: " + version);
 
 
 
             //Collecting class
 
-            Console.WriteLine("Collecting class..");
+             AnsiConsole.WriteLine("Collecting class..");
 
             var doc = new HaxeDocument();
             List<HaxeDocument.TypeInfo> types = doc.Types;
@@ -325,10 +326,10 @@ namespace DCCMTool.Commands.Docs
                 }
             }
 
-            Console.WriteLine($"Loaded {types.Count} types");
+             AnsiConsole.WriteLine($"Loaded {types.Count} types");
             await DisplayFunc(defHaxe, "var a: h3d.mat.Texture3D;a.");
 
-            Console.WriteLine("Loading class members...");
+             AnsiConsole.WriteLine("Loading class members...");
 
             List<Task> jobs = [];
 

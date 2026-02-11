@@ -2,6 +2,7 @@
 using GameRes.Core.Cdb;
 using GameRes.Core.Pak;
 using Newtonsoft.Json.Linq;
+using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace DCCMTool.Commands.Cdb
             var srcText = File.ReadAllText(Arguments.CDBPath);
             if(templateText == srcText)
             {
-                Console.WriteLine("Warning: Attempt to compare two same file.");
+                 AnsiConsole.WriteLine("Warning: Attempt to compare two same file.");
             }
             var templateCDB = CdbFile.ReadFrom(templateText);
             var srcCDB = CdbFile.ReadFrom(srcText);
@@ -47,7 +48,7 @@ namespace DCCMTool.Commands.Cdb
                     diff.Add(l);
                     if(Arguments.ShowDifference)
                     {
-                        Console.WriteLine($"{sheet.Name}-{l.Separator.Name}-{l.Name}: {l.Value.Path}");
+                         AnsiConsole.WriteLine($"{sheet.Name}-{l.Separator.Name}-{l.Name}: {l.Value.Path}");
                     }
                 }
             }

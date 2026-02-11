@@ -1,4 +1,5 @@
 ﻿using BytecodeMapping;
+using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
@@ -68,7 +69,7 @@ namespace DCCMTool.Commands
                 }
             }
 
-            Console.WriteLine($"{fun.Name}{{IL Index: {bestFit.ILIndex}}}");
+             AnsiConsole.WriteLine($"{fun.Name}{{IL Index: {bestFit.ILIndex}}}");
             return 0;
         }
 

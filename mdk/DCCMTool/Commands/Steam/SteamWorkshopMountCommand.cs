@@ -1,5 +1,6 @@
 ﻿
 using Newtonsoft.Json.Linq;
+using Spectre.Console;
 using Spectre.Console.Cli;
 using Steamworks;
 using System;
@@ -22,7 +23,7 @@ namespace DCCMTool.Commands.Steam
             }
             if(string.IsNullOrEmpty(gameRoot) || !Directory.Exists(gameRoot))
             {
-                Console.WriteLine("Game directory not found.");
+                 AnsiConsole.WriteLine("Game directory not found.");
                 return -1;
             }
 
@@ -32,7 +33,7 @@ namespace DCCMTool.Commands.Steam
 
             if (Directory.Exists(modRoot) || File.Exists(modRoot))
             {
-                Console.WriteLine($"The specified mod exists in the local mods folder. If you wish to proceed, please delete \"{modRoot}\".");
+                 AnsiConsole.WriteLine($"The specified mod exists in the local mods folder. If you wish to proceed, please delete \"{modRoot}\".");
                 return -1;
             }
 
@@ -50,7 +51,7 @@ namespace DCCMTool.Commands.Steam
 
                 if (!SteamUGC.GetQueryUGCResult(handle, 0, out var pDetails))
                 {
-                    Console.WriteLine($"{Arguments.Name} was not found in the subscribed mods.");
+                     AnsiConsole.WriteLine($"{Arguments.Name} was not found in the subscribed mods.");
                 }
                 else
                 {
@@ -72,7 +73,7 @@ namespace DCCMTool.Commands.Steam
 
                 if (!SteamUGC.GetQueryUGCResult(handle, 0, out var pDetails))
                 {
-                    Console.WriteLine($"{Arguments.Name} was not found in the steam workshop.");
+                     AnsiConsole.WriteLine($"{Arguments.Name} was not found in the steam workshop.");
                 }
                 else
                 {
@@ -83,7 +84,7 @@ namespace DCCMTool.Commands.Steam
             }
             if(modId == null)
             {
-                Console.WriteLine("The specified mod cannot be found.");
+                 AnsiConsole.WriteLine("The specified mod cannot be found.");
                 return -1;
             }
             var mod = modId.Value;
@@ -94,10 +95,10 @@ namespace DCCMTool.Commands.Steam
             {
                 if (!Arguments.InstallModAuto)
                 {
-                    Console.WriteLine("The specified mod is not installed.");
+                     AnsiConsole.WriteLine("The specified mod is not installed.");
                     return -2;
                 }
-                Console.WriteLine("Downloading mod...");
+                 AnsiConsole.WriteLine("Downloading mod...");
                 SteamUGC.SubscribeItem(mod);
                 SteamUGC.DownloadItem(mod, true);
                 while (!((EItemState)SteamUGC.GetItemState(mod)).HasFlag(EItemState.k_EItemStateInstalled))
@@ -107,7 +108,7 @@ namespace DCCMTool.Commands.Steam
                 goto _RE_TRY;
             }
 
-            Console.WriteLine("Mod Path: " + path);
+             AnsiConsole.WriteLine("Mod Path: " + path);
 
 
             Directory.CreateSymbolicLink(modRoot, path);

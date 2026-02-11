@@ -2,6 +2,7 @@
 using DCCMTool.Commands.Cdb;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Spectre.Console;
 using Spectre.Console.Cli;
 using Steamworks;
 using System;
@@ -21,7 +22,7 @@ namespace DCCMTool.Commands.Steam
             var modname = modinfo["name"]!.ToString();
             var ver = modinfo["version"]!.ToString();
 
-            Console.WriteLine($"Finding mod {modname} in workshop...");
+             AnsiConsole.WriteLine($"Finding mod {modname} in workshop...");
 
             var handle = SteamUGC.CreateQueryUserUGCRequest(SteamUser.GetSteamID().GetAccountID(), EUserUGCList.k_EUserUGCList_Published,
                 EUGCMatchingUGCType.k_EUGCMatchingUGCType_All, EUserUGCListSortOrder.k_EUserUGCListSortOrder_LastUpdatedDesc,
@@ -38,14 +39,14 @@ namespace DCCMTool.Commands.Steam
             if (resultCount > 1)
             {
                 SteamUGC.ReleaseQueryUGCRequest(handle);
-                Console.Error.WriteLine("You appear to have uploaded multiple mods with the same name.");
+                 AnsiConsole.MarkupLine("[red]You appear to have uploaded multiple mods with the same name.[/]");
                 return -1;
             }
             else if (resultCount == 1)
             {
                 if (!SteamUGC.GetQueryUGCResult(handle, 0, out var details))
                 {
-                    Console.Error.WriteLine("Failed to GetQueryUGCResult");
+                     AnsiConsole.WriteLine("[red]Failed to GetQueryUGCResult[/]");
                     SteamUGC.ReleaseQueryUGCRequest(handle);
                     return -2;
                 }
@@ -56,11 +57,11 @@ namespace DCCMTool.Commands.Steam
             else if (resultCount == 0)
             {
                 SteamUGC.ReleaseQueryUGCRequest(handle);
-                Console.WriteLine("Creating new item...");
+                 AnsiConsole.WriteLine("Creating new item...");
                 var r = await SteamUGC.CreateItem(APPID, EWorkshopFileType.k_EWorkshopFileTypeCommunity).Wait<CreateItemResult_t>();
                 if (r.m_eResult != EResult.k_EResultOK)
                 {
-                    Console.WriteLine("Failed to create new item: " + r.m_eResult.ToString());
+                     AnsiConsole.WriteLine("Failed to create new item: " + r.m_eResult.ToString());
                     return -3;
                 }
                 updateHandle = SteamUGC.StartItemUpdate(APPID, r.m_nPublishedFileId);
@@ -80,7 +81,7 @@ namespace DCCMTool.Commands.Steam
                     var rp = previewPath + v;
                     if (File.Exists(rp))
                     {
-                        Console.WriteLine("Found preview: " + rp);
+                         AnsiConsole.WriteLine("Found preview: " + rp);
                         SteamUGC.SetItemPreview(updateHandle, Path.GetFullPath(rp));
                         break;
                     }
@@ -98,20 +99,51 @@ namespace DCCMTool.Commands.Steam
                 Arguments.UpdateText = "Update to v" + ver;
             }
 
-            Console.WriteLine("Uploading...");
+            var sresultTask = SteamUGC.SubmitItemUpdate(updateHandle, Arguments.UpdateText).Wait<SubmitItemUpdateResult_t>();
 
-            var sresult = await SteamUGC.SubmitItemUpdate(updateHandle, Arguments.UpdateText).Wait<SubmitItemUpdateResult_t>();
-            
-            if(sresult.m_eResult != EResult.k_EResultOK)
+            await AnsiConsole.Progress().StartAsync(async ctx =>
             {
-                Console.WriteLine("Unable to upload mod： " + sresult.m_eResult);
-                Console.WriteLine("Please visit https://partner.steamgames.com/doc/api/ISteamUGC#SubmitItemUpdateResult_t for more information.");
+                var task = ctx.AddTask("Uploading");
+                while (!task.IsFinished)
+                {
+                    var progress = SteamUGC.GetItemUpdateProgress(updateHandle, out var bytesProcessed, out var bytesTotal);
+
+                    if (progress == EItemUpdateStatus.k_EItemUpdateStatusInvalid)
+                    {
+                        task.Description("Upload");
+                        break;
+                    }
+                    else if (progress == EItemUpdateStatus.k_EItemUpdateStatusPreparingConfig ||
+                        progress == EItemUpdateStatus.k_EItemUpdateStatusPreparingContent)
+                    {
+                        task.Description = "Preparing...";
+                    }
+                    else if (progress == EItemUpdateStatus.k_EItemUpdateStatusUploadingContent)
+                    {
+                        task.Value = bytesTotal > 0 ? (double)bytesProcessed / bytesTotal * 100 : 0;
+                        task.Description = $"Uploading... ({bytesProcessed}/{bytesTotal} bytes)";
+                    }
+                    else
+                    {
+                        task.Description = "Finalizing...";
+                        task.Value = 100;
+                    }
+                    await Task.Delay(100);
+                }
+            });
+
+            var sresult = await sresultTask;
+
+            if (sresult.m_eResult != EResult.k_EResultOK)
+            {
+                AnsiConsole.MarkupLine("[red]Unable to upload mod：{0}[/]", sresult.m_eResult);
+                AnsiConsole.MarkupLine("Please visit https://partner.steamgames.com/doc/api/ISteamUGC#SubmitItemUpdateResult_t for more information.");
                 return -1;
             }
 
-            Console.WriteLine("Mod Workshop Id: " + publishId.m_PublishedFileId);
-            Console.WriteLine("You can access your mod here.: https://steamcommunity.com/sharedfiles/filedetails/?id=" + publishId.m_PublishedFileId);
-            Console.WriteLine("Finished.");
+             AnsiConsole.MarkupLine("Mod Workshop Id: " + publishId.m_PublishedFileId);
+             AnsiConsole.MarkupLine("You can access your mod here: [green]https://steamcommunity.com/sharedfiles/filedetails/?id={0}[/]",publishId.m_PublishedFileId);
+             AnsiConsole.MarkupLine("[green]Done.[/]");
 
             return 0;
         }
