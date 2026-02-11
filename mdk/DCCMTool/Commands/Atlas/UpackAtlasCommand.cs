@@ -1,20 +1,23 @@
-﻿using CommandLine;
-using GameRes.Core.Atlas;
+﻿using GameRes.Core.Atlas;
+using Spectre.Console.Cli;
 using StbImageSharp;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace DCCMTool.Commands.Atlas
 {
-    internal class UpackAtlasCommand : CommandBase<UpackAtlasCommand.Options>
+    internal class UpackAtlasCommand : CommandBase<UpackAtlasCommand.Settings>
     {
-        [Verb("unpack-atlas", HelpText = "Unpack an atlas file into its constituent images.")]
-        public class Options
+        public class Settings : CommandSettings
         {
-            [Option('i', "input", HelpText = "The path to the atlas file to unpack.", Required = true)]
+            [CommandOption("-i|--input", true)]
+            [Description("The path to the atlas file to unpack.")]
             public required string Input { get; set; }
-            [Option('o', "output", HelpText = "The directory to output the unpacked files to.", Required = true)]
+
+            [CommandOption("-o|--output <dir>", true)]
+            [Description("The directory to output the unpacked files to.")]
             public required string OutputDir { get; set; }
         }
 

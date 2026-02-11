@@ -1,14 +1,16 @@
-﻿using CommandLine;
+﻿
 using Newtonsoft.Json.Linq;
+using Spectre.Console.Cli;
 using Steamworks;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 
 namespace DCCMTool.Commands.Steam
 {
-    internal class SteamWorkshopMountCommand : SteamCommandBase<SteamWorkshopMountCommand.Options>
+    internal class SteamWorkshopMountCommand : SteamCommandBase<SteamWorkshopMountCommand.Settings>
     {
         public override async Task<int> ExecuteSteamAsync()
         {
@@ -68,7 +70,7 @@ namespace DCCMTool.Commands.Steam
 
                 await SteamUGC.SendQueryUGCRequest(handle).Wait<SteamUGCQueryCompleted_t>();
 
-                if (SteamUGC.GetQueryUGCResult(handle, 0, out var pDetails))
+                if (!SteamUGC.GetQueryUGCResult(handle, 0, out var pDetails))
                 {
                     Console.WriteLine($"{Arguments.Name} was not found in the steam workshop.");
                 }
@@ -112,14 +114,20 @@ namespace DCCMTool.Commands.Steam
             return 0;
         }
 
-        [Verb("steam-workshop-mount", HelpText = "Mount Steam Workshop mods into the local mods folder.")]
-        public class Options
+        public class Settings : CommandSettings
         {
-            [Option('n', "name", HelpText = "The name of the mod.", Required = true)]
+            [CommandOption("-n|--name", true)]
+            [Description("The name of the mod.")]
             public required string Name { get; set; }
-            [Option('a', "mod-auto-subscribe", Default = true, HelpText = "Automatically subscribe and install missing mods from Steam Workshop.")]
+
+            [CommandOption("-a|--mod-auto-subscribe")]
+            [Description("Automatically subscribe and install missing mods from Steam Workshop.")]
+            [DefaultValue(true)]
+
             public bool InstallModAuto { get; set; } = true;
-            [Option("game", HelpText = "The path to the game root.")]
+
+            [CommandOption("-g|--game")]
+            [Description("The path to the game root.")]
             public string? GameRoot { get; set; }
         }
     }

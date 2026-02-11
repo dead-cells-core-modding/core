@@ -1,6 +1,7 @@
-﻿using CommandLine;
+﻿
 using DCCMTool.Commands;
 using Newtonsoft.Json.Linq;
+using Spectre.Console.Cli;
 using System;
 using System.Buffers.Text;
 using System.Collections.Generic;
@@ -11,16 +12,15 @@ using System.Threading.Tasks;
 
 namespace DCCMTool.Commands.MSBuild
 {
-    internal class JsonMergeCommand : CommandBase<JsonMergeCommand.Options>
+    internal class JsonMergeCommand : CommandBase<JsonMergeCommand.Settings>
     {
-        [Verb("merge-json", Hidden = true)]
-        public class Options
+        public class Settings : CommandSettings
         {
-            [Option('i', "input")]
+            [CommandOption("-i|--input <inputs>")]
             public IEnumerable<string>? Inputs { get; set; }
-            [Option('b', "base64")]
+            [CommandOption("-b|--base64 <inputBase64>")]
             public string? InputBase64 { get; set; }
-            [Option('o', "output", Required = true)]
+            [CommandOption("-o|--output <output>", true)]
             public required string Output { get; set; }
         }
 

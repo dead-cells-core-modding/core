@@ -1,24 +1,30 @@
-﻿using CommandLine;
+﻿
 using GameRes.Core.Atlas;
 using GameRes.Core.Atlas.Colorswap;
+using Spectre.Console.Cli;
 using StbImageSharp;
 using StbImageWriteSharp;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace DCCMTool.Commands.Atlas
 {
-    internal class DecodeColorswapCommand : CommandBase<DecodeColorswapCommand.Options>
+    internal class DecodeColorswapCommand : CommandBase<DecodeColorswapCommand.Settings>
     {
-        [Verb("decode-colorswap", HelpText = "Decode colorswap to a more human-readable format.")]
-        public class Options
+        public class Settings : CommandSettings
         {
-            [Option('i', "input", HelpText = "The path(s) to the colorswap file(s) to decode.", Required = true)]
+            [CommandOption("-i|--inputs", true)]
+            [Description("The path(s) to the colorswap file(s) to decode.")]
             public required IEnumerable<string> Inputs { get; set; }
-            [Option('p', "palette", HelpText = "The path to the colorswap palette file.", Required = true)]
+
+            [CommandOption("-p|--palette", true)]
+            [Description("The path to the colorswap palette file.")]
             public required string PaletteFile { get; set; }
-            [Option('o', "output", HelpText = "The directory to output the decoded files to.", Required = true)]
+
+            [CommandOption("-o|--output <dir>")]
+            [Description("The directory to output the decoded files to.")]
             public required string OutputDir { get; set; }
         }
 

@@ -1,24 +1,29 @@
-﻿using CommandLine;
-using GameRes.Core.Atlas;
+﻿using GameRes.Core.Atlas;
+using Spectre.Console.Cli;
 using StbImageSharp;
 using StbImageWriteSharp;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 
 namespace DCCMTool.Commands.Atlas
 {
-    internal class EncodeColorswapCommand : CommandBase<EncodeColorswapCommand.Options>
+    internal class EncodeColorswapCommand : CommandBase<EncodeColorswapCommand.Settings>
     {
-        [Verb("encode-colorswap", HelpText = "Encode images into a colorswap palette and images.")]
-        public class Options
+        public class Settings : CommandSettings
         {
-            [Option('i', "input", HelpText = "The path(s) to the colorswap file(s) to ecode.", Required = true)]
+            [CommandOption("-i|--inputs")]
+            [Description("The path(s) to the colorswap file(s) to ecode.")]
             public required IEnumerable<string> Inputs { get; set; }
-            [Option('p', "palette", HelpText = "The name of the colorswap palette.")]
+
+            [CommandOption("-p|--palette")]
+            [Description("The name of the colorswap palette.")]
             public string? PaletteName { get; set; }
-            [Option('o', "output", HelpText = "The directory to output the ecoded files to.", Required = true)]
+
+            [CommandOption("-o|--output <dir>", true)]
+            [Description("The directory to output the ecoded files to.")]
             public required string OutputDir { get; set; }
         }
         public override int Execute()

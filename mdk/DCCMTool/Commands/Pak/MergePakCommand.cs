@@ -1,8 +1,9 @@
-﻿using CommandLine;
-using CommandLine.Text;
+﻿
 using GameRes.Core.Pak;
+using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DCCMTool.Commands.Pak
 {
-    internal class MergePakCommand : CommandBase<MergePakCommand.Options>
+    internal class MergePakCommand : CommandBase<MergePakCommand.Settings>
     {
         public override int Execute()
         {
@@ -127,27 +128,20 @@ namespace DCCMTool.Commands.Pak
             return 0;
         }
 
-        [Verb("merge-paks", HelpText = "Merge multiple PAK files into a single pak file.")]
-        public class Options
+        public class Settings : PakCommandSettings
         {
-            [Option('i', "input", Required = true, HelpText = "The path to the input pak files.")]
+            [CommandOption("-i|--inputs <paks>", true)]
+            [Description("The path to the input pak files.")]
             public required IEnumerable<string> Inputs { get; set; }
-            [Option('o', "output", Required = true, HelpText = "The path to the output pak file.")]
+            [CommandOption("-o|--output <output>", true)]
+            [Description("The path to the output pak file.")]
             public required string Output { get; set; }
-            [Option("remove-items", HelpText = "Remove files from output pak file.")]
+            [CommandOption("--remove-items")]
+            [Description("Remove files from output pak file.")]
             public IEnumerable<string>? RemoveItems { get; set; }
-            [Option("remove-same-items", HelpText = "Input the template pak file to remove duplicate entries.")]
+            [CommandOption("--remove-same-items")]
+            [Description("Input the template pak file to remove duplicate entries.")]
             public IEnumerable<string>? RemoveSameItems { get; set; }
-            [Option('s', "stamp", HelpText = "See https://n3rdl0rd.github.io/ModDocCE/files/pak/#stamps")]
-            public string? Stamp { get; set; }
-
-            [Usage]
-            public static Example[] Examples => [
-                new("Merge multiple PAK files into a single pak file", new Options(){
-                    Inputs = ["res1.pak", "res2.pak", "res3.pak"],
-                    Output = "output.pak"
-                })
-                ];
         }
     }
 }

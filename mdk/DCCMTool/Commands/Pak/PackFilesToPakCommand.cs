@@ -1,8 +1,8 @@
-﻿using CommandLine;
-using CommandLine.Text;
-using GameRes.Core.Pak;
+﻿using GameRes.Core.Pak;
+using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace DCCMTool.Commands.Pak
 {
-    internal class PackFilesToPakCommand : CommandBase<PackFilesToPakCommand.Options>
+    internal class PackFilesToPakCommand : CommandBase<PackFilesToPakCommand.Settings>
     {
         public override int Execute()
         {
@@ -56,27 +56,15 @@ namespace DCCMTool.Commands.Pak
             return 0;
         }
 
-        [Verb("pack-pak-with-files", false, [], HelpText = "Pack files into a pak file.")]
-        public class Options
+        public class Settings : PakCommandSettings
         {
-            [Option('o', "output", HelpText = "The path to the output pak file.", Required = true)]
+            [CommandOption("-o|--output", true)]
+            [Description("The path to the output pak file.")]
             public required string Output { get; set; }
-            [Option('i', "input", HelpText = "The path to the input files.", Required = true)]
-            public required IEnumerable<string> Inputs { get; set; }
-            [Option('s', "stamp", HelpText = "See https://n3rdl0rd.github.io/ModDocCE/files/pak/#stamps")]
-            public string? Stamp { get; set; }
 
-            [Usage]
-            public static Example[] Examples => [
-                new("Pack a single file into a pak file", new Options(){
-                    Inputs = [ "inputFile=dir1/dir2/pathToFileInPak" ],
-                    Output = "output.pak"
-                }),
-                new("Pack multiple directories into a pak file", new Options(){
-                    Inputs = ["inputFile1=dir1/dir2/pathToFileInPak1", "inputFile2=dir1/dir2/pathToFileInPak2" ],
-                    Output = "output.pak"
-                })
-                ];
+            [CommandOption("-i|--inputs", true)]
+            [Description("The path to the input files.")]
+            public required IEnumerable<string> Inputs { get; set; }
         }
     }
 }

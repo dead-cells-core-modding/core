@@ -1,10 +1,12 @@
-﻿using CommandLine;
+﻿
 using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -12,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DCCMTool.Commands.Core
 {
-    internal class GenerateGamePersudoCommand : CommandBase<GenerateGamePersudoCommand.Options>
+    internal class GenerateGamePersudoCommand : CommandBase<GenerateGamePersudoCommand.Settings>
     {
         private static void GenerateRefAssembly(AssemblyDefinition asm)
         {
@@ -117,19 +119,27 @@ namespace DCCMTool.Commands.Core
             return 0;
         }
 
-        [Verb("generate-game-persudo",
-            HelpText = "Generate the pseudo-code assembly for hlboot.dat")]
-        public class Options
+
+        public class Settings : CommandSettings
         {
-            [Option('i', "input", HelpText = "The path to the hlboot.dat.", Required = true)]
+            [CommandOption("-i|--input", true)]
+            [Description("The path to the hlboot.dat.")]
             public required string Input { get; set; }
-            [Option('o', "output", HelpText = "The path to the output directory.", Required = true)]
+
+            [CommandOption("-o|--output", true)]
+            [Description("The path to the output directory.")]
             public required string Output { get; set; }
-            [Option('n', "name", HelpText = "The name of output assembly.")]
+
+            [CommandOption("-n|--name")]
+            [Description("The name of output assembly.")]
             public string Name { get; set; } = "GamePersudocode";
-            [Option("generate-bcm", HelpText = "Generate the bcm.bin file for the resolve-line-to-il command.", Default = false)]
+
+            [CommandOption("--generate-bcm")]
+            [Description("Generate the bcm.bin file for the resolve-line-to-il command.")]
             public bool GenerateBCM { get; set; } = false;
-            [Option("generate-ref-assembly", HelpText = "Generate a reference assembly instead of a full one.", Default = false)]
+
+            [CommandOption("-r|--ref-assembly")]
+            [Description("Generate a reference assembly instead of a full one.")]
             public bool GenerateRefAssembly { get; set; } = false;
         }
     }

@@ -1,6 +1,14 @@
-﻿using CommandLine;
-using CommandLine.Text;
+﻿
 using DCCMTool.Commands;
+using DCCMTool.Commands.Atlas;
+using DCCMTool.Commands.Cdb;
+using DCCMTool.Commands.Core;
+using DCCMTool.Commands.Docs;
+using DCCMTool.Commands.MSBuild;
+using DCCMTool.Commands.Pak;
+using DCCMTool.Commands.Steam;
+using Newtonsoft.Json.Linq;
+using Spectre.Console.Cli;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -8,46 +16,80 @@ namespace DCCMTool
 {
     internal class Program
     {
-        static async Task Main(string[] args)
+        static Task<int> Main(string[] args)
         {
-            Dictionary<Type, Type> commands = [];
-            foreach(var v in typeof(Program).Assembly.GetTypes()
-                .Where(x => !x.IsAbstract &&
-                            x.IsClass &&
-                            x.IsAssignableTo(typeof(ICommandBase)))
-                )
+            var app = new CommandApp();
+
+            app.Configure(config =>
             {
-                var md_GetArgType = v.GetMethod("GetArgType", BindingFlags.Static | 
-                    BindingFlags.Public | BindingFlags.FlattenHierarchy);
+                config.AddBranch("internal", inter =>
+                {
+                    inter.AddCommand<GenerateTemplatePakCommand>("gen-pak-template");
+                    inter.AddCommand<UploadMAPICommand>("upload-mapi");
+                    inter.AddCommand<JsonMergeCommand>("merge-json");
+                    inter.AddCommand<GenerateHaxeDBCommand>("generate-haxedb");
+                    inter.AddCommand<ScanNativePrivateMemberCommand>("scan-native-private-member");
+                    inter.AddCommand<InstallCommand>("install-mdk");
+                });
 
-                Debug.Assert(md_GetArgType != null);
+                config.AddBranch("steam", steam =>
+                {
+                    steam.AddCommand<UploadModCommnand>("upload")
+                        .WithDescription("Upload a mod to Steam Workshop.");
 
-                var targ = (Type?)md_GetArgType.Invoke(null, null);
+                    steam.AddCommand<SteamWorkshopMountCommand>("mount")
+                        .WithDescription("Mount Steam Workshop mods into the local mods folder.");
+                });
 
-                Debug.Assert(targ != null);
+                config.AddBranch("cdb", cdb =>
+                {
+                    cdb.AddCommand<DiffCdbCommand>("diff")
+                        .WithDescription("Compare the differences between two CDBs.");
+                });
 
-                commands.Add(targ, v);
-            }
+                config.AddBranch("atlas", atlas =>
+                {
+                    atlas.AddBranch("colorswap", colorswap =>
+                    {
+                        colorswap.AddCommand<DecodeColorswapCommand>("decode")
+                            .WithDescription("Decode colorswap to a more human-readable format.");
 
-            var result = new Parser(settings =>
-            {
-                settings.AllowMultiInstance = true;
-            }).ParseArguments(args, [.. commands.Keys]);
+                        colorswap.AddCommand<EncodeColorswapCommand>("encode")
+                            .WithDescription("Encode images into a colorswap palette and images.");
+                    });
 
-            if (result.Value == null)
-            {
-                HelpText ht = HelpText.AutoBuild(result, 300);
-                Console.Error.WriteLine(ht.ToString());
-                Environment.Exit(-1);
-                return;
-            }
+                    atlas.AddCommand<UpackAtlasCommand>("unpack")
+                        .WithDescription("Unpack an atlas file into its constituent images.");
+                });
 
-            var t = result.Value.GetType();
-            var commandType = commands[t];
+                config.AddBranch<PakCommandSettings>("pak", pak =>
+                {
+                    pak.AddCommand<MergePakCommand>("merge")
+                        .WithDescription("Merge multiple PAK files into a single pak file.");
 
-            var command = (ICommandBase) Activator.CreateInstance(commandType)!;
-            command.SetArguments(result.Value);
-            await command.ExecuteAsync();
+                    pak.AddCommand<UnpackPakCommand>("unpack")
+                        .WithDescription("Extract the contents from the pak file");
+
+                    pak.AddBranch("pack", pack =>
+                    {
+                        pack.AddCommand<PackDirToPakCommand>("dir")
+                            .WithDescription("Pack the contents of the folder into a pak file.");
+
+                        pack.AddCommand<PackFilesToPakCommand>("files")
+                            .WithDescription("Pack files into a pak file.");
+                    });
+
+                });
+
+                config.AddCommand<HaxeDebugInfoCommand>("resolve-line-to-il")
+                    .WithAlias("resolve-line")
+                    .WithDescription("Converts line numbers in error messages to IL sequence numbers in pseudo-code");
+
+                config.AddCommand<GenerateGamePersudoCommand>("generate-game-persudo")
+                    .WithDescription("Generate the pseudo-code assembly for hlboot.dat");
+            });
+
+            return app.RunAsync(args);
         }
     }
 }

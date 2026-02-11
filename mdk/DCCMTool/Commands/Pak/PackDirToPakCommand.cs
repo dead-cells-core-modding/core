@@ -1,8 +1,9 @@
-﻿using CommandLine;
-using CommandLine.Text;
+﻿
 using GameRes.Core.Pak;
+using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DCCMTool.Commands.Pak
 {
-    internal class PackDirToPakCommand : CommandBase<PackDirToPakCommand.Options>
+    internal class PackDirToPakCommand : CommandBase<PackDirToPakCommand.Settings>
     {
         public override async Task<int> ExecuteAsync()
         {
@@ -60,29 +61,14 @@ namespace DCCMTool.Commands.Pak
             return 0;
         }
 
-        [Verb("pack-pak", false, [
-            "collapse-pak"
-            ], HelpText = "Pack the contents of the folder into a pak file.")]
-        public class Options
+        public class Settings : PakCommandSettings
         {
-            [Option('o', "output", HelpText = "The path to the output pak file.", Required = true)]
+            [CommandOption("-o|--output", true)]
+            [Description("The path to the output pak file.")]
             public required string Output { get; set; }
-            [Option('i', "input", HelpText = "The path to the input folder.", Required = true)]
+            [CommandOption("-i|--inputs", true)]
+            [Description("The path to the input folder.")]
             public required IEnumerable<string> Inputs { get; set; }
-            [Option('s', "stamp", HelpText = "See https://n3rdl0rd.github.io/ModDocCE/files/pak/#stamps")]
-            public string? Stamp { get; set; }
-
-            [Usage]
-            public static Example[] Examples => [
-                new("Pack a single directory into a pak file", new Options(){
-                    Inputs = [ "inputDir" ],
-                    Output = "output.pak"
-                }),
-                new("Pack multiple directories into a pak file", new Options(){
-                    Inputs = [ "inputDir1", "inputDir2" ],
-                    Output = "output.pak"
-                })
-                ];
         }
     }
 }

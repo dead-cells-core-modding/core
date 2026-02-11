@@ -1,4 +1,4 @@
-﻿using CommandLine;
+﻿using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DCCMTool.Commands
 {
-    internal class InstallCommand : CommandBase<InstallCommand.Options>
+    internal class InstallCommand : CommandBase<InstallCommand.Settings>
     {
         public override async Task<int> ExecuteAsync()
         {
@@ -29,10 +29,9 @@ namespace DCCMTool.Commands
             return 0;
         }
 
-        [Verb("install-mdk", Hidden = true)]
-        public class Options
+        public class Settings : CommandSettings
         {
-            [Option("mdk", Required = true)]
+            [CommandOption("--mdk", true)]
             public required string MDKRoot { get; set; }
         }
     }

@@ -1,7 +1,9 @@
-﻿using CommandLine;
+﻿
 using GameRes.Core.Pak;
+using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DCCMTool.Commands.Pak
 {
-    internal class GenerateTemplatePakCommand : CommandBase<GenerateTemplatePakCommand.Options>
+    internal class GenerateTemplatePakCommand : CommandBase<GenerateTemplatePakCommand.Settings>
     {
         public const string TEMPLATE_MARK_NAME = ".dccm_tools_pak_diff_template";
         public override int Execute()
@@ -52,12 +54,13 @@ namespace DCCMTool.Commands.Pak
             return 0;
         }
 
-        [Verb("generate-template-pak")]
-        public class Options
+        public class Settings : PakCommandSettings
         {
-            [Option('i', "input", HelpText = "The path to the input pak file.", Required = true)]
+            [CommandOption("-i|--input", true)]
+            [Description("The path to the input pak file.")]
             public required string Input { get; set; }
-            [Option('o', "output", HelpText = "The path to the output pak file.", Required = true)]
+            [CommandOption("-o|--output", true)]
+            [Description("The path to the output pak file.")]
             public required string Output { get; set; }
         }
     }

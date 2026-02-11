@@ -72,7 +72,7 @@
 
     <Message Importance="high" Text="Generating modinfo.json" />
 
-    <Exec Command="$(_DCCM_Tools) merge-json $(MDKModInfoGeneratorCommandLine)"
+    <Exec Command="$(_DCCM_Tools) internal merge-json $(MDKModInfoGeneratorCommandLine)"
           />
 
     <ItemGroup>

@@ -8,7 +8,7 @@
 
       <PackAssetsCommandLine> -o "$(PackedAssetsPakPath)" -i @(PackAssets->' "%(FullPath)=%(RootInPak)/%(RecursiveDir)%(Filename)%(Extension)" ', ' ') $(PackAssetsCommandLine)</PackAssetsCommandLine>
     </PropertyGroup>
-    <Exec Command="$(_DCCM_Tools) pack-pak-with-files $(PackAssetsCommandLine)"
+    <Exec Command="$(_DCCM_Tools) pak pack files $(PackAssetsCommandLine)"
           />
 
     <ItemGroup>
@@ -31,7 +31,7 @@
       <MergeAllPaksCommandLine> -o "$(MergedPakPath)" -i @(PakFile->' "%(FullPath)" ', ' ') $(MergeAllPaksCommandLine) </MergeAllPaksCommandLine>
     </PropertyGroup>
 
-    <Exec Command="$(_DCCM_Tools) merge-paks $(MergeAllPaksCommandLine) "
+    <Exec Command="$(_DCCM_Tools) pak merge $(MergeAllPaksCommandLine) "
           />
 
     <ItemGroup>

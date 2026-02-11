@@ -1,10 +1,12 @@
-﻿using CommandLine;
+﻿
 using HaxeDocs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Spectre.Console.Cli;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -16,7 +18,7 @@ using System.Xml.Linq;
 
 namespace DCCMTool.Commands.Docs
 {
-    internal class GenerateHaxeDBCommand : CommandBase<GenerateHaxeDBCommand.Options>
+    internal class GenerateHaxeDBCommand : CommandBase<GenerateHaxeDBCommand.Settings>
     {
 
         [Serializable]
@@ -353,16 +355,18 @@ namespace DCCMTool.Commands.Docs
             await File.WriteAllTextAsync(Arguments.Output, JsonConvert.SerializeObject(doc));
             return 0;
         }
-        [Verb("generate-haxe-db", Hidden = true)]
-        public class Options
+        public class Settings : CommandSettings
         {
-            [Option('o', "output", HelpText = "The path to the output HaxeDB file.", Required = true)]
+            [CommandOption("-o|--output", true)]
             public required string Output { get; set; }
-            [Option('l', "library", HelpText = "")]
+
+            [CommandOption("-l|--library", true)]
             public IEnumerable<string>? Libraries { get; set; }
-            [Option('j', "jobs", HelpText = "", Default = 1)]
+            
+            [CommandOption("-j|--jobs")]
             public int? Jobs { get; set; }
-            [Option('t', "temp-dir", HelpText = "The path to a temporary directory to use during generation.", Required = false)]
+
+            [CommandOption("-t|--temp")]
             public string? TempDir { get; set; }
         }
     }

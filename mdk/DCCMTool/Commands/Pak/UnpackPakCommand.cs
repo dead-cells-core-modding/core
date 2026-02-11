@@ -1,15 +1,16 @@
-﻿using CommandLine;
-using CommandLine.Text;
+﻿
 using GameRes.Core.Pak;
+using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DCCMTool.Commands.Pak
 {
-    internal class UnpackPakCommand: CommandBase<UnpackPakCommand.Options>
+    internal class UnpackPakCommand: CommandBase<UnpackPakCommand.Settings>
     {
         public override int Execute()
         {
@@ -74,30 +75,18 @@ namespace DCCMTool.Commands.Pak
 
             return 0;
         }
-
-        [Verb("unpack-pak", false, [
-            "extract-pak"
-            ], HelpText = "Extract the contents from the pak file")]
-        public class Options
+        public class Settings : PakCommandSettings
         {
-            [Option('i', "input", HelpText = "The path to the input pak file.", Required = true)]
+            [CommandOption("-i|--inputs", true)]
             public required IEnumerable<string> PakPath { get; set; }
-            [Option('f', "files", HelpText = "The path to the file or directory to be unpacked.Leave blank to unpack all.")]
-            public IEnumerable<string>? Files { get; set; }
-            [Option('o', "output", HelpText = "The path to the output directory.", Required = true)]
-            public required string OutputDir { get; set; }
 
-            [Usage]
-            public static Example[] Examples => [
-                new("Unpack a pak file", new Options(){
-                    PakPath = [ "res.pak" ],
-                    OutputDir = "outputDir"
-                }),
-                new("Unpack pak files", new Options(){
-                    PakPath = [ "res1.pak", "res2.pak", "res3.pak" ],
-                    OutputDir = "outputDir"
-                })
-                ];
+            [CommandOption("-f|--files", false)]
+            [Description("The path to the file or directory to be unpacked.Leave blank to unpack all.")]
+            public IEnumerable<string>? Files { get; set; }
+
+            [CommandOption("-o|--output", true)]
+            [Description("The path to the output directory.")]
+            public required string OutputDir { get; set; }
         }
     }
 }

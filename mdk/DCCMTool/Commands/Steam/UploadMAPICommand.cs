@@ -1,5 +1,6 @@
-﻿using CommandLine;
+﻿
 using Serilog.Core;
+using Spectre.Console.Cli;
 using Steamworks;
 using System;
 using System.Collections.Generic;
@@ -7,13 +8,13 @@ using System.Text;
 
 namespace DCCMTool.Commands.Steam
 {
-    internal class UploadMAPICommand : SteamCommandBase<UploadMAPICommand.Options>
+    internal class UploadMAPICommand : SteamCommandBase<UploadMAPICommand.Settings>
     {
         public const uint MAPI_PFID = 3633185550;
-        [Verb("upload-mapi", Hidden = true)]
-        public class Options
+
+        public class Settings : CommandSettings
         {
-            [Option('i', "inputDir", Required = true)]
+            [CommandOption("-i|--inputDir", true)]
             public required string InputDir { get; set; }
         }
 

@@ -1,4 +1,4 @@
 ﻿
 cd $PSScriptRoot
-./tools/DCCMTool install-mdk --mdk $PSScriptRoot
+./tools/DCCMTool internal install-mdk --mdk $PSScriptRoot
 

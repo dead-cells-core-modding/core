@@ -1,17 +1,19 @@
-﻿using CommandLine;
+﻿
 using GameRes.Core.Cdb;
 using GameRes.Core.Pak;
 using Newtonsoft.Json.Linq;
+using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DCCMTool.Commands.Cdb
 {
-    internal class DiffCdbCommand : CommandBase<DiffCdbCommand.Options>
+    internal class DiffCdbCommand : CommandBase<DiffCdbCommand.Settings>
     {
         public override int Execute()
         {
@@ -85,16 +87,23 @@ namespace DCCMTool.Commands.Cdb
             return 0;
         }
 
-        [Verb("diff-cdb", HelpText = "Compare the differences between two CDBs.")]
-        public class Options
+        public class Settings : CommandSettings
         {
-            [Option('t',"template", Required = true, HelpText = "The path to the template cdb file.")]
+            [CommandOption("-t|--template", true)]
+            [Description("The path to the template cdb file.")]
             public required string TemplateCDB { get; set; }
-            [Option('i', "cdb", Required = true, HelpText = "The path to the target cdb file.")]
+
+            [CommandOption("-i|--input <cdb>", true)]
+            [Description("The path to the target cdb file.")]
             public required string CDBPath { get; set; }
-            [Option("show-difference", HelpText = "Display the difference items on standard output.", Default = true)]
-            public bool ShowDifference { get; set; }
-            [Option('o', "output-pak", HelpText = "The path to the output differential pak file.You can then use merge-pak to combine it with other pak files.")]
+
+            [CommandOption("--show-difference")]
+            [Description("Display the difference items on standard output.")]
+            [DefaultValue(true)]
+            public bool ShowDifference { get; set; } = true;
+
+            [CommandOption("-o|--output <pak>", true)]
+            [Description("The path to the output differential pak file.You can then use merge-pak to combine it with other pak files.")]
             public string? DiffPakPath { get; set; }
 
 

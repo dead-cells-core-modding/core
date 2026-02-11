@@ -1,8 +1,8 @@
 ﻿using BytecodeMapping;
-using CommandLine;
-using CommandLine.Text;
+using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DCCMTool.Commands
 {
     internal class HaxeDebugInfoCommand : 
-        CommandBase<HaxeDebugInfoCommand.Options>
+        CommandBase<HaxeDebugInfoCommand.Settings>
     {
         public override int Execute()
         {
@@ -72,33 +72,26 @@ namespace DCCMTool.Commands
             return 0;
         }
 
-        [Verb("resolve-line-to-il", false, [
-            "resolve-line",
-            ], HelpText = "Converts line numbers in error messages to IL sequence numbers in pseudo-code")]
-        public class Options
+
+        public class Settings : CommandSettings
         {
-            [Option('i', "function-index", HelpText = "The function index.", Default = null)]
+            [CommandOption("-i|--function-index")]
+            [Description("The function index.")]
             public int? FunctionIndex { get; set; }
-            [Option('p', "path", HelpText = "The path of source file.", Default = null)]
+
+            [CommandOption("-p|--path")]
+            [Description("The path of source file.")]
             public string? Path { get; set; }
-            [Option('l', "line", HelpText = "The line of source.", Required = true)]
+
+            [CommandOption("-l|--line", true)]
+            [Description("The line of source.")]
             public int Line { get; set; }
-            [Option('d', "database", HelpText = "The path of database. (*.bcm.bin)", Required = true)]
+
+            [CommandOption("-d|--database", true)]
+            [Description("The path of database. (*.bcm.bin)")]
             public string DatabasePath { get; set; } = "";
 
-            [Usage]
-            public static IEnumerable<Example> Examples
-            {
-                get
-                {
-                    yield return new Example("Resolve from line and file name", new Options()
-                    {
-                        DatabasePath = "GameProxy.bcm.bin",
-                        Line = 1072,
-                        Path = "TimeKeeper.hx"
-                    });
-                }
-            }
+          
         }
     }
 }

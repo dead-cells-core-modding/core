@@ -1,15 +1,17 @@
-﻿using CommandLine;
+﻿
 using DCCMTool.Commands.Cdb;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Spectre.Console.Cli;
 using Steamworks;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace DCCMTool.Commands.Steam
 {
-    internal class UploadModCommnand : SteamCommandBase<UploadModCommnand.Options>
+    internal class UploadModCommnand : SteamCommandBase<UploadModCommnand.Settings>
     {
         public override async Task<int> ExecuteSteamAsync()
         {
@@ -115,14 +117,18 @@ namespace DCCMTool.Commands.Steam
         }
 
 
-        [Verb("upload-mod", false, HelpText = "Upload a mod to Steam Workshop.")]
-        public class Options
+        public class Settings : CommandSettings
         {
-            [Option('i', "input", Required = true, HelpText = "The path for the mod directory.")]
+            [CommandOption("-i|--input <path>", true)]
+            [Description("The path for the mod directory.")]
             public required string ModPath { get; set; }
-            [Option('t', "update-text", HelpText = "The update text for the mod upload.")]
+
+            [CommandOption("-t|--update-text <text>")]
+            [Description("The update text for the mod upload.")]
             public string? UpdateText { get; set; }
-            [Option('p', "preview", HelpText = "The path for the mod preview")]
+
+            [CommandOption("-p|--preview <path>")]
+            [Description("The path for the mod preview.")]
             public string? PreviewPath { get; set; }
         }
     }

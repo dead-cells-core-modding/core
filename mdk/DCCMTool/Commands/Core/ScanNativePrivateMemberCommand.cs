@@ -1,21 +1,23 @@
-﻿using CommandLine;
+﻿
 using NonPublicNativeMembers;
+using Spectre.Console.Cli;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace DCCMTool.Commands.Core
 {
-    internal class ScanNativePrivateMemberCommand : CommandBase<ScanNativePrivateMemberCommand.Options>
+    internal class ScanNativePrivateMemberCommand : CommandBase<ScanNativePrivateMemberCommand.Settings>
     {
-        [Verb("scan-native-private-member", Hidden = true)]
-        public class Options
+        public class Settings : CommandSettings
         {
-            [Option('b', "baseDir")]
+            [CommandOption("-b|--baseDir")]
             public string? BaseDir { get; set; }
-            [Option('i', "inputs", Required = true, HelpText = "Input dlls to scan.")]
+
+            [CommandOption("-i|--inputs", true)]
             public required IEnumerable<string> Inputs { get; set; }
-            [Option('o', "output", Required = true, HelpText = "Output file path.")]
+
+            [CommandOption("-o|--output", true)]
             public required string Output { get; set; }
         }
 
