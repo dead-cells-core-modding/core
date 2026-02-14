@@ -15,7 +15,7 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@v4
       with: 
-        name: build-win-x64-d-true
+        name: build-win-x64
         path: win-x64
     - name: Pack
       run: |
@@ -144,5 +144,5 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4.6.0
       with:
-        name: build-win-x64-d-${{ matrix.debug }}
+        name: build-win-x64${{ matrix.debug == true && '-Debug' || '' }}
         path: ./bin/*
