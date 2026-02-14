@@ -15,7 +15,7 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@v4
       with: 
-        name: build-win-x64
+        name: build-win-x64-d-true
         path: win-x64
     - name: Pack
       run: |
@@ -103,7 +103,9 @@ jobs:
 
   build-win-x64:
     runs-on: windows-latest
-
+    strategy:
+      matrix:
+        debug: [ true, false ]
     steps:
     - uses: actions/checkout@v4
       with:
@@ -130,17 +132,17 @@ jobs:
 
     - name: Build Core
       run: |
-        ./buildWin.ps1 -BuildAssets 0
+        ./buildWin.ps1 -Debug $$${{ matrix.debug }} -BuildAssets 0
     - name: Install MDK
       uses: dead-cells-core-modding/setup-mdk@main
       with:
         modcoreroot: ./bin
     - name: Build Assets
       run: |
-        ./buildWin.ps1 -BuildNative 0 -BuildMDK 0 -BuildCore 0 -BuildAssets 1
+        ./buildWin.ps1 -Debug $$${{ matrix.debug }} -BuildNative 0 -BuildMDK 0 -BuildCore 0 -BuildAssets 1
 
     - name: Upload
       uses: actions/upload-artifact@v4.6.0
       with:
-        name: build-win-x64
+        name: build-win-x64-d-${{ matrix.debug }}
         path: ./bin/*

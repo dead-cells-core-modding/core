@@ -3,11 +3,18 @@
     [bool]$BuildMDK = $true,
     [bool]$BuildCore = $true,
     [bool]$BuildAssets = $true
+    [bool]$Debug = $false
 )
 
 $ErrorActionPreference = "Stop"
 
 cd $PSScriptRoot
+
+$build_conf = "Release"
+
+if($Debug) {
+    $build_conf = "Debug"
+}
 
 if($BuildNative) {
 
@@ -56,12 +63,12 @@ if($BuildCore) {
 
     cd sources
 
-    dotnet build -c Release ./DCCMShell
-    dotnet build -c Release ./ModCore.ModLoader.Default
+    dotnet build -c $build_conf ./DCCMShell
+    dotnet build -c $build_conf ./ModCore.ModLoader.Default
 
     echo "Building Shell"
     dotnet publish -c Release -r win-x64 ./DeadCellsModding
-    dotnet publish -c Release -r win-x64 ./SteamStartShell
+    dotnet publish -c $build_conf -r win-x64 ./SteamStartShell
 
     cd $PSScriptRoot
 }
@@ -69,7 +76,7 @@ if($BuildCore) {
 if($BuildAssets) {
      cd sources
 
-     dotnet build -c Release ./ModCore.Assets
+     dotnet build -c $build_conf ./ModCore.Assets
      cd $PSScriptRoot
 }
 
