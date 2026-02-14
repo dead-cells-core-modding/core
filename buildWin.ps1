@@ -2,7 +2,7 @@
     [bool]$BuildNative = $true,
     [bool]$BuildMDK = $true,
     [bool]$BuildCore = $true,
-    [bool]$BuildAssets = $true
+    [bool]$BuildAssets = $true,
     [bool]$Debug = $false
 )
 
