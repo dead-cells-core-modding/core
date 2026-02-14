@@ -20,6 +20,8 @@ namespace Hashlink.Marshaling.ObjHandle
             public void Free()
             {
                 Debug.Assert(valid);
+                Debug.Assert(hlPtr != 0);
+
                 strongRef = null;
                 valid = false;
                 *GetObjWrapperPtr((void*)hlPtr) = 0;
@@ -155,7 +157,11 @@ namespace Hashlink.Marshaling.ObjHandle
                     Debug.Assert(curHandle.weakRef.Target == null);
                     Debug.Assert(old.weakRef.Target != null);
 
-                    curHandle.Free();
+                    if (curHandle.valid)
+                    {
+                        curHandle.Free();
+                    }
+
                     (old, curHandle) = (curHandle, old);
 
                     Debug.Assert(!currentHandlePage[currentIndex].valid);
@@ -346,15 +352,17 @@ namespace Hashlink.Marshaling.ObjHandle
                 ref var h = ref AllocObjHandle(out var handleIdx);
                 Debug.Assert(!h.valid);
                 Debug.Assert(h.hlPtr == 0);
-                h.valid = true;
                 handle = new(ptr, handleIdx);
                 h.Init(ptr, handle);
                 if (!handle.IsStateless)
                 {
                     h.strongRef = handle;
                 }
-                
-                *wp = (nint)h.weakRef;
+
+                if (Interlocked.CompareExchange(ref *wp, (nint)h.weakRef, 0) != 0)
+                {
+                    h.Free();
+                }
             }
             return handle;
         }

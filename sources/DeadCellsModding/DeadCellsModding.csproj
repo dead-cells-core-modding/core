@@ -10,9 +10,6 @@
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <PublishDir>../../bin/core/host/startup</PublishDir>
 
-   
-    <ServerGarbageCollection>true</ServerGarbageCollection>
-    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
     <Platforms>x64</Platforms>
 
     <ApplicationIcon>icon.ico</ApplicationIcon>

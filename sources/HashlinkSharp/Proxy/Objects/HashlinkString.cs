@@ -1,4 +1,4 @@
-﻿using Hashlink.Marshaling;
+using Hashlink.Marshaling;
 using System.Diagnostics;
 
 namespace Hashlink.Proxy.Objects

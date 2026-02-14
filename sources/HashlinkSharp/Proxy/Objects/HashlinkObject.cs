@@ -1,4 +1,4 @@
-﻿using Hashlink.Reflection.Types;
+using Hashlink.Reflection.Types;
 using System.Diagnostics;
 
 namespace Hashlink.Proxy.Objects

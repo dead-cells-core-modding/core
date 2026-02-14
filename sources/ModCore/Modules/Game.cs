@@ -91,7 +91,11 @@ namespace ModCore.Modules
             Hook_TitleScreen.addMenu += Hook_TitleScreen_addMenu;
 
             Hook__ServerApi.canSaveScore += Hook__ServerApi_canSaveScore;
-            Hook__ErrorHandler.init += Hook__ErrorHandler_init;
+
+            if (!Debugger.IsAttached)
+            {
+                Hook__ErrorHandler.init += Hook__ErrorHandler_init;
+            }
 
             if (Core.Config.Value.SkipLogoSplash)
             {

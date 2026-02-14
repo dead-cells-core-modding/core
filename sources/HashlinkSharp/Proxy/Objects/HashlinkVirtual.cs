@@ -1,4 +1,4 @@
-﻿using Hashlink.Marshaling;
+using Hashlink.Marshaling;
 using Hashlink.Reflection.Types;
 using System.Diagnostics;
 
