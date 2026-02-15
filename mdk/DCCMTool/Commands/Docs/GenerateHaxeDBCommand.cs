@@ -30,6 +30,7 @@ namespace DCCMTool.Commands.Docs
             public HaxeCompilerException(string message, Exception inner) : base(message, inner) { }
             
         }
+
         private record class HaxeInstance(BinaryReader OutputStream, BinaryWriter InputStream, Process Process, int Index);
         private static async Task<string> SendCommand(HaxeInstance haxe, string? stdin, params List<string> args)
         {

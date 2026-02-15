@@ -58,6 +58,11 @@ namespace HaxeProxy.Runtime
                 result = HashlinkObj;
                 return true;
             }
+            if (binder.Type == typeof(string))
+            {
+                result = ToString();
+                return true;
+            }
             return base.TryConvert(binder, out result);
         }
         public virtual T ToVirtual<T>() where T : HaxeVirtual

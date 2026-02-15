@@ -76,6 +76,8 @@ namespace HashlinkNET.Compiler.Utils
             IDataContainer container,
             string name)
         {
+            property.CheckDynamic(
+                    container.GetGlobalData<RuntimeImports>(), property.PropertyType);
             var gdata = container.GetGlobalData<GlobalData>();
             {
                 property.SetMethod = new("set_" + name, MethodAttributes.SpecialName | MethodAttributes.Public,
@@ -86,6 +88,9 @@ namespace HashlinkNET.Compiler.Utils
                             new(property.PropertyType)
                         }
                 };
+                property.SetMethod.Parameters[0].CheckDynamic(
+                    container.GetGlobalData<RuntimeImports>(), property.PropertyType);
+
                 var ilp = property.SetMethod.Body.GetILProcessor();
                 ilp.Emit(OpCodes.Ldarg_0);
                 ilp.Emit(OpCodes.Ldarg_1);
@@ -330,12 +335,12 @@ namespace HashlinkNET.Compiler.Utils
 
                 if (anyDynamic)
                 {
-
+                    var array = dynamicFlagsList.ToArray();
                     provider.CustomAttributes.Add(new(runtimeImports.attrDynamic2)
                     {
                         ConstructorArguments = {
-                        new(runtimeImports.typeSystem.Boolean.MakeArrayType(), dynamicFlagsList.ToArray())
-                    }
+                            new(runtimeImports.typeSystem.Boolean.MakeArrayType(), array)
+                        }
                     });
                 }
             }
