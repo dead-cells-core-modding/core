@@ -8,7 +8,7 @@ using Hashlink.Reflection.Types;
 
 namespace TestRunner
 {
-    public class HashlinkTest
+    public unsafe class HashlinkTest
     {
         private static HashlinkObject CreateObject(string name)
         {
@@ -122,6 +122,35 @@ namespace TestRunner
 
             dyn(null);
             Assert.False(isFailed);
+
+            //Dynamic 2
+
+            {
+                bool run = false;
+                nint tptr = 0;
+                HashlinkMarshal.WriteData(&tptr, () =>
+                {
+                    run = true;
+                }, null);
+
+                var cl2 = new HashlinkClosure(HashlinkObjPtr.Get(tptr));
+                cl2.DynamicInvoke();
+
+                Assert.True(run);
+
+                HashlinkMarshal.WriteData(&tptr, (bool a) =>
+                {
+                    run = a;
+                    return 2;
+                }, null);
+
+                cl2 = new HashlinkClosure(HashlinkObjPtr.Get(tptr));
+                var r = cl2.DynamicInvoke(false);
+
+                Assert.False(run);
+                Assert.Equal(2, (int)r!);
+
+            }
         }
 
         [Fact]

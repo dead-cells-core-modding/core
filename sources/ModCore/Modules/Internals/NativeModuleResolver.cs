@@ -83,6 +83,16 @@ namespace ModCore.Modules.Internals
                     return (nint)ptr_NativeReturnTrue;
                 }
             }
+            if (info.libname == "sdl")
+            {
+                if (info.name == "set_relative_mouse_mode")
+                {
+                    if (!Core.Config.Value.AllowLockCursor)
+                    {
+                        return (nint)ptr_NativeReturnFalse;
+                    }
+                }
+            }
             if (knownNativeFunctions.TryGetValue(info.libname, out var dict))
             {
                 if (dict.TryGetValue(info.name, out var result))

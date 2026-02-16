@@ -1,10 +1,15 @@
-﻿using Hashlink.Proxy;
+using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Types;
 using Hashlink.Reflection.Types.Special;
+using ModCore.Collections;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Hashlink.Marshaling
 {
@@ -14,6 +19,42 @@ namespace Hashlink.Marshaling
         public static IHashlinkMarshaler IgnoreCustomMarshalerInstance { get; } = new DefaultHashlinkMarshaler(true);
 
         private readonly bool ignoreCustomMarshaler;
+        private readonly ConcurrentDictionary<Type, HashlinkFuncType> customDelegateFuncType = [];
+
+        private struct CustomFuncType
+        {
+            public HL_type type;
+            public HL_type_func func;
+        }
+
+        private readonly PinnedArrayList<CustomFuncType> customDelegateFuncList = new();
+
+        private HashlinkFuncType CreateCustomDelegateFuncType( Type delType )
+        {
+            ref CustomFuncType f = ref customDelegateFuncList.Add(new());
+            f.type.kind = TypeKind.HFUN;
+            f.type.data.func = (HL_type_func*) Unsafe.AsPointer(ref f.func);
+
+            var delInvoke = delType.GetMethod("Invoke");
+
+            Debug.Assert( delInvoke != null );
+
+            var p = delInvoke.GetParameters();
+
+            f.func.ret = GetHashlinkTypeNoNull(delInvoke.ReturnType).NativeType;
+
+            var args = (HL_type**)NativeMemory.AllocZeroed((nuint)(p.Length * sizeof(HL_type*)));
+
+            for (int i = 0; i < p.Length; i++)
+            {
+                args[i] = GetHashlinkTypeNoNull(p[i].ParameterType).NativeType;
+            }
+
+            f.func.args = args;
+            f.func.nargs = p.Length;
+
+            return HashlinkMarshal.Module.GetMemberFrom<HashlinkFuncType>(Unsafe.AsPointer(ref f.type));
+        }
 
         protected DefaultHashlinkMarshaler( bool ignoreCustomMarshaler )
         {
@@ -93,7 +134,6 @@ namespace Hashlink.Marshaling
             {
                 return false;
             }
-
 
             if (value is Delegate del && type is HashlinkFuncType ft)
             {
@@ -223,6 +263,63 @@ namespace Hashlink.Marshaling
                     
                 _ => throw new InvalidOperationException($"Unrecognized type {kind}")
             };
+        }
+
+        public HashlinkType GetHashlinkTypeNoNull( Type type )
+        {
+            return GetHashlinkType(type) ?? throw new InvalidOperationException();
+        }
+
+        public HashlinkType? GetHashlinkType( Type type )
+        {
+            var kt = HashlinkMarshal.Module.KnownTypes;
+            if (type == typeof(int) || type == typeof(uint))
+            {
+                return kt.I32;
+            }
+            else if (type == typeof(long) || type == typeof(ulong))
+            {
+                return kt.I64;
+            }
+            else if (type == typeof(float))
+            {
+                return kt.F32;
+            }
+            else if (type == typeof(double))
+            {
+                return kt.F64;
+            }
+            else if (type == typeof(byte) || type == typeof(sbyte))
+            {
+                return kt.I8;
+            }
+            else if (type == typeof(bool))
+            {
+                return kt.Bool;
+            }
+            else if (type == typeof(short) || type == typeof(ushort))
+            {
+                return kt.I16;
+            }
+            else if (type == typeof(void))
+            {
+                return kt.Void;
+            }
+            else if (type == typeof(nint))
+            {
+                return kt.Bytes;
+            }
+            else if (type.IsAssignableTo(typeof(Delegate)))
+            {
+                return customDelegateFuncType.GetOrAdd(type, CreateCustomDelegateFuncType);
+            }
+            else if (type.IsAssignableTo(typeof(IExtraDataItem)) ||
+                type.IsAssignableTo(typeof(HashlinkObj)) ||
+                type == typeof(object))
+            {
+                return kt.Dynamic;
+            }
+            return null;
         }
     }
 }

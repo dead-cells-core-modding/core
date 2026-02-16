@@ -35,46 +35,11 @@ namespace Hashlink.Marshaling
             }
             return Module.GetMemberFrom<HashlinkType>(type);
         }
-        public static HashlinkType? GetHashlinkType( Type type )
+        public static HashlinkType? GetHashlinkType( Type type, IHashlinkMarshaler? marshaler = null )
         {
-            var kt = Module.KnownTypes;
-            if (type == typeof(int) || type == typeof(uint))
-            {
-                return kt.I32;
-            }
-            else if (type == typeof(long) || type == typeof(ulong))
-            {
-                return kt.I64;
-            }
-            else if (type == typeof(float))
-            {
-                return kt.F32;
-            }
-            else if (type == typeof(double))
-            {
-                return kt.F64;
-            }
-            else if (type == typeof(byte) || type == typeof(sbyte))
-            {
-                return kt.I8;
-            }
-            else if (type == typeof(bool))
-            {
-                return kt.Bool;
-            }
-            else if (type == typeof(short) || type == typeof(ushort))
-            {
-                return kt.I16;
-            }
-            else if (type == typeof(void))
-            {
-                return kt.Void;
-            }
-            else if (type == typeof(nint))
-            {
-                return kt.Bytes;
-            }
-            return null;
+            marshaler ??= DefaultMarshaler;
+
+            return marshaler.GetHashlinkType(type);
         }
 
         public static IHashlinkMarshaler DefaultMarshaler { get; set; } = DefaultHashlinkMarshaler.Instance;
