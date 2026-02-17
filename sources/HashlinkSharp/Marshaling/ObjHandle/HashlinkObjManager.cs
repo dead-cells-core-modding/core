@@ -24,7 +24,11 @@ namespace Hashlink.Marshaling.ObjHandle
 
                 strongRef = null;
                 valid = false;
-                *GetObjWrapperPtr((void*)hlPtr) = 0;
+                var wrapperPtr = GetObjWrapperPtr((void*)hlPtr);
+                if (wrapperPtr != null)
+                {
+                    *wrapperPtr = 0;
+                }
                 hlPtr = 0;
             }
             public void Init( nint hlptr, object h )
