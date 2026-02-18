@@ -94,7 +94,12 @@ namespace ModCore
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 var k32 = NativeLibrary.Load("kernelbase.dll");
-                var getprocaddress = NativeLibrary.GetExport(k32, "GetProcAddressForCaller");
+
+                if (!NativeLibrary.TryGetExport(k32, "GetProcAddressForCaller", out var getprocaddress))
+                {
+                    k32 = NativeLibrary.Load("kernel32.dll");
+                    getprocaddress = NativeLibrary.GetExport(k32, "GetProcAddress");
+                }
 
                 detourGetProcAddress = DetourFactory.Current.CreateNativeDetour(new(getprocaddress,
                    NN.Current.asm_hook_GetProcAddress_Entry)
