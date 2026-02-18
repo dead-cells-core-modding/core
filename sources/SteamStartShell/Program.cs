@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -439,7 +440,23 @@ You can report or contact us via:
 
                 var errText = new StringBuilder();
 
-                errText.AppendLine(ERROR_REPORT_HEADER);
+                {
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        var ntdll = NativeLibrary.Load("ntdll.dll");
+                        if (NativeLibrary.TryGetExport(ntdll, "wine_get_version", out var wineVerFunc))
+                        {
+                            unsafe
+                            {
+                                var ver = Marshal.PtrToStringUTF8((nint)((delegate* unmanaged< byte* >)wineVerFunc)()) ?? "Unknown";
+                                errText.AppendLine();
+                                errText.Append("The current program is running on Proton/Wine: ");
+                                errText.AppendLine(ver);
+                                errText.AppendLine();
+                            }
+                        }
+                    }
+                }
 
                 if (errOutputBuilder.Length > 0)
                 {
@@ -462,8 +479,16 @@ You can report or contact us via:
                     errText.AppendLine();
                 }
 
+                var err = new StringBuilder();
+
+                err.AppendLine(ERROR_REPORT_HEADER);
+
+                var errTextStr = errText.ToString();
+
+                err.AppendLine(errTextStr);
+
                
-                File.WriteAllText(ERROR_REPORT_PATH, errText.ToString());
+                File.WriteAllText(ERROR_REPORT_PATH, err.ToString());
 
                 Process.Start(new ProcessStartInfo(ERROR_REPORT_PATH)
                 {

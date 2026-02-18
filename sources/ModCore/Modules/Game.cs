@@ -188,6 +188,8 @@ namespace ModCore.Modules
             Hook_Boot.endInit += Hook_Boot_endInit1;
             Hook_Boot.update += Hook_Boot_update1;
             Hook_Boot.mainLoop += Hook_Boot_mainLoop;
+            Hook_Boot.forceRender += Hook_Boot_forceRender;
+            Hook_Boot.render += Hook_Boot_render;
 
             Hook__Save.delete += Hook__Save_delete;
             Hook__Save.copy += Hook__Save_copy;
@@ -196,6 +198,18 @@ namespace ModCore.Modules
 
             Hook__Data.loadFrom += Hook__Data_loadFrom;
             Hook__Data.loadJson += Hook__Data_loadJson;
+        }
+
+        private void Hook_Boot_render( Hook_Boot.orig_render orig, Boot self, dc.h3d.Engine e )
+        {
+            orig(self, e);
+            FlushSyncTasks();
+        }
+
+        private void Hook_Boot_forceRender( Hook_Boot.orig_forceRender orig, Boot self )
+        {
+            orig(self);
+            FlushSyncTasks();
         }
 
         private void Hook__Data_loadJson( Hook__Data.orig_loadJson orig, dc.String json, Ref<bool> allowReload )
@@ -210,16 +224,29 @@ namespace ModCore.Modules
             EventSystem.BroadcastEvent<IOnAfterLoadingCDB, _Data_>(Data.Class);
         }
 
+        private void FlushSyncTasks()
+        {
+            while (queues.TryDequeue(out var req))
+            {
+                try
+                {
+                    req.Item1(req.Item2);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Fatal(ex, "An exception occurred during task execution.");
+                    Debugger.BreakForUserUnhandledException(ex);
+                    throw;
+                }
+            }
+        }
+
         private void Hook_Boot_mainLoop( Hook_Boot.orig_mainLoop orig, Boot self )
         {
             try
             {
-                System.Threading.SynchronizationContext.SetSynchronizationContext(SynchronizationContext);
-                while (queues.TryDequeue(out var req))
-                {
-                    req.Item1(req.Item2);
-                }
-
+                SynchronizationContext.SetSynchronizationContext(SynchronizationContext);
+                FlushSyncTasks();
                 orig(self);
             }
             catch (Exception ex)

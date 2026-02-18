@@ -107,6 +107,19 @@ namespace ModCore
             Log.Logger.Information("Core Config: {config}", JsonConvert.SerializeObject(Config.Value,
                 Config.SerializerOptions));
 
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var ntdll = NativeLibrary.Load("ntdll.dll");
+                if (NativeLibrary.TryGetExport(ntdll, "wine_get_version", out var wineVerFunc))
+                {
+                    unsafe
+                    {
+                        var ver = Marshal.PtrToStringUTF8((nint)((delegate* unmanaged< byte* >)wineVerFunc)()) ?? "Unknown";
+                        Log.Logger.Information("The game is running on Proton/Wine: {ver}", ver);
+                    }
+                }
+            }
+
             Log.Logger.Information("Initalizing");
 
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
