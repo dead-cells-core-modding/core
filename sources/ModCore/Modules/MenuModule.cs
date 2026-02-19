@@ -91,7 +91,8 @@ namespace ModCore.Modules
 
                 foreach (var mod in EventSystem.FindReceivers<ModBase>())
                 {
-                    if (mod is not IModMenu mm)
+                    if (mod is not IModMenu
+                        && mod is not IModMenuProvider)
                     {
                         HlAction onClick = static () => { };
 
@@ -112,6 +113,7 @@ namespace ModCore.Modules
                                 if (idx != -1)
                                 {
                                     var startIdx = idx + STEAMWORKSHOP_PATH_STR.Length;
+
                                     var swidStr = p[startIdx..];
                                     if (long.TryParse(swidStr, out var swid))
                                     {
@@ -137,6 +139,11 @@ namespace ModCore.Modules
                             $"Version: {mod.Info.Version}".AsHaxeString(), onClick, Ref<int>.From(ref offX), flow);
 
                         continue;
+                    }
+
+                    if (mod is not IModMenu mm)
+                    {
+                        mm = ((IModMenuProvider)mod).GetModMenu();
                     }
 
                     var cm = Instance.customMenus[mm];
