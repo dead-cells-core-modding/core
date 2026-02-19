@@ -18,5 +18,14 @@ namespace ModCore.Mods
         {
 
         }
+
+        /// <summary>
+        /// Gets the display name associated with the mod.
+        /// </summary>
+        /// <returns>A string representing the display name, which is derived from the Info.Name property.</returns>
+        public virtual string GetDisplayName()
+        {
+            return Info.Name;
+        }
     }
 }

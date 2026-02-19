@@ -26,6 +26,6 @@ namespace ModCore.Mods
         public string? DCCMVersion { get; set; }
 
         [JsonIgnore]
-        public FolderInfo? ModRoot { get; set; }
+        public FolderInfo ModRoot { get; set; } = null!;
     }
 }

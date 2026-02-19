@@ -88,8 +88,6 @@ namespace ModCore.Modules
         {
             Hook_Hero.init += Hook_Hero_init;
             Hook_Hero.dispose += Hook_Hero_dispose;
-            Hook_TitleScreen.addMenu += Hook_TitleScreen_addMenu;
-
             Hook__ServerApi.canSaveScore += Hook__ServerApi_canSaveScore;
 
             if (!Debugger.IsAttached)
@@ -132,28 +130,6 @@ namespace ModCore.Modules
         private bool Hook__ServerApi_canSaveScore( Hook__ServerApi.orig_canSaveScore orig )
         {
             return false;
-        }
-
-        private virtual_cb_help_inter_isEnable_t_<bool> Hook_TitleScreen_addMenu( Hook_TitleScreen.orig_addMenu orig, TitleScreen self, dc.String str, HlAction cb, dc.String help, bool? isEnable, Ref<int> color )
-        {
-            var s = self;
-            var menuItems = s.menuItems;
-            if (menuItems.length == 3 && s.isMainMenu)
-            {
-                orig(
-                    self, GetText.Instance.GetString("About Core Modding").AsHaxeString(), () =>
-                    {
-                        Logger.Information("Open https://github.com/dead-cells-core-modding/core");
-                        Process.Start(new ProcessStartInfo()
-                        {
-                            UseShellExecute = true,
-                            FileName = "https://github.com/dead-cells-core-modding/core"
-                        });
-                    }, null, null, default
-                    );
-            }
-
-            return orig(self, str, cb, help, isEnable, color);
         }
 
         private void Hook_Hero_dispose( Hook_Hero.orig_dispose orig, Hero self )

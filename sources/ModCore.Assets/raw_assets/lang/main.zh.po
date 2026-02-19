@@ -1,19 +1,19 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-01-31 13:40+0800\n"
-"PO-Revision-Date: 2026-01-31 13:42+0800\n"
+"POT-Creation-Date: 2026-02-19 15:51+0800\n"
+"PO-Revision-Date: 2026-02-19 15:51+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.8\n"
 "X-Poedit-Basepath: ../../../ModCore\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: Modules/Game.cs:99
+#: Modules/Game.cs:144
 msgid "About Core Modding"
 msgstr "关于 Core Modding"
 
@@ -28,3 +28,15 @@ msgstr "你依然可以继续操作，但所有 Mods 的数据都将会丢失！
 #: Modules/Internals/HxbitModule.cs:250
 msgid "Please check the log file for more information."
 msgstr "请检查日志文件以获取更多信息。"
+
+#: Modules/MenuModule.cs:45
+msgid "CORE MODDING"
+msgstr "CORE MODDING"
+
+#: Modules/MenuModule.cs:53
+msgid "Loaded Mods"
+msgstr "已加载的 Mods"
+
+#: Modules/MenuModule.cs:146
+msgid "Core Modding"
+msgstr "Core Modding"
