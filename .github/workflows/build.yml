@@ -68,7 +68,7 @@ jobs:
       run: |
         cd sources
         
-        dotnet test -v d
+        dotnet test
 
   test-build-samples:
     runs-on: windows-latest

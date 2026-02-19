@@ -2,7 +2,9 @@
 using ModCore;
 using ModCore.Events;
 using ModCore.Events.Interfaces.Game;
+using ModCore.Modules;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace TestRunner
 {
@@ -70,12 +72,15 @@ namespace TestRunner
                 Name = "Game Thread",
                 IsBackground = true
             };
+
             gameThread.Start();
-//
-            //Console.WriteLine("Waiting game init");
             gameInitEvent.WaitOne();
-            //Console.WriteLine("Test inited");
             HashlinkThread.RegisterThread();
+
+            NativeHooks.Instance.CreateHook(NativeLibrary.GetExport(NativeLibrary.Load("libhl"), "hl_fatal_error"), (Action)(() =>
+            {
+                Environment.FailFast("fatal error");
+            }));
         }
     }
 }
