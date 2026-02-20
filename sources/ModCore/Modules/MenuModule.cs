@@ -210,6 +210,7 @@ namespace ModCore.Modules
                 {
                     MenuMod = v
                 };
+                cm.HashlinkObj.MarkStateful();
                 customMenus.Add(v, cm);
             }
         }
