@@ -92,7 +92,7 @@ namespace Hashlink
                 }
 
                 hl_register_thread((void*)stacktop);
-                //hl_blocking(1);
+                hl_get_thread()->gc_blocking = 1;
             }
 
             current = new();
@@ -100,12 +100,14 @@ namespace Hashlink
 
             EventSystem.BroadcastEvent<IOnRegisterHashlinkThread>();
         }
-        public static void EnsureThreadRegistered()
+        public static bool EnsureThreadRegistered()
         {
             if (current == null)
             {
                 RegisterThread();
+                return true;
             }
+            return false;
         }
     
     }

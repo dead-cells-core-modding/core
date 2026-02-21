@@ -50,7 +50,7 @@ namespace HaxeProxy.Runtime
         protected virtual void AfterBinding()
         {
         }
-
+         
         public override bool TryConvert( ConvertBinder binder, out object? result )
         {
             if (binder.Type.IsAssignableTo(typeof(HashlinkObj)))

@@ -158,9 +158,14 @@ namespace Hashlink.Marshaling
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void EnsureThreadRegistered()
+        public static bool EnsureThreadRegistered()
         {
-            HashlinkThread.EnsureThreadRegistered();
+            var result = HashlinkThread.EnsureThreadRegistered();
+            if (result)
+            {
+                hl_blocking(1);
+            }
+            return result;
         }
     }
 }

@@ -42,13 +42,7 @@ namespace HaxeProxy.Runtime
         }
         public static TClass GetClass<TClass>( Type type ) where TClass : HaxeProxyBase
         {
-            var ca = type.GetCustomAttribute<HashlinkTIndexAttribute>(false);
-            if (ca is not null)
-            {
-                return ((HashlinkObjectType)HashlinkMarshal.Module.Types[ca.Index]).GlobalValue!.AsHaxe<TClass>();
-            }
-            InheritanceManager.Check(type, null, out var cht);
-            return cht.Data.globalValue.AsHaxe<TClass>();
+            return GetHashlinkType(type).GlobalValue.AsHaxe<TClass>();
         }
         public static TClass GetClass<TType, TClass>() where TClass : HaxeProxyBase
         {

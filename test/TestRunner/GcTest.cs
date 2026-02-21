@@ -26,6 +26,8 @@ namespace TestRunner
         [Fact]
         public void KeepAlive()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var str = new HashlinkString("Test String");
             Assert.True(str.IsValid);
             Assert.Equal("Test String", str.ToString());
@@ -43,6 +45,8 @@ namespace TestRunner
         [Fact]
         public void KeepAlive2()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var obj = new HashlinkDynObj();
             var item0 = (nint) hl_alloc_dynobj();
             obj.SetFieldValue("test", new HashlinkObjPtr(item0));

@@ -7,8 +7,6 @@ namespace ModCore.Modules
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     internal unsafe class GameStartup : CoreModule<GameStartup>, IOnNativeEvent
     {
-        
-
         private void StartGame()
         {
             HashlinkMarshal.EnsureThreadRegistered();

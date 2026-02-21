@@ -25,6 +25,8 @@ namespace TestRunner
         }
         private class TestObject2 : TestObject
         {
+            public static int TEST_S_VAL = 3;
+            public int TEST_VAL = 2;
             public override int getSign()
             {
                 return base.getSign() + 1;
@@ -65,6 +67,10 @@ namespace TestRunner
 
             var dyn = hobj.AsDynamic();
             Assert.Equal(114515, dyn.getSign());
+            Assert.Equal(2, (int) dyn.TEST_VAL);
+
+            dynamic gcl = HaxeProxyUtils.GetClass<HaxeObject>(typeof(TestObject2)).HashlinkObj;
+            Assert.Equal(3, (int)gcl.TEST_S_VAL);
 
             var isFailed = true;
             obj.overrideMethodHasBennCalled = false;
