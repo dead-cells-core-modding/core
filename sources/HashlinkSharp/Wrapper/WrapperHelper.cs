@@ -47,6 +47,12 @@ namespace Hashlink.Wrapper
             HashlinkMarshal.WriteData(&result, obj, type);
             return result;
         }
-        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetBlocking( bool b )
+        {
+            HashlinkMarshal.EnsureThreadRegistered();
+            hl_blocking(b ? 1 : 0);
+        }
+
     }
 }

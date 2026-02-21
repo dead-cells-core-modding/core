@@ -11,13 +11,13 @@ namespace ModCore.Modules
 
         private void StartGame()
         {
+            HashlinkMarshal.EnsureThreadRegistered();
             var entry = (HashlinkClosure)HashlinkMarshal.ConvertHashlinkObject(
                     &HashlinkVM.Instance.Context->c
                     )!;
             hl_blocking(1);
             var action = entry.CreateDelegate<Action>();
             action();
-            hl_blocking(0);
         }
 
         void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )

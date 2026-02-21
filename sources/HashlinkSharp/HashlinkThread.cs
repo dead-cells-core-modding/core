@@ -92,7 +92,7 @@ namespace Hashlink
                 }
 
                 hl_register_thread((void*)stacktop);
-                hl_blocking(1);
+                //hl_blocking(1);
             }
 
             current = new();

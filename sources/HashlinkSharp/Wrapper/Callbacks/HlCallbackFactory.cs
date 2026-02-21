@@ -23,8 +23,8 @@ namespace Hashlink.Wrapper.Callbacks
             .GetMethod(nameof(WrapperHelper.ThrowNetException))!; 
         private static readonly MethodInfo MI_WrapperHelper_CallbackCleanup = typeof(WrapperHelper)
             .GetMethod(nameof(WrapperHelper.CallbackCleanup))!;
-        private static readonly MethodInfo MI_hl_blocking = typeof(HashlinkNative)
-            .GetMethod(nameof(hl_blocking))!;
+        private static readonly MethodInfo MI_hl_blocking = typeof(WrapperHelper)
+            .GetMethod(nameof(WrapperHelper.SetBlocking))!;
 
         private static Type GetNativeType( TypeKind kind )
         {

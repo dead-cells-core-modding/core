@@ -365,6 +365,7 @@ You can report or contact us via:
                 if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "diagnostic_mode.txt")))
                 {
                     diagnosticMode = true;
+                    Environment.SetEnvironmentVariable("DCCM_DIAGNOSTIC_MODE", "true");
                     Logger.Warning("Diagnostic mode enabled.");
                 }
 

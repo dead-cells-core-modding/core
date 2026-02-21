@@ -1,0 +1,5 @@
+
+--hl bin/main.hl
+--library heaps
+--no-opt
+--main Main

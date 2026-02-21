@@ -51,7 +51,7 @@ namespace HaxeProxy.Runtime
         /// </summary>
         /// <param name="val"></param>
         /// <returns></returns>
-        [Obsolete]
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         public static Ref<T> In( [UnscopedRef] in T val )
         {
 #pragma warning disable CS8500

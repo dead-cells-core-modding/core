@@ -1,4 +1,5 @@
-﻿using ModCore.Mods;
+﻿using HaxeProxy.Runtime;
+using ModCore.Mods;
 
 namespace TestMod
 {
@@ -8,6 +9,7 @@ namespace TestMod
 
         public override void Initialize()
         {
+            Ref<int> a = Ref<int>.In(32);
             modIsLoaded = true;
         }
     }

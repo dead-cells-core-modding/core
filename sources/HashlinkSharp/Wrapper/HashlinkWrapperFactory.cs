@@ -20,8 +20,8 @@ namespace Hashlink.Wrapper
             .GetMethod(nameof(WrapperHelper.InitErrorHandler))!;
         private static readonly MethodInfo MI_WrapperHelper_UnInitErrorHandler = typeof(WrapperHelper)
            .GetMethod(nameof(WrapperHelper.UnInitErrorHandler))!;
-        private static readonly MethodInfo MI_hl_blocking = typeof(HashlinkNative)
-            .GetMethod(nameof(HashlinkNative.hl_blocking))!;
+        private static readonly MethodInfo MI_hl_blocking = typeof(WrapperHelper)
+            .GetMethod(nameof(WrapperHelper.SetBlocking))!;
 
         private static Type GetNativeType( TypeKind kind )
         {
