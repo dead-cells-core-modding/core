@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-02-19 15:51+0800\n"
-"PO-Revision-Date: 2026-02-19 15:51+0800\n"
+"POT-Creation-Date: 2026-02-23 00:07+0800\n"
+"PO-Revision-Date: 2026-02-23 00:09+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -12,10 +12,6 @@ msgstr ""
 "X-Generator: Poedit 3.8\n"
 "X-Poedit-Basepath: ../../../ModCore\n"
 "X-Poedit-SearchPath-0: .\n"
-
-#: Modules/Game.cs:144
-msgid "About Core Modding"
-msgstr "关于 Core Modding"
 
 #: Modules/Internals/HxbitModule.cs:248
 msgid "The save file has been corrupted, likely due to some mods not being found."
@@ -29,14 +25,38 @@ msgstr "你依然可以继续操作，但所有 Mods 的数据都将会丢失！
 msgid "Please check the log file for more information."
 msgstr "请检查日志文件以获取更多信息。"
 
-#: Modules/MenuModule.cs:45
+#: Modules/MenuModule.cs:77
 msgid "CORE MODDING"
 msgstr "CORE MODDING"
 
-#: Modules/MenuModule.cs:53
+#: Modules/MenuModule.cs:83
+msgid "About Core Modding"
+msgstr "关于 Core Modding"
+
+#: Modules/MenuModule.cs:91
+msgid "Get mods"
+msgstr "获取 Mods"
+
+#: Modules/MenuModule.cs:92
+msgid "Get mods from the Steam Workshop"
+msgstr "从Steam创意工坊获取 Mods"
+
+#: Modules/MenuModule.cs:138
 msgid "Loaded Mods"
 msgstr "已加载的 Mods"
 
-#: Modules/MenuModule.cs:146
+#: Modules/MenuModule.cs:200
+msgid "Join Discord"
+msgstr "加入 Discord"
+
+#: Modules/MenuModule.cs:205
+msgid "Buy Me a Coffee"
+msgstr "支持 DCCM"
+
+#: Modules/MenuModule.cs:205
+msgid "Your support helps us keep maintaining it.Thank you!"
+msgstr "您的支持帮助我们持续维护它。谢谢！"
+
+#: Modules/MenuModule.cs:273
 msgid "Core Modding"
 msgstr "Core Modding"

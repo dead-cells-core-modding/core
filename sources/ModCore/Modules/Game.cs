@@ -107,7 +107,7 @@ namespace ModCore.Modules
             dc.hxd.System.Class.reportError = err =>
             {
                 nint ptr = 0;
-                HashlinkMarshal.WriteData(&ptr, err, null);
+                HashlinkMarshal.WriteData(&ptr, err, HashlinkMarshal.Module.KnownTypes.Dynamic);
                 throw new HashlinkError(ptr);
             };
         }

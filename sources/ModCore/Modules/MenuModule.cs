@@ -1,3 +1,4 @@
+using dc.h2d;
 using dc.ui;
 using HaxeProxy.Runtime;
 using ModCore.Events;
@@ -26,7 +27,7 @@ namespace ModCore.Modules
     public class MenuModule : CoreModule<MenuModule>,
         IOnGameInit
     {
-        private Dictionary<IModMenu, CustomMenu>? customMenus;
+        private static readonly Dictionary<IModMenu, CustomMenu> customMenus = [];
 
         private readonly MainMenu _mainMenu = new();
 
@@ -39,9 +40,7 @@ namespace ModCore.Modules
         {
             get
             {
-
-                TryScanMenuMods();
-                return customMenus[_mainMenu];
+                return GetCustomMenu(_mainMenu);
             }
         }
 
@@ -64,35 +63,82 @@ namespace ModCore.Modules
 
         private class MainMenu : IModMenu
         {
+            private static void OpenURL( string url )
+            {
+                Logger.Information("Open {url}", url);
+                System.Diagnostics.Process.Start(new ProcessStartInfo()
+                {
+                    UseShellExecute = true,
+                    FileName = url
+                });
+            }
             public void BuildMenu( Options options )
             {
-                Instance.TryScanMenuMods();
-
                 options.title.set_text(GetString("CORE MODDING"));
 
                 options.createScroller(1);
 
                 var flow = options.scrollerFlow;
 
-                int offX = 5;
-
-                options.addSimpleWidget(GetString("About Core Modding"), 
+                options.addSimpleWidget(GetString("About Core Modding"),
                     $"DCCM Version: {Core.Version}".AsHaxeString(), () =>
                 {
-                    Logger.Information("Open https://dead-cells-core-modding.github.io/docs/docs/");
-                    System.Diagnostics.Process.Start(new ProcessStartInfo()
+                    OpenURL("https://dead-cells-core-modding.github.io/docs/docs/");
+                }, Ref<int>.In(5), flow);
+
+                if (Environment.GetEnvironmentVariable("DCCM_STEAMWORKSHOP_ENABLED") == "true")
+                {
+                    options.addSimpleWidget(GetString("Get mods"),
+                    GetString("Get mods from the Steam Workshop"), () =>
+                   {
+                       OpenURL("https://steamcommunity.com/workshop/browse/?appid=588650&searchtext=%5BDCCM%5D");
+                   }, Ref<int>.In(5), flow);
+                }
+
+              
+                {
+
+                    bool hasSep = false;
+
+                    foreach (var mod in EventSystem.FindReceivers<ModBase>())
                     {
-                        UseShellExecute = true,
-                        FileName = "https://dead-cells-core-modding.github.io/docs/docs/"
-                    });
-                }, Ref<int>.From(ref offX), flow);
+                        if (mod is not IModMenu mm)
+                        {
+                            if (mod is IModMenuProvider mp)
+                            {
+                                mm = mp.GetModMenu();
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+
+                        var cm = GetCustomMenu(mm);
+
+                        var name = mm.GetName();
+                        if (string.IsNullOrEmpty(name))
+                        {
+                            continue;
+                        }
+
+                        if (!hasSep)
+                        {
+                            hasSep = true;
+                            options.addSeparator("".AsHaxeString(), flow);
+                        }
+
+                        options.addSimpleWidget(GetString(name), GetString(mm.GetSubText()), () =>
+                        {
+                            options.setSection(cm);
+                        }, Ref<int>.In(5), flow);
+                    }
+                }
 
                 options.addSeparator(GetString("Loaded Mods"), flow);
 
-                foreach (var mod in EventSystem.FindReceivers<ModBase>())
                 {
-                    if (mod is not IModMenu
-                        && mod is not IModMenuProvider)
+                    foreach (var mod in EventSystem.FindReceivers<ModBase>())
                     {
                         HlAction onClick = static () => { };
 
@@ -100,26 +146,27 @@ namespace ModCore.Modules
 
                         Uri? uri = null;
 
-                        if (!string.IsNullOrEmpty(mi.RepositoryUrl))
                         {
-                            uri = new(mi.RepositoryUrl);
-                        }
-                        else
-                        {
+                            //Parse steam workshop
+                            var p = mi.ModRoot.FullPath;
+                            var idx = p.LastIndexOf(STEAMWORKSHOP_PATH_STR);
+                            if (idx != -1)
                             {
-                                //Parse steam workshop
-                                var p = mi.ModRoot.FullPath;
-                                var idx = p.LastIndexOf(STEAMWORKSHOP_PATH_STR);
-                                if (idx != -1)
-                                {
-                                    var startIdx = idx + STEAMWORKSHOP_PATH_STR.Length;
+                                var startIdx = idx + STEAMWORKSHOP_PATH_STR.Length;
 
-                                    var swidStr = p[startIdx..];
-                                    if (long.TryParse(swidStr, out var swid))
-                                    {
-                                        uri = new($"https://steamcommunity.com/sharedfiles/filedetails/?id={swid}");
-                                    }
+                                var swidStr = p[startIdx..];
+                                if (long.TryParse(swidStr, out var swid))
+                                {
+                                    uri = new($"https://steamcommunity.com/sharedfiles/filedetails/?id={swid}");
                                 }
+                            }
+                        }
+
+                        if (uri == null)
+                        {
+                            if (!string.IsNullOrEmpty(mi.RepositoryUrl))
+                            {
+                                uri = new(mi.RepositoryUrl);
                             }
                         }
 
@@ -136,29 +183,29 @@ namespace ModCore.Modules
                         }
 
                         options.addSimpleWidget(GetString(mod.GetDisplayName()),
-                            $"Version: {mod.Info.Version}".AsHaxeString(), onClick, Ref<int>.From(ref offX), flow);
+                            $"Version: {mod.Info.Version}".AsHaxeString(), onClick, Ref<int>.In(5), flow);
 
                         continue;
+
+
+
                     }
 
-                    if (mod is not IModMenu mm)
-                    {
-                        mm = ((IModMenuProvider)mod).GetModMenu();
-                    }
-
-                    var cm = Instance.customMenus[mm];
-
-                    var name = mm.GetName();
-                    if (string.IsNullOrEmpty(name))
-                    {
-                        continue;
-                    }
-
-                    options.addSimpleWidget(GetString(name), GetString(mm.GetSubText()), () =>
-                    {
-                        options.setSection(cm);
-                    }, Ref<int>.From(ref offX), flow);
                 }
+
+                //Foot
+
+                options.addSeparator("".AsHaxeString(), flow);
+
+                options.addSimpleWidget(GetString("Join Discord"), null, () =>
+                {
+                    OpenURL("https://discord.gg/qH5gw7hwx7");
+                }, Ref<int>.In(0), flow);
+
+                options.addSimpleWidget(GetString("Buy Me a Coffee"), GetString("Your support helps us keep maintaining it.Thank you!"), () =>
+                {
+                    OpenURL("https://afdian.com/a/FrostyTwilight");
+                }, Ref<int>.In(0), flow);
             }
 
             public string GetName()
@@ -189,31 +236,21 @@ namespace ModCore.Modules
             return orig(self);
         }
 
-        [MemberNotNull(nameof(customMenus))]
-        private void TryScanMenuMods()
+        private static CustomMenu GetCustomMenu( IModMenu mm )
         {
-            if (customMenus != null)
+            if (customMenus.TryGetValue(mm, out var cm))
             {
-                return;
+                return cm;
             }
-            customMenus = [];
-
-            IModMenu[] menus = [
-                .. EventSystem.FindReceivers<IModMenu>(),
-                _mainMenu
-                ];
-
-
-            foreach (var v in menus)
+            cm = new CustomMenu()
             {
-                var cm = new CustomMenu()
-                {
-                    MenuMod = v
-                };
-                cm.HashlinkObj.MarkStateful();
-                customMenus.Add(v, cm);
-            }
+                MenuMod = mm
+            };
+            cm.HashlinkObj.MarkStateful();
+            customMenus.Add(mm, cm);
+            return cm;
         }
+
         private void Hook_OptionsBase_setSection( Hook_OptionsBase.orig_setSection orig, OptionsBase self, OptionsSection s )
         {
             if (s is CustomMenu cm)
@@ -231,19 +268,14 @@ namespace ModCore.Modules
                 return;
             }
 
-            TryScanMenuMods();
-
-
-
             if (self.curSection is OptionsSection.S_Main)
             {
-                int offX = 5;
                 self.addSimpleWidget(GetString("Core Modding"), null, () =>
                 {
                     Logger.Information("Enter core modding menu");
 
                     SetSection(_mainMenu);
-                }, Ref<int>.From(ref offX), null);
+                }, Ref<int>.In(5), null);
 
                 orig(self);
             }
@@ -263,9 +295,7 @@ namespace ModCore.Modules
         /// customMenus collection.</param>
         public void SetSection( IModMenu menu )
         {
-            TryScanMenuMods();
-
-            Options.Class.ME.setSection(customMenus[menu]);
+            Options.Class.ME.setSection(GetCustomMenu(menu));
         }
     }
 }

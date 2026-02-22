@@ -262,6 +262,8 @@ You can report or contact us via:
 
             await FindMods();
 
+            Environment.SetEnvironmentVariable("DCCM_STEAMWORKSHOP_ENABLED", "true");
+
             SteamAPI.Shutdown();
         }
         static async Task<int> Main( string[] args )
