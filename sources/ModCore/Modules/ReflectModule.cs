@@ -4,6 +4,7 @@ using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.UnsafeUtilities;
 using HaxeProxy.Runtime;
+using HaxeProxy.Runtime.Internals.Inheritance;
 using ModCore.Events.Interfaces;
 using System;
 using System.Collections.Concurrent;
@@ -23,26 +24,6 @@ namespace ModCore.Modules
         void IOnAdvancedModuleInitializing.OnAdvancedModuleInitializing()
         {
             Hook__Reflect.setField += Hook__Reflect_setField;
-            Hook__Reflect.hasField += Hook__Reflect_hasField;
-        }
-
-        private bool Hook__Reflect_hasField( Hook__Reflect.orig_hasField orig, object o, dc.String field )
-        {
-            try
-            {
-                return orig(o, field);
-            }
-            catch (HashlinkError)
-            {
-
-                if (o is HashlinkObj ho)
-                {
-                    o = ho.AsHaxe();
-                }
-
-                var ot = o.GetType();
-                return ot.GetField(field.ToString(), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance) != null;
-            }
         }
 
         private static Func<object, object> GetCastDel( System.Type toType )
@@ -60,23 +41,23 @@ namespace ModCore.Modules
 
         private void Hook__Reflect_setField( Hook__Reflect.orig_setField orig, object o, dc.String field, object value )
         {
-            try
+            if (o is HashlinkObj ho)
             {
-                orig(o, field, value);
-            }
-            catch (HashlinkError)
-            {
-                if (o is HashlinkObj ho)
+                if (ho.Type is CustomHaxeType.ReflectType rt)
                 {
                     o = ho.AsHaxe();
+
+                    var ot = o.GetType();
+                    var f = ot.GetField(field.ToString(), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                    if (f != null)
+                    {
+                        f.SetValue(o, GetCastDel(f.FieldType)(value));
+                        return;
+                    }
                 }
-
-                var ot = o.GetType();
-                var f = ot.GetField(field.ToString(), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance) ??
-                    throw new MissingFieldException(ot.FullName, field.ToString());
-
-                f.SetValue(o, GetCastDel(f.FieldType)(value));
             }
+            orig(o, field, value);
         }
     }
 }
