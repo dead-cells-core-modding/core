@@ -1,5 +1,7 @@
 using dc;
 using dc.en;
+using dc.h3d.pass;
+using dc.hxsl;
 using dc.pr;
 using dc.tool;
 using Hashlink.Marshaling;
@@ -158,6 +160,8 @@ namespace ModCore.Modules
         {
             System.Threading.SynchronizationContext.SetSynchronizationContext(SynchronizationContext);
 
+            Hook_CacheFile.compileRuntimeShader += Hook_CacheFile_compileRuntimeShader;
+
             Hook_TitleScreen.setMiscTexts += Hook_TitleScreen_setMiscTexts;
             Hook__Boot.main += Hook__Boot_main;
             Hook_Boot.init += Hook_Boot_init1;
@@ -174,6 +178,16 @@ namespace ModCore.Modules
 
             Hook__Data.loadFrom += Hook__Data_loadFrom;
             Hook__Data.loadJson += Hook__Data_loadJson;
+        }
+
+        private RuntimeShader Hook_CacheFile_compileRuntimeShader( Hook_CacheFile.orig_compileRuntimeShader orig, CacheFile self, 
+            ShaderList shaders )
+        {
+            ShaderManager.Class.STRICT = false;
+
+            self.allowCompile = true;
+            
+            return orig(self, shaders);
         }
 
         private void Hook_Boot_render( Hook_Boot.orig_render orig, Boot self, dc.h3d.Engine e )

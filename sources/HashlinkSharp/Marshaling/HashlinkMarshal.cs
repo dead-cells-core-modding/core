@@ -77,6 +77,15 @@ namespace Hashlink.Marshaling
             return ((HashlinkObjectType)Module.GetTypeByName(name)).GlobalValue;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteDataDyn(
+           void* target,
+           object? val,
+           IHashlinkMarshaler? marshaler = null )
+        {
+            ArgumentNullException.ThrowIfNull(target, nameof(target));
+            WriteData(target, val, Module.KnownTypes.Dynamic, marshaler);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteData(
             void* target,
             object? val,

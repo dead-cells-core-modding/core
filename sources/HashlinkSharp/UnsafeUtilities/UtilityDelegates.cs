@@ -27,7 +27,7 @@ namespace Hashlink.UnsafeUtilities
         private static int delegateCount = 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static T CastObjectEx<T>( object obj ) where T : class, IExtraDataItem
+        internal static T CastObjectEx<T>( object obj ) where T : class, IExtraDataItem
         {
             if (obj is IExtraData ied)
             {
@@ -36,7 +36,7 @@ namespace Hashlink.UnsafeUtilities
             return CastObject<T>(obj);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static T CastObject<T>( object obj ) where T : class
+        internal static T CastObject<T>( object obj ) where T : class
         {
             if (obj is T t)
             {
@@ -52,10 +52,6 @@ namespace Hashlink.UnsafeUtilities
                 {
                     return (T)(object)cl.CreateDelegate(typeof(T));
                 }
-            }
-            else if (obj is IExtraData)
-            {
-                throw new InvalidProgramException();
             }
 
             return (T)(dynamic)obj;
