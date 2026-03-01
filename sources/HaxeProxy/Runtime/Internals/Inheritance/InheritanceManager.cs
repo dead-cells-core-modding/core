@@ -4,6 +4,7 @@ using HaxeProxy.Events;
 using ModCore.Events;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 
 namespace HaxeProxy.Runtime.Internals.Inheritance
@@ -37,6 +38,9 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
                 return;
             }
             rwLock.ExitReadLock();
+
+            RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+
             rwLock.EnterWriteLock();
 
             if (processed.TryGetValue(type, out cht))

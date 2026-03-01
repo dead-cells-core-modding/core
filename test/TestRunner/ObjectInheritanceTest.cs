@@ -1,4 +1,5 @@
-﻿using dc.hxd.fs;
+﻿using dc.hl;
+using dc.hxd.fs;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
@@ -12,6 +13,11 @@ namespace TestRunner
     {
         private class TestObject : FileEntry
         {
+            public class StaticClass : Class
+            {
+                public int TEST_S_VAL_H = 123;
+            }
+            public new static StaticClass Class { get; } = new();
             public bool overrideMethodHasBennCalled = false;
             public override int getSign()
             {
@@ -69,7 +75,7 @@ namespace TestRunner
             Assert.Equal(114515, dyn.getSign());
             Assert.Equal(2, (int) dyn.TEST_VAL);
 
-            dynamic gcl = HaxeProxyUtils.GetClass<HaxeObject>(typeof(TestObject2)).HashlinkObj;
+            dynamic gcl = HaxeProxyUtils.GetClass<Class>(typeof(TestObject2)).HashlinkObj;
             Assert.Equal(3, (int)gcl.TEST_S_VAL);
 
             var isFailed = true;
@@ -87,6 +93,10 @@ namespace TestRunner
             HashlinkMarshal.EnsureThreadRegistered();
 
             var obj = new TestObject();
+
+            dynamic gcl = HaxeProxyUtils.GetClass<Class>(typeof(TestObject)).HashlinkObj;
+            Assert.Equal(123, (int)gcl.TEST_S_VAL_H);
+            Assert.Equal(TestObject.Class, (HaxeProxyBase)gcl);
 
             Assert.Equal(114514, obj.getSign());
             Assert.True(obj.overrideMethodHasBennCalled);

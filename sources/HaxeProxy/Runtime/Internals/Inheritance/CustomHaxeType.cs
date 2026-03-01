@@ -1,6 +1,7 @@
 
 using Hashlink;
 using Hashlink.Marshaling;
+using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection;
 using Hashlink.Reflection.Members.Object;
@@ -152,6 +153,48 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
 
             customTypes.TryAdd(data.typePtr, this);
 
+            HashlinkObject classObj;
+
+            {
+                nint? classObjPtr = null;
+                var classField = type.GetField("Class", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.Public |
+                    BindingFlags.DeclaredOnly | BindingFlags.NonPublic);
+                if (classField != null &&
+                    classField.FieldType.IsAssignableTo(typeof(IHashlinkPointer)))
+                {
+                    classObjPtr = ((IHashlinkPointer?)classField.GetValue(null))?.HashlinkPointer;
+                }
+                else
+                {
+                    var classProp = type.GetProperty("Class", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.Public |
+                    BindingFlags.DeclaredOnly | BindingFlags.NonPublic);
+                    if (classProp != null &&
+                        classProp.PropertyType.IsAssignableTo(typeof(IHashlinkPointer)))
+                    {
+                        classObjPtr = ((IHashlinkPointer?)classProp.GetValue(null))?.HashlinkPointer;
+                    }
+                }
+                if (classObjPtr != null)
+                {
+                    var optr = HashlinkObjPtr.Get(classObjPtr.Value);
+                    if (optr.Type->TypeName != "hl.Class" &&
+                        optr.Type->data.obj->super->TypeName != "hl.Class")
+                    {
+                        throw new InvalidOperationException("The value of the `Class` field or property should inherit from `hl.Class`.");
+                    }
+                    classObj = (HashlinkObject) HashlinkMarshal.ConvertHashlinkObject(optr)!;
+                }
+                else
+                {
+                    classObj = new((HashlinkObjectType)HashlinkMarshal.Module.GetTypeByName("hl.Class"));
+                }
+                if (classObj.Type is not ReflectType)
+                {
+                    classObj.Type.NativeType->data.obj->rt->getFieldFun =
+                        (delegate* unmanaged< HL_vdynamic*, int, HL_vdynamic* >)&NativeGetStaticField;
+                }
+            }
+
             var src = otype.NativeType;
             var srcObj = otype.NativeType->data.obj;
             var srcRT = srcObj->rt;
@@ -174,21 +217,23 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
             new ReadOnlySpan<nint>(srcRT->methods, srcRT->nmethods).CopyTo(data.methods);
             data.rtObj.methods = (void**)Unsafe.AsPointer(ref data.methods[0]);
 
-            data.vproto = GC.AllocateArray<nint>(srcRT->nproto, true);
-            new ReadOnlySpan<nint>(src->vobj_proto, srcRT->nproto).CopyTo(data.vproto);
-            data.hlType.vobj_proto = (void**)Unsafe.AsPointer(ref data.vproto[0]);
+            if (srcRT->nproto > 0)
+            {
+                data.vproto = GC.AllocateArray<nint>(srcRT->nproto, true);
+                new ReadOnlySpan<nint>(src->vobj_proto, srcRT->nproto).CopyTo(data.vproto);
+                data.hlType.vobj_proto = (void**)Unsafe.AsPointer(ref data.vproto[0]);
+            }
 
             data.meta = new();
             data.meta.SetFieldValue("__DCCM_HaxeProxy_CustomType", (nint)Unsafe.AsPointer(ref data));
 
-            data.globalValue = new((HashlinkObjectType)otype.GlobalValue!.Type);
+            data.globalValue = classObj;
             data.globalValue.SetFieldValue("__name__", type.AssemblyQualifiedName);
             data.globalValue.SetFieldValue("__type__", (nint) nativeType);
             data.globalValue.SetFieldValue("__constructor__", (nint)0);
             data.globalValue.SetFieldValue("__meta__", data.meta);
 
-            data.globalValue.Type.NativeType->data.obj->rt->getFieldFun = 
-                    (delegate* unmanaged<HL_vdynamic*, int, HL_vdynamic*>) &NativeGetStaticField;
+            
 
             data.globalValuePtr = data.globalValue.HashlinkPointer;
             data.hlObj.global_value = (void**)Unsafe.AsPointer(ref data.globalValuePtr);

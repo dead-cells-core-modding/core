@@ -10,7 +10,7 @@ namespace HashlinkNET.Compiler.Steps.Class
     {
         public override bool Filter( HlType type )
         {
-            return type is HlTypeWithObj obj;
+            return type is HlTypeWithObj;
         }
         public override void Execute( IDataContainer container, HlCode code,
             GlobalData gdata, RuntimeImports rdata, HlType type )

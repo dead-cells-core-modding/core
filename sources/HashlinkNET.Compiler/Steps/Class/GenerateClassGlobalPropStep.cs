@@ -56,7 +56,7 @@ namespace HashlinkNET.Compiler.Steps.Class
             gv.GlobalHlType = (HlTypeWithObj) gr.Value;
 
             var ct_ctor = (MethodDefinition)cinfo.Construct;
-            ct_ctor.IsAssembly = true;
+            //ct_ctor.IsAssembly = true;
             var cf = new FieldDefinition("cachedClassValue", FieldAttributes.Private | FieldAttributes.Static, ct);
             td.Fields.Add(cf);
 
