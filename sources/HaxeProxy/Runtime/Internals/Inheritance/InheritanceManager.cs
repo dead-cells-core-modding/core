@@ -31,6 +31,8 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
         
         public static void Check( Type type, HashlinkObjectType? otype, [NotNull] out CustomHaxeType? cht )
         {
+            RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+
             rwLock.EnterReadLock();
             if (processed.TryGetValue(type, out cht))
             {
@@ -38,8 +40,6 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
                 return;
             }
             rwLock.ExitReadLock();
-
-            RuntimeHelpers.RunClassConstructor(type.TypeHandle);
 
             rwLock.EnterWriteLock();
 

@@ -18,6 +18,7 @@ namespace TestRunner
                 public int TEST_S_VAL_H = 123;
             }
             public new static StaticClass Class { get; } = new();
+
             public bool overrideMethodHasBennCalled = false;
             public override int getSign()
             {
