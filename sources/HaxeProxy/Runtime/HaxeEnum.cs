@@ -59,7 +59,7 @@ namespace HaxeProxy.Runtime
 
         public static bool operator ==( HaxeEnum? left, HaxeEnum? right )
         {
-            if (left == right)
+            if (ReferenceEquals(left, right))
             {
                 return true;
             }

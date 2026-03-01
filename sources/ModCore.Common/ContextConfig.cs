@@ -12,7 +12,6 @@ namespace ModCore
                 "libhl",
                 "hljit"
                 ],
-            slaveMode = false,
             consoleOutput = true
         };
 
@@ -41,7 +40,6 @@ namespace ModCore
 
         public string[] hashlinkLibraries;
         public Memory<byte>? hlbcOverride;
-        public bool slaveMode;
         public bool consoleOutput;
     }
 }

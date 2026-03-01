@@ -41,10 +41,7 @@ namespace ModCore
 
             LogInitializer.InitializeLog();
 
-            if (!Core.IsSlaveMode)
-            {
-                Console.Title = "Dead Cells with Core Modding";
-            }
+            Console.Title = "Dead Cells with Core Modding";
             Core.Initialize();
 
             var logger = Log.Logger.ForContext(typeof(Startup));
@@ -91,16 +88,12 @@ namespace ModCore
             {
                 logger.Information("Initializing game");
                 Native.Native.Current.InitializeCore();
-                if (!Core.IsSlaveMode)
-                {
-                    Native.Native.Current.InitializeGame(codeData, out var ctx);
+                Native.Native.Current.InitializeGame(codeData, out var ctx);
 
-                    logger.Information("Starting game");
+                logger.Information("Starting game");
 
-                    EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
-                        new(IOnNativeEvent.EventId.HL_EV_START_GAME, (nint)Unsafe.AsPointer(ref ctx)));
-                }
-
+                EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
+                    new(IOnNativeEvent.EventId.HL_EV_START_GAME, (nint)Unsafe.AsPointer(ref ctx)));
                 return 0;
 
             }

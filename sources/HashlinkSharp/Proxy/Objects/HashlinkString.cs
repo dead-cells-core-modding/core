@@ -5,6 +5,8 @@ namespace Hashlink.Proxy.Objects
 {
     public unsafe class HashlinkString( HashlinkObjPtr objPtr ) : HashlinkObject(objPtr), IHashlinkValue
     {
+        private string? cachedValue;
+        private nint cachedPtr;
         public HashlinkString() : this(
             HashlinkObjPtr.Get(
                 hl_alloc_obj(HashlinkMarshal.Module.KnownTypes.String.NativeType)
@@ -27,7 +29,14 @@ namespace Hashlink.Proxy.Objects
         {
             get
             {
-                return new(((HL_vstring*)HashlinkPointer)->bytes);
+                var ptr = ((HL_vstring*)HashlinkPointer)->bytes;
+                if (cachedValue != null &&
+                    (nint)ptr == cachedPtr)
+                {
+                    return cachedValue;
+                }
+                cachedPtr = (nint)ptr;
+                return cachedValue = new(ptr);
             }
             set
             {
