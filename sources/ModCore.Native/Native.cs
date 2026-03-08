@@ -222,12 +222,19 @@ namespace ModCore.Native
             
         }
 
-        private static void HashlinkDynSet<T>( nint d, int hfield, T val, nint origSet ) where T : unmanaged
+        private static void HashlinkDynSet<T>( nint d, int hfield, T val, nint? extraTypePtr, nint origSet ) where T : unmanaged
         {
-            var result = EventSystem.BroadcastEvent<IOnHashlinkDynSet, IOnHashlinkDynSet.Data, bool>(new(d, hfield, val));
+            var result = EventSystem.BroadcastEvent<IOnHashlinkDynSet, IOnHashlinkDynSet.Data, bool>(new(d, hfield, val, extraTypePtr));
             if (!result.HasValue)
             {
-                ((delegate* unmanaged< nint, int, T, void>)origSet)(d, hfield, val);
+                if ((extraTypePtr ?? 0) == 0)
+                {
+                    ((delegate* unmanaged< nint, int, T, void >)origSet)(d, hfield, val);
+                }
+                else
+                {
+                    ((delegate* unmanaged< nint, int, nint, T, void >)origSet)(d, hfield, extraTypePtr ?? 0, val);
+                }
             }
         }
 
@@ -235,9 +242,43 @@ namespace ModCore.Native
         [UnmanagedCallersOnly]
         protected static void Hook_hl_obj_set_field( nint d, int hfield, nint val )
         {
-            HashlinkDynSet(d, hfield, val, orig_hl_obj_set_field);
+            HashlinkDynSet(d, hfield, val, 0, orig_hl_obj_set_field);
         }
 
+        private static nint orig_hl_dyn_setd;
+        [UnmanagedCallersOnly]
+        protected static void Hook_hl_dyn_setd( nint d, int hfield, double val )
+        {
+            HashlinkDynSet(d, hfield, val, null, orig_hl_dyn_setd);
+        }
+
+        private static nint orig_hl_dyn_setf;
+        [UnmanagedCallersOnly]
+        protected static void Hook_hl_dyn_setf( nint d, int hfield, float val )
+        {
+            HashlinkDynSet(d, hfield, val, null, orig_hl_dyn_setf);
+        }
+
+        private static nint orig_hl_dyn_seti64;
+        [UnmanagedCallersOnly]
+        protected static void Hook_hl_dyn_seti64( nint d, int hfield, long val )
+        {
+            HashlinkDynSet(d, hfield, val, null, orig_hl_dyn_seti64);
+        }
+
+        private static nint orig_hl_dyn_seti;
+        [UnmanagedCallersOnly]
+        protected static void Hook_hl_dyn_seti( nint d, int hfield, nint t, int val )
+        {
+            HashlinkDynSet(d, hfield, val, t, orig_hl_dyn_seti);
+        }
+
+        private static nint orig_hl_dyn_setp;
+        [UnmanagedCallersOnly]
+        protected static void Hook_hl_dyn_setp( nint d, int hfield, nint t, nint val )
+        {
+            HashlinkDynSet(d, hfield, val, t, orig_hl_dyn_setp);
+        }
 
         private static nint orig_hl_obj_has_field;
 
@@ -370,6 +411,11 @@ namespace ModCore.Native
             CreateNativeHookForHL("gc_allocator_after_mark", nameof(Hook_gc_allocator_after_mark), out orig_gc_allocator_after_mark);
 
             CreateNativeHookForHL("hl_obj_set_field", nameof(Hook_hl_obj_set_field), out orig_hl_obj_set_field);
+            CreateNativeHookForHL("hl_dyn_setp", nameof(Hook_hl_dyn_setp), out orig_hl_dyn_setp);
+            CreateNativeHookForHL("hl_dyn_setd", nameof(Hook_hl_dyn_setd), out orig_hl_dyn_setd);
+            CreateNativeHookForHL("hl_dyn_setf", nameof(Hook_hl_dyn_setf), out orig_hl_dyn_setf);
+            CreateNativeHookForHL("hl_dyn_seti64", nameof(Hook_hl_dyn_seti64), out orig_hl_dyn_seti64);
+            CreateNativeHookForHL("hl_dyn_seti", nameof(Hook_hl_dyn_seti), out orig_hl_dyn_seti);
 
             CreateNativeHookForHL("hl_obj_has_field", nameof(Hook_hl_obj_has_field), out orig_hl_obj_has_field);
 

@@ -193,8 +193,17 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
                     return default;
                 }
 
-                nint val = (nint) data.val;
-                var rval = HashlinkMarshal.ReadData(&val, HashlinkMarshal.Module.KnownTypes.Dynamic);
+                nint val = 0;
+                if (data.extraTypePtr.HasValue &&
+                    data.val is nint vnint)
+                {
+                    val = vnint;
+                }
+                else
+                {
+                    HashlinkMarshal.WriteDataDyn(&val, data.val);
+                }
+                var rval = HashlinkMarshal.ConvertHashlinkObject(HashlinkObjPtr.Get(val));
                 field.SetValue(finst, 
                     GetCastDel(field.FieldType)(rval)
                     );
