@@ -2,7 +2,7 @@ using Hashlink.Proxy;
 
 namespace Hashlink.Marshaling.ObjHandle
 {
-    public unsafe class HashlinkObjHandle
+    public class HashlinkObjHandle
     {
         private HashlinkObj? obj;
         private bool isStateless = true;

@@ -43,10 +43,18 @@ namespace Hashlink.Proxy.Objects
 
         public virtual void SetFieldValue( int hashedName, object? value )
         {
+           
             var ptr = hl_obj_lookup((HL_vdynamic*)HashlinkPointer, hashedName, out var ftype);
             if (ptr == null)
             {
-                throw new MissingFieldException(Type.Name, new string(hl_field_name(hashedName)));
+                if (!hl_obj_has_field((HL_vdynamic*)HashlinkPointer, hashedName))
+                {
+                    throw new MissingFieldException(Type.Name, new string(hl_field_name(hashedName)));
+                }
+                nint val = 0;
+                HashlinkMarshal.WriteDataDyn(&val, value);
+                hl_obj_set_field((HL_vdynamic*)HashlinkPointer, hashedName, (HL_vdynamic*)val);
+                return;
             }
             HashlinkMarshal.WriteData(ptr, value, HashlinkMarshal.GetHashlinkType(ftype));
         }

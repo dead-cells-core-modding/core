@@ -310,6 +310,20 @@ namespace Hashlink.Marshaling.ObjHandle
             }
             return (nint*)((byte*)ptr + size - sizeof(void*));
         }
+
+        public static HashlinkObjHandle? TryGetHandle( nint ptr )
+        {
+            var wp = GetObjWrapperPtr((void*)ptr);
+            if (wp == null)
+            {
+                return null;
+            }
+            if (*wp == 0)
+            {
+                return null;
+            }
+            return GetHandle(ptr);
+        }
         public static HashlinkObjHandle? GetHandle( nint ptr )
         {
             var wp = GetObjWrapperPtr((void*)ptr);

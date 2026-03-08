@@ -99,6 +99,9 @@ namespace TestRunner
             Assert.Equal(123, (int)gcl.TEST_S_VAL_H);
             Assert.Equal(TestObject.Class, (HaxeProxyBase)gcl);
 
+            gcl.TEST_S_VAL_H = 1145;
+            Assert.Equal(1145, TestObject.Class.TEST_S_VAL_H);
+
             Assert.Equal(114514, obj.getSign());
             Assert.True(obj.overrideMethodHasBennCalled);
 

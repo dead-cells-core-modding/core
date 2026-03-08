@@ -15,6 +15,7 @@ namespace ModCore.Native
 {
     internal unsafe abstract partial class Native
     {
+        private readonly static HL_type* TYPE_DYN = (HL_type*)NativeMemory.AllocZeroed((nuint)sizeof(HL_type));
         public nint phl_throw;
         public nint phl_rethrow;
 
@@ -221,6 +222,89 @@ namespace ModCore.Native
             
         }
 
+        private static void HashlinkDynSet<T>( nint d, int hfield, T val, nint origSet ) where T : unmanaged
+        {
+            var result = EventSystem.BroadcastEvent<IOnHashlinkDynSet, IOnHashlinkDynSet.Data, bool>(new(d, hfield, val));
+            if (!result.HasValue)
+            {
+                ((delegate* unmanaged< nint, int, T, void>)origSet)(d, hfield, val);
+            }
+        }
+
+        private static nint orig_hl_obj_set_field;
+        [UnmanagedCallersOnly]
+        protected static void Hook_hl_obj_set_field( nint d, int hfield, nint val )
+        {
+            HashlinkDynSet(d, hfield, val, orig_hl_obj_set_field);
+        }
+
+
+        private static nint orig_hl_obj_has_field;
+
+        [UnmanagedCallersOnly]
+        protected static int Hook_hl_obj_has_field( nint d, int hfield )
+        {
+            var result = EventSystem.BroadcastEvent<IOnHashlinkDynHasField, IOnHashlinkDynHasField.Data, bool>(new(d, hfield));
+            if (!result.HasValue)
+            {
+                return ((delegate* unmanaged< nint, int, int>)orig_hl_obj_has_field)(d, hfield);
+            }
+            return result.Value ? 1 : 0;
+        }
+
+        private static T HashlinkDynGet<T>( nint d, int hfield, nint ptype, nint origGet ) where T : unmanaged
+        {
+            var result = EventSystem.BroadcastEvent<IOnHashlinkDynGet, IOnHashlinkDynGet.Data, object>(new(d, hfield, ptype));
+            if (!result.HasValue)
+            {
+                return ((delegate* unmanaged<nint, int, nint, T>)origGet)(d, hfield, ptype);
+            }
+            return (T)(dynamic)result.Value;
+        }
+
+
+        private static nint orig_hl_dyn_getp;
+        [UnmanagedCallersOnly]
+        protected static nint Hook_hl_dyn_getp( nint d, int hfield, nint ptype )
+        {
+            return HashlinkDynGet<nint>(d, hfield, ptype, orig_hl_dyn_getp);
+        }
+
+        private static nint orig_hl_dyn_getd;
+        [UnmanagedCallersOnly]
+        protected static double Hook_hl_dyn_getd( nint d, int hfield )
+        {
+            return HashlinkDynGet<double>(d, hfield, 0, orig_hl_dyn_getd);
+        }
+
+        private static nint orig_hl_dyn_getf;
+        [UnmanagedCallersOnly]
+        protected static float Hook_hl_dyn_getf( nint d, int hfield)
+        {
+            return HashlinkDynGet<float>(d, hfield, 0, orig_hl_dyn_getf);
+        }
+
+        private static nint orig_hl_dyn_geti64;
+        [UnmanagedCallersOnly]
+        protected static long Hook_hl_dyn_geti64( nint d, int hfield )
+        {
+            return HashlinkDynGet<long>(d, hfield, 0, orig_hl_dyn_getf);
+        }
+
+        private static nint orig_hl_dyn_geti;
+        [UnmanagedCallersOnly]
+        protected static int Hook_hl_dyn_geti( nint d, int hfield, nint ptype )
+        {
+            return HashlinkDynGet<int>(d, hfield, ptype, orig_hl_dyn_geti);
+        }
+
+        private static nint orig_hl_obj_lookup_extra;
+        [UnmanagedCallersOnly]
+        protected static nint Hook_hl_obj_lookup_extra( nint d, int hfield )
+        {
+            return HashlinkDynGet<nint>(d, hfield, (nint)TYPE_DYN, orig_hl_obj_lookup_extra);
+        }
+
         [UnmanagedCallersOnly]
         private static void Return_From_Managed()
         {
@@ -284,7 +368,18 @@ namespace ModCore.Native
             CreateNativeHookForHL("hl_module_init_natives", nameof(Hook_hl_module_init_natives), out orig_hl_module_init_natives);
             CreateNativeHookForHL("gc_allocator_alloc", nameof(Hook_gc_allocator_alloc), out orig_gc_allocator_alloc);
             CreateNativeHookForHL("gc_allocator_after_mark", nameof(Hook_gc_allocator_after_mark), out orig_gc_allocator_after_mark);
-            
+
+            CreateNativeHookForHL("hl_obj_set_field", nameof(Hook_hl_obj_set_field), out orig_hl_obj_set_field);
+
+            CreateNativeHookForHL("hl_obj_has_field", nameof(Hook_hl_obj_has_field), out orig_hl_obj_has_field);
+
+            CreateNativeHookForHL("hl_dyn_getp", nameof(Hook_hl_dyn_getp), out orig_hl_dyn_getp);
+            CreateNativeHookForHL("hl_dyn_geti", nameof(Hook_hl_dyn_geti), out orig_hl_dyn_geti);
+            CreateNativeHookForHL("hl_dyn_getd", nameof(Hook_hl_dyn_getd), out orig_hl_dyn_getd);
+            CreateNativeHookForHL("hl_dyn_getf", nameof(Hook_hl_dyn_getf), out orig_hl_dyn_getf);
+            CreateNativeHookForHL("hl_dyn_geti64", nameof(Hook_hl_dyn_geti64), out orig_hl_dyn_geti64);
+            CreateNativeHookForHL("hl_obj_lookup_extra", nameof(Hook_hl_obj_lookup_extra), out orig_hl_obj_lookup_extra);
+
             Data->trap_filter = (nint)(delegate* unmanaged< nint, HL_trap_ctx*, nint, nint >)&Hook_trap_filter;
 
             Data->return_from_managed = (nint)(delegate* unmanaged< void >)&Return_From_Managed;
@@ -295,6 +390,8 @@ namespace ModCore.Native
         public abstract void FixThreadCurrentStackFrame( HL_thread_info* t );
         public virtual void InitializeCore()
         {
+            TYPE_DYN->kind = TypeKind.HDYN;
+
             InitializeNative();
             InitializeNativeHooks();
         }

@@ -30,12 +30,14 @@ namespace ModCore
               .MinimumLevel.Debug()
               .WriteTo.File(
                 latest,
-                outputTemplate: OUTPUT_FORMAT_TEMPLATE
+                outputTemplate: OUTPUT_FORMAT_TEMPLATE,
+                buffered: false
                 )
               .WriteTo.File(
                   Path.Combine(FolderInfo.Logs.FullPath, "log_.log"),
                   outputTemplate: OUTPUT_FORMAT_TEMPLATE,
-                  rollingInterval: RollingInterval.Minute
+                  rollingInterval: RollingInterval.Minute,
+                  buffered: false
               );
 
 
@@ -46,8 +48,8 @@ namespace ModCore
 
                 if (Console.IsErrorRedirected)
                 {
-                    configuration.WriteTo.Console(Serilog.Events.LogEventLevel.Error,
-                        outputTemplate: OUTPUT_FORMAT_TEMPLATE, standardErrorFromLevel: Serilog.Events.LogEventLevel.Error,
+                    configuration.WriteTo.Console(Serilog.Events.LogEventLevel.Warning,
+                        outputTemplate: OUTPUT_FORMAT_TEMPLATE, standardErrorFromLevel: Serilog.Events.LogEventLevel.Warning,
                             applyThemeToRedirectedOutput: false);
                 }
             }

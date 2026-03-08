@@ -4,6 +4,7 @@ using Hashlink.Proxy.Objects;
 using Hashlink.Reflection;
 using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Types;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Hashlink.Marshaling
@@ -28,9 +29,13 @@ namespace Hashlink.Marshaling
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashlinkType GetHashlinkType( HL_type* type )
         {
-            var tindex = ((nint)type - (nint)Module.NativeCode->types) / sizeof(HL_type);
-            if (tindex < Module.NativeCode->ntypes)
+            var tindex = (int)(((nint)type - (nint)Module.NativeCode->types) / sizeof(HL_type));
+
+            if (tindex < Module.Types.Length)
             {
+                Debug.Assert(Module.Types.Length == Module.NativeCode->ntypes);
+                Debug.Assert(Module.Types.Length > tindex);
+
                 return Module.Types[tindex];
             }
             return Module.GetMemberFrom<HashlinkType>(type);

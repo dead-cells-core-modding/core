@@ -1,15 +1,22 @@
 
 using Hashlink;
 using Hashlink.Marshaling;
+using Hashlink.Marshaling.ObjHandle;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection;
 using Hashlink.Reflection.Members.Object;
 using Hashlink.Reflection.Types;
+using Hashlink.UnsafeUtilities;
 using ModCore.Collections;
+using ModCore.Events;
+using ModCore.Native.Events.Interfaces;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -17,6 +24,212 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
 {
     internal unsafe class CustomHaxeType
     {
+        private class EventReceiver : IEventReceiver,
+            IOnHashlinkDynGet,
+            IOnHashlinkDynSet,
+            IOnHashlinkDynHasField
+        {
+            private static readonly MethodInfo MI_castObject = typeof(UtilityDelegates)
+            .GetMethod(nameof(UtilityDelegates.CastObject), BindingFlags.Static | BindingFlags.NonPublic)!;
+            private static readonly ConcurrentDictionary<Type, Func<object?, object?>> castDel = [];
+            private static Func<object?, object?> GetCastDel( Type toType )
+            {
+                return castDel.GetOrAdd(toType, (Type key) =>
+                {
+                    var md = new DynamicMethod("dynamic_cast", typeof(object), [typeof(object)]);
+                    var il = md.GetILGenerator();
+
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Call, MI_castObject.MakeGenericMethod(toType));
+                    il.Emit(OpCodes.Box, toType);
+                    il.Emit(OpCodes.Ret);
+
+                    return md.CreateDelegate<Func<object?, object?>>();
+                });
+            }
+            public EventReceiver()
+            {
+                EventSystem.AddReceiver(this);
+            }
+
+            private bool TryGetField( HashlinkObject obj, int hfield,
+                [NotNullWhen(true)] out FieldInfo? field, out object? finst )
+            {
+                var inst = obj.AsHaxe();
+
+                finst = inst;
+
+                Type ct;
+
+                var reflectFlag = BindingFlags.Instance;
+
+                if (obj.Type == ClassType)
+                {
+                    var meta = (HashlinkDynObj?)obj.GetFieldValue("__meta__");
+                    if (meta == null ||
+                        !meta.HasField("__DCCM_HaxeProxy_CustomType"))
+                    {
+                        field = null;
+                        finst = null;
+                        return false;
+                    }
+                    ref var data = ref Unsafe.AsRef<FakeTypeData>((void*)
+                            (nint)meta.GetFieldValue("__DCCM_HaxeProxy_CustomType")!);
+
+                    finst = null;
+                    ct = data.type;
+                    reflectFlag = BindingFlags.Static;
+                }
+                else if (obj.Type is ReflectType rt)
+                {
+                    ct = rt.CustomType.Data.type;
+                }
+                else
+                {
+                    field = null;
+                    return false;
+                }
+
+
+                var hashedName = hfield;
+                var fn = new string(HashlinkNative.hl_field_name(hashedName));
+
+                if (fn == "???") //Unknown
+                {
+                    fn = "";
+                    foreach (var f in ct.GetFields(BindingFlags.Public | BindingFlags.NonPublic
+                        | reflectFlag))
+                    {
+                        fixed (char* name = f.Name)
+                        {
+                            var hash = HashlinkNative.hl_hash_gen(name, true);
+                            if (hash == hashedName)
+                            {
+                                fn = f.Name;
+                            }
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(fn))
+                {
+                    field = null;
+                    return false;
+                }
+
+                field = ct.GetField(fn, BindingFlags.Public | BindingFlags.NonPublic |
+                      reflectFlag);
+                if (field == null)
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            EventResult<object?> IOnHashlinkDynGet.OnHashlinkDynGet( IOnHashlinkDynGet.Data data )
+            {
+                if (data.ptr == 0)
+                {
+                    return default;
+                }
+                var handle = HashlinkObjManager.TryGetHandle(data.ptr);
+                if (handle == null ||
+                    handle.Target == null)
+                {
+                    return default;
+                }
+                if (handle.Target is not HashlinkObject hobj)
+                {
+                    return default;
+                }
+                if (hobj.Type is not ReflectType rt &&
+                    hobj.Type != ClassType)
+                {
+                    return default;
+                }
+                var tt = (HL_type*)data.ptype;
+
+                if (!TryGetField(hobj, data.hfield, out var field, out var finst))
+                {
+                    return default;
+                }
+                var val = field.GetValue(finst);
+
+                if (tt != null &&
+                    tt->kind == TypeKind.HDYN)
+                {
+                    nint ptrBuf = 0;
+                    HashlinkMarshal.WriteData(&ptrBuf, val, HashlinkMarshal.Module.KnownTypes.Dynamic);
+                    return ptrBuf;
+                }
+
+                return val;
+            }
+
+            EventResult<bool> IOnHashlinkDynSet.OnHashlinkDynSet( IOnHashlinkDynSet.Data data )
+            {
+                if (data.ptr == 0)
+                {
+                    return default;
+                }
+                var handle = HashlinkObjManager.TryGetHandle(data.ptr);
+                if (handle == null ||
+                    handle.Target == null)
+                {
+                    return default;
+                }
+                if (handle.Target is not HashlinkObject hobj)
+                {
+                    return default;
+                }
+                if (hobj.Type is not ReflectType rt &&
+                    hobj.Type != ClassType)
+                {
+                    return default;
+                }
+
+                if (!TryGetField(hobj, data.hfield, out var field, out var finst))
+                {
+                    return default;
+                }
+
+                nint val = (nint) data.val;
+                var rval = HashlinkMarshal.ReadData(&val, HashlinkMarshal.Module.KnownTypes.Dynamic);
+                field.SetValue(finst, 
+                    GetCastDel(field.FieldType)(rval)
+                    );
+                return true;
+            }
+
+            EventResult<bool> IOnHashlinkDynHasField.OnHashlinkDynHasField( IOnHashlinkDynHasField.Data data )
+            {
+                if (data.ptr == 0)
+                {
+                    return default;
+                }
+                var handle = HashlinkObjManager.TryGetHandle(data.ptr);
+                if (handle == null ||
+                    handle.Target == null)
+                {
+                    return default;
+                }
+                if (handle.Target is not HashlinkObject hobj)
+                {
+                    return default;
+                }
+                if (hobj.Type is not ReflectType &&
+                    hobj.Type != ClassType)
+                {
+                    return default;
+                }
+
+                return TryGetField(hobj, data.hfield, out var _, out var _);
+            }
+        }
+
+        private readonly static HashlinkObjectType ClassType = (HashlinkObjectType)HashlinkMarshal.Module.GetTypeByName("hl.Class");
+        private readonly static EventReceiver er = new();
+
         public class ReflectType( HashlinkModule module, HL_type* type ) : 
             HashlinkObjectType(module, type)
         {
@@ -43,66 +256,6 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
         private readonly Dictionary<string, ProtoOverride> overrideMethodsDict = [];
         private nint fakeTypeDataPtr;
         public ref FakeTypeData Data => ref Unsafe.AsRef<FakeTypeData>((void*)fakeTypeDataPtr);
-
-        [UnmanagedCallersOnly]
-        private static HL_vdynamic* NativeGetField( HL_vdynamic* obj, int hashedName )
-        {
-            var inst = (HaxeObject)HaxeProxyHelper.GetProxy<HaxeObject>(HashlinkMarshal.ConvertHashlinkObject(obj))!;
-            var t = (ReflectType)inst.HashlinkObj.Type;
-            var cht = t.CustomType;
-            var ct = cht.Data.type;
-            return HaxeGetField(inst, ct, hashedName, BindingFlags.Instance);
-        }
-        private static HL_vdynamic* HaxeGetField( HaxeObject? inst, 
-            Type ct, int hashedName, BindingFlags flags )
-        {
-            
-            var fn = new string(HashlinkNative.hl_field_name(hashedName));
-
-            if (fn == "???") //Unknown
-            {
-                fn = "";
-                foreach (var f in ct.GetFields(BindingFlags.Public | BindingFlags.NonPublic
-                    | flags))
-                {
-                    fixed (char* name = f.Name)
-                    {
-                        var hash = HashlinkNative.hl_hash_gen(name, true);
-                        if (hash == hashedName)
-                        {
-                            fn = f.Name;
-                        }
-                    }
-                }
-            }
-
-            if (string.IsNullOrEmpty(fn))
-            {
-                throw new MissingFieldException(ct.FullName, hashedName.ToString());
-            }
-
-            var field = ct.GetField(fn, BindingFlags.Public | BindingFlags.NonPublic |
-                 flags) ??
-                throw new MissingFieldException(ct.FullName, fn);
-            nint val = 0;
-            HashlinkMarshal.WriteData(&val, field.GetValue(inst), HashlinkMarshal.Module.KnownTypes.Dynamic);
-            return (HL_vdynamic*) val;
-        }
-        [UnmanagedCallersOnly]
-        private static HL_vdynamic* NativeGetStaticField( HL_vdynamic* obj, int hashedName )
-        {
-            var inst = (HashlinkObject)HashlinkMarshal.ConvertHashlinkObject(obj)!;
-            var meta = (HashlinkDynObj?) inst.GetFieldValue("__meta__");
-            if (meta == null ||
-                !meta.HasField("__DCCM_HaxeProxy_CustomType"))
-            {
-                return null;
-            }
-            ref var data = ref Unsafe.AsRef<FakeTypeData>((void*)
-                    (nint)meta.GetFieldValue("__DCCM_HaxeProxy_CustomType")!);
-            return HaxeGetField(null, data.type, hashedName, BindingFlags.Static);
-        }
-
 
         public HL_type* nativeType;
         public HashlinkObjectType Type
@@ -186,12 +339,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
                 }
                 else
                 {
-                    classObj = new((HashlinkObjectType)HashlinkMarshal.Module.GetTypeByName("hl.Class"));
-                }
-                if (classObj.Type is not ReflectType)
-                {
-                    classObj.Type.NativeType->data.obj->rt->getFieldFun =
-                        (delegate* unmanaged< HL_vdynamic*, int, HL_vdynamic* >)&NativeGetStaticField;
+                    classObj = new(ClassType);
                 }
             }
 
@@ -209,9 +357,6 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
 
             data.rtObj = *srcRT;
             data.rtObj.parent = srcRT;
-
-            data.rtObj.getFieldFun = 
-                (delegate* unmanaged< HL_vdynamic*, int, HL_vdynamic* >)&NativeGetField;
 
             data.methods = GC.AllocateArray<nint>(srcRT->nmethods, true);
             new ReadOnlySpan<nint>(srcRT->methods, srcRT->nmethods).CopyTo(data.methods);
