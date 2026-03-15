@@ -181,7 +181,7 @@ namespace Hashlink.Wrapper
                 th.NativeData.prev_hl_error_ptr = new HashlinkNETExceptionObj(ex).HashlinkPointer;
             }
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         [StackTraceHidden]
         public static nint InitErrorHandler( nint target, ref ErrorHandle handle )
         {
@@ -341,7 +341,7 @@ namespace Hashlink.Wrapper
                 }
             }
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         [StackTraceHidden]
         public static void UnInitErrorHandler( ref ErrorHandle handle )
         {

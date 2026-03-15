@@ -12,12 +12,12 @@ namespace Hashlink.Wrapper
         {
             EventSystem.AddReceiver(new ExceptionEventHandler());
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static object? GetObjectFromPtr( nint ptr )
         {
             return HashlinkMarshal.ConvertHashlinkObject(HashlinkObjPtr.Get(ptr), null);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static T GetObjectFrom<T>( object obj ) where T : class, IExtraDataItem
         {
             if (obj is T result)
@@ -30,12 +30,12 @@ namespace Hashlink.Wrapper
             }
             return (T)(dynamic)obj;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static nint AsPointer( object obj, int typeIdx )
         {
             return AsPointerWithType(obj, HashlinkMarshal.Module.Types[typeIdx]);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static nint AsPointerWithType( object obj, HashlinkType type )
         {
             if (!type.IsPointer)
@@ -47,7 +47,7 @@ namespace Hashlink.Wrapper
             HashlinkMarshal.WriteData(&result, obj, type);
             return result;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static void SetBlocking( bool b )
         {
             HashlinkMarshal.EnsureThreadRegistered();

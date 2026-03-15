@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 
@@ -328,6 +328,8 @@ namespace Hashlink
         public HL_debug_infos* jit_debug;
 
         public HL_module_context ctx;
+
+        public nint* unwind_table;
     }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_native

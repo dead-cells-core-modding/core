@@ -26,12 +26,12 @@ namespace Hashlink.Marshaling
             return type.FindProto(funcName)?.Function ??
                 type.Bindings.First(x => x.Name == funcName).Function;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static HashlinkType GetHashlinkType( HL_type* type )
         {
             var tindex = (int)(((nint)type - (nint)Module.NativeCode->types) / sizeof(HL_type));
 
-            if (tindex < Module.Types.Length)
+            if (tindex >= 0 && tindex < Module.Types.Length)
             {
                 Debug.Assert(Module.Types.Length == Module.NativeCode->ntypes);
                 Debug.Assert(Module.Types.Length > tindex);
@@ -66,22 +66,22 @@ namespace Hashlink.Marshaling
             [TypeKind.HREF] = typeof(nint),
             [TypeKind.HTYPE] = typeof(nint)
         };
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static bool IsValueType( this TypeKind type )
         {
             return type <= TypeKind.HBYTES || type == TypeKind.HREF || type == TypeKind.HTYPE;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static bool IsPointer( this TypeKind type )
         {
             return type >= TypeKind.HBYTES;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static HashlinkObject? GetGlobal( string name )
         {
             return ((HashlinkObjectType)Module.GetTypeByName(name)).GlobalValue;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static void WriteDataDyn(
            void* target,
            object? val,
@@ -90,7 +90,7 @@ namespace Hashlink.Marshaling
             ArgumentNullException.ThrowIfNull(target, nameof(target));
             WriteData(target, val, Module.KnownTypes.Dynamic, marshaler);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static void WriteData(
             void* target,
             object? val,
@@ -106,7 +106,7 @@ namespace Hashlink.Marshaling
                 throw new InvalidOperationException("Unable to marshal the specified object");
             }
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static object? ReadData(
             void* target,
             HashlinkType? type,
@@ -119,18 +119,18 @@ namespace Hashlink.Marshaling
 
             return marshaler.TryReadData(target, type);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static bool IsAllocatedHashlinkObject( void* ptr )
         {
             return hl_is_gc_ptr(ptr);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static object? ConvertHashlinkObject( HashlinkObjPtr target,
             IHashlinkMarshaler? marshaler = null )
         {
             return ConvertHashlinkObject((void*)target.Pointer, marshaler);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static object? ConvertHashlinkObject( void* target,
             IHashlinkMarshaler? marshaler = null )
         {
@@ -144,24 +144,24 @@ namespace Hashlink.Marshaling
                 ? handle.Target
                 : marshaler.TryConvertHashlinkObject(target) ?? throw new InvalidOperationException();
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static T? ConvertHashlinkObject<T>( HashlinkObjPtr target,
            IHashlinkMarshaler? marshaler = null ) where T : HashlinkObj
         {
             return (T?)ConvertHashlinkObject((void*)target.Pointer, marshaler);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static T? ConvertHashlinkObject<T>( void* target,
            IHashlinkMarshaler? marshaler = null ) where T : HashlinkObj
         {
             return (T?)ConvertHashlinkObject(target, marshaler);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static void MarkUsed( IHashlinkPointer ptr )
         {
             _ = HashlinkObjManager.GetHandle(ptr.HashlinkPointer);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static void MarkStateful( IHashlinkPointer ptr )
         {
             var handle = HashlinkObjManager.GetHandle(ptr.HashlinkPointer);
@@ -171,7 +171,7 @@ namespace Hashlink.Marshaling
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         public static bool EnsureThreadRegistered()
         {
             var result = HashlinkThread.EnsureThreadRegistered();

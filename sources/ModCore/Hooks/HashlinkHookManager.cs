@@ -59,7 +59,7 @@ namespace ModCore.Hooks
                     targs[i + 1] = typeof(object);
                 }
             }
-            var dm = new DynamicMethod($"<HookAdapt><f:{function.FunctionIndex}> {funcType}",
+            var dm = new DynamicMethod($"hook_adapt_{function.FunctionIndex}",
                 retType,
                 targs,
                 true

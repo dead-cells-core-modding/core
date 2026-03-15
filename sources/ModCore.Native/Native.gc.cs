@@ -14,35 +14,35 @@ namespace ModCore.Native
         private volatile byte* pmark_threads_active;
         private volatile void** pmark_threads_done;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         private HL_gc_pheader* GC_GET_PAGE( nint ptr )
         {
             return hl_gc_get_page((void*)ptr);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         private bool GC_IN_PAGE( HL_gc_pheader* page, nint ptr )
         {
             return true;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         private bool GC_IS_ALIVE( HL_gc_pheader* page, int bid )
         {
             return (page->bmp[bid >> 3] & (1 << (bid & 7))) != 0;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         private bool GC_IS_ALIVE(nint ptr )
         {
             var page = GC_GET_PAGE(ptr);
             var bid = gc_allocator_get_block_id(page, (void*)ptr);
             return GC_IS_ALIVE(page, bid);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         private void GC_SET_ALIVE( HL_gc_pheader* page, int bid )
         {
             //Ensure single-threaded operation
             page->bmp[bid >> 3] |= (byte)(1 << (bid & 7));
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         private void GC_PUSH_GEN( HL_gc_mstack* st, nint ptr, HL_gc_pheader* page )
         {
             if (((page->page_kind) & 2) != 2)
@@ -54,7 +54,7 @@ namespace ModCore.Native
                 *(st->cur++) = (void*)ptr;
             }
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         private int GC_STACK_COUNT( HL_gc_mstack* st )
         {
             return (int)((st)->size - ((nint)(st)->end - (nint)(st)->cur)/ sizeof(nint) - 1);

@@ -287,7 +287,7 @@ namespace Hashlink.Marshaling.ObjHandle
                 gcLock.ExitReadLock();
             }
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         private static ref ObjHandle GetObjHandle( int index )
         {
             var pageIndex = index == 0 ? 
@@ -300,7 +300,7 @@ namespace Hashlink.Marshaling.ObjHandle
 
         private static readonly ReaderWriterLockSlim gcLock = new();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         private static nint* GetObjWrapperPtr( void* ptr )
         {
             var size = hl_gc_get_memsize(ptr);

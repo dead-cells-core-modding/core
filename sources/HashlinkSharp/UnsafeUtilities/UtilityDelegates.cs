@@ -26,7 +26,7 @@ namespace Hashlink.UnsafeUtilities
 
         private static int delegateCount = 0;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         internal static T? CastObjectEx<T>( object obj ) where T : class, IExtraDataItem
         {
             if (obj is IExtraData ied)
@@ -35,7 +35,7 @@ namespace Hashlink.UnsafeUtilities
             }
             return CastObject<T>(obj);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+       
         internal static T? CastObject<T>( object obj )
         {
             if (obj == null)
@@ -206,7 +206,7 @@ namespace Hashlink.UnsafeUtilities
             var invoke = type.GetMethod("Invoke")!;
             var ps = invoke.GetParameters();
 
-            var dm = new DynamicMethod("GeneralDelegate+" + type.Name, invoke.ReturnType,
+            var dm = new DynamicMethod("general_delegate", invoke.ReturnType,
                 [typeof(Delegate), .. ps.Select(x => x.ParameterType)], true);
             var ilg = dm.GetILGenerator();
             ilg.Emit(OpCodes.Ldarg_0);
@@ -266,7 +266,7 @@ namespace Hashlink.UnsafeUtilities
             }
             
 
-            var dm = new DynamicMethod("AdaptDelegate+" + m.Name, invoke.ReturnType,
+            var dm = new DynamicMethod("adapt_delegate", invoke.ReturnType,
                 [typeof(DelegateInfo), .. ps], true);
             var ilg = dm.GetILGenerator();
 
@@ -347,7 +347,7 @@ namespace Hashlink.UnsafeUtilities
             var ps = invoke.GetParameters();
             Type[] ts = [.. ps.Skip(1).Select(x => x.ParameterType)];
 
-            var dm = new DynamicMethod("BindDelegate+" + type.Name, invoke.ReturnType,
+            var dm = new DynamicMethod("bind_delegate", invoke.ReturnType,
                 [typeof(ClosureInfo), .. ts], true);
             var ilg = dm.GetILGenerator();
 

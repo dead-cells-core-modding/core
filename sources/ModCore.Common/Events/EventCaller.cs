@@ -34,7 +34,7 @@ namespace ModCore.Events
                 throw new NotSupportedException("Methods with multiple parameters are not supported");
             }
 
-            DynamicMethodDefinition caller = new($"ModuleEventCall+{method.Name}", 
+            DynamicMethodDefinition caller = new($"event_caller", 
                 typeof(void), [typeof(object), typeof(nint), typeof(nint)]);
             var il = caller.GetILProcessor();
             if (method.ReturnType != typeof(void))
