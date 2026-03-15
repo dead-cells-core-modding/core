@@ -48,6 +48,7 @@ if($BuildNative) {
 if($BuildMDK) {
     echo "Generating Haxe Proxy"
     mkdir "./bin/core/mdk/ref" -Force
+    dotnet build ./sources/ModCore.Native
     dotnet run -c Release --no-launch-profile --project ./tools/HaxeProxyGenerator ./hlboots/hlboot-opengl-steam.dat ./bin/core/mdk/ref/GameProxy.dll
 
     echo "Building MDK"
