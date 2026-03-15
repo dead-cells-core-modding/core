@@ -19,6 +19,8 @@ namespace ModCore.Native
         public nint phl_throw;
         public nint phl_rethrow;
 
+        public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(NativeLibrary.Load("libhl"), name);
+
         public static Native Current
         {
             get;
@@ -361,7 +363,19 @@ namespace ModCore.Native
         public Native()
         {
             InitializeAsm();
-            
+        }
+
+        public static nint GetLibhlSymbol( string name )
+        {
+            return GetLibhlSymbolFunc(name);
+        }
+        public static nint GetLibhlSymbolEx( string name, ref nint cache )
+        {
+            if (cache != 0)
+            {
+                return cache;
+            }
+            return cache = GetLibhlSymbol(name);
         }
 
         protected ICoreNativeDetour CreateNativeHookForHL( string srcName, string hookName, out nint orig )
@@ -380,8 +394,7 @@ namespace ModCore.Native
         }
         protected ICoreNativeDetour CreateNativeHookForHL( string srcName, nint hook, out nint orig )
         {
-            var phLibhl = NativeLibrary.Load("libhl");
-            return CreateNativeHook(NativeLibrary.GetExport(phLibhl, srcName),
+            return CreateNativeHook(GetLibhlSymbol(srcName),
                 hook, out orig);
         }
         protected ICoreNativeDetour CreateNativeHook( nint src, nint dst, out nint orig )
@@ -483,15 +496,13 @@ namespace ModCore.Native
         }
         public virtual void InitializeNative()
         {
-            var phLibhl = NativeLibrary.Load("libhl");
+            phl_gc_page_map = (HL_gc_pheader***)GetLibhlSymbol("hl_gc_page_map");
+            pglobal_mark_stack = (HL_gc_mstack*)GetLibhlSymbol("global_mark_stack");
+            pmark_threads_active = (byte*)GetLibhlSymbol("mark_threads_active");
+            pmark_threads_done = (void**)GetLibhlSymbol("mark_threads_done");
 
-            phl_gc_page_map = (HL_gc_pheader***)NativeLibrary.GetExport(phLibhl, "hl_gc_page_map");
-            pglobal_mark_stack = (HL_gc_mstack*)NativeLibrary.GetExport(phLibhl, "global_mark_stack");
-            pmark_threads_active = (byte*)NativeLibrary.GetExport(phLibhl, "mark_threads_active");
-            pmark_threads_done = (void**)NativeLibrary.GetExport(phLibhl, "mark_threads_done");
-
-            phl_throw = NativeLibrary.GetExport(phLibhl, "hl_throw");
-            phl_rethrow = NativeLibrary.GetExport(phLibhl, "hl_rethrow");
+            phl_throw = GetLibhlSymbol("hl_throw");
+            phl_rethrow = GetLibhlSymbol("hl_rethrow");
         }
         public abstract void MakePageWritable( nint ptr, out int old );
         public abstract void RestorePageProtect( nint ptr, int val ); 

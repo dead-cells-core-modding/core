@@ -8,6 +8,13 @@
     <Project Path="HashlinkNET.Compiler/HashlinkNET.Compiler.csproj" />
     <Project Path="HaxeProxy/HaxeProxy.csproj" />
   </Folder>
+  <Folder Name="/native/">
+    <Project Path="ModCore.Native.Fody/ModCore.Native.Fody.csproj" Id="9a947177-75af-4f3c-9083-5b268a809b48" />
+    <Project Path="ModCore.Native/ModCore.Native.csproj">
+      <BuildDependency Project="ModCore.Native.Fody/ModCore.Native.Fody.csproj" />
+    </Project>
+    <Project Path="NonPublicNativeMembers/NonPublicNativeMembers.csproj" />
+  </Folder>
   <Folder Name="/plugins/">
     <Project Path="ModCore.ModLoader.Default/ModCore.ModLoader.Default.csproj" />
   </Folder>
@@ -44,7 +51,5 @@
   <Project Path="HashlinkSharp/HashlinkSharp.csproj" />
   <Project Path="ModCore.Assets/ModCore.Assets.csproj" Id="74c363b3-adde-42c7-94d8-d19d6ad00e13" />
   <Project Path="ModCore.Common/ModCore.Common.csproj" />
-  <Project Path="ModCore.Native/ModCore.Native.csproj" />
   <Project Path="ModCore/ModCore.csproj" />
-  <Project Path="NonPublicNativeMembers/NonPublicNativeMembers.csproj" />
 </Solution>

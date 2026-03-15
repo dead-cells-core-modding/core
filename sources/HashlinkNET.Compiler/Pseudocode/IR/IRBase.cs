@@ -9,6 +9,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         {
             get;
         } = values;
+
         public TypeReference? Emit( EmitContext ctx, bool requestValue = false )
         {
             ctx.RequestValue = requestValue;

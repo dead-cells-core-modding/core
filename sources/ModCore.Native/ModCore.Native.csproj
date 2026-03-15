@@ -15,6 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Fody" Version="6.9.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Iced" Version="1.21.0">
       <Aliases>iced</Aliases>
     </PackageReference>
@@ -24,4 +28,7 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <WeaverFiles Include="..\..\weaver\netstandard2.0\ModCore.Native.Fody.dll" />
+  </ItemGroup>
 </Project>

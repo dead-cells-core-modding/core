@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>12</LangVersion>
+    <OutputPath>../../weaver/</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FodyHelpers" Version="6.6.4" />
+  </ItemGroup>
+</Project>

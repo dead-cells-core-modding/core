@@ -405,3 +405,4 @@ vcpkg_installed/
 
 !3rd/Goldberg/*.dll
 /sources/DeadCellsModding/Properties/launchSettings.json
+/weaver
