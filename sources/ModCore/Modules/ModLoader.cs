@@ -84,6 +84,16 @@ namespace ModCore.Modules
                         Logger.Error("Unable to create mod info object", type);
                         continue;
                     }
+                    if (!string.IsNullOrEmpty(info.DCCMVersion))
+                    {
+                        var buildDCCMVer = Version.Parse(info.DCCMVersion);
+                        if (buildDCCMVer > GameInfo.DCCMVersion ||
+                                buildDCCMVer.Major != GameInfo.DCCMVersion.Major)
+                        {
+                            Logger.Warning("The target DCCM version for {A} is {B}, which does not match the current version.", 
+                                info.Name, info.DCCMVersion);
+                        }
+                    }
                     info.ModRoot = new("ModRoot_" + name, dir);
                     EventSystem.BroadcastEvent<IOnCollectedModInfo, ModInfo>(info);
                     modInfos.Add(name, info);

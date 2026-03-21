@@ -46,6 +46,12 @@ namespace HaxeProxy.Runtime
             val = default;
             return new(ref val!);
         }
+
+        /// <summary>
+        /// Gets a value indicating whether the current instance represents a null reference.
+        /// </summary>
+        public bool IsNull => Unsafe.IsNullRef(ref value);
+
         /// <summary>
         /// 
         /// </summary>

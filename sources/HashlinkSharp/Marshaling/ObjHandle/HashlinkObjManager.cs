@@ -1,3 +1,4 @@
+using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
@@ -326,6 +327,11 @@ namespace Hashlink.Marshaling.ObjHandle
         }
         public static HashlinkObjHandle? GetHandle( nint ptr )
         {
+            var p = HashlinkObjPtr.Get(ptr);
+            if (p.TypeKind < TypeKind.HBYTES)
+            {
+                return null;
+            }
             var wp = GetObjWrapperPtr((void*)ptr);
             if (wp == null)
             {

@@ -284,6 +284,12 @@ namespace ModCore.Modules
 
         private void Hook__Boot_main( Hook__Boot.orig_main orig )
         {
+            if (GameInfo.GameVersion != GameInfo.DCCMVersion.Major)
+            {
+                Logger.Warning("The target game version for DCCM is {A}, not the {B}", GameInfo.DCCMVersion.Major,
+                    GameInfo.GameVersion);
+            }
+
             EventSystem.BroadcastEvent<IOnBeforeGameInit>();
             orig();
         }

@@ -1,6 +1,6 @@
 namespace Hashlink.Proxy
 {
-    public readonly unsafe struct HashlinkObjPtr
+    public readonly unsafe struct HashlinkObjPtr : IHashlinkPointer
     {
         public HL_type* Type => *(HL_type**)Pointer;
         public TypeKind TypeKind => Type->kind;
@@ -9,6 +9,8 @@ namespace Hashlink.Proxy
         {
             get;
         }
+
+        nint IHashlinkPointer.HashlinkPointer => Pointer;
 
         public static HashlinkObjPtr Get( nint ptr )
         {
