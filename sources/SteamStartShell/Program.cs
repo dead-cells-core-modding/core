@@ -7,7 +7,6 @@ using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SteamStartShell
 {
@@ -105,6 +104,23 @@ You can report or contact us via:
                 Logger.Error("Failed to initialize Steam API: {Error} ({StateCode})", err, initResult);
                 throw new InvalidOperationException(err);
             }
+        }
+
+        private static void CheckNativeLib()
+        {
+            var steamapiPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "steam_api64.dll");
+
+            if (!File.Exists(steamapiPath))
+            {
+                Logger.Information("Extracting steam_api64.dll");
+                using (var rs = typeof(Program).Assembly.GetManifestResourceStream("steam_api64.dll"))
+                {
+                    using var fs = File.OpenWrite(steamapiPath);
+                    rs!.CopyTo(fs);
+                }
+            }
+
+            NativeLibrary.Load(steamapiPath);
         }
 
         private static async Task SteamWork(bool noVerify)
@@ -361,6 +377,8 @@ You can report or contact us via:
                     noVerify = true;
                     Logger.Warning("Skipping Steam API verification due to the presence of skip_verify_steam.txt. This may cause issues if Steam is not running or the game is not launched via Steam.");
                 }
+
+                CheckNativeLib();
 
                 await SteamWork(noVerify);
 

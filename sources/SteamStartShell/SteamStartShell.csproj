@@ -11,7 +11,7 @@
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
 
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
 
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <PublishDir>../../bin/core/host/startup/steam</PublishDir>
@@ -24,16 +24,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="steam_api64.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="steam_api64.dll">
+      <LogicalName>steam_api64.dll</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="steam_api64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <Import Project="../../IncludeSteamworkNET.props"/>
+  <Import Project="../../IncludeSteamworkNET.props" />
 
 </Project>
