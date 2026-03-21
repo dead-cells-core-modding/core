@@ -186,9 +186,6 @@ namespace ModCore.Modules
                             $"Version: {mod.Info.Version}".AsHaxeString(), onClick, Ref<int>.In(5), flow);
 
                         continue;
-
-
-
                     }
 
                 }

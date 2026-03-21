@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 
 namespace ModCore.Events.Collections
 {
@@ -55,7 +55,8 @@ namespace ModCore.Events.Collections
 
         }
 
-        public int Version { get; private set; } = 0;
+        private int version = 0;
+        public int Version => version;
 
         private readonly Node root = new()
         {
@@ -181,6 +182,9 @@ namespace ModCore.Events.Collections
             var node = GetOrAddNode(receiver.Priority);
             var curBlock = node.Data;
             var lastBlock = curBlock;
+
+            Interlocked.Increment(ref version);
+
             while (curBlock != null)
             {
                 for (var i = 0; i < curBlock.Count; i++)
@@ -214,6 +218,9 @@ namespace ModCore.Events.Collections
         {
             var node = GetOrAddNode(receiver.Priority);
             var curBlock = node.Data;
+
+            Interlocked.Increment(ref version);
+
             while (curBlock != null)
             {
                 for (var i = 0; i < curBlock.Count; i++)

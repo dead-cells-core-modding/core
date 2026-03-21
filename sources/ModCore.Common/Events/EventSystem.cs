@@ -120,7 +120,7 @@ namespace ModCore.Events
             }
 
             List<Exception>? exceptions = null;
-            var receivers = EventCaller<TEvent>.IsCallOnce ? eventReceivers : (IEnumerable<IEventReceiver>)EventReceiversCache<TEvent>.receivers;
+            var receivers = EventCaller<TEvent>.IsCallOnce ? eventReceivers : EventReceiversCache<TEvent>.GetReceivers();
             foreach (var module in receivers)
             {
                 if (module is TEvent ev)
