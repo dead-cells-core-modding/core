@@ -19,7 +19,7 @@ else()
 set(DCCM_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}linux-${ARCH_NAME})
 endif()
 
-add_definitions(-DX64)
+add_definitions(-DX64 -DJIT_CUSTOM_LONGJUMP)
 
 cmake_host_system_information(RESULT CPU_NUMBER_OF_LOGICAL_CORES QUERY NUMBER_OF_LOGICAL_CORES)
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP${CPU_NUMBER_OF_LOGICAL_CORES}>)
