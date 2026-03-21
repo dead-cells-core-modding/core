@@ -12,6 +12,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
+    <ProjectReference Include="..\ModCore.Native.Fody\ModCore.Native.Fody.csproj">
+      <ExcludeAssets>all</ExcludeAssets>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>

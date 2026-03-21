@@ -249,6 +249,10 @@ You can report or contact us via:
                         }
                         else if (fi is DirectoryInfo d)
                         {
+                            if (d.Name == ".dotnet")
+                            {
+                                continue;
+                            }
                             CopyDir(d, new(Path.Combine(dst.FullName, d.Name)));
                         }
                     }
@@ -259,6 +263,8 @@ You can report or contact us via:
 
                 File.WriteAllText(Path.Combine(gameRoot, "coremod", "ModCoreVersion.txt"), mccv.ToString());
             }
+
+            Environment.SetEnvironmentVariable("DOTNET_ROOT", Path.Combine(mapiFolder, ".dotnet"));
 
             await FindMods();
 
@@ -360,7 +366,7 @@ You can report or contact us via:
 
                 Environment.SetEnvironmentVariable("DCCM_EXIT_WHEN_PROCESS_PID", Environment.ProcessId.ToString());
                 Environment.SetEnvironmentVariable("DEAD_CELLS_GAME_PATH", gameRoot);
-                Environment.SetEnvironmentVariable("DOTNET_ROOT", Path.Combine(gameRoot, "coremod", ".dotnet"));
+
 
                 bool diagnosticMode = false;
 
