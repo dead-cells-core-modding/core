@@ -14,6 +14,7 @@ using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Events.Interfaces.Game.Save;
 using ModCore.Utilities;
+using Steamworks;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -288,6 +289,14 @@ namespace ModCore.Modules
             {
                 Logger.Warning("The target game version for DCCM is {A}, not the {B}", GameInfo.DCCMVersion.Major,
                     GameInfo.GameVersion);
+            }
+
+            if (GameInfo.Platform == GameInfo.PlatformKind.Steam)
+            {
+                if (SteamAPI.InitEx(out var err) != ESteamAPIInitResult.k_ESteamAPIInitResult_OK)
+                {
+                    Logger.Warning("Unable to initialize the Steam API: {reason}", err);
+                }
             }
 
             EventSystem.BroadcastEvent<IOnBeforeGameInit>();

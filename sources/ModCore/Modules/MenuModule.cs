@@ -6,6 +6,7 @@ using ModCore.Events.Interfaces.Game;
 using ModCore.Menu;
 using ModCore.Mods;
 using ModCore.Utilities;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -66,6 +67,24 @@ namespace ModCore.Modules
             private static void OpenURL( string url )
             {
                 Logger.Information("Open {url}", url);
+
+                if (GameInfo.Platform == GameInfo.PlatformKind.Steam)
+                {
+
+                    bool shouldOverlay = url.StartsWith("https://steam");
+
+                    if (SteamUtils.IsSteamInBigPictureMode())
+                    {
+                        shouldOverlay = true;
+                    }
+
+                    if (shouldOverlay && SteamUtils.IsOverlayEnabled())
+                    {
+                        SteamFriends.ActivateGameOverlayToWebPage(url);
+                        return;
+                    }
+                }
+
                 System.Diagnostics.Process.Start(new ProcessStartInfo()
                 {
                     UseShellExecute = true,
@@ -174,11 +193,7 @@ namespace ModCore.Modules
                         {
                             onClick = () =>
                             {
-                                System.Diagnostics.Process.Start(new ProcessStartInfo()
-                                {
-                                    UseShellExecute = true,
-                                    FileName = uri.ToString()
-                                });
+                                OpenURL(uri.ToString());
                             };
                         }
 
