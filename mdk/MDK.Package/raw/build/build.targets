@@ -65,7 +65,7 @@
       <_MDK_ModInfo_Path>$(IntermediateOutputPath)modinfo.json</_MDK_ModInfo_Path>
       <_MDK_ModInfo_Path>$([System.IO.Path]::GetFullPath('$(_MDK_ModInfo_Path)'))</_MDK_ModInfo_Path>
 
-      <MDKModInfoGeneratorCommandLine>-b $(_MDK_ModInfoBase64) -o $(_MDK_ModInfo_Path) $(MDKModInfoGeneratorCommandLine) </MDKModInfoGeneratorCommandLine>
+      <MDKModInfoGeneratorCommandLine>-b $(_MDK_ModInfoBase64) -o "$(_MDK_ModInfo_Path)" $(MDKModInfoGeneratorCommandLine) </MDKModInfoGeneratorCommandLine>
       <MDKModInfoGeneratorCommandLine Condition="$([System.IO.File]::Exists('$(ModInfoTemplate)')) == true"> -i "$(ModInfoTemplate)" $(MDKModInfoGeneratorCommandLine)</MDKModInfoGeneratorCommandLine>
     </PropertyGroup>
 
