@@ -291,13 +291,13 @@ namespace ModCore.Modules
                     GameInfo.GameVersion);
             }
 
-           /* if (GameInfo.Platform == GameInfo.PlatformKind.Steam)
+            if (GameInfo.Platform == GameInfo.PlatformKind.Steam)
             {
                 if (SteamAPI.InitEx(out var err) != ESteamAPIInitResult.k_ESteamAPIInitResult_OK)
                 {
                     Logger.Warning("Unable to initialize the Steam API: {reason}", err);
                 }
-            }*/
+            }
 
             EventSystem.BroadcastEvent<IOnBeforeGameInit>();
             orig();

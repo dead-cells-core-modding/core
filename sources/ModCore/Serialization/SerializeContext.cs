@@ -54,7 +54,7 @@ namespace ModCore.Serialization
                 dynamic dyn = obj;
                 if (obj is IHxbitSerializeCallback cb)
                 {
-                    cb.OnAfterDeserializing();
+                    cb.OnBeforeSerializing();
                 }
                 var type = obj.GetType();
                 if (!getDataInvoker.TryGetValue(type, out var invokers))
