@@ -32,6 +32,11 @@ namespace ModCore.Utilities
             ProcessStartInfo? startInfo,
             params ReadOnlySpan<string> loadAssemblies)
         {
+            if (ContextConfig.Config.disableWorkerProcessUtils)
+            {
+                throw new InvalidOperationException();
+            }
+
             startInfo ??= new();
 
             if (string.IsNullOrEmpty(startInfo.FileName))

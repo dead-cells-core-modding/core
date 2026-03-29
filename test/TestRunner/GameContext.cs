@@ -28,7 +28,8 @@ namespace TestRunner
             };
             ContextConfig.Config = ContextConfig.Default with
             {
-                consoleOutput = Debugger.IsAttached
+                consoleOutput = Debugger.IsAttached,
+                disableWorkerProcessUtils = true,
             };
             //Console.WriteLine("Setup receiver");
             EventSystem.AddReceiver(this);

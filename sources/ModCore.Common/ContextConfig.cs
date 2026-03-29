@@ -38,6 +38,7 @@ namespace ModCore
             }
         }
 
+        public bool disableWorkerProcessUtils;
         public string[] hashlinkLibraries;
         public Memory<byte>? hlbcOverride;
         public bool consoleOutput;

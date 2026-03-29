@@ -10,8 +10,8 @@
 
   <ItemGroup>
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
-    <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.3" />
-    <PackageReference Include="MonoMod.Utils" Version="25.0.11" />
+    <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.4" />
+    <PackageReference Include="MonoMod.Utils" Version="25.0.12" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Serilog" Version="4.3.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
