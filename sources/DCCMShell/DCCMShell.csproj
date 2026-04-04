@@ -17,7 +17,7 @@
 
     <OutputPath>../../bin/core/host/</OutputPath>
 
-    <RollForward>LatestMajor</RollForward>
+    <RollForward>Major</RollForward>
   </PropertyGroup>
 
   <ItemGroup>

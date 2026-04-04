@@ -219,34 +219,6 @@ namespace ModCore.Native
             c.jmp(__qword_ptr[rax]);
         }
 
-        /**
-         * 
-         * if(hModule == phLibhl) {
-         *  return new_GetProcAddress(hModule, hName, unknown);
-         * } else {
-         *  return orig(hModule, hName, unknown);
-         * }
-         * 
-         */
-        protected override void Generate_asm_hook_GetProcAddress_Entry( Assembler c )
-        {
-            var fallback = c.CreateLabel();
-
-            c.mov(rax, (long)&Data->phLibhl);
-            c.cmp(rcx, __[rax]);
-            c.jnz(fallback);
-
-            c.mov(rax, (long)&Data->new_GetProcAddress);
-            c.mov(r11, __[rax]);
-            c.jmp(r11);
-
-            c.Label(ref fallback);
-
-            c.mov(rax, (long)&Data->orig_GetProcAddress);
-            c.mov(r11, __[rax]);
-            c.jmp(r11);
-        }
-
         protected override void Generate_asm_cs_hl_store_context( Assembler c )
         {
             c.pop(r11); //Data Table Pointer
@@ -284,7 +256,7 @@ namespace ModCore.Native
             c.jmp(__qword_ptr[r11 + 8]);//Target 
         }
 
-        public override unsafe void FixThreadCurrentStackFrame( HL_thread_info* t )
+        public override void FixThreadCurrentStackFrame( HL_thread_info* t )
         {
             if (!Environment.Is64BitProcess)
             {

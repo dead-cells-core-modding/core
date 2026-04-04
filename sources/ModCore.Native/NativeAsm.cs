@@ -36,6 +36,9 @@ namespace ModCore.Native
             // hl2cs helper
             public nint hl_throw;
             public nint capture_current_frame;
+
+            public nint longjmp;
+            public nint setjmp;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -106,7 +109,6 @@ namespace ModCore.Native
 
         public nint asm_hook_break_on_trap_Entry;
 
-        public nint asm_hook_GetProcAddress_Entry;
 
         protected void Assert( Assembler c )
         {
@@ -123,7 +125,6 @@ namespace ModCore.Native
         protected abstract void Generate_asm_hl2cs_throw_exception( Assembler c );
         protected abstract void Generate_asm_hl2cs_store_return_ptr( Assembler c );
         protected abstract void Generate_asm_hook_break_on_trap_Entry( Assembler c );
-        protected abstract void Generate_asm_hook_GetProcAddress_Entry( Assembler c );
 
         protected abstract void Generate_asm_cs_hl_store_context( Assembler c );
     }

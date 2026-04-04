@@ -16,8 +16,6 @@
   </Target>
 
   <Target Name="GenerateDiffPak" 
-          Inputs="$(CdbFile);$(TemplateCdbFile)"
-          Outputs="$(IntermediateOutputPath)/_diffCDB.pak"
           BeforeTargets="MergeAllPaks" 
           DependsOnTargets="LocateTemplateCDB">
     <PropertyGroup>

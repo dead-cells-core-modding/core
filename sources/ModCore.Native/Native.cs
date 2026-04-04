@@ -15,9 +15,12 @@ namespace ModCore.Native
 {
     internal unsafe abstract partial class Native
     {
+
         private readonly static HL_type* TYPE_DYN = (HL_type*)NativeMemory.AllocZeroed((nuint)sizeof(HL_type));
         public nint phl_throw;
         public nint phl_rethrow;
+
+        public HL_setup_t* hl_setup;
 
         public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(NativeLibrary.Load("libhl"), name);
 
@@ -37,7 +40,16 @@ namespace ModCore.Native
             public HL_vclosure c;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct UnsafeHelpers
+        {
+            public nint longjmp;
+            public nint setjmp;
+        }
+
         #region Hooks
+
+        public UnsafeHelpers unsafeHelpers;
 
         private readonly List<ICoreNativeDetour> detours = [];
 
@@ -496,6 +508,7 @@ namespace ModCore.Native
         }
         public virtual void InitializeNative()
         {
+            hl_setup = (HL_setup_t*)GetLibhlSymbol("hl_setup");
             phl_gc_page_map = (HL_gc_pheader***)GetLibhlSymbol("hl_gc_page_map");
             pglobal_mark_stack = (HL_gc_mstack*)GetLibhlSymbol("global_mark_stack");
             pmark_threads_active = (byte*)GetLibhlSymbol("mark_threads_active");
@@ -503,6 +516,7 @@ namespace ModCore.Native
 
             phl_throw = GetLibhlSymbol("hl_throw");
             phl_rethrow = GetLibhlSymbol("hl_rethrow");
+
         }
         public abstract void MakePageWritable( nint ptr, out int old );
         public abstract void RestorePageProtect( nint ptr, int val ); 

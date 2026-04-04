@@ -1,8 +1,6 @@
 ﻿<Project>
   <Target Name="PackAssetsIntoPak"
-          BeforeTargets="MergeAllPaks"
-          Inputs="@(PackAssets)"
-          Outputs="$(IntermediateOutputPath)/_pack_assets.pak">
+          BeforeTargets="MergeAllPaks">
     <PropertyGroup>
       <PackedAssetsPakPath>$(IntermediateOutputPath)/_pack_assets.pak</PackedAssetsPakPath>
 
@@ -23,9 +21,7 @@
   </PropertyGroup>
 
   <Target Name="MergeAllPaks"
-          BeforeTargets="CopyOutputFiles"
-          Inputs="@(PakFile)"
-          Outputs="$(IntermediateOutputPath)/$(OutputPakName)">
+          BeforeTargets="CopyOutputFiles">
     <PropertyGroup>
       <MergedPakPath>$(IntermediateOutputPath)/$(OutputPakName)</MergedPakPath>
       <MergeAllPaksCommandLine> -o "$(MergedPakPath)" @(PakFile->' -i "%(FullPath)" ', ' ') $(MergeAllPaksCommandLine) </MergeAllPaksCommandLine>

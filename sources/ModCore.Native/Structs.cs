@@ -499,4 +499,37 @@ namespace Hashlink
         public int size;
         public int __pad; // force align on 16 bytes for double
     }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_setup_t
+    {
+        public char* file_path;
+        public char** sys_args;
+        public int sys_nargs;
+        public delegate* unmanaged< C_jmpbuf, int, void > throw_jump;
+        public delegate* unmanaged< void*, char*, int*, char* > resolve_symbol;
+        //public char* (* resolve_symbol) (void* addr, uchar* out, int* outSize);
+        public delegate* unmanaged< void**, int, int > capture_stack;
+        //public int (* capture_stack) (void** stack, int size);
+        public delegate* unmanaged< byte*, byte* > alt_file;
+	    //public byte (* reload_check) (vbyte* alt_file);
+        public delegate* unmanaged<void*, HL_type*, void**, HL_vdynamic*, void* > static_call;
+	    //public void* (* static_call) (void* fun, hl_type* t, void** args, vdynamic* out);
+        public delegate* unmanaged< HL_type*, void* > get_wrapper;
+        //public void* (* get_wrapper) (hl_type* t);
+        public delegate* unmanaged< int, byte*, int, void > profile_event;
+        //public void (* profile_event) (int code, vbyte* data, int len);
+        public delegate* unmanaged< void > before_exit;
+        //public void (* before_exit) ();
+        public delegate* unmanaged< void > vtune_init;
+        //public void (* vtune_init) ();
+        public delegate* unmanaged< char*, void > load_plugin;
+        //public byte (* load_plugin) (pchar* file );
+        public delegate* unmanaged< HL_type*, HL_type*, HL_vdynamic* > resolve_type;
+        //public vdynamic* (* resolve_type) (hl_type* t, hl_type* gt);
+        public byte static_call_ref;
+        public int closure_stack_capture;
+        public byte is_debugger_enabled;
+        public byte is_debugger_attached;
+    }
+
 }
