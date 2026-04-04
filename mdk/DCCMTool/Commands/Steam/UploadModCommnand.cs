@@ -14,6 +14,13 @@ namespace DCCMTool.Commands.Steam
 {
     internal class UploadModCommnand : SteamCommandBase<UploadModCommnand.Settings>
     {
+        private static readonly List<string> KnownTags = [
+            "Gameplay",
+            "Test",
+            "Language",
+            "Cosmetic",
+            "Library"
+            ];
         public override async Task<int> ExecuteSteamAsync()
         {
             var modroot = Path.GetFullPath(Arguments.ModPath);
@@ -21,6 +28,9 @@ namespace DCCMTool.Commands.Steam
 
             var modname = modinfo["name"]!.ToString();
             var ver = modinfo["version"]!.ToString();
+
+            var tags = modinfo["tags"]?.ToObject<string[]>();
+
 
              AnsiConsole.WriteLine($"Finding mod {modname} in workshop...");
 
@@ -72,6 +82,23 @@ namespace DCCMTool.Commands.Steam
                 SteamUGC.AddItemKeyValueTag(updateHandle, "dccm_modname", modname);
             }
 
+            if(tags != null)
+            {
+                List<string> utags = [];
+                foreach (var tag in tags)
+                {
+
+                    if (!KnownTags.Contains(tag))
+                    {
+                        AnsiConsole.MarkupLine($"[warning]Unknown Tag: {tag}[/warning]");
+                    }
+
+                    utags.Add(tag);
+                }
+
+                SteamUGC.SetItemTags(updateHandle, utags);
+            }
+
             if (string.IsNullOrEmpty(Arguments.PreviewPath))
             {
                 string[] previewExt = ["jpg", "png", "gif"];
@@ -92,12 +119,16 @@ namespace DCCMTool.Commands.Steam
                 SteamUGC.SetItemPreview(updateHandle, Path.GetFullPath(Arguments.PreviewPath));
             }
 
+            AnsiConsole.WriteLine("Mod Root: " + modroot);
+
             SteamUGC.SetItemContent(updateHandle, modroot);
 
             if (string.IsNullOrEmpty(Arguments.UpdateText))
             {
                 Arguments.UpdateText = "Update to v" + ver;
             }
+
+            AnsiConsole.MarkupLine("Uploading");
 
             var sresultTask = SteamUGC.SubmitItemUpdate(updateHandle, Arguments.UpdateText).Wait<SubmitItemUpdateResult_t>();
 
