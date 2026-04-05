@@ -21,7 +21,7 @@ namespace Hashlink.Proxy.Objects
         public override void SetFieldValue( int hashedName, object? value )
         {
             nint v;
-            HashlinkMarshal.WriteData(&v, value, HashlinkMarshal.Module.KnownTypes.Dynamic);
+            HashlinkMarshal.WriteDataDyn(&v, value);
             hl_dyn_setp(TypedRef, hashedName, InternalTypes.hlt_dyn, (void*)v);
         }
 
