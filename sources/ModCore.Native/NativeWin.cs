@@ -10,6 +10,8 @@ using static iced::Iced.Intel.AssemblerRegisters;
 using Hashlink;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Windows.Win32;
+using ModCore.Storage;
 
 #pragma warning disable CA1416
 
@@ -18,6 +20,9 @@ namespace ModCore.Native
     [SupportedOSPlatform("windows")]
     internal unsafe partial class NativeWin : Native
     {
+        [LibraryImport("modcorenative", EntryPoint = "init_veh")]
+        private static partial void InitVEH(nint createDumpCommand);
+
         [LibraryImport("Kernel32")]
         private static partial int GetThreadContext( nint handle, void* ctx );
         public override void MakePageWritable( nint ptr, out int old )
@@ -38,6 +43,27 @@ namespace ModCore.Native
         protected static int Hook_throw_handler( int code )
         {
             return 0;
+        }
+
+        public override void InitializeNative()
+        {
+            base.InitializeNative();
+
+            {
+                var dmpPath = FolderInfo.Cache.GetFilePath("crash.dmp");
+                if (File.Exists(dmpPath))
+                {
+                    File.Delete(dmpPath);
+                }
+
+                Console.Error.WriteLine("[DCCMDBG-CRASH]" + dmpPath);
+
+                var rtRoot = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+                var createDumpPath = Path.Combine(rtRoot, "createdump.exe");
+                var createDumpCmd = $"\"{createDumpPath}\" -f \"{dmpPath}\" -n";
+
+                InitVEH(Marshal.StringToHGlobalUni(createDumpCmd));
+            }
         }
 
         protected override void InitializeNativeHooks()

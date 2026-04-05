@@ -1,4 +1,4 @@
-﻿
+
 LoadLibraryEx
 FindResource
 SizeofResource

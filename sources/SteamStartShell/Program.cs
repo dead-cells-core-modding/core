@@ -16,6 +16,7 @@ namespace SteamStartShell
         private static ILogger Logger => Log.Logger;
 
         public static string gameRoot = ""!;
+        public static string crashDumpPath = "";
         public static readonly string ERROR_REPORT_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "last_error.txt");
         public static readonly string ERROR_REPORT_HEADER = $"""
 
@@ -26,6 +27,7 @@ When reporting the issue, please include:
 - Crash logs ({ERROR_REPORT_PATH})
 - Reproduction steps
 - System and version information
+- Crash Dump (if available)
 
 You can report or contact us via:
 
@@ -430,11 +432,19 @@ You can report or contact us via:
 
                 game.ErrorDataReceived += ( sender, ev ) =>
                 {
-                    if (ev.Data?.StartsWith("[DCCMLOGLATEST]") ?? false)
+                    var data = ev.Data ?? "";
+
+                    if (data.StartsWith("[DCCMLOGLATEST]"))
                     {
-                        gameLogLatest = ev.Data["[DCCMLOGLATEST]".Length..].Trim();
+                        gameLogLatest = data["[DCCMLOGLATEST]".Length..].Trim();
                         return;
                     }
+                    else if (data.StartsWith("[DCCMDBG-CRASH]"))
+                    {
+                        crashDumpPath = data["[DCCMDBG-CRASH]".Length..].Trim();
+                        return;
+                    }
+
                     errOutputBuilder.AppendLine(ev.Data);
                 };
 
@@ -465,6 +475,8 @@ You can report or contact us via:
                 Logger.Error(ERROR_REPORT_HEADER);
                 Logger.Information("Please check the log file for more detailed information: {path}", ERROR_REPORT_PATH);
 
+               
+
                 var errText = new StringBuilder();
 
                 {
@@ -484,6 +496,8 @@ You can report or contact us via:
                         }
                     }
                 }
+
+               
 
                 if (errOutputBuilder.Length > 0)
                 {
@@ -509,6 +523,13 @@ You can report or contact us via:
                 var err = new StringBuilder();
 
                 err.AppendLine(ERROR_REPORT_HEADER);
+
+                if (!string.IsNullOrEmpty(crashDumpPath))
+                {
+                    err.AppendLine();
+                    err.AppendLine("You may also need to send this crash dump: " + crashDumpPath);
+                    err.AppendLine();
+                }
 
                 var errTextStr = errText.ToString();
 

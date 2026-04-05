@@ -2,6 +2,7 @@ using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
+using MonoMod.Core.Platforms;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -305,11 +306,13 @@ namespace Hashlink.Marshaling.ObjHandle
         private static nint* GetObjWrapperPtr( void* ptr )
         {
             var size = hl_gc_get_memsize(ptr);
-            if (size == -1)
+            if (size <= 0)
             {
                 return null;
             }
-            return (nint*)((byte*)ptr + size - sizeof(void*));
+            var result = (nint*)((byte*)ptr + size - sizeof(void*));
+            //PlatformTriple.Current.System.GetSizeOfReadableMemory((nint)result, nint.Size);
+            return result;
         }
 
         public static HashlinkObjHandle? TryGetHandle( nint ptr )
