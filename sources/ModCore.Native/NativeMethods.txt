@@ -12,7 +12,12 @@ SuspendThread
 OpenThread
 GetCurrentThreadId
 GetThreadId
+GetThreadContext
 
 TlsAlloc
 TlsGetValue
 TlsSetValue
+
+RtlLookupFunctionEntry
+RtlVirtualUnwind
+RtlCaptureContext

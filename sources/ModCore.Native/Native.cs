@@ -419,6 +419,8 @@ namespace ModCore.Native
             return detour;
         }
 
+
+
         protected virtual void InitializeNativeHooks()
         {
             var phLibhl = NativeLibrary.Load("libhl");

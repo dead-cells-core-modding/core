@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Windows.Win32;
 using ModCore.Storage;
+using Windows.Win32.System.Diagnostics.Debug;
 
 #pragma warning disable CA1416
 
@@ -23,8 +24,6 @@ namespace ModCore.Native
         [LibraryImport("modcorenative", EntryPoint = "init_veh")]
         private static partial void InitVEH(nint createDumpCommand);
 
-        [LibraryImport("Kernel32")]
-        private static partial int GetThreadContext( nint handle, void* ctx );
         public override void MakePageWritable( nint ptr, out int old )
         {
             var pageStart = ptr & ~(Environment.SystemPageSize - 1);
@@ -299,11 +298,15 @@ namespace ModCore.Native
             
             SuspendThread(th);
 
-            byte* buffer = stackalloc byte[2048];
-            *((int*)(buffer + 48)) = (0x00100000 | 0x00000001);
-            var err = GetThreadContext(th.DangerousGetHandle(), buffer);
+            CONTEXT context = new()
+            {
+                ContextFlags = CONTEXT_FLAGS.CONTEXT_AMD64 | CONTEXT_FLAGS.CONTEXT_CONTROL_AMD64
+            };
+           
+            var err = GetThreadContext(th, ref context);
+
             Debug.Assert(err != 0);
-            var rsp = *((nint*)(buffer + 152));
+            var rsp = context.Rsp;
             Debug.Assert(rsp != 0);
 
             t->stack_cur = (void*) rsp;

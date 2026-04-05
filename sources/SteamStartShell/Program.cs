@@ -524,7 +524,8 @@ You can report or contact us via:
 
                 err.AppendLine(ERROR_REPORT_HEADER);
 
-                if (!string.IsNullOrEmpty(crashDumpPath))
+                if (!string.IsNullOrEmpty(crashDumpPath) && 
+                    File.Exists(crashDumpPath))
                 {
                     err.AppendLine();
                     err.AppendLine("You may also need to send this crash dump: " + crashDumpPath);
