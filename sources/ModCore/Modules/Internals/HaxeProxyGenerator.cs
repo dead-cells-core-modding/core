@@ -9,6 +9,7 @@ using Mono.Cecil;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime;
+using System.Security.Cryptography;
 
 namespace ModCore.Modules.Internals
 {
@@ -26,12 +27,16 @@ namespace ModCore.Modules.Internals
 
         void IOnCodeLoading.OnCodeLoading( ref ReadOnlySpan<byte> data )
         {
-            proxyCache.UpdateMetadata("code", data);
+            var gameHash = SHA384.HashData(data);
+
+            GameInfo.HlbootHash = gameHash;
+
+            proxyCache.UpdateMetadata("code", gameHash);
             proxyCache.UpdateMetadata("version", GetType().Assembly.GetName().Version?.ToString() ?? "None");
 
-            hlbootCache.UpdateMetadata("code", data);
+            hlbootCache.UpdateMetadata("code", gameHash);
 
-            pseudoCache.UpdateMetadata("code", data);
+            pseudoCache.UpdateMetadata("code", gameHash);
             pseudoCache.UpdateMetadata("version", GetType().Assembly.GetName().Version?.ToString() ?? "None");
             pseudoCache.UpdateMetadata("enabled", Core.Config.Value.GeneratePseudocodeAssembly.ToString());
 

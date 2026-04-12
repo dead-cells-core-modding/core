@@ -1,8 +1,10 @@
 using dc;
 using dc.en;
+using dc.h3d.impl;
 using dc.h3d.pass;
 using dc.hxsl;
 using dc.pr;
+using dc.sdl;
 using dc.tool;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
@@ -105,6 +107,8 @@ namespace ModCore.Modules
                 Hook_Main.onSecondFrame += Hook_Main_onSecondFrame;
             }
         }
+
+
 
         private unsafe void Hook__ErrorHandler_init( Hook__ErrorHandler.orig_init orig )
         {

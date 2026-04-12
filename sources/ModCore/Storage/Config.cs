@@ -1,7 +1,8 @@
-﻿using ModCore.Events;
+using ModCore.Events;
 using ModCore.Events.Interfaces;
 using Newtonsoft.Json;
 using Serilog;
+using System.Diagnostics;
 
 
 namespace ModCore.Storage
@@ -55,6 +56,7 @@ namespace ModCore.Storage
                 {
                     Load();
                 }
+                Debug.Assert(value != null);
                 return value!;
             }
             set
@@ -82,7 +84,7 @@ namespace ModCore.Storage
             {
                 if (File.Exists(ConfigPath))
                 {
-                    value = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigPath), SerializerOptions);
+                    value = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigPath), SerializerOptions) ?? new();
                 }
                 else
                 {

@@ -45,5 +45,13 @@ namespace ModCore
         {
             get; internal set;
         } = PlatformKind.Unknown;
+
+        /// <summary>
+        /// Gets the computed HLBoot hash value as a byte array.
+        /// </summary>
+        public static byte[] HlbootHash
+        {
+            get; internal set;
+        } = [];
     }
 }
