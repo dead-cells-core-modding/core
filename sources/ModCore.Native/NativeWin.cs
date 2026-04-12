@@ -55,13 +55,13 @@ namespace ModCore.Native
                     File.Delete(dmpPath);
                 }
 
-                Console.Error.WriteLine("[DCCMDBG-CRASH]" + dmpPath);
+                //Console.Error.WriteLine("[DCCMDBG-CRASH]" + dmpPath);
 
-                var rtRoot = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-                var createDumpPath = Path.Combine(rtRoot, "createdump.exe");
-                var createDumpCmd = $"\"{createDumpPath}\" -f \"{dmpPath}\" -n";
+                //var rtRoot = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+                //var createDumpPath = Path.Combine(rtRoot, "createdump.exe");
+                //var createDumpCmd = $"\"{createDumpPath}\" -f \"{dmpPath}\" -n";
 
-                InitVEH(Marshal.StringToHGlobalUni(createDumpCmd));
+                //InitVEH(Marshal.StringToHGlobalUni(createDumpCmd));
             }
         }
 
@@ -298,15 +298,17 @@ namespace ModCore.Native
             
             SuspendThread(th);
 
-            CONTEXT context = new()
-            {
-                ContextFlags = CONTEXT_FLAGS.CONTEXT_AMD64 | CONTEXT_FLAGS.CONTEXT_CONTROL_AMD64
-            };
-           
-            var err = GetThreadContext(th, ref context);
+            CONTEXT* context = stackalloc CONTEXT[1];
+
+            context->ContextFlags = CONTEXT_FLAGS.CONTEXT_CONTROL_AMD64;
+
+            var err = GetThreadContext(th, ref context[0]);
 
             Debug.Assert(err != 0);
-            var rsp = context.Rsp;
+
+            var rsp = context->Rsp;
+
+            //var rsp = context.Rsp;
             Debug.Assert(rsp != 0);
 
             t->stack_cur = (void*) rsp;
