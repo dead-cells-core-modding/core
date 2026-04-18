@@ -6,6 +6,7 @@ namespace ModCore
     internal static class LogInitializer
     {
         private const string OUTPUT_FORMAT_TEMPLATE = "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}";
+        private const int MAX_LOGS_COUNT = 31;
         internal static void InitializeLog()
         {
             var latest = Path.Combine(FolderInfo.Logs.FullPath, "log_latest.log");
@@ -21,11 +22,38 @@ namespace ModCore
                 {
                     File.Delete(latest);
                 }
-                catch (Exception)
+                catch
                 {
                 
                 }
             }
+
+            {
+                var logs = Directory.GetFiles(FolderInfo.Logs.FullPath, "log_*.log")
+                    .Where(x => Path.GetFileNameWithoutExtension(x) != "log_latest")
+                    .ToList();
+                logs.Sort();
+                if (logs.Count > MAX_LOGS_COUNT)
+                {
+                    //Remove the oldest
+                    foreach(var v in logs.Take(logs.Count - MAX_LOGS_COUNT))
+                    {
+                        try
+                        {
+                            File.Delete(v);
+                        }
+                        catch
+                        {
+                        
+                        }
+                    }
+                }
+
+
+            }
+
+            var date = DateTime.Now;
+
             var configuration = new LoggerConfiguration()
               .MinimumLevel.Debug()
               .WriteTo.File(
@@ -34,9 +62,10 @@ namespace ModCore
                 buffered: false
                 )
               .WriteTo.File(
-                  Path.Combine(FolderInfo.Logs.FullPath, "log_.log"),
+                  Path.Combine(FolderInfo.Logs.FullPath, $"log_{date:yyyy-MM-dd-HH-mm-ss}.log"),
                   outputTemplate: OUTPUT_FORMAT_TEMPLATE,
-                  rollingInterval: RollingInterval.Minute,
+                  rollingInterval: RollingInterval.Infinite,
+                  
                   buffered: false
               );
 
