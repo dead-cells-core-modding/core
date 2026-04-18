@@ -520,6 +520,12 @@ namespace ModCore.Native
             phl_rethrow = GetLibhlSymbol("hl_rethrow");
 
         }
+
+        public virtual string[] GetDisplayDevices()
+        {
+            return [];
+        }
+
         public abstract void MakePageWritable( nint ptr, out int old );
         public abstract void RestorePageProtect( nint ptr, int val ); 
         public abstract ReadOnlySpan<byte> GetHlbootDataFromExe( string exePath );

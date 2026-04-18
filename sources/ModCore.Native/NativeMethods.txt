@@ -21,3 +21,5 @@ TlsSetValue
 RtlLookupFunctionEntry
 RtlVirtualUnwind
 RtlCaptureContext
+
+EnumDisplayDevices

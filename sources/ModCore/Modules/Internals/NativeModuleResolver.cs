@@ -137,6 +137,12 @@ namespace ModCore.Modules.Internals
                 TryLoadSteam();
             }
 
+            if (name == "directx")
+            {
+                Logger.Fatal("DirectX is not supported on this platform");
+                return default;
+            }
+
             var path = FolderInfo.CurrentNativeRoot.GetFilePath(name + ".hdll");
             if (!File.Exists(path))
             {

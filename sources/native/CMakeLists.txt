@@ -41,6 +41,7 @@ endif()
 
 set(BUILD_TESTING off)
 
+set(WITH_DX12 off)
 set(WITH_UV off)
 set(WITH_UI off)
 set(WITH_SSL off)

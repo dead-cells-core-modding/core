@@ -1,12 +1,18 @@
 using ModCore.Events.Interfaces.VM;
+using ModCore.Native;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace ModCore.Modules
 {
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload,
         CoreModuleAttribute.SupportOSKind.Windows)]
-    internal class WindowsPlatformUtils : CoreModule<WindowsPlatformUtils>, IOnHashlinkVMReady
+    [SupportedOSPlatform("windows")]
+    internal partial class WindowsPlatformUtils : CoreModule<WindowsPlatformUtils>, 
+        IOnHashlinkVMReady,
+        IOnCodeLoading
     {
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 
         private delegate void FreeConsole_handler();
@@ -28,6 +34,14 @@ namespace ModCore.Modules
             }
 
             NativeLibrary.Free(kernel32);
+
+           
+        }
+
+
+        void IOnCodeLoading.OnCodeLoading( ref ReadOnlySpan<byte> data )
+        {
+
         }
     }
 }

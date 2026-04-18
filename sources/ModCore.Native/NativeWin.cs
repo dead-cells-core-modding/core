@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using Windows.Win32;
 using ModCore.Storage;
 using Windows.Win32.System.Diagnostics.Debug;
+using Windows.Win32.Graphics.Gdi;
 
 #pragma warning disable CA1416
 
@@ -63,6 +64,22 @@ namespace ModCore.Native
 
                 //InitVEH(Marshal.StringToHGlobalUni(createDumpCmd));
             }
+        }
+
+        public override string[] GetDisplayDevices()
+        {
+            List<string> devices = [];
+            DISPLAY_DEVICEW ddevice = new()
+            {
+                cb = (uint)sizeof(DISPLAY_DEVICEW)
+            };
+
+            uint index = 0;
+            while (EnumDisplayDevices(null, index++, ref ddevice, 0))
+            {
+                devices.Add(new string(ddevice.DeviceString.Value).Trim());
+            }
+            return [.. devices];
         }
 
         protected override void InitializeNativeHooks()
