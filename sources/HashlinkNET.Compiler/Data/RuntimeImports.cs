@@ -85,6 +85,6 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference phWriteMem;
         public MethodReference hGetTypeIndexFromType;
         public MethodReference attrInitialValue;
-        
+        public MethodReference hGetNativeCall;
     }
 }

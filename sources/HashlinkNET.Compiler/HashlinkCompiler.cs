@@ -116,14 +116,16 @@ namespace HashlinkNET.Compiler
             AddStep<ApplyBuiltinModifierStep>();
             AddStep<SolveNameConflictStep>();
             #endregion
+            
+            AddStep<GenerateNativeImplClassStep>();
+            AddStep<GenerateNativeFieldsDefStep>();
 
             #region Pseudocode
             if (Config.GeneratePseudocode)
             {
                 AddStep<ScanGlobalValuesStep>();
 
-                AddStep<GenerateNativeImplClassStep>();
-                AddStep<GenerateNativeFieldsDefStep>();
+                
 
                 AddStep<FindMissingFunctionStep>();
                 AddStep<CollectUnnamedFuncStep>();

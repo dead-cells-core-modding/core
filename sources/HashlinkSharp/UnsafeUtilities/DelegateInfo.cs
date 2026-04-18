@@ -60,7 +60,7 @@ namespace Hashlink.UnsafeUtilities
             }
             if (method != null)
             {
-                return Delegate.CreateDelegate(type, self, method);
+                return method.CreateDelegate(type, self);
             }
             if (self != null)
             {

@@ -96,6 +96,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.hGetTypeIndexFromType = ImportHelperMethod(nameof(HaxeProxyHelper.GetTypeIndexFromType));
             rdata.hToVirtual = ImportHelperMethod(nameof(HaxeProxyHelper.ToVirtual));
             rdata.hToObject = ImportHelperMethod(nameof(HaxeProxyHelper.ToObject));
+            rdata.hGetNativeCall = ImportHelperMethod(nameof(HaxeProxyHelper.GetNativeCall));
 
             rdata.hAddHook = ImportHelperMethod(nameof(HaxeProxyHelper.AddHook));
             rdata.hRemoveHook = ImportHelperMethod(nameof(HaxeProxyHelper.RemoveHook));

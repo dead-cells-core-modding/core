@@ -8,6 +8,7 @@ using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Types;
 using Hashlink.Virtuals;
+using HashlinkNET.Native.Impl;
 using HaxeProxy.Runtime;
 using ModCore.Utilities;
 
@@ -102,6 +103,12 @@ namespace TestRunner
 
             array.pushDyn(114514);
             Assert.Equal(114514, (int)array.pop());
+        }
+
+        [Fact]
+        public void Test_Native()
+        {
+            Assert.Equal(4, Lib_std.math_sqrt(16), 2);
         }
 
         [Fact]

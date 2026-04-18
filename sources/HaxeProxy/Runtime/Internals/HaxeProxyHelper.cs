@@ -253,6 +253,20 @@ namespace HaxeProxy.Runtime.Internals
                 return cache.directEntry;
             }
         }
+
+        public static Delegate GetNativeCall<T>( int index, ref Delegate? cache ) where T : Delegate
+        {
+            if (cache != null)
+            {
+                return cache;
+            }
+            var ptr = (HashlinkNativeFunction)HashlinkMarshal.Module.GetFunctionByFIndex(
+                //HashlinkMarshal.Module.NativeCode->natives[index].findex
+                index
+                );
+            cache = ptr.CreateDelegate<T>();
+            return cache;
+        }
        
         public static void AddHook( int findex, Delegate hook )
         {
