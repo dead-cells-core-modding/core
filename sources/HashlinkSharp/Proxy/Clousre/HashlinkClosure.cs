@@ -143,6 +143,8 @@ namespace Hashlink.Proxy.Clousre
             }
         }
 
+        public HashlinkClosure NoClosure => BindingThis == null ? this : new HashlinkClosure(((HashlinkFuncType)Type).BaseFunc, FunctionPtr, 0);
+
         public override bool TryInvoke( InvokeBinder binder, object?[]? args, out object? result )
         {
             result = DynamicAccessUtils.AsDynamic(DynamicInvoke(args ?? []));

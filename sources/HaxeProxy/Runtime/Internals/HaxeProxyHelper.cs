@@ -38,6 +38,12 @@ namespace HaxeProxy.Runtime.Internals
                 var t = self.HashlinkObj.Type;
                 if (t is HashlinkObjectType ot)
                 {
+                    if (name == "__constructor__"
+                        && ot.Super?.Name == "hl.Class")
+                    {
+                        cache.isConstructor = true;
+                    }
+
                     var f = ot.FindField(name) ??
                         throw new MissingFieldException(ot.Name, name);
                     cache.field = f.FieldType;
@@ -75,8 +81,17 @@ namespace HaxeProxy.Runtime.Internals
                     ((IHashlinkFieldObject) self.HashlinkObj).GetFieldValue(name)
                     );
             }
-            return GetProxy<T>(HashlinkMarshal.ReadData((void*)(self.HashlinkPointer + cache.offset),
-                cache.field));
+            var result = HashlinkMarshal.ReadData((void*)(self.HashlinkPointer + cache.offset),
+                cache.field);
+
+            if (typeof(T) == typeof(object) && 
+                cache.isConstructor &&
+                result is HashlinkClosure ctorClosure)
+            {
+                return ctorClosure.NoClosure;
+            }
+
+            return GetProxy<T>(result);
         }
        
         public static T GetValueFieldById<T>( HaxeProxyBase self, string name, ref ObjFieldInfoCache cache )
@@ -156,7 +171,7 @@ namespace HaxeProxy.Runtime.Internals
             }
             if (typeof(T) == typeof(object) && val is HashlinkClosure cl)
             {
-                return cl.CreateDelegate();
+                return cl;
             }
             if (typeof(T).IsAssignableTo(typeof(Delegate)))
             {
