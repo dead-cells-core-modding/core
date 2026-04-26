@@ -393,7 +393,8 @@ namespace Hashlink.UnsafeUtilities
             };
             if (targetType != null)
             {
-                return cd.CreateDelegate(targetType, ci);
+                return cd.CreateAnonymousDelegate(ci).CreateAdaptDelegate(targetType);
+                //return cd.CreateDelegate(targetType, ci);
             }
             else
             {

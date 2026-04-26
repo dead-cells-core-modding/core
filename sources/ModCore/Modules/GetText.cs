@@ -7,6 +7,7 @@ using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Utilities;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 

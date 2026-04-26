@@ -158,9 +158,10 @@ namespace HaxeProxy.Runtime.Internals
             return ((IExtraData)val).GetData<VirtualCastCache<T>>().Value;
         }
         [return: NotNullIfNotNull(nameof(val))]
-       
+
         public static object? GetProxy<T>( object? val )
         {
+
             if (val == null)
             {
                 return null;
@@ -194,6 +195,7 @@ namespace HaxeProxy.Runtime.Internals
             }
             return val;
         }
+
        
         [return: NotNullIfNotNull(nameof(val))]
         public static HaxeNullable<T>? GetNullableProxy<T>( object? val ) where T : struct

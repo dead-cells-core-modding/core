@@ -108,7 +108,8 @@ namespace TestRunner
         [Fact]
         public void Test_Native()
         {
-            Assert.Equal(4, Lib_std.math_sqrt(16), 2);
+            Assert.Equal(4, Lib_std.math_sqrt(16));
+            Assert.Equal(1, Lib_std.math_abs(-1));
         }
 
         [Fact]
