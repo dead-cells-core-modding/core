@@ -23,8 +23,6 @@ namespace ModCore.Native
 
             // Hook GetProcAddress
 
-            public nint orig_GetProcAddress;
-            public nint new_GetProcAddress;
             public nint phLibhl;
 
             // Hook break_on_trap

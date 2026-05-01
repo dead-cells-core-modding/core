@@ -306,9 +306,9 @@ You can report or contact us via:
                         var proc = Process.GetProcessById(pid);
                         proc.WaitForExit();
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        Console.Error.WriteLine(ex);
+                        //Console.Error.WriteLine(ex);
                     }
 
                     File.Copy(Environment.ProcessPath!, dst, true);

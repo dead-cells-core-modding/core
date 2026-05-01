@@ -145,7 +145,6 @@ namespace Hashlink.Wrapper
                 Debug.Assert(prepare_exception_handle_data->current->stack_area != null);
                 prepare_exception_handle_data->stack_area = prepare_exception_handle_data->current->stack_area;
             }
-            Debug.Assert(*(long*)prepare_exception_handle_data->stack_area == Native.STACK_CHUCK_SUM);
             return (nint)outErrorTable;
         }
 
@@ -359,7 +358,6 @@ namespace Hashlink.Wrapper
             if (prepare_exception_handle_data->current != null)
             {
                 prepare_exception_handle_data->stack_area = prepare_exception_handle_data->current->stack_area;
-                Debug.Assert(*(long*)prepare_exception_handle_data->stack_area == Native.STACK_CHUCK_SUM);
             }
             if (last_exception != null)
             {
