@@ -8,6 +8,7 @@ using DCCMTool.Commands.MSBuild;
 using DCCMTool.Commands.Pak;
 using DCCMTool.Commands.Steam;
 using Newtonsoft.Json.Linq;
+using Spectre.Console;
 using Spectre.Console.Cli;
 using System.Diagnostics;
 using System.Reflection;
@@ -16,7 +17,7 @@ namespace DCCMTool
 {
     internal class Program
     {
-        static Task<int> Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             var app = new CommandApp();
 
@@ -95,7 +96,20 @@ namespace DCCMTool
                     .WithDescription("Generate the pseudo-code assembly for hlboot.dat");
             });
 
-            return app.RunAsync(args);
+            try
+            {
+                return await app.RunAsync(args);
+            }
+            catch (CommandRuntimeException ex) when (ex.Pretty != null)
+            {
+                AnsiConsole.Write(ex.Pretty);
+                return -1;
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.WriteException(ex, ExceptionFormats.ShowLinks);
+                return -1;
+            }
         }
     }
 }
