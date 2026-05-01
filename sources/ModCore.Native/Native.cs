@@ -27,7 +27,7 @@ namespace ModCore.Native
         public static Native Current
         {
             get;
-        } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new NativeWin() : 
+        } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new WindowsNative() : 
             throw new PlatformNotSupportedException();
 
 

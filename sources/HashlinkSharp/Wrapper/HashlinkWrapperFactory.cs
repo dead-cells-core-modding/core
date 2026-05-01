@@ -155,7 +155,7 @@ namespace Hashlink.Wrapper
             var info = GetWrapperInfo(func, target);
             if (targetType != null)
             {
-                return info.CreateDelegate(targetType);
+                return info.method!.CreateAnonymousDelegate(info.self).CreateAdaptDelegate(targetType);
             }
             return info.method!.CreateAnonymousDelegate(info.self);
         }

@@ -42,8 +42,13 @@ namespace ModCore.Utilities
             if (string.IsNullOrEmpty(startInfo.FileName))
             {
                 startInfo.FileName = Environment.ProcessPath;
-                startInfo.Arguments = "";
             }
+
+            if (startInfo.FileName == Environment.ProcessPath)
+            {
+                startInfo.Arguments = $" --worker {typeFullName}";
+            }
+
             startInfo.Environment["DCCM_CUSTOM_STARTUP_TYPE"] = typeFullName;
             startInfo.Environment["DCCM_CUSTOM_STARTUP_METHOD"] = methodName;
             startInfo.Environment["DCCM_EXIT_WHEN_PROCESS_PID"] = Environment.ProcessId.ToString();

@@ -19,7 +19,6 @@ namespace DCCMTool.Commands.Steam
             "Test",
             "Language",
             "Cosmetic",
-            "Library"
             ];
         public override async Task<int> ExecuteSteamAsync()
         {

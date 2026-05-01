@@ -20,7 +20,7 @@ using Windows.Win32.Graphics.Gdi;
 namespace ModCore.Native
 {
     [SupportedOSPlatform("windows")]
-    internal unsafe partial class NativeWin : Native
+    internal unsafe partial class WindowsNative : Native
     {
         [LibraryImport("modcorenative", EntryPoint = "init_veh")]
         private static partial void InitVEH(nint createDumpCommand);
