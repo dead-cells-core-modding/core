@@ -40,18 +40,18 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types.Virtuals
                 tr = git;
             }
 
-            addedTypes.Add(new(tr, AddTypeKind.AddToTypesList));
+            addedTypes.Add(new(tr, AddTypeKind.AddToTypesList, t.TypeIndex));
 
-            addAssemblyAttributes.Add(new(
-                        rdata.attrTypeBindingCtor
-                        )
-            {
-                ConstructorArguments =
-                        {
-                            new(gdata.Module.TypeSystem.Int32, t.TypeIndex),
-                            new(gdata.Module.TypeSystem.TypedReference, tr)
-                        }
-            });
+            //addAssemblyAttributes.Add(new(
+            //            rdata.attrTypeBindingCtor
+            //            )
+            //{
+            //    ConstructorArguments =
+            //            {
+            //                new(gdata.Module.TypeSystem.Int32, t.TypeIndex),
+            //                new(gdata.Module.TypeSystem.TypedReference, tr)
+            //            }
+            //});
 
             data.AddData(tr, t, new VirtualClassData()
             {

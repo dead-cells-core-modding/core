@@ -4,7 +4,7 @@ using Mono.Cecil;
 
 namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
 {
-    internal class ImportFuncTypeStep : ForeachHlTypeCompileStep
+    internal class ImportFuncTypeStep : GenerateTypeCompileStep
     {
         public override bool Filter( HlType type ) => type is HlTypeWithFun;
         public override void Execute( IDataContainer data, HlCode code, GlobalData gdata,
@@ -32,6 +32,8 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             {
                 type = new GenericInstanceType(ftypes.FuncTypes[func.Arguments.Length]);
             }
+
+            addedTypes.Add(new(type, AddTypeKind.AddToTypesList, t.TypeIndex));
 
             data.AddData(t, type);
         }

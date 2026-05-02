@@ -57,7 +57,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Fun
                     new(ts.IntPtr)
                 },
                 HasThis = true,
-                IsVirtual = true,
+                IsVirtual = false,
                 IsRuntimeSpecialName = true,
                 IsSpecialName = true,
                 IsHideBySig = true,
