@@ -5,7 +5,7 @@ using Mono.Cecil;
 
 namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
 {
-    internal class ImportNullTypeStep : ForeachHlTypeCompileStep
+    internal class ImportNullTypeStep : GenerateTypeCompileStep
     {
         public override bool Filter( HlType type ) => type.Kind == HlTypeKind.Null;
 
@@ -17,13 +17,15 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
         {
             var tt = (HlTypeWithType)type;
             var et = container.GetTypeRef(tt.Type.Value);
-            container.AddData(type, new GenericInstanceType(rdata.nullType)
+            var rt = new GenericInstanceType(rdata.nullType)
             {
                 GenericArguments =
                         {
                             et
                         }
-            });
+            };
+            addedTypes.Add(new(rt, AddTypeKind.AddToTypesList, type.TypeIndex));
+            container.AddData(type, rt);
         }
 
     }

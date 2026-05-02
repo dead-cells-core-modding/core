@@ -4,6 +4,7 @@ using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.VM;
+using ModCore.Modules.Internals;
 using Serilog;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -99,7 +100,7 @@ namespace ModCore.Modules
 
             Logger.Information("Initializing Haxe Utils Utils");
 
-            HashlinkMarshal.Initialize(Context->m);
+            HashlinkMarshal.Initialize(Context->m, HaxeProxyGenerator.Instance.Code);
 
             //hl_gc_set_flags(HL_GC_Flags.GC_PROFILE);
         }

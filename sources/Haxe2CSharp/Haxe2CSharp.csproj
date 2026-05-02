@@ -5,9 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HashlinkNET.Bytecode\HashlinkNET.Bytecode.csproj" />
+    <ProjectReference Include="..\HashlinkNET.Compiler\HashlinkNET.Compiler.csproj" />
+    <ProjectReference Include="..\HaxeDocs\HaxeDocs.csproj" />
     <ProjectReference Include="..\HaxeProxy\HaxeProxy.csproj" />
     <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
     <ProjectReference Include="..\ModCore.Native\ModCore.Native.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="IR\" />
   </ItemGroup>
 
 </Project>

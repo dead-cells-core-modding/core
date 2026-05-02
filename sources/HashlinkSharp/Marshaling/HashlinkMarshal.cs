@@ -4,18 +4,23 @@ using Hashlink.Proxy.Objects;
 using Hashlink.Reflection;
 using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Types;
+using HashlinkNET.Bytecode;
 using System.Diagnostics;
 
 namespace Hashlink.Marshaling
 {
     public static unsafe class HashlinkMarshal
     {
+        public static HlCode? Code {
+            get; private set;
+        } = null!;
         public static HashlinkModule Module {
             get; private set;
         } = null!;
-        internal static void Initialize( HL_module* module )
+        internal static void Initialize( HL_module* module, HlCode? code )
         {
             Module = new(module);
+            Code = code;
         }
 
         public static HashlinkFunction FindFunction( string typeName, string funcName )

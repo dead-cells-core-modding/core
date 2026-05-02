@@ -14,6 +14,7 @@ namespace Hashlink.Reflection.Members
         public const int FS_OFFSET_MONOMOD_HOOK = 40;
         public const int FS_OFFSET_REAL_ENTRY = 52;
 
+        private string? name;
         private HashlinkType[]? cachedLocalRegs;
         private HashlinkObjectType? cachedDeclaringType;
         private HashlinkFuncType? cachedFuncType;
@@ -47,7 +48,18 @@ namespace Hashlink.Reflection.Members
              FunctionIndex
             ];
 
-        public override string? Name => FuncType.Name;
+        public override string? Name {
+            get {
+                if (name == null)
+                {
+                    if (func->obj != null)
+                    {
+                        name = new string(func->field.field);
+                    }
+                }
+                return name;
+            }
+        }
         public HashlinkFuncType FuncType => cachedFuncType ??= GetMemberFrom<HashlinkFuncType>(func->type);
 
 

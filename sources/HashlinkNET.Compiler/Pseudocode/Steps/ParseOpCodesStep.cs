@@ -23,11 +23,11 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
 {
     internal class ParseOpCodesStep : CompileStep
     {
-        private GlobalData gdata2 = null!;
-        private FuncEmitGlobalData gdata = null!;
-        private TypeSystem typeSystem = null!;
-        private IDataContainer container = null!;
-        private string? currentAssign = null;
+        protected GlobalData gdata2 = null!;
+        protected FuncEmitGlobalData gdata = null!;
+        protected TypeSystem typeSystem = null!;
+        protected IDataContainer container = null!;
+        protected string? currentAssign = null;
 
         public override void Execute( IDataContainer container )
         {
@@ -152,7 +152,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             }
             return container.TryGetData<IGlobalValue>(t, out var result) ? result : null;
         }
-        private void ParseOpCode(
+        protected virtual void ParseOpCode(
             HlOpcode code,
             int index,
             IRBasicBlockData irbb )

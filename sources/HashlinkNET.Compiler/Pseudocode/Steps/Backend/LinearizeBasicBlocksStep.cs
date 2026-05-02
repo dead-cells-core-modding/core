@@ -13,6 +13,11 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 
             var list = container.AddGlobalData<List<IRBasicBlockData>>();
 
+            if (gdata.IRBasicBlocks.Count == 0)
+            {
+                return;
+            }
+
             Queue<IRBasicBlockData> queue = [];
             Queue<IRBasicBlockData> highQueue = [];
             BitArray visited = new(gdata.IRBasicBlocks.Count);

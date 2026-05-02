@@ -3,7 +3,7 @@ using HashlinkNET.Compiler.Data;
 
 namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
 {
-    internal class ImportBasicHlTypesStep : ForeachHlTypeCompileStep
+    internal class ImportBasicHlTypesStep : GenerateTypeCompileStep
     {
         public override void Execute( IDataContainer data, HlCode code, GlobalData gdata,
             RuntimeImports rdata, HlType t )
@@ -29,6 +29,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             };
             if (tr != null)
             {
+                addedTypes.Add(new(tr, AddTypeKind.AddToTypesList, t.TypeIndex));
                 data.AddData(t, tr);
                 return;
             }

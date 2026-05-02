@@ -23,6 +23,10 @@ namespace ModCore.Modules.Internals
         public readonly CacheFile pseudoCache = new("GamePseudocode.dll");
         public override int Priority => 10000;
 
+        public HlCode? Code {
+            get; private set;
+        }
+
         private Assembly? proxyAssembly;
 
         void IOnCodeLoading.OnCodeLoading( ref ReadOnlySpan<byte> data )
@@ -45,7 +49,7 @@ namespace ModCore.Modules.Internals
                 hlbootCache.UpdateCache(data);
             }
 
-            var code = HlCode.FromBytes(data);
+            var code = Code = HlCode.FromBytes(data);
 
             if (Core.Config.Value.GeneratePseudocodeAssembly &&
                 !pseudoCache.IsValid)

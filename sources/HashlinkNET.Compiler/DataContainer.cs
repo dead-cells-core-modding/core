@@ -14,6 +14,8 @@ namespace HashlinkNET.Compiler
 
         private readonly ConcurrentDictionary<object, ObjectData> table = new(ReferenceEqualityComparer.Instance);
 
+        public event Func<object, Type, object?>? TryResolve;
+
         public IDataContainer? Parent {
             get; set;
         }
@@ -59,6 +61,11 @@ namespace HashlinkNET.Compiler
                 od.rwLock.ExitReadLock();
                 inReadLock = false;
                 od.rwLock.EnterWriteLock();
+                if (result == null &&
+                    TryResolve != null)
+                {
+                    result = (TData?) TryResolve(obj, typeof(TData));
+                }
                 try
                 {
                     od.dataLookup.TryAdd(typeof(TData), result);

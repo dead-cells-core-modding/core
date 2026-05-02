@@ -5,7 +5,7 @@ using Mono.Cecil.Rocks;
 
 namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
 {
-    internal class ImportRefTypeStep : ForeachHlTypeCompileStep
+    internal class ImportRefTypeStep : GenerateTypeCompileStep
     {
 
         public override bool Filter( HlType type ) => type.Kind == HlTypeKind.Ref;
@@ -21,6 +21,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             }
             else
             {
+                addedTypes.Add(new(et, AddTypeKind.AddToTypesList, type.TypeIndex));
                 container.AddData(type, rdata.refType.MakeGenericInstanceType(et));
             }
         }

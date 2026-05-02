@@ -19,7 +19,7 @@ namespace HaxeProxy.Runtime.Internals
                 typeof(HaxeProxyBase).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic).First().MethodHandle.GetFunctionPointer();
         public static ImmutableHashSet<Type> knownProxyTypes = [];
         public static readonly Dictionary<Type, int> type2typeId = [];
-        private static Type[] bindingTypes = [];
+        public static Type[] bindingTypes = [];
         private static ImmutableDictionary<int, Type> subTypes = ImmutableDictionary<int, Type>.Empty;
 
 
