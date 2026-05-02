@@ -12,7 +12,7 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
             var desc = type.FunctionDescription;
 
             var md = container.GetData<FuncData>(item);
-            if (desc.Arguments.Length == 0 || 
+            if (desc.Arguments.Length == 0 ||
                 !container.TryGetData<ArrowFuncContextData>(desc.Arguments[0].Value, out var ctx))
             {
                 if (md.DeclaringClass != null ||
@@ -66,7 +66,7 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
                 ctx.Methods.Add(md);
                 RunSync(() => ctx.TypeDef.Methods.Add(md.Definition));
             }
-            
+
         }
 
         protected override IReadOnlyList<HlFunction> GetItems( IDataContainer container )

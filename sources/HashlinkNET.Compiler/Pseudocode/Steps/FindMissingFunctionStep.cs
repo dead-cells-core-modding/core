@@ -10,7 +10,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         {
             return type.Kind == HlTypeKind.Obj;
         }
-        public override void Execute( IDataContainer container, HlCode code, 
+        public override void Execute( IDataContainer container, HlCode code,
             GlobalData gdata, RuntimeImports rdata, HlType type )
         {
             var ot = (HlTypeWithObj)type;

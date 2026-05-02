@@ -2,7 +2,7 @@ using Hashlink.Reflection.Types;
 
 namespace Hashlink.Reflection.Members.Object
 {
-    public unsafe class HashlinkObjectField(HashlinkModule module, HL_obj_field* ptr) : HashlinkField(module, ptr),
+    public unsafe class HashlinkObjectField( HashlinkModule module, HL_obj_field* ptr ) : HashlinkField(module, ptr),
         IHashlinkMemberGenerator
     {
         private string? cachedName;
@@ -11,8 +11,7 @@ namespace Hashlink.Reflection.Members.Object
         public override HashlinkType FieldType => cachedFieldType ??= GetMemberFrom<HashlinkType>(ptr->t);
         public override int HashedName => ptr->hashed_name;
         public override string Name => cachedName ??= new(ptr->name);
-        public int Index
-        {
+        public int Index {
             get; set;
         }
 

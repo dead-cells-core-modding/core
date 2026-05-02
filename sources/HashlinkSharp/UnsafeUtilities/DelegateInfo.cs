@@ -15,7 +15,7 @@ namespace Hashlink.UnsafeUtilities
         public object? self;
         public MethodInfo? method;
         public nint invokePtr;
-        public DelegateInfo( nint invokePtr)
+        public DelegateInfo( nint invokePtr )
         {
             this.invokePtr = invokePtr;
         }
@@ -37,7 +37,7 @@ namespace Hashlink.UnsafeUtilities
         public DelegateInfo( Delegate target )
         {
             method = target.Method;
-            if (target.HasSingleTarget && 
+            if (target.HasSingleTarget &&
                 target.Target != null)
             {
                 self = target.Target;

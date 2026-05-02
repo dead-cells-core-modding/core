@@ -1,4 +1,3 @@
-using dc.h2d;
 using dc.ui;
 using HaxeProxy.Runtime;
 using ModCore.Events;
@@ -7,11 +6,8 @@ using ModCore.Menu;
 using ModCore.Mods;
 using ModCore.Utilities;
 using Steamworks;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace ModCore.Modules
 {
@@ -37,22 +33,18 @@ namespace ModCore.Modules
         /// <summary>
         /// Gets the options section associated with the main menu of the DCCM.
         /// </summary>
-        public OptionsSection DCCMMainMenu
-        {
-            get
-            {
+        public OptionsSection DCCMMainMenu {
+            get {
                 return GetCustomMenu(_mainMenu);
             }
         }
 
         private class CustomMenu : OptionsSection.S_Main
         {
-            public OptionsSection? PrevSection
-            {
+            public OptionsSection? PrevSection {
                 get; set;
             }
-            public required IModMenu MenuMod
-            {
+            public required IModMenu MenuMod {
                 get; init;
             }
 
@@ -114,7 +106,7 @@ namespace ModCore.Modules
                    }, Ref<int>.In(5), flow);
                 }
 
-              
+
                 {
 
                     bool hasSep = false;

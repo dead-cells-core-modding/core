@@ -1,10 +1,9 @@
-﻿namespace Hashlink.Marshaling
+namespace Hashlink.Marshaling
 {
     public unsafe class HashlinkError : Exception
     {
         public string stackTrace = "";
-        public nint Error
-        {
+        public nint Error {
             get;
         }
         public HashlinkError( nint err ) : base(

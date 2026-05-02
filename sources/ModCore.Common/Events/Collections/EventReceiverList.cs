@@ -8,19 +8,16 @@ namespace ModCore.Events.Collections
         {
             public class BlockItem
             {
-                public required IEventReceiver Receiver
-                {
+                public required IEventReceiver Receiver {
                     get; set;
                 }
-                public required int Version
-                {
+                public required int Version {
                     get; set;
                 }
             }
             public int Count { get; } = count;
             public BlockItem?[] Items { get; } = new BlockItem[count];
-            public NodeDataBlock? NextBlock
-            {
+            public NodeDataBlock? NextBlock {
                 get; set;
             }
         }
@@ -31,24 +28,19 @@ namespace ModCore.Events.Collections
             {
                 LowestNode = this;
             }
-            public Node? Parent
-            {
+            public Node? Parent {
                 get; set;
             }
-            public Node? Left
-            {
+            public Node? Left {
                 get; set;
             }
-            public Node? Right
-            {
+            public Node? Right {
                 get; set;
             }
-            public required int Priority
-            {
+            public required int Priority {
                 get; init;
             }
-            public Node LowestNode
-            {
+            public Node LowestNode {
                 get; set;
             }
             public NodeDataBlock Data { get; } = new(2);

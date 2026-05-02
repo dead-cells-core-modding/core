@@ -4,8 +4,7 @@ namespace HashlinkNET.Compiler.Data.Interfaces
 {
     interface IConstructable
     {
-        public MethodReference Construct
-        {
+        public MethodReference Construct {
             get;
         }
     }

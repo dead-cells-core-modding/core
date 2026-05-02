@@ -15,7 +15,7 @@ namespace ModCore.Utilities
         /// <param name="b">The blue component of the color.</param>
         /// <returns>A 32-bit integer containing the packed RGBA color value, with the red component in the highest byte and the
         /// alpha component in the lowest byte.</returns>
-        public static int PackColor(byte r, byte g, byte b)
+        public static int PackColor( byte r, byte g, byte b )
         {
             return (r << 16) | (g << 8) | (b << 0);
         }

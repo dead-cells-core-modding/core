@@ -18,16 +18,14 @@ namespace ModCore.Storage
         /// <summary>
         /// The name of the SaveData
         /// </summary>
-        public string Name
-        {
+        public string Name {
             get;
         }
 
         /// <summary>
         /// The value of the SaveData
         /// </summary>
-        public T Value
-        {
+        public T Value {
             get; set;
         } = new();
 
@@ -35,7 +33,7 @@ namespace ModCore.Storage
         /// Create a SaveData
         /// </summary>
         /// <param name="name">The name of the SaveData, which should be unique</param>
-        public SaveData(string name)
+        public SaveData( string name )
         {
             Name = name;
 

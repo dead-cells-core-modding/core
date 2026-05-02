@@ -13,7 +13,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Fun
         {
             var ts = module.TypeSystem;
             var type = new TypeDefinition("HaxeProxy.Runtime", !hasRet ?
-                "HlAction`" + argCount : "HlFunc`" + (argCount + 1), TypeAttributes.Class | TypeAttributes.Public 
+                "HlAction`" + argCount : "HlFunc`" + (argCount + 1), TypeAttributes.Class | TypeAttributes.Public
                 | TypeAttributes.Sealed)
             {
                 BaseType = rdata.delegateBaseType
@@ -122,7 +122,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Fun
                 }
             }
             var fts = container.AddGlobalData<FunctionTypes>(new(
-            
+
                 ActionTypes: new TypeReference[maxArgCount],
                 FuncTypes: new TypeReference[maxArgCount]
             ));

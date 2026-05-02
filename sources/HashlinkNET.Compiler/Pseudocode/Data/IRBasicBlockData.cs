@@ -11,7 +11,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         public readonly Instruction endInst = Instruction.Create(OpCodes.Nop);
         public readonly Instruction startInst = Instruction.Create(OpCodes.Nop);
         public readonly List<IRBasicBlockData> parents = [];
-        public readonly List<Transition> transitions = []; 
+        public readonly List<Transition> transitions = [];
         public IRBasicBlockData? defaultTransition;
         public readonly List<IRResult> ir = [];
         public int startInHlbc;

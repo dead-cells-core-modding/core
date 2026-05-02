@@ -17,7 +17,7 @@ namespace ModCore
             Success = 0,
             DotnetVersionTooLow = 1,
         }
-        public static CheckEnvResult CheckEnv([NotNullWhen(false)] out string? err)
+        public static CheckEnvResult CheckEnv( [NotNullWhen(false)] out string? err )
         {
             err = null;
 
@@ -104,6 +104,6 @@ namespace ModCore
                 throw;
             }
         }
-   
+
     }
 }

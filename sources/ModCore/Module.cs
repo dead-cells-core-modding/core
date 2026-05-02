@@ -1,4 +1,4 @@
-﻿using ModCore.Events;
+using ModCore.Events;
 using Serilog;
 
 namespace ModCore
@@ -31,15 +31,13 @@ namespace ModCore
         /// <summary>
         /// Get an instance of a module
         /// </summary>
-        public static TModule Instance
-        {
-            get
-            {
+        public static TModule Instance {
+            get {
                 instance ??= EventSystem.FindReceiver<TModule>();
                 return instance ?? throw new NullReferenceException();
             }
         }
-    } 
+    }
     /// <summary>
     /// Base class for all modules
     /// </summary>
@@ -53,8 +51,7 @@ namespace ModCore
         /// <summary>
         /// Get the module's logger
         /// </summary>
-        public ILogger Logger
-        {
+        public ILogger Logger {
             get; private set;
         }
 

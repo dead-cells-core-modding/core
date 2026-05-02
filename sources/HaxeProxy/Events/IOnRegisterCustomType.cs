@@ -6,7 +6,7 @@ namespace HaxeProxy.Events
     [Event]
     internal interface IOnRegisterCustomType
     {
-        public record class Data(Type Type, HashlinkObjectType ObjectType, HashlinkObjectType TemplateType);
+        public record class Data( Type Type, HashlinkObjectType ObjectType, HashlinkObjectType TemplateType );
         void OnRegisterCustomType( Data data );
     }
 }

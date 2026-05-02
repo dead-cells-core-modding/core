@@ -20,7 +20,7 @@ namespace Hashlink.Proxy.Objects
                 return HasField(hl_hash_gen(pname, false));
             }
         }
-        
+
         public virtual object? GetFieldValue( int hashedName )
         {
             var ptr = hl_obj_lookup((HL_vdynamic*)HashlinkPointer, hashedName, out var ftype);
@@ -43,7 +43,7 @@ namespace Hashlink.Proxy.Objects
 
         public virtual void SetFieldValue( int hashedName, object? value )
         {
-           
+
             var ptr = hl_obj_lookup((HL_vdynamic*)HashlinkPointer, hashedName, out var ftype);
             if (ptr == null)
             {

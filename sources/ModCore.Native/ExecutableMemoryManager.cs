@@ -39,7 +39,7 @@ namespace ModCore.Native
 
         private void AllocNewPage()
         {
-            var pg = (Page*) HashlinkNative.hl_alloc_executable_memory(PAGE_SIZE);
+            var pg = (Page*)HashlinkNative.hl_alloc_executable_memory(PAGE_SIZE);
 
             pg->pageIndex = pages.Length;
             pg->groupsCount = (PAGE_SIZE - sizeof(Page)) / sizeof(Page.Group);
@@ -107,6 +107,6 @@ namespace ModCore.Native
         }
 
         public Cell* Alloc() => AllocCell();
-        public void Free(Cell* cell) => FreeCell(cell);
+        public void Free( Cell* cell ) => FreeCell(cell);
     }
 }

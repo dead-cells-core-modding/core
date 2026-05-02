@@ -5,7 +5,7 @@ using System.Dynamic;
 namespace Hashlink.Proxy.DynamicAccess
 {
     [Obsolete]
-    internal class HashlinkObjectDynamicAccess(IHashlinkFieldObject obj) : HashlinkObjDynamicAccess((HashlinkObj)obj)
+    internal class HashlinkObjectDynamicAccess( IHashlinkFieldObject obj ) : HashlinkObjDynamicAccess((HashlinkObj)obj)
     {
         public override bool TryGetMember( GetMemberBinder binder, out object? result )
         {

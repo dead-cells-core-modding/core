@@ -1,5 +1,4 @@
 using ModCore.Events.Interfaces.VM;
-using ModCore.Native;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
@@ -8,7 +7,7 @@ namespace ModCore.Modules
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload,
         CoreModuleAttribute.SupportOSKind.Windows)]
     [SupportedOSPlatform("windows")]
-    internal partial class WindowsPlatformUtils : CoreModule<WindowsPlatformUtils>, 
+    internal partial class WindowsPlatformUtils : CoreModule<WindowsPlatformUtils>,
         IOnHashlinkVMReady,
         IOnCodeLoading
     {
@@ -35,7 +34,7 @@ namespace ModCore.Modules
 
             NativeLibrary.Free(kernel32);
 
-           
+
         }
 
 

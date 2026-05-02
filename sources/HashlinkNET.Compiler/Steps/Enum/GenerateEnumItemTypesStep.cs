@@ -8,7 +8,7 @@ namespace HashlinkNET.Compiler.Steps.Enum
 {
     internal class GenerateEnumItemTypesStep : GenerateTypeCompileStep
     {
-        public override void Execute( IDataContainer container, HlCode code, GlobalData gdata, 
+        public override void Execute( IDataContainer container, HlCode code, GlobalData gdata,
             RuntimeImports rdata, HlType type )
         {
             var te = ((HlTypeWithEnum)type).Enum;
@@ -55,7 +55,7 @@ namespace HashlinkNET.Compiler.Steps.Enum
                     {
                         GetMethod = td.Methods[0]
                     });
-                    addedTypes.Add(new(td, 
+                    addedTypes.Add(new(td,
                         AddTypeKind.AddToTypesList,
                         HaxeProxy.Runtime.Internals.HaxeProxyBindingAttribute.GetSubTypeId(type.TypeIndex, i))
                         );
@@ -89,7 +89,7 @@ namespace HashlinkNET.Compiler.Steps.Enum
                     td.Properties.Add(pd);
 
                     var mp = new ParameterDefinition("p" + j, ParameterAttributes.None, pd.PropertyType);
-                    
+
                     ctor.Parameters.Add(mp);
                     ilp.Emit(OpCodes.Ldarg_0);
                     ilp.Emit(OpCodes.Ldarg, mp);
@@ -97,7 +97,7 @@ namespace HashlinkNET.Compiler.Steps.Enum
                 }
                 ilp.Emit(OpCodes.Ret);
             }
-            
+
         }
 
         public override bool Filter( HlType type )
@@ -105,6 +105,6 @@ namespace HashlinkNET.Compiler.Steps.Enum
             return type is HlTypeWithEnum;
         }
 
-    
+
     }
 }

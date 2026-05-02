@@ -3,26 +3,22 @@ using Mono.Cecil;
 
 namespace HashlinkNET.Compiler.Data
 {
-    class VirtualClassData : 
+    class VirtualClassData :
         IGetField,
         ITypeReferenceValue,
         ITypeIndex
     {
-        public required TypeReference TypeRef
-        {
+        public required TypeReference TypeRef {
             get; set;
         }
-        public List<PropertyDefinition> Fields
-        {
+        public List<PropertyDefinition> Fields {
             get;
         } = [];
-        public required VirtualGroupData Group
-        {
+        public required VirtualGroupData Group {
             get; set;
         }
 
-        public int TypeIndex
-        {
+        public int TypeIndex {
             get; set;
         }
 

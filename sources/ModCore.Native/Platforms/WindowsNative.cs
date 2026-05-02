@@ -1,19 +1,15 @@
 extern alias iced;
-
-using iced::Iced.Intel;
-using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
-
-using static Windows.Win32.PInvoke;
-
-using static iced::Iced.Intel.AssemblerRegisters;
 using Hashlink;
+using iced::Iced.Intel;
+using ModCore.Storage;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Windows.Win32;
-using ModCore.Storage;
-using Windows.Win32.System.Diagnostics.Debug;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using Windows.Win32.Graphics.Gdi;
+using Windows.Win32.System.Diagnostics.Debug;
+using static iced::Iced.Intel.AssemblerRegisters;
+using static Windows.Win32.PInvoke;
 
 #pragma warning disable CA1416
 
@@ -23,7 +19,7 @@ namespace ModCore.Native
     internal unsafe partial class WindowsNative : Native
     {
         [LibraryImport("modcorenative", EntryPoint = "init_veh")]
-        private static partial void InitVEH(nint createDumpCommand);
+        private static partial void InitVEH( nint createDumpCommand );
 
         public override void MakePageWritable( nint ptr, out int old )
         {
@@ -265,7 +261,7 @@ namespace ModCore.Native
         {
             c.pop(r11); //Data Table Pointer
             c.mov(r10, __[rsp]); // Return IP
-      
+
             c.mov(rax, rsp); //Original Stack
 
             c.mov(rsp, __[r11]); //Register Store
@@ -310,9 +306,9 @@ namespace ModCore.Native
                 return;
             }
             using var th = OpenThread_SafeHandle(Windows.Win32.System.Threading.THREAD_ACCESS_RIGHTS.THREAD_GET_CONTEXT
-                | Windows.Win32.System.Threading.THREAD_ACCESS_RIGHTS.THREAD_SUSPEND_RESUME, false, (uint) t->thread_id);
+                | Windows.Win32.System.Threading.THREAD_ACCESS_RIGHTS.THREAD_SUSPEND_RESUME, false, (uint)t->thread_id);
 
-            
+
             SuspendThread(th);
 
             CONTEXT* context = stackalloc CONTEXT[1];
@@ -328,7 +324,7 @@ namespace ModCore.Native
             //var rsp = context.Rsp;
             Debug.Assert(rsp != 0);
 
-            t->stack_cur = (void*) rsp;
+            t->stack_cur = (void*)rsp;
 
             ResumeThread(th);
         }
@@ -340,7 +336,7 @@ namespace ModCore.Native
 
         public override nint GetTlsValue( int index )
         {
-            return (nint) TlsGetValue((uint)index);
+            return (nint)TlsGetValue((uint)index);
         }
 
         protected override void AsmGetTlsDataPtrRax<T>( Assembler c, ref T offset )
@@ -363,9 +359,9 @@ namespace ModCore.Native
 
         public override int AllocTls()
         {
-            return (int) TlsAlloc();
+            return (int)TlsAlloc();
         }
 
-        
+
     }
 }

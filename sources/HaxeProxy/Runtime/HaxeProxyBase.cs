@@ -8,7 +8,7 @@ using System.Dynamic;
 
 namespace HaxeProxy.Runtime
 {
-    public abstract unsafe class HaxeProxyBase : 
+    public abstract unsafe class HaxeProxyBase :
         DynamicObject,
         IExtraData,
         IExtraDataItem,
@@ -16,7 +16,7 @@ namespace HaxeProxy.Runtime
     {
         protected HaxeProxyBase( HashlinkObj obj )
         {
-            Debug.Assert( obj != null );
+            Debug.Assert(obj != null);
             HashlinkObj = obj;
             if (!createByManager)
             {
@@ -29,8 +29,7 @@ namespace HaxeProxy.Runtime
             }
             AfterBinding();
         }
-        public HashlinkObj HashlinkObj
-        {
+        public HashlinkObj HashlinkObj {
             get;
         }
 
@@ -40,7 +39,7 @@ namespace HaxeProxy.Runtime
 
         static object IExtraDataItem.Create( HashlinkObj obj )
         {
-            return HaxeProxyManager.CreateProxy( obj );
+            return HaxeProxyManager.CreateProxy(obj);
         }
 
         public override string ToString()
@@ -50,7 +49,7 @@ namespace HaxeProxy.Runtime
         protected virtual void AfterBinding()
         {
         }
-         
+
         public override bool TryConvert( ConvertBinder binder, out object? result )
         {
             if (binder.Type.IsAssignableTo(typeof(HashlinkObj)))
@@ -69,7 +68,7 @@ namespace HaxeProxy.Runtime
         {
             var tid = HaxeProxyManager.type2typeId[typeof(T)];
             var vt = HashlinkMarshal.Module.Types[tid];
-            var result = (HashlinkVirtual) HashlinkMarshal.ConvertHashlinkObject(
+            var result = (HashlinkVirtual)HashlinkMarshal.ConvertHashlinkObject(
                 HashlinkNative.hl_to_virtual(vt.NativeType, (HL_vdynamic*)HashlinkPointer)
                 )!;
             return result.AsHaxe<T>();
@@ -82,7 +81,7 @@ namespace HaxeProxy.Runtime
             }
             if (this is HaxeVirtual)
             {
-                return ((HashlinkVirtual)HashlinkObj).GetValue()?.AsHaxe<T>() 
+                return ((HashlinkVirtual)HashlinkObj).GetValue()?.AsHaxe<T>()
                     ?? throw new InvalidCastException();
             }
             throw new InvalidCastException();

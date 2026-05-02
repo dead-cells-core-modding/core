@@ -13,17 +13,17 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
         private readonly HlCallback callback;
         private readonly DynamicMethod virtualRouter;
 
-        public ProtoOverride( 
-            HashlinkObjectProto proto, 
+        public ProtoOverride(
+            HashlinkObjectProto proto,
             HL_type* type,
-            MethodInfo vmethod)
+            MethodInfo vmethod )
         {
             if (!proto.IsVirtual)
             {
                 throw new InvalidOperationException();
             }
 
-            Type[] ptypes = [typeof(object), typeof(HaxeProxyBase),.. vmethod.GetParameters().Select(x => x.ParameterType)];
+            Type[] ptypes = [typeof(object), typeof(HaxeProxyBase), .. vmethod.GetParameters().Select(x => x.ParameterType)];
 
             virtualRouter = new("<VirtualRouter>+" + vmethod.GetID(),
                 vmethod.ReturnType, ptypes);
@@ -50,7 +50,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
                 var o = nt->data.obj;
 
                 var method_index = -HashlinkNative.obj_resolve_field(o,
-                        proto.HashedName)->field_index-1;
+                        proto.HashedName)->field_index - 1;
                 o->rt->methods[method_index] = (void*)callback.NativePointer;
             }
         }

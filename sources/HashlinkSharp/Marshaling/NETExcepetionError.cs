@@ -5,8 +5,7 @@ namespace Hashlink.Marshaling
 {
     internal static unsafe class NETExcepetionError
     {
-        public static HL_type* ErrorType
-        {
+        public static HL_type* ErrorType {
             get;
         }
 

@@ -52,8 +52,7 @@ namespace ModCore.Native
 
         public NativeThreadLocal* TlsData => (NativeThreadLocal*)GetTlsValue(Data->tls_slot_index);
 
-        public NativeAsmData* Data
-        {
+        public NativeAsmData* Data {
             get;
         } = (NativeAsmData*)NativeMemory.AlignedAlloc(
             (nuint)sizeof(NativeAsmData), 16);
@@ -87,16 +86,16 @@ namespace ModCore.Native
 
                 assembler.int3();
 
-                assembler.Assemble(new StreamCodeWriter(stream), 
+                assembler.Assemble(new StreamCodeWriter(stream),
                     (ulong)start);
 
                 v.SetValue(this, (nint)start);
             }
         }
 
-       
+
         public nint asm_empty_method;
-        protected virtual  void Generate_asm_empty_method( Assembler c )
+        protected virtual void Generate_asm_empty_method( Assembler c )
         {
             c.ret();
         }

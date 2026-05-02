@@ -1,13 +1,13 @@
 namespace HaxeProxy.Runtime
 {
-    public delegate TRet HlFunc<TRet>() 
+    public delegate TRet HlFunc<TRet>()
         where TRet : allows ref struct
         ;
-    public delegate TRet HlFunc<TRet, TArg1>(TArg1 arg1)
+    public delegate TRet HlFunc<TRet, TArg1>( TArg1 arg1 )
         where TRet : allows ref struct
         where TArg1 : allows ref struct
         ;
-    public delegate TRet HlFunc<TRet, TArg1, TArg2>( TArg1 arg1 , TArg2 arg2 )
+    public delegate TRet HlFunc<TRet, TArg1, TArg2>( TArg1 arg1, TArg2 arg2 )
         where TRet : allows ref struct
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct

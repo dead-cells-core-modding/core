@@ -11,7 +11,7 @@ namespace HashlinkNET.Compiler.Steps.Enum
         {
             return type is HlTypeWithEnum;
         }
-        public override void Execute( IDataContainer container, HlCode code, GlobalData gdata, 
+        public override void Execute( IDataContainer container, HlCode code, GlobalData gdata,
             RuntimeImports rdata, HlType type )
         {
             var te = ((HlTypeWithEnum)type).Enum;
@@ -26,8 +26,8 @@ namespace HashlinkNET.Compiler.Steps.Enum
             {
                 Fields =
                 {
-                    new("value__", 
-                    FieldAttributes.Public | FieldAttributes.SpecialName | FieldAttributes.RTSpecialName, 
+                    new("value__",
+                    FieldAttributes.Public | FieldAttributes.SpecialName | FieldAttributes.RTSpecialName,
                     gdata.Module.TypeSystem.Int32)
                 },
                 IsNestedPublic = true,
@@ -35,13 +35,13 @@ namespace HashlinkNET.Compiler.Steps.Enum
             ei.IndexType = td;
             enumType.NestedTypes.Add(td);
             td.IsNestedPublic = true;
-            ((GenericInstanceType) enumType.BaseType).GenericArguments.Add(enumType);
-            ((GenericInstanceType) enumType.BaseType).GenericArguments.Add(td);
+            ((GenericInstanceType)enumType.BaseType).GenericArguments.Add(enumType);
+            ((GenericInstanceType)enumType.BaseType).GenericArguments.Add(td);
             for (int i = 0; i < te.Constructs.Length; i++)
             {
                 var ec = te.Constructs[i];
-                var fd = new FieldDefinition(ec.GetEnumItemName(), FieldAttributes.Public | 
-                    FieldAttributes.Literal | 
+                var fd = new FieldDefinition(ec.GetEnumItemName(), FieldAttributes.Public |
+                    FieldAttributes.Literal |
                     FieldAttributes.Static |
                     FieldAttributes.HasDefault, td)
                 {

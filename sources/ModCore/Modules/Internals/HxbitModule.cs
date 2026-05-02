@@ -69,7 +69,7 @@ namespace ModCore.Modules.Internals
             {
                 var cur = (byte*)self.input.b + self.inPos;
                 var end = (byte*)self.input.b + self.input.length;
-                
+
                 if (*((ulong*)cur) != MAGIC_NUMBER_EXTRA_DATA)
                 {
                     //No extra data
@@ -103,7 +103,7 @@ namespace ModCore.Modules.Internals
                 self.setInput(new((nint)cur, data.extraHxObjSize), 0);
 
                 ctx.Begin(data);
-               
+
             }
             catch (Exception ex)
             {
@@ -120,7 +120,7 @@ namespace ModCore.Modules.Internals
             }
         }
 
-        private void Hook_Serializer_beginLoad( Hook_Serializer.orig_beginLoad orig, Serializer self, 
+        private void Hook_Serializer_beginLoad( Hook_Serializer.orig_beginLoad orig, Serializer self,
             Bytes bytes, Ref<int> position )
         {
             DeserializeContext.PushContext(new(self));
@@ -148,7 +148,7 @@ namespace ModCore.Modules.Internals
                 + obj.ToString());
         }
 
-        private void Hook_Serializer_addObjRef( Hook_Serializer.orig_addObjRef orig, Serializer self, 
+        private void Hook_Serializer_addObjRef( Hook_Serializer.orig_addObjRef orig, Serializer self,
             Hashlink.Virtuals.virtual___uid_getCLID_getSerializeSchema_serialize_unserialize_unserializeInit_ s )
         {
             var ctx = SerializeContext.current;
@@ -157,7 +157,7 @@ namespace ModCore.Modules.Internals
                 orig(self, s);
                 return;
             }
-            
+
             if (self.refs == null ||
                 !self.refs.exists(s.__uid))
             {

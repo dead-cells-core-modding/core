@@ -14,14 +14,13 @@ namespace HaxeProxy.Runtime
             }
         }
         public override int RawIndex => (int)(object)Index;
-        public abstract TIndex Index
-        {
+        public abstract TIndex Index {
             get;
         }
         public static implicit operator HaxeEnum<TEnum, TIndex>( TIndex index )
         {
             var it = itemTypes[index];
-            return (HaxeEnum < TEnum, TIndex >?)Activator.CreateInstance(it) ??
+            return (HaxeEnum<TEnum, TIndex>?)Activator.CreateInstance(it) ??
                 throw new InvalidOperationException();
         }
         public override int GetHashCode()
@@ -47,13 +46,12 @@ namespace HaxeProxy.Runtime
     }
     public abstract class HaxeEnum : HaxeProxyBase
     {
-        protected HaxeEnum( ) : base(null!)
+        protected HaxeEnum() : base(null!)
         {
             throw new InvalidProgramException();
         }
 
-        public abstract int RawIndex
-        {
+        public abstract int RawIndex {
             get;
         }
 
@@ -67,7 +65,7 @@ namespace HaxeProxy.Runtime
             {
                 return false;
             }
-            return left.Equals( right );
+            return left.Equals(right);
         }
         public static bool operator !=( HaxeEnum left, HaxeEnum right )
         {

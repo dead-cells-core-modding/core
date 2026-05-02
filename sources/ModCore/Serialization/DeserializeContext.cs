@@ -12,7 +12,7 @@ namespace ModCore.Serialization
     {
         private static readonly Dictionary<System.Type, SetDataInvokerInfo[]> setDataInvoker = [];
 
-        public record class SetDataInvokerInfo(FastReflectionHelper.FastInvoker Invoker, Type Data);
+        public record class SetDataInvokerInfo( FastReflectionHelper.FastInvoker Invoker, Type Data );
         public static DeserializeContext? current;
         public static readonly Stack<DeserializeContext> stack = [];
 
@@ -75,7 +75,7 @@ namespace ModCore.Serialization
                         .Where(i => i.IsGenericType &&
                             i.GetGenericTypeDefinition() == typeof(IHxbitSerializable<>))
                         .Select(x => x.GetMethod("SetData")!)
-                        .Select(x => 
+                        .Select(x =>
                             new SetDataInvokerInfo(
                                 x.GetFastInvoker(),
                                 x.GetParameters()[0].ParameterType

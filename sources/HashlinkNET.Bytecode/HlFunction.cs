@@ -8,32 +8,28 @@ public class HlFunction
     /// <summary>
     ///     The index of the function in the HashLink binary.
     /// </summary>
-    public int FunctionIndex
-    {
+    public int FunctionIndex {
         get; set;
     }
 
     /// <summary>
     ///     A reference to the type definition which describes this function.
     /// </summary>
-    public HlTypeRef Type
-    {
+    public HlTypeRef Type {
         get; set;
     }
 
     /// <summary>
     ///     The local variables (registers) of the function.
     /// </summary>
-    public HlTypeRef[] LocalVariables
-    {
+    public HlTypeRef[] LocalVariables {
         get; set;
     }
 
     /// <summary>
     ///     The opcodes of the function.
     /// </summary>
-    public HlOpcode[] Opcodes
-    {
+    public HlOpcode[] Opcodes {
         get; set;
     }
 
@@ -41,13 +37,11 @@ public class HlFunction
     ///     Debug information for the function. The file and line information
     ///     for each instruction.
     /// </summary>
-    public HlFunDebug[]? Debug
-    {
+    public HlFunDebug[]? Debug {
         get; set;
     }
 
-    public HlFunAssign[]? Assigns
-    {
+    public HlFunAssign[]? Assigns {
         get; set;
     }
 
@@ -65,12 +59,10 @@ public class HlFunction
 /// </summary>
 public struct HlFunDebug
 {
-    public string? FileName
-    {
+    public string? FileName {
         get; set;
     }
-    public int Line
-    {
+    public int Line {
         get; set;
     }
     public HlFunDebug( string? filename, int line )
@@ -90,12 +82,10 @@ public struct HlFunDebug
 /// </summary>
 public struct HlFunAssign
 {
-    public string? Name
-    {
+    public string? Name {
         get; set;
     }
-    public int Index
-    {
+    public int Index {
         get; set;
     }
     public HlFunAssign( string? name, int index )
@@ -117,8 +107,7 @@ public readonly struct HlOpcode
 {
     public class OpcodeContext
     {
-        public int[] Data
-        {
+        public int[] Data {
             get; set;
         } = [];
     }
@@ -145,7 +134,7 @@ public readonly struct HlOpcode
         this.length = length;
         this.ctx = ctx;
     }
-    
+
     public readonly override string ToString()
     {
         return Kind.ToString();

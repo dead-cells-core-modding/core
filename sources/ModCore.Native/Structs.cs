@@ -64,17 +64,15 @@ namespace Hashlink
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_type
     {
-        public string TypeName
-        {
-            get
-            {
+        public string TypeName {
+            get {
                 fixed (HL_type* ptr = &this)
                 {
                     return new string(HashlinkNative.hl_type_str(ptr));
                 }
             }
         }
-        
+
         public TypeKind kind;
 
         [StructLayout(LayoutKind.Explicit)]
@@ -375,7 +373,7 @@ namespace Hashlink
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_alloc_block
     {
-       
+
         public int size;
         public HL_alloc_block* next;
         public byte* p;
@@ -439,7 +437,7 @@ namespace Hashlink
     {
         // const
         public void* @base;
-	    public byte* bmp;
+        public byte* bmp;
         public int page_size;
         public int page_kind;
 
@@ -453,7 +451,7 @@ namespace Hashlink
         public HL_gc_pheader* next_page;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct HL_gc_mstack 
+    public unsafe struct HL_gc_mstack
     {
         public void** cur;
         public void** end;
@@ -511,9 +509,9 @@ namespace Hashlink
         public delegate* unmanaged< void**, int, int > capture_stack;
         //public int (* capture_stack) (void** stack, int size);
         public delegate* unmanaged< byte*, byte* > alt_file;
-	    //public byte (* reload_check) (vbyte* alt_file);
-        public delegate* unmanaged<void*, HL_type*, void**, HL_vdynamic*, void* > static_call;
-	    //public void* (* static_call) (void* fun, hl_type* t, void** args, vdynamic* out);
+        //public byte (* reload_check) (vbyte* alt_file);
+        public delegate* unmanaged< void*, HL_type*, void**, HL_vdynamic*, void* > static_call;
+        //public void* (* static_call) (void* fun, hl_type* t, void** args, vdynamic* out);
         public delegate* unmanaged< HL_type*, void* > get_wrapper;
         //public void* (* get_wrapper) (hl_type* t);
         public delegate* unmanaged< int, byte*, int, void > profile_event;

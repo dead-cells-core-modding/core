@@ -53,7 +53,7 @@ namespace HashlinkNET.Compiler.Steps.Class
 
             gv.GlobalClassProp = mp;
             gv.GlobalClassType = ct;
-            gv.GlobalHlType = (HlTypeWithObj) gr.Value;
+            gv.GlobalHlType = (HlTypeWithObj)gr.Value;
 
             var ct_ctor = (MethodDefinition)cinfo.Construct;
             //ct_ctor.IsAssembly = true;

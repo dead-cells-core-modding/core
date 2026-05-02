@@ -13,14 +13,14 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Mem
         public readonly IRResult ptr = ptr;
         public readonly IRResult index = index;
         public readonly TypeReference type = type;
-        protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, 
+        protected override TypeReference? Emit( EmitContext ctx, IDataContainer container,
             ILProcessor il )
         {
-            ptr.Emit( ctx, true );
+            ptr.Emit(ctx, true);
 
-            index.Emit( ctx, true );
-            
-            il.Emit(OpCodes.Call, ctx.RuntimeImports.phReadMem.MakeInstance(type) );
+            index.Emit(ctx, true);
+
+            il.Emit(OpCodes.Call, ctx.RuntimeImports.phReadMem.MakeInstance(type));
             return type;
         }
     }

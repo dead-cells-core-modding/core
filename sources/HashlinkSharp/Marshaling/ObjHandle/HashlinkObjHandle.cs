@@ -16,11 +16,9 @@ namespace Hashlink.Marshaling.ObjHandle
             handleIndex = index;
         }
 
-        public bool IsStateless
-        {
+        public bool IsStateless {
             get => isStateless;
-            set
-            {
+            set {
                 if (isStateless != value)
                 {
                     if (!isStateless)
@@ -32,11 +30,9 @@ namespace Hashlink.Marshaling.ObjHandle
                 }
             }
         }
-        public HashlinkObj? Target
-        {
+        public HashlinkObj? Target {
             get => obj;
-            set
-            {
+            set {
                 obj = value;
             }
         }

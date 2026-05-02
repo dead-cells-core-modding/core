@@ -35,7 +35,7 @@ namespace HashlinkNET.Compiler.Steps
             }
             PostProcessing(container);
         }
-        private void StepTaskRunner(object? obj)
+        private void StepTaskRunner( object? obj )
         {
             var container = (IDataContainer)obj!;
             while (true)
@@ -51,7 +51,7 @@ namespace HashlinkNET.Compiler.Steps
 
         protected void RunSync( Action action )
         {
-            syncRun.Enqueue( action );
+            syncRun.Enqueue(action);
         }
 
         protected abstract void Execute( IDataContainer container, T item, int index );
@@ -59,11 +59,11 @@ namespace HashlinkNET.Compiler.Steps
         protected abstract IReadOnlyList<T> GetItems( IDataContainer container );
         protected virtual void Initialize( IDataContainer container )
         {
-        
+
         }
         protected virtual void PostProcessing( IDataContainer container )
         {
-        
+
         }
     }
 }

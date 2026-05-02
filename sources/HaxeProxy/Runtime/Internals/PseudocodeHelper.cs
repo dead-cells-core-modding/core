@@ -22,7 +22,7 @@ namespace HaxeProxy.Runtime.Internals
         {
             throw new NotSupportedException();
         }
-        public static object CreateClosure<T>(object self, RuntimeMethodHandle method)
+        public static object CreateClosure<T>( object self, RuntimeMethodHandle method )
         {
             throw new NotSupportedException();
         }
@@ -35,7 +35,7 @@ namespace HaxeProxy.Runtime.Internals
             throw new NotSupportedException();
         }
 
-        public static object SetGlobal(int globalIndex, object val)
+        public static object SetGlobal( int globalIndex, object val )
         {
             throw new NotImplementedException();
         }

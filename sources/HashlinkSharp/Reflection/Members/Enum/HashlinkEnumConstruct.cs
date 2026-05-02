@@ -15,10 +15,8 @@ namespace Hashlink.Reflection.Members.Enum
 
         public override string? Name => cachedName ??= new(ptr->name);
         public int ParamsCount => ptr->nparams;
-        public int[] ParamOffsets
-        {
-            get
-            {
+        public int[] ParamOffsets {
+            get {
                 if (cachedOffsets == null)
                 {
                     cachedOffsets = new int[ParamsCount];
@@ -30,10 +28,8 @@ namespace Hashlink.Reflection.Members.Enum
                 return cachedOffsets;
             }
         }
-        public HashlinkType[] Params
-        {
-            get
-            {
+        public HashlinkType[] Params {
+            get {
                 if (cachedParamTypes == null)
                 {
                     cachedParamTypes = new HashlinkType[ParamsCount];

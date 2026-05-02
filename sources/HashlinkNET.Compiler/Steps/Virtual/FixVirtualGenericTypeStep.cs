@@ -11,7 +11,7 @@ namespace HashlinkNET.Compiler.Steps.Virtual
         {
             return type.Kind == HlTypeKind.Virtual;
         }
-        public override void Execute( IDataContainer container, HlCode code, GlobalData gdata, 
+        public override void Execute( IDataContainer container, HlCode code, GlobalData gdata,
             RuntimeImports rdata, HlType type )
         {
             var info = container.GetData<VirtualClassData>(type);

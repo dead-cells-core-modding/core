@@ -5,20 +5,16 @@ namespace HashlinkNET.Compiler.Data.Interfaces
 {
     interface IGlobalValueSetter
     {
-        TypeDefinition? GlobalClassType
-        {
+        TypeDefinition? GlobalClassType {
             get; set;
         }
-        PropertyDefinition? GlobalClassProp
-        {
+        PropertyDefinition? GlobalClassProp {
             get; set;
         }
-        FieldDefinition? GlobalClassField
-        {
+        FieldDefinition? GlobalClassField {
             get; set;
         }
-        HlTypeWithObj? GlobalHlType
-        {
+        HlTypeWithObj? GlobalHlType {
             get; set;
         }
     }

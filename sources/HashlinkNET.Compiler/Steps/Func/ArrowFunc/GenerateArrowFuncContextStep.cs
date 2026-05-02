@@ -13,7 +13,7 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
         {
             return type.Kind == HlTypeKind.Enum;
         }
-        public override void Execute( IDataContainer container, HlCode code, 
+        public override void Execute( IDataContainer container, HlCode code,
             GlobalData gdata, RuntimeImports rdata, HlType type )
         {
             if (!container.TryGetData<ArrowFuncContextData>(type, out var data))
@@ -63,7 +63,7 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
                     ilp.Emit(OpCodes.Ret);
                 }
             }
-            
+
             TypeDefinition? parentDef = null;
             foreach (var v in data.Methods)
             {
@@ -106,7 +106,7 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
             {
                 return;
             }
-           
+
             Debug.Assert(td != parentDef);
 
             RunSync(() =>

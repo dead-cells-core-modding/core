@@ -28,7 +28,7 @@ namespace HashlinkNET.Compiler.Steps.Func
             }
 
             var entry = gdata.Code.GetFunctionById(gdata.Code.Entrypoint);
-            
+
             Debug.Assert(entry != null);
 
             container.GetData<MethodDefinition>(entry).Name = "Entrypoint";

@@ -22,7 +22,7 @@ namespace ModCore.Utilities
             return s;
         }
 
-        extension(dc.String)
+        extension( dc.String )
         {
             /// <summary>
             /// Creates a new Haxe string representation from the specified .NET string.

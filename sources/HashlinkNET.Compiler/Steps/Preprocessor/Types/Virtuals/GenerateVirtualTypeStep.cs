@@ -8,7 +8,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types.Virtuals
     {
         public override bool Filter( HlType type ) => type.Kind == HlTypeKind.Virtual;
         protected override bool SupportParalle => true;
-        public override void Execute( IDataContainer data, HlCode code, GlobalData gdata, 
+        public override void Execute( IDataContainer data, HlCode code, GlobalData gdata,
             RuntimeImports rdata, HlType t )
         {
             if (t is not HlTypeWithVirtual vtype)
@@ -26,7 +26,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types.Virtuals
                 });
                 return;
             }
-            
+
             TypeReference tr;
 
             if (group.Types.Count == 1 ||

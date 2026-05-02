@@ -5,12 +5,11 @@ using Hashlink.Reflection.Types.Special;
 
 namespace Hashlink.Reflection.Types
 {
-    public unsafe class HashlinkType(HashlinkModule module, HL_type* type) : HashlinkMember(module, type),
+    public unsafe class HashlinkType( HashlinkModule module, HL_type* type ) : HashlinkMember(module, type),
         IHashlinkMemberGenerator
     {
         private string? cachedName;
-        public HL_type* NativeType
-        {
+        public HL_type* NativeType {
             get;
         } = type;
 
@@ -33,7 +32,7 @@ namespace Hashlink.Reflection.Types
             }
             return kind switch
             {
-                TypeKind.HOBJ => ParseObjType(module,type),
+                TypeKind.HOBJ => ParseObjType(module, type),
                 TypeKind.HFUN => new HashlinkFuncType(module, type),
                 TypeKind.HMETHOD => new HashlinkFuncType(module, type),
                 TypeKind.HARRAY => new HashlinkArrayType(module, type),
@@ -63,8 +62,7 @@ namespace Hashlink.Reflection.Types
         public virtual bool IsRef => TypeKind == TypeKind.HREF;
         public virtual bool IsNull => TypeKind == TypeKind.HNULL;
 
-        public int TypeIndex
-        {
+        public int TypeIndex {
             get;
             internal set;
         } = -1;

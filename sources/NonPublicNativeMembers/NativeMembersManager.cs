@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using NonPublicNativeMembers.Win;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -22,7 +22,7 @@ namespace NonPublicNativeMembers
 
         public abstract void Generate( params string[] modules );
 
-        public void LoadFromFile(string filePath)
+        public void LoadFromFile( string filePath )
         {
             var d = JsonConvert.DeserializeObject<NativeMembersData>(File.ReadAllText(filePath))!;
             foreach (var v in d.Modules)
@@ -68,7 +68,7 @@ namespace NonPublicNativeMembers
             {
                 return true;
             }
-            
+
             var info = data.Modules.Where(x => x.Name == name)
                                     .FirstOrDefault(
                                     x => hash256?.SequenceEqual(x.Hash) ?? true

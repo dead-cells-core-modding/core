@@ -9,9 +9,9 @@ using System.IO.Hashing;
 
 namespace ModCore.Serialization
 {
-    internal unsafe record class SerializeContext(Serializer Serializer)
+    internal unsafe record class SerializeContext( Serializer Serializer )
     {
-        private static readonly Dictionary<System.Type, FastReflectionHelper.FastInvoker[]> 
+        private static readonly Dictionary<System.Type, FastReflectionHelper.FastInvoker[]>
             getDataInvoker = [];
 
         public static SerializeContext? current;
@@ -44,7 +44,7 @@ namespace ModCore.Serialization
         }
         public void AddItem( HaxeObject obj )
         {
-            queue.Enqueue( obj );
+            queue.Enqueue(obj);
         }
 
         public void SerializeData()
@@ -66,14 +66,14 @@ namespace ModCore.Serialization
                 }
                 var uid = dyn.__uid;
                 var json = new JObject();
-                
+
                 foreach (var v in invokers)
                 {
                     var data = v(obj)!;
                     json[data.GetType().AssemblyQualifiedName!] = JObject.FromObject(data);
                 }
-               
-                
+
+
                 items.Add(uid, new ItemData()
                 {
                     objType = type,

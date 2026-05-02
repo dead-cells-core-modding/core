@@ -12,101 +12,79 @@ namespace Hashlink.Reflection
 
         private static readonly Dictionary<string, HashlinkType> typeNameMapping = [];
 
-        public HashlinkType[] Types
-        {
+        public HashlinkType[] Types {
             get;
         }
-        public IHashlinkFunc[] Functions
-        {
+        public IHashlinkFunc[] Functions {
             get;
         }
-        public int[] Ints
-        {
+        public int[] Ints {
             get;
         }
-        public double[] Floats
-        {
+        public double[] Floats {
             get;
         }
-        public string[] Strings
-        {
+        public string[] Strings {
             get;
         }
-        public HashlinkGlobal[] Globals
-        {
+        public HashlinkGlobal[] Globals {
             get;
         }
 
-        public HL_module* NativeModule
-        {
+        public HL_module* NativeModule {
             get;
         }
         public HL_code* NativeCode => NativeModule->code;
 
-       
 
-        public class KnownType(HashlinkModule module)
+
+        public class KnownType( HashlinkModule module )
         {
-            public HashlinkType String
-            {
+            public HashlinkType String {
                 get;
             } = module.GetTypeByName("String");
-            public HashlinkType Void
-            {
+            public HashlinkType Void {
                 get;
             } = module.GetTypeByName("void");
-            public HashlinkType I8
-            {
+            public HashlinkType I8 {
                 get;
             } = module.GetTypeByName("i8");
-            public HashlinkType I16
-            {
+            public HashlinkType I16 {
                 get;
             } = module.GetTypeByName("i16");
-            public HashlinkType I32
-            {
+            public HashlinkType I32 {
                 get;
             } = module.GetTypeByName("i32");
-            public HashlinkType I64
-            {
+            public HashlinkType I64 {
                 get;
             } = module.GetTypeByName("i64");
-            public HashlinkType F32
-            {
+            public HashlinkType F32 {
                 get;
             } = module.GetTypeByName("f32");
-            public HashlinkType F64
-            {
+            public HashlinkType F64 {
                 get;
             } = module.GetTypeByName("f64");
-            public HashlinkType Bool
-            {
+            public HashlinkType Bool {
                 get;
             } = module.GetTypeByName("bool");
-            public HashlinkType Bytes
-            {
+            public HashlinkType Bytes {
                 get;
             } = module.GetTypeByName("bytes");
-            public HashlinkType Dynamic
-            {
+            public HashlinkType Dynamic {
                 get;
             } = module.GetTypeByName("dynamic");
-            public HashlinkType Array
-            {
+            public HashlinkType Array {
                 get;
             } = module.GetTypeByName("array");
-            public HashlinkType Type
-            {
+            public HashlinkType Type {
                 get;
             } = module.GetTypeByName("type");
-            public HashlinkType DynObj
-            {
+            public HashlinkType DynObj {
                 get;
             } = module.GetTypeByName("dynobj");
         }
 
-        public KnownType KnownTypes
-        {
+        public KnownType KnownTypes {
             get;
         }
 
@@ -150,7 +128,7 @@ namespace Hashlink.Reflection
                 var f = NativeCode->functions + i;
                 Functions[f->findex] = GetMemberFrom<HashlinkFunction>(f);
             }
-            for(int i = 0; i < NativeCode->nnatives; i++)
+            for (int i = 0; i < NativeCode->nnatives; i++)
             {
                 var f = NativeCode->natives + i;
                 Functions[f->findex] = GetMemberFrom<HashlinkNativeFunction>(f);
@@ -211,7 +189,7 @@ namespace Hashlink.Reflection
             {
                 return result;
             }
-           
+
             return cachedHandles.GetOrAdd((nint)ptr, ptr =>
             {
                 return new HashlinkMemberHandle((void*)ptr);

@@ -11,18 +11,15 @@ namespace ModCore.Events
     {
         private static readonly ModuleEventCall call;
 
-        public static bool IsCalled
-        {
+        public static bool IsCalled {
             get; set;
         }
         public static bool IsCallOnce => Attribute.Once;
-        public static EventAttribute Attribute
-        {
+        public static EventAttribute Attribute {
             get;
         }
         public static EventAttribute.EventKind Kind => Attribute.Kind;
-        public static MethodInfo EventMethod
-        {
+        public static MethodInfo EventMethod {
             get;
         }
 
@@ -34,7 +31,7 @@ namespace ModCore.Events
                 throw new NotSupportedException("Methods with multiple parameters are not supported");
             }
 
-            DynamicMethodDefinition caller = new($"event_caller", 
+            DynamicMethodDefinition caller = new($"event_caller",
                 typeof(void), [typeof(object), typeof(nint), typeof(nint)]);
             var il = caller.GetILProcessor();
             if (method.ReturnType != typeof(void))
@@ -84,7 +81,7 @@ namespace ModCore.Events
             call = GenerateCall(EventMethod);
         }
         [StackTraceHidden]
-        public static void Invoke( TEvent self, nint refOfarg , nint refOfResult)
+        public static void Invoke( TEvent self, nint refOfarg, nint refOfResult )
         {
             IsCalled = true;
             call(self!, refOfarg, refOfResult);

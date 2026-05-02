@@ -27,10 +27,10 @@ namespace ModCore.Utilities
         /// <param name="loadAssemblies">A list of assembly paths to be loaded by the worker process before invoking the specified method. Each entry
         /// should be a valid assembly path.</param>
         /// <returns>A Process instance representing the started worker process.</returns>
-        public static Process StartWorkerProcess(string typeFullName, 
+        public static Process StartWorkerProcess( string typeFullName,
             string methodName,
             ProcessStartInfo? startInfo,
-            params ReadOnlySpan<string> loadAssemblies)
+            params ReadOnlySpan<string> loadAssemblies )
         {
             if (ContextConfig.Config.disableWorkerProcessUtils)
             {

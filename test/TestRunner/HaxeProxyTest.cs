@@ -32,7 +32,7 @@ namespace TestRunner
 
             Assert.Equal(1d, p.x);
 
-            
+
         }
         [Fact]
         public unsafe void Interaction_Virtual()
@@ -86,8 +86,8 @@ namespace TestRunner
 
             double x = 114514;
             double y = 0;
-            var p = new Point(new(ref x), new(ref y)); 
-            
+            var p = new Point(new(ref x), new(ref y));
+
             var array = new ArrayObj()
             {
                 array = new(HashlinkMarshal.Module.KnownTypes.Dynamic, 0)

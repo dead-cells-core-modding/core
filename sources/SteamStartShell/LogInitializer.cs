@@ -18,7 +18,7 @@ namespace ModCore
                 }
                 catch (Exception)
                 {
-                
+
                 }
             }
             var configuration = new LoggerConfiguration()

@@ -2,7 +2,7 @@ using Hashlink.Proxy.Clousre;
 
 namespace Hashlink.Reflection.Types
 {
-    public unsafe class HashlinkFuncType(HashlinkModule module, HL_type* type) : HashlinkSpecialType<HL_type_func>(module, type)
+    public unsafe class HashlinkFuncType( HashlinkModule module, HL_type* type ) : HashlinkSpecialType<HL_type_func>(module, type)
     {
         private HashlinkType? cachedReturnType;
         private HashlinkType[]? cachedArgTypes;
@@ -12,10 +12,8 @@ namespace Hashlink.Reflection.Types
         public HashlinkFuncType BaseFunc => cachedRealFunc ??= !IsClosureType ? this : GetMemberFrom<HashlinkFuncType>(TypeData->parent);
 
         public HashlinkType ReturnType => cachedReturnType ??= GetMemberFrom<HashlinkType>(TypeData->ret);
-        public HashlinkType[] ArgTypes
-        {
-            get
-            {
+        public HashlinkType[] ArgTypes {
+            get {
                 if (cachedArgTypes == null)
                 {
                     cachedArgTypes = new HashlinkType[TypeData->nargs];

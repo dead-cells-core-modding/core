@@ -16,6 +16,6 @@ namespace Hashlink.Reflection.Members.Object
         {
             return new HashlinkObjectProto(module, (HL_obj_proto*)ptr);
         }
-       
+
     }
 }

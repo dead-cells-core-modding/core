@@ -7,13 +7,12 @@ namespace Hashlink.Reflection.Members
     public unsafe abstract class HashlinkField( HashlinkModule module, void* ptr ) : HashlinkMember(module, ptr),
         IHashlinkMemberGenerator
     {
-        public abstract HashlinkType FieldType
-        {
+        public abstract HashlinkType FieldType {
             get;
         }
         public object? GetValue( HashlinkObj obj )
         {
-            return ((IHashlinkFieldObject) obj).GetFieldValue(HashedName);
+            return ((IHashlinkFieldObject)obj).GetFieldValue(HashedName);
         }
         public void SetValue( HashlinkObj obj, object? value )
         {

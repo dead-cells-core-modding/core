@@ -3,7 +3,7 @@ using Hashlink.Proxy.Objects;
 
 namespace Hashlink.Reflection.Types
 {
-    public unsafe class HashlinkArrayType(HashlinkModule module, HL_type* type) : HashlinkSpecialType<HL_array>(module, type)
+    public unsafe class HashlinkArrayType( HashlinkModule module, HL_type* type ) : HashlinkSpecialType<HL_array>(module, type)
     {
         public HashlinkArray CreateInstance( HashlinkType itemType, int length )
         {

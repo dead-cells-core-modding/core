@@ -14,7 +14,7 @@ namespace Hashlink.Proxy
 
         T IExtraData.GetOrCreateData<T>( Func<HashlinkObj, object> factory )
         {
-            
+
             if (this is T)
             {
                 return (T)(object)this;
@@ -44,7 +44,7 @@ namespace Hashlink.Proxy
                 return t;
             }
             var list = extraData as ImmutableList<object>;
-            
+
             if (list == null)
             {
                 list = [extraData];

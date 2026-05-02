@@ -4,8 +4,7 @@ namespace HashlinkNET.Compiler.Data.Interfaces
 {
     interface ITypeReferenceValue
     {
-        public TypeReference TypeRef
-        {
+        public TypeReference TypeRef {
             get;
         }
     }

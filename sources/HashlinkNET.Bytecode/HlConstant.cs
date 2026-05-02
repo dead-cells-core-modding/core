@@ -1,4 +1,4 @@
-﻿namespace HashlinkNET.Bytecode;
+namespace HashlinkNET.Bytecode;
 
 /// <summary>
 ///     A HashLink constant, which records information for initializing global
@@ -9,8 +9,7 @@ public sealed class HlConstant
     /// <summary>
     ///     The index of the global variable in the HashLink binary.
     /// </summary>
-    public int GlobalIndex
-    {
+    public int GlobalIndex {
         get; set;
     }
 
@@ -35,8 +34,7 @@ public sealed class HlConstant
     ///     The meaning of the value differs depending on the global variable
     ///     type.
     /// </summary>
-    public int[] Fields
-    {
+    public int[] Fields {
         get; set;
     }
 

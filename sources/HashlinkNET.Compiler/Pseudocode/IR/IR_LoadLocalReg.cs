@@ -9,14 +9,14 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         string? assignName = null
         ) : IRBase
     {
-        public HlFuncRegisterData? src = src; 
-        public readonly string? assignName= assignName;
+        public HlFuncRegisterData? src = src;
+        public readonly string? assignName = assignName;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             if (src == null)
             {
                 il.Emit(OpCodes.Ldnull);
-                return ctx.TypeSystem.Object; 
+                return ctx.TypeSystem.Object;
             }
             else if (src.Kind == HlFuncRegisterData.RegisterKind.Parameter)
             {

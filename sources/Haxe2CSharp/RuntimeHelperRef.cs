@@ -1,9 +1,7 @@
 using HaxeProxy.Runtime.Internals;
 using Mono.Cecil;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Haxe2CSharp
 {
@@ -31,7 +29,7 @@ namespace Haxe2CSharp
         public MethodReference hGetTypeIndexFromType;
         public MethodReference attrInitialValue;
         public MethodReference hGetNativeCall;
-        public RuntimeHelperRef(ModuleDefinition module)
+        public RuntimeHelperRef( ModuleDefinition module )
         {
             delegateDynInvokeMethod = ImportMethod(typeof(Delegate), nameof(Delegate.DynamicInvoke));
             objectGetTypeMethod = ImportMethod(typeof(object), nameof(GetType));

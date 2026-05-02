@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Hashlink.Reflection.Types
 {
-    public unsafe class HashlinkObjectType(HashlinkModule module, HL_type* type) : 
+    public unsafe class HashlinkObjectType( HashlinkModule module, HL_type* type ) :
         HashlinkSpecialType<HL_type_obj>(module, type)
     {
         private HashlinkObjectType? cachedSuper;
@@ -28,10 +28,8 @@ namespace Hashlink.Reflection.Types
             return new HashlinkObject(this);
         }
 
-        public HashlinkObjectProto[] Protos
-        {
-            get
-            {
+        public HashlinkObjectProto[] Protos {
+            get {
                 if (cachedProtos == null)
                 {
                     cachedProtos = new HashlinkObjectProto[TypeData->nproto];
@@ -43,10 +41,8 @@ namespace Hashlink.Reflection.Types
                 return cachedProtos;
             }
         }
-        public HashlinkObjectBinding[] Bindings
-        {
-            get
-            {
+        public HashlinkObjectBinding[] Bindings {
+            get {
                 if (cachedBindings == null)
                 {
                     cachedBindings = new HashlinkObjectBinding[TypeData->nbindings];
@@ -59,10 +55,8 @@ namespace Hashlink.Reflection.Types
             }
         }
         public int TotalFieldsCount => cachedFieldsCount ??= (Super?.TotalFieldsCount ?? 0) + TypeData->nfields;
-        public HashlinkObjectField[] Fields
-        {
-            get
-            {
+        public HashlinkObjectField[] Fields {
+            get {
                 if (cachedFields == null)
                 {
                     cachedFields = new HashlinkObjectField[TypeData->nfields];
@@ -75,16 +69,13 @@ namespace Hashlink.Reflection.Types
                 return cachedFields;
             }
         }
-        public HashlinkObject GlobalValue
-        {
-            get
-            {
-                return (nint)TypeData->global_value != 0 ? 
+        public HashlinkObject GlobalValue {
+            get {
+                return (nint)TypeData->global_value != 0 ?
                     Utils.TryGetFromPointerWithCache((nint)(*TypeData->global_value), ref cachedGlobalValue) :
                     throw new InvalidOperationException();
             }
-            set
-            {
+            set {
                 ArgumentNullException.ThrowIfNull(value);
                 *TypeData->global_value = (void*)value.HashlinkPointer;
                 cachedGlobalValue = value;
@@ -159,6 +150,6 @@ namespace Hashlink.Reflection.Types
             }
             return field != null;
         }
-        
+
     }
 }

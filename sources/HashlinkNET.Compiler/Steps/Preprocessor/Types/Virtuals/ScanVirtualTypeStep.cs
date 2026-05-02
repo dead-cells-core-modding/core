@@ -65,7 +65,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types.Virtuals
                 }
             }
         }
-        public override void Execute( IDataContainer container, HlCode code, 
+        public override void Execute( IDataContainer container, HlCode code,
             GlobalData gdata, RuntimeImports rdata, HlType type )
         {
 

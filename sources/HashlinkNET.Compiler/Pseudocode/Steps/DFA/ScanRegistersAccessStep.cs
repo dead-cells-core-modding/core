@@ -15,7 +15,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.DFA
             Queue<IRBasicBlockData> queue = [];
             foreach (var v in gdata.IRBasicBlocks)
             {
-                queue.Enqueue( v );
+                queue.Enqueue(v);
 
                 var rad = v.registerAccessData = new RegisterAccessData(gdata.Registers.Count);
                 rad.ssaRegisters = new SSARegisterData[gdata.Registers.Count];
@@ -59,7 +59,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.DFA
                 rad.requireBySelfAndChildrenReg.Or(rad.firstReadReg);
             }
 
-            
+
 
             while (queue.TryDequeue(out var bb))
             {
@@ -67,8 +67,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.DFA
                 foreach (var v in bb.parents)
                 {
                     var trad = v.registerAccessData!;
-                    var old = (BitArray) trad.requireBySelfAndChildrenReg.Clone();
-                    var req = (BitArray) rad.requireBySelfAndChildrenReg.Clone();
+                    var old = (BitArray)trad.requireBySelfAndChildrenReg.Clone();
+                    var req = (BitArray)rad.requireBySelfAndChildrenReg.Clone();
                     trad.exposedReg.Or(req);
                     req.And(trad.writeReg.Not());
                     trad.writeReg.Not();
@@ -81,7 +81,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.DFA
                 }
             }
 
-                foreach (var v in gdata.IRBasicBlocks)
+            foreach (var v in gdata.IRBasicBlocks)
             {
                 var rad = v.registerAccessData!;
                 foreach (var sr in rad.ssaRegisters)

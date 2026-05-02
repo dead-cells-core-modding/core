@@ -1,7 +1,7 @@
 namespace HaxeProxy.Runtime.Internals
 {
     [AttributeUsage(AttributeTargets.Assembly)]
-    public class HaxeProxyBindingAttribute(int typeIndex, Type type) : Attribute
+    public class HaxeProxyBindingAttribute( int typeIndex, Type type ) : Attribute
     {
         public int TypeIndex => typeIndex;
         public Type Type => type;

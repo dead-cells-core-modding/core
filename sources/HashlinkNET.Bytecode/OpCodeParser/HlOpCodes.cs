@@ -756,8 +756,7 @@ namespace HashlinkNET.Bytecode.OpCodeParser
          ]
          );
 
-        public static IList<HlOpCode> OpCodes
-        {
+        public static IList<HlOpCode> OpCodes {
             get;
         }
 
@@ -768,7 +767,7 @@ namespace HashlinkNET.Bytecode.OpCodeParser
             {
                 if (v.FieldType == typeof(HlOpCode))
                 {
-                    var op = (HlOpCode) v.GetValue(null)!;
+                    var op = (HlOpCode)v.GetValue(null)!;
                     opcodes[(int)op.OpCode] = op;
                 }
             }

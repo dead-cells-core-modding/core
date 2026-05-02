@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Hashlink.Proxy
 {
-    public abstract unsafe partial class HashlinkObj : 
+    public abstract unsafe partial class HashlinkObj :
         IHashlinkPointer
     {
         [MemberNotNull(nameof(nativeType))]
@@ -23,7 +23,7 @@ namespace Hashlink.Proxy
         }
 
         internal bool isChangedTypeInfo = false;
-      
+
         public HashlinkObj( HashlinkObjPtr objPtr )
         {
             var ptr = objPtr.Pointer;
@@ -49,8 +49,7 @@ namespace Hashlink.Proxy
         }
 
 
-        public HashlinkObjHandle? Handle
-        {
+        public HashlinkObjHandle? Handle {
             get; private set;
         }
         public TypeKind TypeKind => Type.TypeKind;
@@ -74,8 +73,7 @@ namespace Hashlink.Proxy
 
         public HashlinkType Type => type!;
         public HL_type* NativeType => nativeType;
-        public virtual nint HashlinkPointer
-        {
+        public virtual nint HashlinkPointer {
             get; private set;
         }
     }

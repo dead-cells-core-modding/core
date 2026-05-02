@@ -105,13 +105,13 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             {
                 return module.ImportReference(typeof(T));
             }
-            MethodReference ImportAttribute<T>(int argsCount = -1)
+            MethodReference ImportAttribute<T>( int argsCount = -1 )
             {
                 return module.ImportReference(typeof(T).GetConstructors().First(x =>
                     argsCount < 0 || x.GetParameters().Length == argsCount));
             }
 
-            MethodReference ImportMethod(Type type, string name)
+            MethodReference ImportMethod( Type type, string name )
             {
                 return module.ImportReference(type.GetMethod(name));
             }
@@ -161,7 +161,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
                 }
             });
 
-           
+
         }
     }
 }

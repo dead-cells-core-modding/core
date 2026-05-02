@@ -2,9 +2,6 @@ using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Data.Interfaces;
 using HashlinkNET.Compiler.Utils;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace HashlinkNET.Compiler.Steps.Func
 {
@@ -28,7 +25,7 @@ namespace HashlinkNET.Compiler.Steps.Func
                 var t1 = item.GetLocalRegType(v.Data[1]);
                 var t2 = item.GetLocalRegType(v.Data[2]);
 
-                void Process(HlType a, HlType b)
+                void Process( HlType a, HlType b )
                 {
                     if (a.Kind != HlTypeKind.Obj)
                     {

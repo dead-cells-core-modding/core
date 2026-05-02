@@ -10,7 +10,7 @@ namespace HaxeProxy.Runtime
 {
     public sealed unsafe class HaxeDynObj : HaxeProxyBase
     {
-        public HaxeDynObj( ) : base(new HashlinkDynObj())
+        public HaxeDynObj() : base(new HashlinkDynObj())
         {
         }
 
@@ -36,7 +36,7 @@ namespace HaxeProxy.Runtime
 
         public override bool TryGetMember( GetMemberBinder binder, out object? result )
         {
-            result =  HaxeProxyHelper.GetProxy<object>(((HashlinkDynObj)HashlinkObj).GetFieldValue(binder.Name));
+            result = HaxeProxyHelper.GetProxy<object>(((HashlinkDynObj)HashlinkObj).GetFieldValue(binder.Name));
             return true;
         }
         public override bool TrySetMember( SetMemberBinder binder, object? value )

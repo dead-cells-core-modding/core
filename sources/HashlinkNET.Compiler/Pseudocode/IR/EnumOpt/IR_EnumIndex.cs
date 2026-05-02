@@ -8,7 +8,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.EnumOpt
         IRBase input
         ) : IRBase(input)
     {
-        protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, 
+        protected override TypeReference? Emit( EmitContext ctx, IDataContainer container,
             ILProcessor il )
         {
             var tr = input.Emit(ctx, true);

@@ -5,12 +5,10 @@ namespace Hashlink.Reflection
 {
     public unsafe class HashlinkGlobal
     {
-        public HashlinkType Type
-        {
+        public HashlinkType Type {
             get;
         }
-        public int Index
-        {
+        public int Index {
             get;
         }
         private nint globalPtr;

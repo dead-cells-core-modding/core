@@ -8,7 +8,7 @@ namespace Hashlink
     internal unsafe class FakeStackTraceManager
     {
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_stackTrace")]
-        static extern ref object GetStackTrace(Exception ex);
+        static extern ref object GetStackTrace( Exception ex );
         [StructLayout(LayoutKind.Sequential)]
         struct StackTraceElement
         {
@@ -24,13 +24,13 @@ namespace Hashlink
             public int m_keepAliveItemsCount;
             public nint m_thread;
         };
-        public record class RequestInfo(string ClassName, string FuncName);
-        public record class FakeMethodInfo(MethodInfo Method, nint IP);
+        public record class RequestInfo( string ClassName, string FuncName );
+        public record class FakeMethodInfo( MethodInfo Method, nint IP );
         private static readonly List<ModuleBuilder> builders = [];
         private static readonly Dictionary<RequestInfo, FakeMethodInfo> cachedMethods = [];
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public static Dictionary<RequestInfo, FakeMethodInfo> RequestFakeMethods(params List<RequestInfo> requests)
+        public static Dictionary<RequestInfo, FakeMethodInfo> RequestFakeMethods( params List<RequestInfo> requests )
         {
             var result = new Dictionary<RequestInfo, FakeMethodInfo>();
             for (var i = 0; i < requests.Count; i++)
@@ -46,31 +46,31 @@ namespace Hashlink
             var dict = new Dictionary<string, List<string>>();
             foreach (var request in requests)
             {
-                if(!dict.TryGetValue(request.ClassName, out var list))
+                if (!dict.TryGetValue(request.ClassName, out var list))
                 {
                     dict[request.ClassName] = list = [];
                 }
                 list.Add(request.FuncName);
             }
 
-            foreach((var className, var funcList) in dict)
+            foreach ((var className, var funcList) in dict)
             {
                 ModuleBuilder? builder = null;
-                foreach(var v in builders)
+                foreach (var v in builders)
                 {
-                    if(v.GetType(className, false, false) == null)
+                    if (v.GetType(className, false, false) == null)
                     {
                         builder = v;
                     }
                 }
-                if(builder == null)
+                if (builder == null)
                 {
-                    var ab = AssemblyBuilder.DefineDynamicAssembly( new("Haxe_" + builders.Count), AssemblyBuilderAccess.Run );
+                    var ab = AssemblyBuilder.DefineDynamicAssembly(new("Haxe_" + builders.Count), AssemblyBuilderAccess.Run);
                     builder = ab.DefineDynamicModule("Haxe_" + builders.Count);
                     builders.Add(builder);
                 }
                 var tb = builder.DefineType(className);
-                foreach(var name in funcList)
+                foreach (var name in funcList)
                 {
                     var fb = tb.DefineMethod(name, MethodAttributes.Public | MethodAttributes.Static);
                     var ilg = fb.GetILGenerator();

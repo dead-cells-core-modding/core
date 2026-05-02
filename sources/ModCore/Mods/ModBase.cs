@@ -4,7 +4,7 @@ namespace ModCore.Mods
     /// Base class for all mods
     /// </summary>
     /// <param name="info"></param>
-    public class ModBase(ModInfo info) : Module
+    public class ModBase( ModInfo info ) : Module
     {
         /// <summary>
         /// Metadata about the mod

@@ -25,10 +25,8 @@ namespace Hashlink.Proxy.Objects
         {
             TypedValue = val;
         }
-        public string? TypedValue
-        {
-            get
-            {
+        public string? TypedValue {
+            get {
                 var ptr = ((HL_vstring*)HashlinkPointer)->bytes;
                 if (cachedValue != null &&
                     (nint)ptr == cachedPtr)
@@ -38,8 +36,7 @@ namespace Hashlink.Proxy.Objects
                 cachedPtr = (nint)ptr;
                 return cachedValue = new(ptr);
             }
-            set
-            {
+            set {
                 ArgumentNullException.ThrowIfNull(value, nameof(value));
                 var str = (HL_vstring*)HashlinkPointer;
                 str->bytes = (char*)hl_gc_alloc_gen(InternalTypes.hlt_bytes, (value.Length * 2) + 2, HL_Alloc_Flags.MEM_KIND_NOPTR |
@@ -51,8 +48,7 @@ namespace Hashlink.Proxy.Objects
                 }
             }
         }
-        public object? Value
-        {
+        public object? Value {
             get => TypedValue; set => TypedValue = (string?)value;
         }
     }

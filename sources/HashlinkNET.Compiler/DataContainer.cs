@@ -14,8 +14,7 @@ namespace HashlinkNET.Compiler
 
         private readonly ConcurrentDictionary<object, ObjectData> table = new(ReferenceEqualityComparer.Instance);
 
-        public IDataContainer? Parent
-        {
+        public IDataContainer? Parent {
             get; set;
         }
 
@@ -30,13 +29,13 @@ namespace HashlinkNET.Compiler
                 data = default;
                 return false;
             }
-            var od = GetObjectData( obj );
+            var od = GetObjectData(obj);
             od.rwLock.EnterReadLock();
-            if (od.dataLookup.TryGetValue(typeof(TData), out var result) 
+            if (od.dataLookup.TryGetValue(typeof(TData), out var result)
                 && result is not null)
             {
                 od.rwLock.ExitReadLock();
-                data = (TData) result;
+                data = (TData)result;
                 return true;
             }
             od.rwLock.ExitReadLock();
@@ -117,7 +116,7 @@ namespace HashlinkNET.Compiler
                 {
                     od.dataList.Add(data);
                 }
-                
+
                 return data;
             }
             finally

@@ -9,16 +9,13 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         int Index
         )
     {
-        public bool IsExposed
-        {
+        public bool IsExposed {
             get; set;
         }
-        public ParameterDefinition? Parameter
-        {
+        public ParameterDefinition? Parameter {
             get; set;
         }
-        public VariableDefinition? Variable
-        {
+        public VariableDefinition? Variable {
             get; set;
         }
         public TypeReference RegisterType => Variable?.VariableType ?? Parameter!.ParameterType;

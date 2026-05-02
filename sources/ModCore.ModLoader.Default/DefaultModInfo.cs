@@ -7,13 +7,11 @@ namespace ModCore.ModLoader.Default
     public class DefaultModInfo : ModInfo
     {
         [JsonProperty("main")]
-        public string MainModType
-        {
+        public string MainModType {
             get; set;
         } = "";
         [JsonProperty("assemblies")]
-        public required List<string> Assemblies
-        {
+        public required List<string> Assemblies {
             get; set;
         }
 

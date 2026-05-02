@@ -10,7 +10,7 @@ namespace HaxeProxy.Runtime
     /// <typeparam name="T"></typeparam>
     /// <param name="value"></param>
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe ref struct Ref<T>(ref T value)
+    public unsafe ref struct Ref<T>( ref T value )
     {
         private static T? defaultTarget = default;
 
@@ -22,10 +22,8 @@ namespace HaxeProxy.Runtime
         /// Get a reference to the shared storage.
         /// This typically means you don't care what gets returned inside.
         /// </summary>
-        public static Ref<T> DontCare
-        {
-            get
-            {
+        public static Ref<T> DontCare {
+            get {
                 defaultTarget = default;
                 return From(ref defaultTarget!);
             }
@@ -41,7 +39,7 @@ namespace HaxeProxy.Runtime
         /// </summary>
         /// <param name="val"></param>
         /// <returns></returns>
-        public static Ref<T> Out([UnscopedRef] out T? val )
+        public static Ref<T> Out( [UnscopedRef] out T? val )
         {
             val = default;
             return new(ref val!);

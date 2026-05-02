@@ -7,7 +7,6 @@ using Hashlink.Reflection.Types.Special;
 using ModCore.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -33,11 +32,11 @@ namespace Hashlink.Marshaling
         {
             ref CustomFuncType f = ref customDelegateFuncList.Add(new());
             f.type.kind = TypeKind.HFUN;
-            f.type.data.func = (HL_type_func*) Unsafe.AsPointer(ref f.func);
+            f.type.data.func = (HL_type_func*)Unsafe.AsPointer(ref f.func);
 
             var delInvoke = delType.GetMethod("Invoke");
 
-            Debug.Assert( delInvoke != null );
+            Debug.Assert(delInvoke != null);
 
             var p = delInvoke.GetParameters();
 
@@ -102,7 +101,7 @@ namespace Hashlink.Marshaling
 
         public virtual bool TryWriteData( void* target, object? value, HashlinkType? type )
         {
-            
+
             if (!ignoreCustomMarshaler && value is IHashlinkCustomMarshaler customMarshaler)
             {
                 return customMarshaler.TryWriteData(target, type);
@@ -194,7 +193,7 @@ namespace Hashlink.Marshaling
             }
             else if (typeKind is TypeKind.HDYN)
             {
-                var vt = HashlinkMarshal.GetHashlinkType(value.GetType()) ?? 
+                var vt = HashlinkMarshal.GetHashlinkType(value.GetType()) ??
                     throw new InvalidOperationException();
                 var dptr = hl_alloc_dynamic(
                     vt.NativeType
@@ -260,7 +259,7 @@ namespace Hashlink.Marshaling
                 TypeKind.HNULL or TypeKind.HDYN => HashlinkMarshal.ReadData(
                     &((HL_vdynamic*)target)->val, HashlinkMarshal.GetHashlinkType(ptr.Type->data.tparam)
                     ),
-                    
+
                 _ => throw new InvalidOperationException($"Unrecognized type {kind}")
             };
         }

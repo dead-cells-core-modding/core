@@ -26,15 +26,13 @@ namespace ModCore.Modules
                 Hook = hook;
                 Manager = manager;
             }
-            internal HashlinkHookManager Manager
-            {
+            internal HashlinkHookManager Manager {
                 get;
             }
             /// <summary>
             /// 
             /// </summary>
-            public Delegate Hook
-            {
+            public Delegate Hook {
                 get;
             }
             /// <summary>
@@ -49,10 +47,10 @@ namespace ModCore.Modules
             /// </summary>
             public void Disable()
             {
-                Manager.RemoveHook( Hook );
+                Manager.RemoveHook(Hook);
             }
         }
-        private HashlinkHookManager GetManager(HashlinkFunction func )
+        private HashlinkHookManager GetManager( HashlinkFunction func )
         {
             if (!managers.TryGetValue(func.EntryPointer, out var manager))
             {
@@ -69,7 +67,7 @@ namespace ModCore.Modules
         /// <param name="hook">Hook</param>
         /// <param name="enableByDefault">A value indicating whether the hook should be automatically enabled</param>
         /// <returns></returns>
-        public HookHandle CreateHook( string typeName, string protoName, Delegate hook, bool enableByDefault = true)
+        public HookHandle CreateHook( string typeName, string protoName, Delegate hook, bool enableByDefault = true )
         {
             return CreateHook(HashlinkMarshal.FindFunction(typeName, protoName), hook, enableByDefault);
         }
@@ -80,7 +78,7 @@ namespace ModCore.Modules
         /// <param name="hook">Hook</param>
         /// <param name="enableByDefault">A value indicating whether the hook should be automatically enabled</param>
         /// <returns></returns>
-        public HookHandle CreateHook(HashlinkFunction func, Delegate hook, bool enableByDefault = true )
+        public HookHandle CreateHook( HashlinkFunction func, Delegate hook, bool enableByDefault = true )
         {
             ArgumentNullException.ThrowIfNull(func);
             ArgumentNullException.ThrowIfNull(hook);

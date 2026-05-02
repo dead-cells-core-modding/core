@@ -24,7 +24,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             var mdsd = md.DebugInformation.Scope = new(startInst, endInst);
             var vds = new ScopeDebugInformation[gdata.Registers.Count];
 
-            
+
 
             foreach (var bb in list)
             {

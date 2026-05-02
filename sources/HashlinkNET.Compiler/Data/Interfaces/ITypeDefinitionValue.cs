@@ -4,8 +4,7 @@ namespace HashlinkNET.Compiler.Data.Interfaces
 {
     interface ITypeDefinitionValue
     {
-        public TypeDefinition TypeDef
-        {
+        public TypeDefinition TypeDef {
             get;
         }
     }

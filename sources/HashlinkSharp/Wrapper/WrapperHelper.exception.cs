@@ -38,11 +38,11 @@ namespace Hashlink.Wrapper
             public void* exception;
             public void* outErrorTable;
         }
-        private class ExceptionEventHandler : IEventReceiver, 
+        private class ExceptionEventHandler : IEventReceiver,
             IOnNativeEvent,
             IOnPrepareExceptionReturn
         {
-            
+
             public int Priority => 0;
             [StackTraceHidden]
             public void OnNativeEvent( IOnNativeEvent.Event ev )
@@ -89,9 +89,9 @@ namespace Hashlink.Wrapper
             public void* stack_area;
         }
 
-        private static nint PrepareExceptionReturn(void* exc)
+        private static nint PrepareExceptionReturn( void* exc )
         {
-            
+
             var type = *(void**)exc;
             if (type == NETExcepetionError.ErrorType)
             {
@@ -180,7 +180,7 @@ namespace Hashlink.Wrapper
                 th.NativeData.prev_hl_error_ptr = new HashlinkNETExceptionObj(ex).HashlinkPointer;
             }
         }
-       
+
         [StackTraceHidden]
         public static nint InitErrorHandler( nint target, ref ErrorHandle handle )
         {
@@ -285,18 +285,18 @@ namespace Hashlink.Wrapper
                         buffer[buffer_index++] = -(index + 1);
                         exc_stack_ptrs[index++] = -sp;
                     }
-                    
+
                 }
-                
+
                 var newTraceData = GC.AllocateArray<sbyte>(sizeof(ArrayHeader) +
                     sizeof(StackTraceElement) * buffer_index, true);
-                
+
                 stackTraceData = newTraceData;
                 var newheader = (ArrayHeader*)Unsafe.AsPointer(ref newTraceData[0]);
                 *newheader = *header;
                 newheader->m_size = buffer_index;
                 var newdata = new Span<StackTraceElement>(newheader + 1, newheader->m_size);
-                
+
                 void* hlbuf = stackalloc char[0x100];
 
                 for (int i = 0; i < buffer_index; i++)
@@ -340,7 +340,7 @@ namespace Hashlink.Wrapper
                 }
             }
         }
-       
+
         [StackTraceHidden]
         public static void UnInitErrorHandler( ref ErrorHandle handle )
         {

@@ -12,6 +12,6 @@ namespace ModCore.Events.Interfaces.Mods
         /// 
         /// </summary>
         /// <param name="info"></param>
-        void OnCollectedModInfo(ModInfo info);
+        void OnCollectedModInfo( ModInfo info );
     }
 }

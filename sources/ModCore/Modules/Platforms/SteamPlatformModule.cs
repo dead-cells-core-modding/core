@@ -1,9 +1,6 @@
 using dc.steam;
 using MonoMod.RuntimeDetour;
 using Steamworks;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ModCore.Modules.Platforms
 {
@@ -11,7 +8,7 @@ namespace ModCore.Modules.Platforms
     {
         private readonly Hook steamAPIInitHook;
         private delegate ESteamAPIInitResult Orig_SteamAPI_InitEx( out string? err );
-        private ESteamAPIInitResult Hook_SteamAPI_InitEx( Orig_SteamAPI_InitEx orig, out string? err)
+        private ESteamAPIInitResult Hook_SteamAPI_InitEx( Orig_SteamAPI_InitEx orig, out string? err )
         {
             try
             {

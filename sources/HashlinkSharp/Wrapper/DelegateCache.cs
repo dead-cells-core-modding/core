@@ -3,10 +3,9 @@ using Hashlink.Proxy.Clousre;
 
 namespace Hashlink.Wrapper
 {
-    internal class DelegateCache<T>(T d) : IExtraDataItem where T : Delegate
+    internal class DelegateCache<T>( T d ) : IExtraDataItem where T : Delegate
     {
-        public T Value
-        {
+        public T Value {
             get;
         } = d;
         public static object Create( HashlinkObj obj )

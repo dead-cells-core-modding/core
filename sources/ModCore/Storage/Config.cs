@@ -19,24 +19,21 @@ namespace ModCore.Storage
         /// <summary>
         /// The name of the configuration
         /// </summary>
-        public string ConfigName
-        {
+        public string ConfigName {
             get;
         }
 
         /// <summary>
         /// The path to the configuration file
         /// </summary>
-        public string ConfigPath
-        {
+        public string ConfigPath {
             get;
         }
 
         /// <summary>
         /// The settings used when serializing the configuration file
         /// </summary>
-        public JsonSerializerSettings SerializerOptions
-        {
+        public JsonSerializerSettings SerializerOptions {
             get; set;
         } = new()
         {
@@ -48,10 +45,8 @@ namespace ModCore.Storage
         /// <summary>
         /// The configured value
         /// </summary>
-        public T Value
-        {
-            get
-            {
+        public T Value {
+            get {
                 if (value == null)
                 {
                     Load();
@@ -59,8 +54,7 @@ namespace ModCore.Storage
                 Debug.Assert(value != null);
                 return value!;
             }
-            set
-            {
+            set {
                 this.value = value;
             }
         }

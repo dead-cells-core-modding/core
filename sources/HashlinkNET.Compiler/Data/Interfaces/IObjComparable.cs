@@ -4,8 +4,7 @@ namespace HashlinkNET.Compiler.Data.Interfaces
 {
     interface IObjComparable
     {
-        public MethodReference? Compare
-        {
+        public MethodReference? Compare {
             get;
         }
     }

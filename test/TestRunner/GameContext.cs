@@ -40,7 +40,7 @@ namespace TestRunner
         void IOnBeforeGameInit.OnBeforeGameInit()
         {
             gameInitEvent.Set();
-            while(true)
+            while (true)
             {
                 Thread.Yield();
             }

@@ -13,7 +13,7 @@ namespace ModCore.Events.Interfaces.Game.Save
         /// </summary>
         /// <param name="Data">Save data</param>
         /// <param name="OnlyGameData">Whether to include only game data</param>
-        public record class EventData(User Data, bool OnlyGameData);
+        public record class EventData( User Data, bool OnlyGameData );
         /// <summary>
         /// 
         /// </summary>

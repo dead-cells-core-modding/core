@@ -24,7 +24,9 @@ namespace ModCore
              FolderInfo.GameRoot.FullPath
             ];
         public static Config<CoreConfig> Config { get; } = new("modcore");
-        public static string Version { get; } = typeof(Core).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
+        public static string Version {
+            get;
+        } = typeof(Core).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
                 "Unknown";
         public static Thread MainThread { get; } = Thread.CurrentThread;
         public static void ThrowIfNotMainThread()
@@ -49,7 +51,7 @@ namespace ModCore
 
         public static void LoadCoreModules(
             Assembly asm,
-            CoreModuleAttribute.CoreModuleKind kind)
+            CoreModuleAttribute.CoreModuleKind kind )
         {
             var os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                    ? CoreModuleAttribute.SupportOSKind.Windows
@@ -82,7 +84,7 @@ namespace ModCore
             }
         }
 
-        
+
 
         internal static void Initialize()
         {
@@ -147,7 +149,7 @@ namespace ModCore
                 }
                 return null;
             });
-            
+
         }
 
         private static Assembly? CurrentDomain_AssemblyResolve( object? sender, ResolveEventArgs args )

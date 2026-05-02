@@ -27,8 +27,7 @@ namespace ModCore.Modules
         /// <summary>
         /// Get the library handle of libhl
         /// </summary>
-        public nint LibhlHandle
-        {
+        public nint LibhlHandle {
             get; private set;
         }
         /// <summary>
@@ -36,9 +35,8 @@ namespace ModCore.Modules
         /// </summary>
         public Thread MainThread { get; private set; } = null!;
 
-       
-        internal Native.Native.VMContext* Context
-        {
+
+        internal Native.Native.VMContext* Context {
             get; private set;
         }
 
@@ -90,7 +88,7 @@ namespace ModCore.Modules
 
             Logger.Information("Hooking functions");
 
-            
+
         }
 
         void IOnHashlinkVMReady.OnHashlinkVMReady()
@@ -129,9 +127,10 @@ namespace ModCore.Modules
                 }
                 else
                 {
-                    var result = EventSystem.BroadcastEvent<IOnResolveNativeFunction, 
+                    var result = EventSystem.BroadcastEvent<IOnResolveNativeFunction,
                         IOnResolveNativeFunction.NativeFunctionInfo, nint>(
-                            new(){
+                            new()
+                            {
                                 libname = Marshal.PtrToStringAnsi((nint)data->libName)!,
                                 name = Marshal.PtrToStringAnsi((nint)data->functionName)!
                             }
@@ -147,7 +146,7 @@ namespace ModCore.Modules
 
         EventResult<nint> IOnResolveNativeFunction.OnResolveNativeFunction( IOnResolveNativeFunction.NativeFunctionInfo info )
         {
-            if(info.libname == "std")
+            if (info.libname == "std")
             {
                 if (info.name == "sys_print")
                 {

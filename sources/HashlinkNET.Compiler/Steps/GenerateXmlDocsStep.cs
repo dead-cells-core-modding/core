@@ -29,8 +29,8 @@ namespace HashlinkNET.Compiler.Steps
             var hx = gdata.Config.HaxeDocument!;
             var xml = gdata.XmlDocument;
 
-            xml.Add(new XElement("doc", 
-                new XElement("assembly", 
+            xml.Add(new XElement("doc",
+                new XElement("assembly",
                 new XElement("name", gdata.Assembly.Name.Name)
                 )
                 )
@@ -39,7 +39,7 @@ namespace HashlinkNET.Compiler.Steps
             var members = new XElement("members");
             xml.Root!.Add(members);
 
-            XElement GenerateSee(string type, string? simpleName)
+            XElement GenerateSee( string type, string? simpleName )
             {
                 StringBuilder sb = new();
                 if (type.StartsWith("hxd") ||
@@ -60,13 +60,13 @@ namespace HashlinkNET.Compiler.Steps
                     sb.Append('#');
                     sb.Append(simpleName);
                 }
-               
+
 
                 return new XElement("see", new XAttribute("href", sb.ToString()), "(Haxe Docs)\n");
             }
 
-            XElement AddMember(char kind, string? type, string name, 
-                params object[] summary)
+            XElement AddMember( char kind, string? type, string name,
+                params object[] summary )
             {
                 var m = new XElement("member");
                 members.Add(m);

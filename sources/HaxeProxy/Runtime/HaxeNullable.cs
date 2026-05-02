@@ -7,12 +7,12 @@ namespace HaxeProxy.Runtime
 {
     public unsafe class HaxeNullable<T> : IHashlinkPointer where T : struct
     {
-        public T Value { get; set; }
+        public T Value {
+            get; set;
+        }
 
-        nint IHashlinkPointer.HashlinkPointer
-        {
-            get
-            {
+        nint IHashlinkPointer.HashlinkPointer {
+            get {
                 var ptr = HashlinkNative.hl_alloc_dynamic(HashlinkMarshal.GetHashlinkType(typeof(T))!.NativeType);
                 *(T*)&ptr->val = Value;
                 return (nint)ptr;

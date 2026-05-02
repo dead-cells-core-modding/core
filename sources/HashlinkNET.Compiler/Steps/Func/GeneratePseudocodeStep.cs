@@ -47,7 +47,7 @@ namespace HashlinkNET.Compiler.Steps.Func
             }
 
             mappingData.Clear();
-            GC.Collect( );
+            GC.Collect();
         }
         protected override IReadOnlyList<HlFunction> GetItems( IDataContainer container )
         {

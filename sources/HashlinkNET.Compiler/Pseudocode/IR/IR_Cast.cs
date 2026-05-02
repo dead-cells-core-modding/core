@@ -5,7 +5,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
 {
     class IR_Cast(
         IRResult src,
-        TypeReference type) : IRBase(src)
+        TypeReference type ) : IRBase(src)
     {
         public readonly IRResult src = src;
         public TypeReference type = type;

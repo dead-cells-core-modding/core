@@ -47,8 +47,7 @@ namespace Hashlink
             return (x >> 16) | (x << 16);
         }
 
-        public static nint BoxedObjectValueOffset
-        {
+        public static nint BoxedObjectValueOffset {
             get;
         }
 

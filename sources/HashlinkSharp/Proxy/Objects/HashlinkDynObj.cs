@@ -6,7 +6,7 @@ using System.Dynamic;
 
 namespace Hashlink.Proxy.Objects
 {
-    public unsafe class HashlinkDynObj(HashlinkObjPtr ptr) : HashlinkFieldObject<HL_vdynamic>(ptr)
+    public unsafe class HashlinkDynObj( HashlinkObjPtr ptr ) : HashlinkFieldObject<HL_vdynamic>(ptr)
     {
         public HashlinkDynObj() : this(HashlinkObjPtr.Get(hl_alloc_dynobj()))
         {

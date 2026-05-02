@@ -7,11 +7,10 @@ using System.Reflection;
 namespace Hashlink.Proxy.DynamicAccess
 {
     [Obsolete]
-    public class HashlinkObjDynamicAccess( HashlinkObj obj ) : DynamicObject, 
+    public class HashlinkObjDynamicAccess( HashlinkObj obj ) : DynamicObject,
         IHashlinkPointer, IExtraData, IExtraDataItem
     {
-        public HashlinkObj HashlinkObject
-        {
+        public HashlinkObj HashlinkObject {
             get;
         } = obj;
         public HashlinkType Type => HashlinkObject.Type;
@@ -61,7 +60,7 @@ namespace Hashlink.Proxy.DynamicAccess
                 result = m.Invoke(HashlinkObject, null);
                 return true;
             }
-            return base.TryConvert( binder, out result );
+            return base.TryConvert(binder, out result);
         }
 
         public override string? ToString()

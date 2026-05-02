@@ -23,8 +23,7 @@ namespace ModCore.Events
             this.value = value;
         }
 
-        public static EventResult<T> Null
-        {
+        public static EventResult<T> Null {
             get;
         } = new();
 

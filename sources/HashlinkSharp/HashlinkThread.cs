@@ -11,7 +11,7 @@ namespace Hashlink
         [ThreadStatic]
         private static HashlinkThread? current;
 
-        private class EventListener(WeakReference<HashlinkThread> thread) : IEventReceiver,
+        private class EventListener( WeakReference<HashlinkThread> thread ) : IEventReceiver,
             IOnNativeEvent
         {
             public int Priority => 0;
@@ -33,12 +33,10 @@ namespace Hashlink
 
         public static HashlinkThread Current => current ?? throw new InvalidOperationException();
 
-        public Thread Thread
-        {
+        public Thread Thread {
             get;
         } = Thread.CurrentThread;
-        public HL_thread_info* NativeInfo
-        {
+        public HL_thread_info* NativeInfo {
             get;
         } = hl_get_thread();
         internal ref Native.NativeThreadLocal NativeData => ref native_tls_data[0];
@@ -54,14 +52,14 @@ namespace Hashlink
 
             hl2cs_return_pointers_buffer[^1] = 1;
             NativeData.hl2cs_return_pointers = (nint)Unsafe.AsPointer(ref hl2cs_return_pointers_buffer[0]);
-            
+
         }
 
         internal int ReturnPointerCount =>
             (int)(NativeData.hl2cs_return_pointers - (nint)Unsafe.AsPointer(ref hl2cs_return_pointers_buffer[0])) / sizeof(nint);
         internal ReadOnlySpan<nint> ReturnPointers => hl2cs_return_pointers_buffer.AsSpan(..ReturnPointerCount);
 
-        internal void CleanupInvalidReturnPointers(nint ptr)
+        internal void CleanupInvalidReturnPointers( nint ptr )
         {
             var bottom = (nint)Unsafe.AsPointer(ref hl2cs_return_pointers_buffer[0]);
             while (NativeData.hl2cs_return_pointers > bottom)
@@ -77,7 +75,7 @@ namespace Hashlink
         }
 
 
-        public static void RegisterThread(nint stacktop = 0)
+        public static void RegisterThread( nint stacktop = 0 )
         {
             if (current != null)
             {
@@ -109,6 +107,6 @@ namespace Hashlink
             }
             return false;
         }
-    
+
     }
 }

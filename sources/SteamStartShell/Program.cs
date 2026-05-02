@@ -3,8 +3,6 @@ using Serilog;
 using Steamworks;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -66,7 +64,7 @@ You can report or contact us via:
             Environment.SetEnvironmentVariable("DCCM_EXTRA_MODS_PATHS", string.Join(';', mods));
         }
 
-        private static async Task InitSteamAPI(bool noVerify)
+        private static async Task InitSteamAPI( bool noVerify )
         {
             bool firstAttempt = true;
 
@@ -74,7 +72,7 @@ You can report or contact us via:
 
             var initResult = SteamAPI.InitEx(out var err);
 
-            if (noVerify && 
+            if (noVerify &&
                 initResult != ESteamAPIInitResult.k_ESteamAPIInitResult_OK)
             {
                 throw new InvalidOperationException("Failed to init Steam API.");
@@ -125,7 +123,7 @@ You can report or contact us via:
             NativeLibrary.Load(steamapiPath);
         }
 
-        private static async Task SteamWork(bool noVerify)
+        private static async Task SteamWork( bool noVerify )
         {
 
             Environment.SetEnvironmentVariable("SteamAPPId", "588650");
@@ -171,7 +169,7 @@ You can report or contact us via:
                 goto _RE_TRY;
             }
 
-            if(!state.HasFlag(EItemState.k_EItemStateInstalled))
+            if (!state.HasFlag(EItemState.k_EItemStateInstalled))
             {
                 Logger.Warning("DCCM is not installed.");
                 SteamUGC.DownloadItem(new(MAPI_PFID), true);
@@ -206,7 +204,7 @@ You can report or contact us via:
                 if (ws_shellVer > cur_shellVer)
                 {
                     Logger.Information("Updating Shell to Workshop Version...");
-                    Process.Start(shellPath, [  "--update", Environment.ProcessId.ToString(), Environment.ProcessPath! ]);
+                    Process.Start(shellPath, ["--update", Environment.ProcessId.ToString(), Environment.ProcessPath!]);
                     Environment.Exit(0);
                 }
             }
@@ -247,7 +245,7 @@ You can report or contact us via:
 
             if (needUpdateModCore)
             {
-                static void CopyDir(DirectoryInfo src, DirectoryInfo dst)
+                static void CopyDir( DirectoryInfo src, DirectoryInfo dst )
                 {
                     dst.Create();
 
@@ -292,7 +290,7 @@ You can report or contact us via:
         }
         static async Task<int> Main( string[] args )
         {
-            
+
             try
             {
 
@@ -330,7 +328,7 @@ You can report or contact us via:
                     enableReporter = false;
                 }
 
-                if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_DISABLE_REPORTER"), out var disableReporter) && 
+                if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_DISABLE_REPORTER"), out var disableReporter) &&
                     disableReporter)
                 {
                     enableReporter = false;
@@ -452,7 +450,7 @@ You can report or contact us via:
 
                 if (diagnosticMode)
                 {
-                    game.OutputDataReceived += (sender, ev) =>
+                    game.OutputDataReceived += ( sender, ev ) =>
                     {
                         outputBuilder.AppendLine(ev.Data);
                         Console.WriteLine(ev.Data);
@@ -462,7 +460,7 @@ You can report or contact us via:
 
                 await game.WaitForExitAsync();
 
-                if(game.ExitCode == 0)
+                if (game.ExitCode == 0)
                 {
                     return 0;
                 }
@@ -475,7 +473,7 @@ You can report or contact us via:
                 Logger.Error(ERROR_REPORT_HEADER);
                 Logger.Information("Please check the log file for more detailed information: {path}", ERROR_REPORT_PATH);
 
-               
+
 
                 var errText = new StringBuilder();
 
@@ -497,7 +495,7 @@ You can report or contact us via:
                     }
                 }
 
-               
+
 
                 if (errOutputBuilder.Length > 0)
                 {
@@ -524,7 +522,7 @@ You can report or contact us via:
 
                 err.AppendLine(ERROR_REPORT_HEADER);
 
-                if (!string.IsNullOrEmpty(crashDumpPath) && 
+                if (!string.IsNullOrEmpty(crashDumpPath) &&
                     File.Exists(crashDumpPath))
                 {
                     err.AppendLine();
@@ -536,7 +534,7 @@ You can report or contact us via:
 
                 err.AppendLine(errTextStr);
 
-               
+
                 File.WriteAllText(ERROR_REPORT_PATH, err.ToString());
 
                 Process.Start(new ProcessStartInfo(ERROR_REPORT_PATH)

@@ -26,7 +26,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
                 {
                     type = new GenericInstanceType(ftypes.ActionTypes[func.Arguments.Length]);
                 }
-                
+
             }
             else
             {

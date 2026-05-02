@@ -27,8 +27,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                 _ => throw new NotImplementedException()
             };
         }
-        public IRBasicBlockData Target
-        {
+        public IRBasicBlockData Target {
             get => target;
             set => target = value;
         }

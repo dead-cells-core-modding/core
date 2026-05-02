@@ -11,7 +11,7 @@ namespace HashlinkNET.Compiler.Steps.Class
         {
             return type.Kind == HlTypeKind.Obj || type.Kind == HlTypeKind.Struct;
         }
-        public override void Execute( IDataContainer container, HlCode code, GlobalData gdata, 
+        public override void Execute( IDataContainer container, HlCode code, GlobalData gdata,
             RuntimeImports rdata, HlType type )
         {
             var ot = (HlTypeWithObj)type;

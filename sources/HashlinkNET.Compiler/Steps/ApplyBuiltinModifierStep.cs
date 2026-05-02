@@ -51,7 +51,7 @@ namespace HashlinkNET.Compiler.Steps
 
         protected override IReadOnlyList<TypeDefinition> GetItems( IDataContainer container )
         {
-            return [..container.GetGlobalData<GlobalData>().Assembly.MainModule.Types];
+            return [.. container.GetGlobalData<GlobalData>().Assembly.MainModule.Types];
         }
     }
 }

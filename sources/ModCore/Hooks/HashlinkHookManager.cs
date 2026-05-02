@@ -26,7 +26,7 @@ namespace ModCore.Hooks
 
         private readonly static MethodInfo MI_HookEntry = typeof(HashlinkHookManager).GetMethod(
             nameof(HookEntry), BindingFlags.NonPublic | BindingFlags.Instance)!;
-        public HashlinkHookManager(nint target, HashlinkFunction func)
+        public HashlinkHookManager( nint target, HashlinkFunction func )
         {
             function = func;
             funcType = func.FuncType.BaseFunc;
@@ -34,15 +34,15 @@ namespace ModCore.Hooks
                 func.FuncType
                 );
             hook = NativeHooks.Instance.CreateHook(
-                target + HashlinkFunction.FS_OFFSET_NATIVE_HOOK, 
+                target + HashlinkFunction.FS_OFFSET_NATIVE_HOOK,
                 callback.NativePointer, true);
             callback.RedirectTarget = hook.Original;
             callback.Target = CreateDelegateAdapt().CreateAnonymousDelegate(this);
 
-            
+
         }
 
-        private DynamicMethod CreateDelegateAdapt(  )
+        private DynamicMethod CreateDelegateAdapt()
         {
             var targs = new Type[funcType.ArgTypes.Length + 1];
             targs[0] = typeof(HashlinkHookManager);

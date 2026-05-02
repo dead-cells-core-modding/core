@@ -15,8 +15,7 @@ namespace ModCore.Storage
         /// <summary>
         /// A value indicating the folder where the core file is located
         /// </summary>
-        public static FolderInfo CoreRoot
-        {
+        public static FolderInfo CoreRoot {
             get;
         } = new("CORE_ROOT",
             Path.GetDirectoryName(
@@ -26,15 +25,13 @@ namespace ModCore.Storage
         /// <summary>
         /// A value representing the folder where all native files are located
         /// </summary>
-        public static FolderInfo NativeRoot
-        {
+        public static FolderInfo NativeRoot {
             get;
         } = new("CORE_NATIVE_ROOT", "{CORE_ROOT}core/native");
         /// <summary>
         /// A value representing the folder where the native files for the current platform are located
         /// </summary>
-        public static FolderInfo CurrentNativeRoot
-        {
+        public static FolderInfo CurrentNativeRoot {
             get;
         } =
             new("CORE_CURRENT_NATIVE_ROOT", "{CORE_NATIVE_ROOT}" +
@@ -89,16 +86,14 @@ namespace ModCore.Storage
         /// <summary>
         /// The name of the folder
         /// </summary>
-        public string Name
-        {
+        public string Name {
             get;
         }
 
         /// <summary>
         /// The full path to the folder
         /// </summary>
-        public string FullPath
-        {
+        public string FullPath {
             get;
         }
 

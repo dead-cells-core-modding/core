@@ -17,7 +17,7 @@ namespace ModCore.Hooks
             value.type = funcType.NativeType;
             return HashlinkObjPtr.Get(Unsafe.AsPointer(ref value));
         }
-        public HookOrigClosure( HashlinkFuncType funcType, Delegate target ) : 
+        public HookOrigClosure( HashlinkFuncType funcType, Delegate target ) :
             base(GetLocalValuePtr(funcType))
         {
             callback = HlCallbackFactory.GetHlCallback(

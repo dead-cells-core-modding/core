@@ -5,8 +5,7 @@ namespace Hashlink.Proxy
         public HL_type* Type => *(HL_type**)Pointer;
         public TypeKind TypeKind => Type->kind;
         public bool IsNull => Pointer == 0;
-        public nint Pointer
-        {
+        public nint Pointer {
             get;
         }
 

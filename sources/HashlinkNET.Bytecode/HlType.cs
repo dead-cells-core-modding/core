@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 namespace HashlinkNET.Bytecode;
 
@@ -39,15 +39,13 @@ public class HlType
     /// <summary>
     ///     The kind of type.
     /// </summary>
-    public HlTypeKind Kind
-    {
+    public HlTypeKind Kind {
         get; set;
     }
     /// <summary>
     ///     The index of type.
     /// </summary>
-    public int TypeIndex
-    {
+    public int TypeIndex {
         get; set;
     }
     public virtual string GetShortName()
@@ -75,8 +73,7 @@ public sealed class HlTypeWithAbsName : HlType, IHlNamedType
     /// <summary>
     ///     The name of the abstract.
     /// </summary>
-    public string AbstractName
-    {
+    public string AbstractName {
         get; set;
     }
 
@@ -96,16 +93,14 @@ public class HlTypeFun
     /// <summary>
     ///     The arguments of the function.
     /// </summary>
-    public HlTypeRef[] Arguments
-    {
+    public HlTypeRef[] Arguments {
         get; set;
     }
 
     /// <summary>
     ///     The return type of the function.
     /// </summary>
-    public HlTypeRef ReturnType
-    {
+    public HlTypeRef ReturnType {
         get; set;
     }
 
@@ -124,8 +119,7 @@ public sealed class HlTypeWithFun : HlType
     /// <summary>
     ///     The function description.
     /// </summary>
-    public HlTypeFun FunctionDescription
-    {
+    public HlTypeFun FunctionDescription {
         get; set;
     }
 
@@ -149,17 +143,14 @@ public sealed class HlTypeWithFun : HlType
 
 public class HlObjField
 {
-    public string Name
-    {
+    public string Name {
         get; set;
     }
 
-    public HlTypeRef Type
-    {
+    public HlTypeRef Type {
         get; set;
     }
-    public int Index
-    {
+    public int Index {
         get; set;
     }
     public HlObjField( string name, HlTypeRef type, int index )
@@ -172,18 +163,15 @@ public class HlObjField
 
 public class HlObjProto
 {
-    public string Name
-    {
+    public string Name {
         get; set;
     }
 
-    public int FIndex
-    {
+    public int FIndex {
         get; set;
     }
 
-    public int PIndex
-    {
+    public int PIndex {
         get; set;
     }
 
@@ -203,48 +191,42 @@ public class HlTypeObj
     /// <summary>
     ///     The name of the object.
     /// </summary>
-    public string Name
-    {
+    public string Name {
         get; set;
     }
 
     /// <summary>
     ///     The type being inherited, if applicable.
     /// </summary>
-    public HlTypeRef? Super
-    {
+    public HlTypeRef? Super {
         get; set;
     }
 
     /// <summary>
     ///     The fields of the object.
     /// </summary>
-    public HlObjField[] Fields
-    {
+    public HlObjField[] Fields {
         get; set;
     }
 
     /// <summary>
     ///     The prototypes of the object.
     /// </summary>
-    public HlObjProto[] Protos
-    {
+    public HlObjProto[] Protos {
         get; set;
     }
 
-    public record struct BindingData(int FieldIndex, int FunctionIndex);
+    public record struct BindingData( int FieldIndex, int FunctionIndex );
 
-    public BindingData[] Bindings
-    {
+    public BindingData[] Bindings {
         get; set;
     }
 
-    public int GlobalValue
-    {
+    public int GlobalValue {
         get; set;
     }
 
-    public HlTypeObj( string name, HlTypeRef? super, HlObjField[] fields, 
+    public HlTypeObj( string name, HlTypeRef? super, HlObjField[] fields,
         HlObjProto[] protos,
         BindingData[] bindings, int globalValue )
     {
@@ -265,8 +247,7 @@ public sealed class HlTypeWithObj : HlType, IHlNamedType
     /// <summary>
     ///     The object description.
     /// </summary>
-    public HlTypeObj Obj
-    {
+    public HlTypeObj Obj {
         get; set;
     }
 
@@ -295,18 +276,15 @@ public sealed class HlTypeWithObj : HlType, IHlNamedType
 
 public class HlEnumConstruct
 {
-    public string Name
-    {
+    public string Name {
         get; set;
     }
 
-    public HlTypeRef[] Params
-    {
+    public HlTypeRef[] Params {
         get; set;
     }
 
-    public int[] Offsets
-    {
+    public int[] Offsets {
         get; set;
     }
 
@@ -320,18 +298,15 @@ public class HlEnumConstruct
 
 public class HlTypeEnum
 {
-    public string Name
-    {
+    public string Name {
         get; set;
     }
 
-    public HlEnumConstruct[] Constructs
-    {
+    public HlEnumConstruct[] Constructs {
         get; set;
     }
 
-    public int GlobalValue
-    {
+    public int GlobalValue {
         get; set;
     }
 
@@ -345,8 +320,7 @@ public class HlTypeEnum
 
 public sealed class HlTypeWithEnum : HlType, IHlNamedType
 {
-    public HlTypeEnum Enum
-    {
+    public HlTypeEnum Enum {
         get; set;
     }
 
@@ -360,8 +334,7 @@ public sealed class HlTypeWithEnum : HlType, IHlNamedType
 
 public class HlTypeVirtual
 {
-    public HlObjField[] Fields
-    {
+    public HlObjField[] Fields {
         get; set;
     }
 
@@ -402,8 +375,7 @@ public sealed class HlTypeWithVirtual : HlType
         AppendName(sb, []);
         return sb.ToString();
     }
-    public HlTypeVirtual Virtual
-    {
+    public HlTypeVirtual Virtual {
         get; set;
     }
 
@@ -415,8 +387,7 @@ public sealed class HlTypeWithVirtual : HlType
 
 public sealed class HlTypeWithType : HlType
 {
-    public HlTypeRef Type
-    {
+    public HlTypeRef Type {
         get; set;
     }
 

@@ -1,10 +1,8 @@
 ﻿using dc.hxd.fs;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.DynamicAccess;
-using HashlinkNET.Native.Impl;
 using HaxeProxy.Runtime;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace TestRunner
 {

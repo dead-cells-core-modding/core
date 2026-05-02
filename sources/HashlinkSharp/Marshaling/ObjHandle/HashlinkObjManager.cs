@@ -2,7 +2,6 @@ using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
-using MonoMod.Core.Platforms;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -49,7 +48,7 @@ namespace Hashlink.Marshaling.ObjHandle
             }
         }
 
-        private static readonly List<ObjHandle[]> handlePages = [ 
+        private static readonly List<ObjHandle[]> handlePages = [
             [], new ObjHandle[1]
             ]; // 0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...
         private static ObjHandle[] currentHandlePage = handlePages[1];
@@ -172,7 +171,7 @@ namespace Hashlink.Marshaling.ObjHandle
 
                     Debug.Assert(!currentHandlePage[currentIndex].valid);
 
-                    var hobjHandle = (HashlinkObjHandle?) (curHandle.strongRef ?? 
+                    var hobjHandle = (HashlinkObjHandle?)(curHandle.strongRef ??
                         curHandle.weakRef.Target);
 
                     Debug.Assert(hobjHandle != null);
@@ -181,10 +180,10 @@ namespace Hashlink.Marshaling.ObjHandle
                     rootsArray[i] = curHandle.hlPtr;
                 }
                 data.nroots = rootsCount;
-                data.roots = (void**) Unsafe.AsPointer(ref rootsArray[0]);
+                data.roots = (void**)Unsafe.AsPointer(ref rootsArray[0]);
             }
 
-            private static void CleanStrongRef( )
+            private static void CleanStrongRef()
             {
                 var freeCount = 0;
                 var genCount = 0;
@@ -225,7 +224,7 @@ namespace Hashlink.Marshaling.ObjHandle
                     CleanStrongRef();
                     Debug.Assert(GetObjHandle(gcTrapObj.Handle!.handleIndex).strongRef != null);
                     gcLock.ExitWriteLock();
-                    
+
                 }
                 else if (ev.EventId == IOnNativeEvent.EventId.HL_EV_GC_SEARCH_ROOT)
                 {
@@ -245,7 +244,7 @@ namespace Hashlink.Marshaling.ObjHandle
             return (1 << (currentHandlePageIndex - 1)) - 1;
         }
 
-        private static ref ObjHandle AllocObjHandle(out int index)
+        private static ref ObjHandle AllocObjHandle( out int index )
         {
             try
             {
@@ -289,10 +288,10 @@ namespace Hashlink.Marshaling.ObjHandle
                 gcLock.ExitReadLock();
             }
         }
-       
+
         private static ref ObjHandle GetObjHandle( int index )
         {
-            var pageIndex = index == 0 ? 
+            var pageIndex = index == 0 ?
                 1 : (32 - BitOperations.LeadingZeroCount((uint)index + 1));
             var offset = index - ((1 << (pageIndex - 1)) - 1);
             var page = handlePages[pageIndex];
@@ -302,7 +301,7 @@ namespace Hashlink.Marshaling.ObjHandle
 
         private static readonly ReaderWriterLockSlim gcLock = new();
 
-       
+
         private static nint* GetObjWrapperPtr( void* ptr )
         {
             var size = hl_gc_get_memsize(ptr);
@@ -353,7 +352,7 @@ namespace Hashlink.Marshaling.ObjHandle
                 }
 
                 Debug.Assert(handle.nativeHLPtr == ptr);
-                
+
 
                 ref var h = ref GetObjHandle(handle.handleIndex);
 

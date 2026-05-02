@@ -1,4 +1,4 @@
-﻿namespace HashlinkNET.Bytecode;
+namespace HashlinkNET.Bytecode;
 
 /// <summary>
 ///     A HashLink bytecode binary file.
@@ -11,24 +11,21 @@ public sealed class HlCode
     /// <summary>
     ///     The binary file format version.
     /// </summary>
-    public int Version
-    {
+    public int Version {
         get; set;
     }
 
     /// <summary>
     ///     The index of the entrypoint function.
     /// </summary>
-    public int Entrypoint
-    {
+    public int Entrypoint {
         get; set;
     }
 
     /// <summary>
     ///     Whether this binary file contains debug information.
     /// </summary>
-    public bool HasDebug
-    {
+    public bool HasDebug {
         get; set;
     }
 
@@ -36,8 +33,7 @@ public sealed class HlCode
     ///     The unified function indexes, mapping both functions and natives to
     ///     a single set.
     /// </summary>
-    public int[] FunctionIndexes
-    {
+    public int[] FunctionIndexes {
         get; set;
     } = [];
 
@@ -105,8 +101,7 @@ public sealed class HlCode
     ///     The unified constant indexes, mapping constant to
     ///     a single set.
     /// </summary>
-    public int[] ConstantIndexes
-    {
+    public int[] ConstantIndexes {
         get; set;
     } = [];
     /// <summary>
@@ -142,7 +137,7 @@ public sealed class HlCode
         return Functions[idx];
     }
 
-  
+
 
     /// <summary>
     ///     Retrieves a type from this binary file.

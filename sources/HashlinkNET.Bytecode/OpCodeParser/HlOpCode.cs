@@ -3,7 +3,7 @@ namespace HashlinkNET.Bytecode.OpCodeParser
     public class HlOpCode(
         HlOpcodeKind kind,
         HlOpCode.PayloadKind[] payloads,
-        HlOpCode.PayloadKind? variablePayload = null)
+        HlOpCode.PayloadKind? variablePayload = null )
     {
         [Flags]
         public enum PayloadKind
@@ -36,16 +36,13 @@ namespace HashlinkNET.Bytecode.OpCodeParser
             ExtraParamPointer = 1 << 20,
             StoreResult = 1 << 21,
         }
-        public HlOpcodeKind OpCode
-        {
+        public HlOpcodeKind OpCode {
             get;
         } = kind;
-        public PayloadKind[] Payloads
-        {
+        public PayloadKind[] Payloads {
             get;
         } = payloads;
-        public PayloadKind? VariablePayload
-        {
+        public PayloadKind? VariablePayload {
             get;
         } = variablePayload;
 

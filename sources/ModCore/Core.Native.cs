@@ -1,9 +1,6 @@
 using ModCore.Storage;
-using MonoMod.Core;
 using NonPublicNativeMembers;
 using Serilog;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 using NN = ModCore.Native.Native;
@@ -12,7 +9,7 @@ namespace ModCore
 {
     internal partial class Core
     {
-        
+
         private readonly static NativeMembersManager nativeMembers = NativeMembersManager.Create();
 
         private static nint phLibhl;

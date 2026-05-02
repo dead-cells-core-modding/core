@@ -8,7 +8,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
         MethodReference? invokeMethod,
         IRResult src,
         params IRResult[] args
-        ) : IRBase([src, ..args])
+        ) : IRBase([src, .. args])
     {
         public MethodReference? invokeMethod = invokeMethod;
         public readonly IRResult src = src;
@@ -28,7 +28,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
             else
             {
                 var im = container.GetData<RuntimeImports>(container.Parent!).delegateDynInvokeMethod;
-                
+
                 il.Emit(OpCodes.Ldc_I4, args.Length);
                 il.Emit(OpCodes.Newarr, ctx.TypeSystem.Object);
 

@@ -6,13 +6,11 @@ namespace HashlinkNET.Compiler.Pseudocode
 {
     class IRResult
     {
-        public int Index
-        {
+        public int Index {
             get; set;
         }
         public bool IsNone => IR is null;
-        public IRBase? IR
-        {
+        public IRBase? IR {
             get; set;
         }
 

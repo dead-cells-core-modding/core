@@ -1,7 +1,4 @@
 using dc;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ModCore
 {
@@ -33,24 +30,21 @@ namespace ModCore
         /// <summary>
         /// Gets the version of the DCCM.
         /// </summary>
-        public static Version DCCMVersion
-        {
+        public static Version DCCMVersion {
             get;
         } = typeof(GameInfo).Assembly.GetName().Version!;
 
         /// <summary>
         /// Gets the current platform on which the game is running.
         /// </summary>
-        public static PlatformKind Platform
-        {
+        public static PlatformKind Platform {
             get; internal set;
         } = PlatformKind.Unknown;
 
         /// <summary>
         /// Gets the computed HLBoot hash value as a byte array.
         /// </summary>
-        public static byte[] HlbootHash
-        {
+        public static byte[] HlbootHash {
             get; internal set;
         } = [];
     }

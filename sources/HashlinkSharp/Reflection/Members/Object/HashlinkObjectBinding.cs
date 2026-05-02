@@ -4,18 +4,16 @@ namespace Hashlink.Reflection.Members.Object
 {
     public unsafe class HashlinkObjectBinding : HashlinkMember
     {
-        public HashlinkObjectBinding(HashlinkModule module, int* ptr,  HashlinkObjectType type) : base(module, ptr)
+        public HashlinkObjectBinding( HashlinkModule module, int* ptr, HashlinkObjectType type ) : base(module, ptr)
         {
             Field = type.FindFieldById(ptr[0])!;
             Function = (HashlinkFunction)module.GetFunctionByFIndex(ptr[1]);
         }
 
-        public HashlinkField Field
-        {
+        public HashlinkField Field {
             get;
         }
-        public HashlinkFunction Function
-        {
+        public HashlinkFunction Function {
             get;
         }
         public override string? Name => Field.Name;
