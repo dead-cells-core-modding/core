@@ -7,7 +7,7 @@
     <Company>Dead Cells Core Modding</Company>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CopyDocumentationFilesFromPackages>true</CopyDocumentationFilesFromPackages>
-
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
   </PropertyGroup>
 
