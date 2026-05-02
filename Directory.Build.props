@@ -7,6 +7,8 @@
     <Company>Dead Cells Core Modding</Company>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CopyDocumentationFilesFromPackages>true</CopyDocumentationFilesFromPackages>
+
+    <NoWarn>$(NoWarn);MSB3270</NoWarn>
   </PropertyGroup>
 
 </Project>

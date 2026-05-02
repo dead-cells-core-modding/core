@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HaxeProxy\HaxeProxy.csproj" />
+    <ProjectReference Include="..\ModCore.Common\ModCore.Common.csproj" />
+    <ProjectReference Include="..\ModCore.Native\ModCore.Native.csproj" />
+  </ItemGroup>
+
+</Project>
