@@ -10,12 +10,13 @@ namespace Hashlink.Reflection
             NativePointer = ptr;
         }
 
-        public void* NativePointer
-        {
+        public void* NativePointer {
             get;
         }
-        public HashlinkMember? Member { get; internal set; }
+        public HashlinkMember? Member {
+            get; internal set;
+        }
 
-        
+
     }
 }

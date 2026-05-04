@@ -1,6 +1,5 @@
 using ModCore;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
 namespace DCCMShell
@@ -9,17 +8,17 @@ namespace DCCMShell
     {
         public static void StartFromShell( nint _, int _1 )
         {
-            var loadAssemblies = Environment.GetEnvironmentVariable("DCCM_LOAD_ADDITIONAL_ASSEMBLIES")?.Split(';', StringSplitOptions.RemoveEmptyEntries | 
+            var loadAssemblies = Environment.GetEnvironmentVariable("DCCM_LOAD_ADDITIONAL_ASSEMBLIES")?.Split(';', StringSplitOptions.RemoveEmptyEntries |
                 StringSplitOptions.TrimEntries) ?? [];
             foreach (var asmPath in loadAssemblies)
             {
                 AssemblyLoadContext.Default.LoadFromAssemblyPath(asmPath);
             }
-         
+
             Environment.SetEnvironmentVariable("SteamAPPId", "588650");
 
             var err = Startup.CheckEnv(out var errMsg);
-            if(err != Startup.CheckEnvResult.Success)
+            if (err != Startup.CheckEnvResult.Success)
             {
                 if (err == Startup.CheckEnvResult.DotnetVersionTooLow)
                 {
@@ -33,7 +32,7 @@ namespace DCCMShell
                 Environment.Exit(-1);
             }
 
-            if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_SHOULD_WAIT_FOR_DEBUGGER"), out var shouldWaitForDebugger) && 
+            if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_SHOULD_WAIT_FOR_DEBUGGER"), out var shouldWaitForDebugger) &&
                 shouldWaitForDebugger)
             {
                 Console.WriteLine("Waiting for debugger attach...");
@@ -45,8 +44,8 @@ namespace DCCMShell
                 try
                 {
                     var proc = Process.GetProcessById(parentPID);
-                   
-                   
+
+
                     new Thread(_ =>
                     {
                         Console.WriteLine("Attaching to parent process: " + parentPID);
@@ -64,23 +63,24 @@ namespace DCCMShell
                     {
                         IsBackground = true
                     }.Start();
-                } catch
+                }
+                catch
                 {
                     Environment.Exit(-1);
                 }
             }
 
             var customStartType = Environment.GetEnvironmentVariable("DCCM_CUSTOM_STARTUP_TYPE");
-            if(!string.IsNullOrEmpty(customStartType))
+            if (!string.IsNullOrEmpty(customStartType))
             {
                 var type = Type.GetType(customStartType, throwOnError: true);
                 Debug.Assert(type != null);
                 var methodName = Environment.GetEnvironmentVariable("DCCM_CUSTOM_STARTUP_METHOD");
-                if(string.IsNullOrEmpty(methodName))
+                if (string.IsNullOrEmpty(methodName))
                 {
                     methodName = "Main";
                 }
-                var method = type.GetMethod(methodName, System.Reflection.BindingFlags.Public | 
+                var method = type.GetMethod(methodName, System.Reflection.BindingFlags.Public |
                     System.Reflection.BindingFlags.Static) ?? throw new MissingMethodException(customStartType, methodName);
                 method.Invoke(null, null);
                 return;
@@ -88,7 +88,7 @@ namespace DCCMShell
 
             Startup.StartGame();
         }
-   
+
         public static void Main( string[] args )
         {
             StartFromShell(0, 0);

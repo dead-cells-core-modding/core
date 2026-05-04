@@ -6,9 +6,9 @@ using System.Xml.Linq;
 
 namespace HashlinkNET.Compiler.Data
 {
-    internal record class FunctionTypes( 
-        TypeReference[] FuncTypes, 
-        TypeReference[] ActionTypes 
+    internal record class FunctionTypes(
+        TypeReference[] FuncTypes,
+        TypeReference[] ActionTypes
         );
     internal record class GlobalData
     (

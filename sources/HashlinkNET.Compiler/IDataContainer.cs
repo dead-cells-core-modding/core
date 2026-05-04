@@ -4,15 +4,14 @@ namespace HashlinkNET.Compiler
 {
     internal interface IDataContainer
     {
-        IDataContainer? Parent
-        {
+        IDataContainer? Parent {
             get;
             set;
         }
 
         TData AddData<TData>( object obj ) where TData : class, new()
         {
-            return AddData( obj , new TData());
+            return AddData(obj, new TData());
         }
         TData TryAddData<TData>( object obj, TData data ) where TData : class;
         TData AddData<TData>( object obj, TData data ) where TData : class;
@@ -22,14 +21,14 @@ namespace HashlinkNET.Compiler
             AddData(obj2, data);
             return data;
         }
-        void AddDataEach( object obj, object obj2)
+        void AddDataEach( object obj, object obj2 )
         {
             AddData(obj, obj2);
             AddData(obj2, obj);
         }
         TData GetData<TData>( object obj ) where TData : class;
         bool TryGetData<TData>( object? obj, [NotNullWhen(true)] out TData? data ) where TData : class;
-        TData GetGlobalData<TData>( ) where TData : class
+        TData GetGlobalData<TData>() where TData : class
         {
             return TryGetGlobalData<TData>(out var result) ? result : Parent!.GetGlobalData<TData>();
         }
@@ -41,7 +40,7 @@ namespace HashlinkNET.Compiler
         {
             return AddData(this, data);
         }
-        TData AddGlobalData<TData>( ) where TData : class, new()
+        TData AddGlobalData<TData>() where TData : class, new()
         {
             return AddData(this, new TData());
         }

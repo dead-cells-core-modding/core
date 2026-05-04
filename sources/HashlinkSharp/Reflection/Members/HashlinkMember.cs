@@ -4,20 +4,16 @@ namespace Hashlink.Reflection.Members
 {
     public unsafe class HashlinkMember
     {
-        public HashlinkMemberHandle? Handle
-        {
+        public HashlinkMemberHandle? Handle {
             get;
         }
-        public void* NativePointer
-        {
+        public void* NativePointer {
             get;
         }
 
         private int? cachedHashedName;
-        public virtual int HashedName
-        {
-            get
-            {
+        public virtual int HashedName {
+            get {
                 if (string.IsNullOrEmpty(Name))
                 {
                     return 0;
@@ -35,14 +31,13 @@ namespace Hashlink.Reflection.Members
         }
         public virtual string? Name => null;
         public virtual HashlinkType? DeclaringType => null;
-        public HashlinkModule Module
-        {
+        public HashlinkModule Module {
             get;
         }
 
         public HashlinkMember( HashlinkModule module, void* ptr )
         {
-            Handle = module.GetHandle( ptr );
+            Handle = module.GetHandle(ptr);
             if (Handle != null)
             {
                 if (Handle.Member != null)

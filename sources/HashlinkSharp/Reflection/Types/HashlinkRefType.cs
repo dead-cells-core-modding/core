@@ -1,6 +1,6 @@
 namespace Hashlink.Reflection.Types
 {
-    public unsafe class HashlinkRefType(HashlinkModule module, HL_type* type) : HashlinkSpecialType<HL_type>(module, type)
+    public unsafe class HashlinkRefType( HashlinkModule module, HL_type* type ) : HashlinkSpecialType<HL_type>(module, type)
     {
         private HashlinkType? cachedRefType;
 

@@ -2,7 +2,7 @@ using System.Collections;
 
 namespace HashlinkNET.Compiler.Pseudocode.Data.DFA
 {
-    class RegisterAccessData(int regCount)
+    class RegisterAccessData( int regCount )
     {
         public readonly BitArray firstReadReg = new(regCount);
         public readonly BitArray firstWriteReg = new(regCount);

@@ -39,7 +39,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                     {
                         scope.End = new(last);
                     }
-                   
+
                     scope = new(last, last)
                     {
                         End = ctx.Scope.End,
@@ -48,7 +48,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                     scope.Variables.Add(new VariableDebugInformation(dst.Variable, assign));
                     ctx.Scope.Scopes.Add(scope);
                 }
-                
+
 
             }
             return null;

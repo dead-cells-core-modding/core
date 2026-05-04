@@ -26,15 +26,15 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     //Param
                     regs.Add(new(HlFuncRegisterData.RegisterKind.Parameter, i)
                     {
-                        Parameter = md.HasThis ? 
-                            (i == 0 ?  md.Body.ThisParameter : md.Parameters[i - 1]) 
+                        Parameter = md.HasThis ?
+                            (i == 0 ? md.Body.ThisParameter : md.Parameters[i - 1])
                             : md.Parameters[i]
                     });
                 }
                 else
                 {
                     //LocalVar
-                    
+
                     var hlv = f.LocalVariables[i].Value;
                     if (hlv.Kind == Bytecode.HlTypeKind.Void)
                     {
@@ -53,7 +53,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     Debug.Assert(lv.Index == gdata.LocalRegisters.Count);
                     gdata.LocalRegisters.Add(reg);
                     regs.Add(reg);
-                   
+
                 }
 
             }
@@ -67,7 +67,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         continue;
                     }
 
-                    if (!gdata.Assigns.TryGetValue(v.Index , out var list))
+                    if (!gdata.Assigns.TryGetValue(v.Index, out var list))
                     {
                         list = [];
                         gdata.Assigns[v.Index] = list;

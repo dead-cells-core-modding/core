@@ -11,7 +11,7 @@ namespace ModCore.Events.Interfaces.Game.Save
         /// </summary>
         /// <param name="SlotFrom">Original save slot ID</param>
         /// <param name="SlotTo">Destination save slot id</param>
-        public record class EventData(int SlotFrom, int SlotTo);
+        public record class EventData( int SlotFrom, int SlotTo );
         /// <summary>
         /// 
         /// </summary>

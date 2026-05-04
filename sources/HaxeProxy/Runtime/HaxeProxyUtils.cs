@@ -31,14 +31,14 @@ namespace HaxeProxy.Runtime
             var ca = type.GetCustomAttribute<HashlinkTIndexAttribute>(false);
             if (ca is not null)
             {
-                return (HashlinkObjectType) HashlinkMarshal.Module.Types[ca.Index];
+                return (HashlinkObjectType)HashlinkMarshal.Module.Types[ca.Index];
             }
             InheritanceManager.Check(type, null, out var cht);
             return cht.Type;
         }
         public static Type GetProxyType( HashlinkType type )
         {
-            return HaxeProxyManager.GetTypeFromHashlinkType( type );
+            return HaxeProxyManager.GetTypeFromHashlinkType(type);
         }
         public static TClass GetClass<TClass>( Type type ) where TClass : HaxeProxyBase
         {

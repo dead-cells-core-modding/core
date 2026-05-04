@@ -20,7 +20,7 @@ namespace Hashlink.Wrapper.Callbacks
         private static readonly MethodInfo MI_WrapperHelper_GetObjectFromPtr = typeof(WrapperHelper)
             .GetMethod(nameof(WrapperHelper.GetObjectFromPtr))!;
         private static readonly MethodInfo MI_WrapperHelper_ThrowNETException = typeof(WrapperHelper)
-            .GetMethod(nameof(WrapperHelper.ThrowNetException))!; 
+            .GetMethod(nameof(WrapperHelper.ThrowNetException))!;
         private static readonly MethodInfo MI_WrapperHelper_CallbackCleanup = typeof(WrapperHelper)
             .GetMethod(nameof(WrapperHelper.CallbackCleanup))!;
         private static readonly MethodInfo MI_hl_blocking = typeof(WrapperHelper)
@@ -49,7 +49,7 @@ namespace Hashlink.Wrapper.Callbacks
 
             var targs = new Type[args.Length + 1];
             var dargs = new Type[args.Length];
-   
+
             List<(int pid, LocalBuilder loc, int tid)>? objRefs = null;
 
             targs[0] = typeof(HlCallbackInfo);
@@ -63,7 +63,7 @@ namespace Hashlink.Wrapper.Callbacks
             var dm = new DynamicMethod("hl_to_cs+" + sign.ToString(),
                 GetNativeType(sign.ReturnType.TypeKind), targs, true);
 
-           
+
 
             var ilg = dm.GetILGenerator();
 
@@ -102,7 +102,7 @@ namespace Hashlink.Wrapper.Callbacks
 
             for (var i = 0; i < args.Length; i++)
             {
-                
+
                 ilg.Emit(OpCodes.Ldarg, i + 1);
                 var k = args[i].TypeKind;
                 if (args[i] is HashlinkRefType rtype)
@@ -123,7 +123,7 @@ namespace Hashlink.Wrapper.Callbacks
                 {
                     ilg.Emit(OpCodes.Call, MI_WrapperHelper_GetObjectFromPtr);
                 }
-                
+
             }
 
             ilg.Emit(OpCodes.Ldarg_0);
@@ -159,7 +159,7 @@ namespace Hashlink.Wrapper.Callbacks
             }
 
             ilg.Emit(OpCodes.Leave, endOfMethod);
-            
+
 
             ilg.BeginCatchBlock(typeof(Exception));
 
@@ -188,7 +188,7 @@ namespace Hashlink.Wrapper.Callbacks
         public static HlCallback GetHlCallback( HashlinkFuncType sign )
         {
             var mi = hl_callback_cache.GetOrAdd(sign, CreateHlCallback);
-            return new HlCallback( mi );
+            return new HlCallback(mi);
         }
     }
 }

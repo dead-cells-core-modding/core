@@ -11,13 +11,13 @@ namespace HashlinkNET.Compiler.Steps.Class
         {
             return type.Kind == HlTypeKind.Obj;
         }
-        public override void Execute( IDataContainer container, HlCode code, 
+        public override void Execute( IDataContainer container, HlCode code,
             GlobalData gdata, RuntimeImports rdata, HlType type )
         {
             var info = container.GetData<ObjClassData>(type);
             var td = info.TypeDef;
             var ot = (HlTypeWithObj)type;
-            
+
             var obj = ot.Obj;
 
             TypeReference baseType;

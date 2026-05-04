@@ -1,4 +1,4 @@
-﻿namespace HashlinkNET.Bytecode;
+namespace HashlinkNET.Bytecode;
 
 /// <summary>
 ///     A HashLink native function.
@@ -8,32 +8,28 @@ public class HlNative
     /// <summary>
     ///     The name of the library in which the native function is defined.
     /// </summary>
-    public string Lib
-    {
+    public string Lib {
         get; set;
     }
 
     /// <summary>
     ///     The name of the native function.
     /// </summary>
-    public string Name
-    {
+    public string Name {
         get; set;
     }
 
     /// <summary>
     ///     A reference to the type definition which describes this function.
     /// </summary>
-    public HlTypeRef Type
-    {
+    public HlTypeRef Type {
         get; set;
     }
 
     /// <summary>
     ///     The index of the native function in the HashLink binary.
     /// </summary>
-    public int NativeIndex
-    {
+    public int NativeIndex {
         get; set;
     }
 

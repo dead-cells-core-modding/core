@@ -1,5 +1,5 @@
-using Mono.Cecil.Cil;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace HashlinkNET.Compiler.Pseudocode.IR.Object
 {

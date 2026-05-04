@@ -11,6 +11,6 @@ namespace ModCore.Events.Interfaces.VM
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        EventResult<nint> OnResolveNativeLib(string name);
+        EventResult<nint> OnResolveNativeLib( string name );
     }
 }

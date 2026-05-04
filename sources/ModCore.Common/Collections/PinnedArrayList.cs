@@ -14,7 +14,7 @@ namespace ModCore.Collections
 
         public bool IsReadOnly => false;
 
-        public ref T Add(T item)
+        public ref T Add( T item )
         {
             if (currentArray == null ||
                     currentIndex >= currentArray.Length)
@@ -37,7 +37,7 @@ namespace ModCore.Collections
         public int GetIndex( nint ptr )
         {
             var bs = BLOCK_SIZE * Unsafe.SizeOf<T>();
-            for(int i = 0; i < arrays.Count; i++)
+            for (int i = 0; i < arrays.Count; i++)
             {
                 var v = arrays[i];
                 var start = (nint)Unsafe.AsPointer(ref v[0]);
@@ -53,6 +53,6 @@ namespace ModCore.Collections
         {
             return GetIndex(ptr) != -1;
         }
-        
+
     }
 }

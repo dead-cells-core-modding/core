@@ -72,7 +72,7 @@ namespace ModCore.Modules
             RegisterMod("dccm-core");
         }
 
-        private bool LoadResByNames([NotNullWhen(true)] out Bytes? data, params ReadOnlySpan<string> names )
+        private bool LoadResByNames( [NotNullWhen(true)] out Bytes? data, params ReadOnlySpan<string> names )
         {
             foreach (var name in names)
             {
@@ -91,7 +91,8 @@ namespace ModCore.Modules
         }
         private static string GetMoPathString( string lang, string? ns, string name )
         {
-            if (string.IsNullOrEmpty(ns)) {
+            if (string.IsNullOrEmpty(ns))
+            {
                 return $"lang/{name}.{lang}.mo";
             }
             return $"{ns}/lang/{name}.{lang}.mo";

@@ -6,15 +6,13 @@ namespace ModCore.Modules
     [AttributeUsage(AttributeTargets.Class)]
     internal class CoreModuleAttribute(
         CoreModuleKind kind,
-        SupportOSKind supportOS = (SupportOSKind) (-1)
+        SupportOSKind supportOS = (SupportOSKind)(-1)
         ) : Attribute
     {
-        public CoreModuleKind Kind
-        {
+        public CoreModuleKind Kind {
             get;
         } = kind;
-        public SupportOSKind SupportOS
-        {
+        public SupportOSKind SupportOS {
             get;
         } = supportOS;
         [Flags]

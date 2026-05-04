@@ -17,7 +17,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Native
                 {
                     continue;
                 }
-                var td = new TypeDefinition("HashlinkNET.Native.Impl", "Lib_" + v.Lib, TypeAttributes.Class 
+                var td = new TypeDefinition("HashlinkNET.Native.Impl", "Lib_" + v.Lib, TypeAttributes.Class
                     | TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.Abstract, module.TypeSystem.Object);
                 module.Types.Add(td);
                 dict.Add(v.Lib, td);

@@ -55,7 +55,7 @@ namespace HashlinkNET.Compiler.Utils
 
         }
 
-        private static FieldReference GetHlFieldInfoCache( TypeDefinition type, string name, RuntimeImports rdata)
+        private static FieldReference GetHlFieldInfoCache( TypeDefinition type, string name, RuntimeImports rdata )
         {
             var cache = type.FindField("cachedFieldInfo_" + name);
             if (cache == null)
@@ -66,15 +66,15 @@ namespace HashlinkNET.Compiler.Utils
             }
             if (type.GenericParameters.Count != 0)
             {
-                return new FieldReference(cache.Name, cache.FieldType, 
+                return new FieldReference(cache.Name, cache.FieldType,
                     type.MakeGenericInstanceType([.. type.GenericParameters]));
             }
             return cache;
         }
-        public static void EmitFieldGetterSetter( this TypeDefinition type, 
+        public static void EmitFieldGetterSetter( this TypeDefinition type,
             PropertyDefinition property,
             IDataContainer container,
-            string name)
+            string name )
         {
             property.CheckDynamic(
                     container.GetGlobalData<RuntimeImports>(), property.PropertyType);
@@ -113,7 +113,7 @@ namespace HashlinkNET.Compiler.Utils
         }
         public static void EmitGetHlField( this TypeDefinition type, ILProcessor il,
             IDataContainer container,
-            string name, TypeReference ft)
+            string name, TypeReference ft )
         {
             var rdata = container.GetGlobalData<RuntimeImports>();
             var cache = GetHlFieldInfoCache(type, name, rdata);
@@ -147,7 +147,7 @@ namespace HashlinkNET.Compiler.Utils
         }
         public static void EmitSetHlField( this TypeDefinition type, ILProcessor il,
             IDataContainer container,
-            string name, TypeReference ft)
+            string name, TypeReference ft )
         {
             var rdata = container.GetGlobalData<RuntimeImports>();
             var cache = GetHlFieldInfoCache(type, name, rdata);
@@ -175,7 +175,7 @@ namespace HashlinkNET.Compiler.Utils
             }
         }
 
-        public static void EmitCallHlFunc( this TypeDefinition type, ILProcessor il, 
+        public static void EmitCallHlFunc( this TypeDefinition type, ILProcessor il,
             IDataContainer container,
             HlFunction func, Action<ILProcessor, int> emitArg )
         {
@@ -213,7 +213,7 @@ namespace HashlinkNET.Compiler.Utils
                 var at = ft.Arguments[i].Value;
                 var pt = container.GetTypeRef(at);
 
-                
+
                 emitArg(il, i);
                 var pd = new ParameterDefinition(pt);
                 if (at.Kind == HlTypeKind.Null)
@@ -235,10 +235,10 @@ namespace HashlinkNET.Compiler.Utils
                 {
                     il.Emit(OpCodes.Call, new GenericInstanceMethod(rdata.hGetProxy)
                     {
-                        GenericArguments = {cs.ReturnType}
+                        GenericArguments = { cs.ReturnType }
                     });
                 }
-                else if(ft.ReturnType.Value.Kind == HlTypeKind.Null)
+                else if (ft.ReturnType.Value.Kind == HlTypeKind.Null)
                 {
                     il.Emit(OpCodes.Unbox, cs.ReturnType);
                     cs.ReturnType = rdata.objectType;
@@ -313,7 +313,7 @@ namespace HashlinkNET.Compiler.Utils
             if (type is GenericInstanceType)
             {
                 bool anyDynamic = false;
-                void CheckDynamic2(List<bool> values, TypeReference tr)
+                void CheckDynamic2( List<bool> values, TypeReference tr )
                 {
                     if (IsObjectType(tr))
                     {

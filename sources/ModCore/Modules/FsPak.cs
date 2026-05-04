@@ -44,7 +44,7 @@ namespace ModCore.Modules
             return result;
         }
 
-        private void Hook_FileSystem_loadPak1( dc.hxd.fmt.pak.Hook_FileSystem.orig_loadPak orig, 
+        private void Hook_FileSystem_loadPak1( dc.hxd.fmt.pak.Hook_FileSystem.orig_loadPak orig,
             dc.hxd.fmt.pak.FileSystem self, dc.String file )
         {
             if (FileSystem == null)

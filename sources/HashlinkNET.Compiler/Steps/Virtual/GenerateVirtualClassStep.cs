@@ -39,7 +39,7 @@ namespace HashlinkNET.Compiler.Steps.Virtual
                             FieldAttributes.Static | FieldAttributes.Private,
                             gdata.Module.TypeSystem.Int32);
                         td.Fields.Add(cf);
-                        il.Emit(OpCodes.Ldsflda, new FieldReference(cf.Name, cf.FieldType, 
+                        il.Emit(OpCodes.Ldsflda, new FieldReference(cf.Name, cf.FieldType,
                             td.MakeGenericInstanceType([.. td.GenericParameters])));
                         il.Emit(OpCodes.Call, rdata.hGetTypeIndexFromType.MakeInstance(
                             td.MakeGenericInstanceType([.. td.GenericParameters]
@@ -67,7 +67,7 @@ namespace HashlinkNET.Compiler.Steps.Virtual
                                 );
                         }
                         var fd = new PropertyDefinition(f, PropertyAttributes.None, ftype);
-                       
+
                         td.EmitFieldGetterSetter(fd, container, f);
 
 

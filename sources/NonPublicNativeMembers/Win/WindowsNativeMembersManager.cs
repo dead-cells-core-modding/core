@@ -34,7 +34,7 @@ namespace NonPublicNativeMembers.Win
                     Hash = SHA256.HashData(moduleContent)
                 };
                 data.Modules.Add(moduleInfo);
-                
+
 
                 foreach (var f in pdb.Functions)
                 {
@@ -58,7 +58,7 @@ namespace NonPublicNativeMembers.Win
                 }
             }
 
-           
+
         }
 
         public override bool LoadAndActivateModule( string moduleName, string? path = null )

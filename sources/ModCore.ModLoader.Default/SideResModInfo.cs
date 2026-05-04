@@ -6,12 +6,11 @@ namespace ModCore.ModLoader.Default
     public class SideResModInfo : ModInfo
     {
         [JsonProperty("paks")]
-        public required List<string> Paks { 
-            get; set; 
+        public required List<string> Paks {
+            get; set;
         }
         [JsonProperty("workshop")]
-        public bool Workshop
-        {
+        public bool Workshop {
             get; set;
         }
     }

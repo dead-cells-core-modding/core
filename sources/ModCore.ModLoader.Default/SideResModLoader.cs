@@ -11,7 +11,7 @@ using ModCore.Utilities;
 namespace ModCore.ModLoader.Default
 {
     [Plugin]
-    internal class SideResModLoader : PluginBase ,
+    internal class SideResModLoader : PluginBase,
         IOnRegisterModsType,
         IOnCollectedModInfo,
         IOnBeforeGameInit

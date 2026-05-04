@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 #pragma warning disable CS1591
 
@@ -28,7 +28,7 @@ namespace ModCore.Events.Interfaces
             public void** roots;
             public int nroots;
         }
-        
+
         public record class Event( EventId EventId, nint Data );
         public void OnNativeEvent( Event ev );
     }

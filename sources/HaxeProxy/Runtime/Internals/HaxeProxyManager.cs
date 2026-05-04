@@ -13,17 +13,17 @@ namespace HaxeProxy.Runtime.Internals
 {
     internal static unsafe class HaxeProxyManager
     {
-        
+
         private static readonly delegate*< HaxeProxyBase, HashlinkObj, void > baseCtor =
-            (delegate*< HaxeProxyBase, HashlinkObj, void > )
+            (delegate*< HaxeProxyBase, HashlinkObj, void >)
                 typeof(HaxeProxyBase).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic).First().MethodHandle.GetFunctionPointer();
         public static ImmutableHashSet<Type> knownProxyTypes = [];
         public static readonly Dictionary<Type, int> type2typeId = [];
         private static Type[] bindingTypes = [];
         private static ImmutableDictionary<int, Type> subTypes = ImmutableDictionary<int, Type>.Empty;
-        
 
-        
+
+
         public static void Initialize( Assembly proxyAssembly )
         {
             bindingTypes = new Type[HashlinkMarshal.Module.Types.Length];
@@ -42,7 +42,7 @@ namespace HaxeProxy.Runtime.Internals
                 }
             }
             HaxeProxyManager.subTypes = subTypes.ToImmutableDictionary();
-    
+
             knownProxyTypes = [.. bindingTypes];
         }
         public static void CheckCustomProxy( HaxeProxyBase proxy, HashlinkObj obj )

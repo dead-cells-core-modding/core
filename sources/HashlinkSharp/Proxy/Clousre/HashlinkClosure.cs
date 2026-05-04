@@ -22,7 +22,7 @@ namespace Hashlink.Proxy.Clousre
         }
         public HashlinkClosure( HashlinkFuncType funcType, nint funcPtr, nint self ) :
             this(HashlinkObjPtr.Get(self != 0 ?
-                hl_alloc_closure_ptr(funcType.NativeType, (void*)funcPtr, (void*) self) :
+                hl_alloc_closure_ptr(funcType.NativeType, (void*)funcPtr, (void*)self) :
                 hl_alloc_closure_void(funcType.NativeType, (void*)funcPtr)))
         {
 
@@ -42,7 +42,7 @@ namespace Hashlink.Proxy.Clousre
         public nint FunctionPtr =>
             EnsureNativePointer();
 
-        private nint EnsureNativePointer(HL_vclosure* native = null)
+        private nint EnsureNativePointer( HL_vclosure* native = null )
         {
             if (native == null)
             {
@@ -54,7 +54,7 @@ namespace Hashlink.Proxy.Clousre
                 {
                     throw new InvalidOperationException();
                 }
-                native->fun = (void*) callback.NativePointer;
+                native->fun = (void*)callback.NativePointer;
             }
             return (nint)native->fun;
         }
@@ -68,7 +68,7 @@ namespace Hashlink.Proxy.Clousre
 
         public object? DynamicInvoke( params object?[]? args )
         {
-            
+
             if (callback != null)
             {
                 args ??= [];
@@ -103,7 +103,7 @@ namespace Hashlink.Proxy.Clousre
             }
         }
 
-        public Delegate CreateDelegate(Type type)
+        public Delegate CreateDelegate( Type type )
         {
             if (callback != null)
             {
@@ -125,20 +125,16 @@ namespace Hashlink.Proxy.Clousre
             return ((IExtraData)this).GetData<DelegateCache<T>>().Value;
         }
 
-        public object? BindingThis
-        {
-            get
-            {
+        public object? BindingThis {
+            get {
                 return TypedRef->hasValue > 0 ? (
                     cachedThis ??= HashlinkMarshal.ConvertHashlinkObject(TypedRef->value)
                     ) : null;
             }
         }
-        public override nint HashlinkPointer
-        {
-            get
-            {
-                EnsureNativePointer((HL_vclosure*) base.HashlinkPointer);
+        public override nint HashlinkPointer {
+            get {
+                EnsureNativePointer((HL_vclosure*)base.HashlinkPointer);
                 return base.HashlinkPointer;
             }
         }

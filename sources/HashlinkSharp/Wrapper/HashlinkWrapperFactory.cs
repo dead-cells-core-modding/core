@@ -127,7 +127,7 @@ namespace Hashlink.Wrapper
                 }
             }
 
-            if(!func.ReturnType.TypeKind.IsValueType())
+            if (!func.ReturnType.TypeKind.IsValueType())
             {
                 ilg.Emit(OpCodes.Call, MI_WrapperHelper_GetObjectFromPtr);
             }
@@ -138,7 +138,7 @@ namespace Hashlink.Wrapper
         }
         public static DelegateInfo GetWrapperInfo(
             HashlinkFuncType func,
-            nint target)
+            nint target )
         {
             var mi = hl_wrapper_cache.GetOrAdd(func, CreateWrapper);
             var info = new WrapperInfo()
@@ -155,7 +155,7 @@ namespace Hashlink.Wrapper
             var info = GetWrapperInfo(func, target);
             if (targetType != null)
             {
-                return info.CreateDelegate(targetType);
+                return info.method!.CreateAnonymousDelegate(info.self).CreateAdaptDelegate(targetType);
             }
             return info.method!.CreateAnonymousDelegate(info.self);
         }

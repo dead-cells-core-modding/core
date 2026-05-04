@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ModCore.Native.Fody
 {
@@ -30,7 +28,7 @@ namespace ModCore.Native.Fody
 
                 var body = new MethodBody(m);
 
-       
+
                 m.Body = body;
                 var il = body.GetILProcessor();
 

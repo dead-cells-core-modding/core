@@ -2,7 +2,6 @@ using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Storage;
-using Steamworks;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -122,7 +121,7 @@ namespace ModCore.Modules.Internals
                 Logger.Information("Unable to load Goldberg");
             }
 
-            
+
         }
 
         EventResult<nint> IOnResolveNativeLib.OnResolveNativeLib( string name )

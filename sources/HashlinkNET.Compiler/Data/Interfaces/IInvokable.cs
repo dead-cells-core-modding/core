@@ -4,8 +4,7 @@ namespace HashlinkNET.Compiler.Data.Interfaces
 {
     interface IInvokable
     {
-        public MethodReference Invoke
-        {
+        public MethodReference Invoke {
             get;
         }
     }

@@ -58,6 +58,6 @@ namespace ModCore.Utilities
             return new BytesMemoryManager(bytes).Memory;
         }
 
-        
+
     }
 }

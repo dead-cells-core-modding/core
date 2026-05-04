@@ -10,6 +10,6 @@ namespace ModCore.Events.Interfaces.Mods
         /// 
         /// </summary>
         /// <param name="findMod"></param>
-        public void OnFindingMods(Action<string> findMod);
+        public void OnFindingMods( Action<string> findMod );
     }
 }

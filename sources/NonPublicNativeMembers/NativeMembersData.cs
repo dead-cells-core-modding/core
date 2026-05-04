@@ -4,40 +4,32 @@ namespace NonPublicNativeMembers
     {
         public class MemberInfo
         {
-            public string Name
-            {
+            public string Name {
                 get; set;
             } = "";
-            public string ModuleName
-            {
+            public string ModuleName {
                 get; set;
             } = "";
-            public ulong RVA
-            {
+            public ulong RVA {
                 get; set;
             }
-            public bool IsFunction
-            {
+            public bool IsFunction {
                 get; set;
             }
         }
         public class ModuleInfo
         {
-            public string Name
-            {
+            public string Name {
                 get; set;
             } = "";
-            public byte[] Hash
-            {
+            public byte[] Hash {
                 get; set;
             } = [];
-            public Dictionary<string, MemberInfo> Members
-            {
+            public Dictionary<string, MemberInfo> Members {
                 get; set;
             } = [];
         }
-        public List<ModuleInfo> Modules
-        {
+        public List<ModuleInfo> Modules {
             get; set;
         } = [];
     }

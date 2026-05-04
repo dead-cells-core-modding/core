@@ -1,9 +1,9 @@
-using System.Collections.Concurrent;
-using System.Reflection.Emit;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy;
+using Hashlink.Proxy.Clousre;
+using System.Collections.Concurrent;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 
 namespace Hashlink.UnsafeUtilities
 {
@@ -26,7 +26,7 @@ namespace Hashlink.UnsafeUtilities
 
         private static int delegateCount = 0;
 
-       
+
         internal static T? CastObjectEx<T>( object obj ) where T : class, IExtraDataItem
         {
             if (obj is IExtraData ied)
@@ -35,7 +35,7 @@ namespace Hashlink.UnsafeUtilities
             }
             return CastObject<T>(obj);
         }
-       
+
         internal static T? CastObject<T>( object obj )
         {
             if (obj == null)
@@ -86,7 +86,7 @@ namespace Hashlink.UnsafeUtilities
             typeBuilder.DefineConstructor(
                 MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
                 CallingConventions.Standard,
-               [ typeof(object), typeof(IntPtr) ])
+               [typeof(object), typeof(IntPtr)])
                 .SetImplementationFlags(MethodImplAttributes.Runtime | MethodImplAttributes.Managed);
 
             typeBuilder.DefineMethod(
@@ -101,7 +101,7 @@ namespace Hashlink.UnsafeUtilities
                "BeginInvoke",
                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
                typeof(IAsyncResult),
-               [..(hasRet ? gp[..^1] : gp), typeof(AsyncCallback), typeof(object)]
+               [.. (hasRet ? gp[..^1] : gp), typeof(AsyncCallback), typeof(object)]
                ).
                SetImplementationFlags(MethodImplAttributes.Runtime | MethodImplAttributes.Managed);
 
@@ -140,7 +140,7 @@ namespace Hashlink.UnsafeUtilities
                "BeginInvoke",
                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
                typeof(IAsyncResult),
-               [..args, typeof(AsyncCallback), typeof(object)]
+               [.. args, typeof(AsyncCallback), typeof(object)]
                ).
                SetImplementationFlags(MethodImplAttributes.Runtime | MethodImplAttributes.Managed);
 
@@ -172,12 +172,12 @@ namespace Hashlink.UnsafeUtilities
         }
         private static Type CreateMethodDelegateNoGeneric( MethodInfo m )
         {
-            return CreateDelegate("Delegate+" + m.Name, m.ReturnType, 
+            return CreateDelegate("Delegate+" + m.Name, m.ReturnType,
                 [
                     ..m.GetParameters().Skip(m is DynamicMethod ? 1 : 0).Select(x => x.ParameterType)
                 ]);
         }
-        public static Delegate CreateAnonymousDelegate( this MethodInfo info, object? target, 
+        public static Delegate CreateAnonymousDelegate( this MethodInfo info, object? target,
             bool noGeneric = false )
         {
 
@@ -235,7 +235,7 @@ namespace Hashlink.UnsafeUtilities
             ilg.Emit(OpCodes.Ret);
             return dm;
         }
-        private static MethodInfo CreateAdaptDelegate( (MethodInfo, Type?) v)
+        private static MethodInfo CreateAdaptDelegate( (MethodInfo, Type?) v )
         {
             (var m, var type) = v;
             var invoke = type?.GetDelegateInvoke() ?? m;
@@ -264,7 +264,7 @@ namespace Hashlink.UnsafeUtilities
                     ts[i] = pt;
                 }
             }
-            
+
 
             var dm = new DynamicMethod("adapt_delegate", invoke.ReturnType,
                 [typeof(DelegateInfo), .. ps], true);
@@ -292,7 +292,7 @@ namespace Hashlink.UnsafeUtilities
                 if (!t.IsValueType)
                 {
                     ilg.Emit(OpCodes.Call, ts[i].IsAssignableTo(typeof(IExtraDataItem)) ?
-                        MI_castObjectEx.MakeGenericMethod(ts[i]) : 
+                        MI_castObjectEx.MakeGenericMethod(ts[i]) :
                         MI_castObject.MakeGenericMethod(ts[i]));
                 }
 
@@ -339,7 +339,7 @@ namespace Hashlink.UnsafeUtilities
 
         public static T CreateAdaptDelegate<T>( this Delegate target ) where T : Delegate
         {
-            return (T) target.CreateAdaptDelegate(typeof(T));
+            return (T)target.CreateAdaptDelegate(typeof(T));
         }
         private static MethodInfo CreateClosureDelegate( Type type )
         {
@@ -367,7 +367,7 @@ namespace Hashlink.UnsafeUtilities
             ilg.Emit(OpCodes.Ldfld, ClosureInfo.FI_target);
             ilg.Emit(OpCodes.Ldfld, DelegateInfo.FI_invokePtr);
             ilg.EmitCalli(OpCodes.Calli, CallingConventions.HasThis, invoke.ReturnType,
-                [ps[0].ParameterType, ..ts], 
+                [ps[0].ParameterType, .. ts],
                 null);
             ilg.Emit(OpCodes.Ret);
             return dm;
@@ -393,7 +393,8 @@ namespace Hashlink.UnsafeUtilities
             };
             if (targetType != null)
             {
-                return cd.CreateDelegate(targetType, ci);
+                return cd.CreateAnonymousDelegate(ci).CreateAdaptDelegate(targetType);
+                //return cd.CreateDelegate(targetType, ci);
             }
             else
             {
@@ -402,9 +403,9 @@ namespace Hashlink.UnsafeUtilities
         }
         [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "GetMethodDescriptor")]
         public extern static RuntimeMethodHandle GetDynamicMethodHandle( this DynamicMethod method );
-        public static T Bind<T>( this Delegate target, object? self) where T : Delegate
+        public static T Bind<T>( this Delegate target, object? self ) where T : Delegate
         {
-            return (T) target.Bind(self, typeof(T));
+            return (T)target.Bind(self, typeof(T));
         }
     }
 }

@@ -24,10 +24,9 @@ namespace ModCore.Native
 
         public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(NativeLibrary.Load("libhl"), name);
 
-        public static Native Current
-        {
+        public static Native Current {
             get;
-        } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new NativeWin() : 
+        } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new WindowsNative() :
             throw new PlatformNotSupportedException();
 
 
@@ -112,7 +111,7 @@ namespace ModCore.Native
             {
                 return;
             }
-            ((delegate* unmanaged<nint, nint, void>)orig_gc_mark_stack)(start, end);
+            ((delegate* unmanaged< nint, nint, void >)orig_gc_mark_stack)(start, end);
         }
 
         private static nint orig_resolve_library;
@@ -124,12 +123,12 @@ namespace ModCore.Native
                 libName = lib,
             };
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(new(
-                IOnNativeEvent.EventId.HL_EV_RESOLVE_NATIVE, (nint) (&ev)));
+                IOnNativeEvent.EventId.HL_EV_RESOLVE_NATIVE, (nint)(&ev)));
             if (ev.result != null)
             {
                 return (nint)ev.result;
             }
-            return ((delegate* unmanaged<byte*, int, nint>)orig_resolve_library)(lib, is_opt);
+            return ((delegate* unmanaged< byte*, int, nint >)orig_resolve_library)(lib, is_opt);
         }
 
         private static nint orig_hl_module_init_natives;
@@ -160,7 +159,7 @@ namespace ModCore.Native
         [UnmanagedCallersOnly]
         protected static int Hook_module_capture_stack( void** stack, int size )
         {
-            var result = ((delegate*unmanaged<void**, int, int>)orig_module_capture_stack)(stack, size);
+            var result = ((delegate* unmanaged< void**, int, int >)orig_module_capture_stack)(stack, size);
 
             int count = 0;
             void** stack_ptr = (void**)&stack;
@@ -183,7 +182,7 @@ namespace ModCore.Native
                     void* module_addr = *stack_ptr; // EIP
                     if (module_addr >= (void*)code && module_addr < (void*)(code + code_size))
                     {
-                        
+
                         while (stack[count] != module_addr &&
                             count < size)
                         {
@@ -207,7 +206,7 @@ namespace ModCore.Native
         protected static nint Hook_gc_allocator_alloc( int* size, int page_kind )
         {
             *size += 8;
-            var result = ((delegate*unmanaged<int*, int, nint>)orig_gc_allocator_alloc)(size, page_kind);
+            var result = ((delegate* unmanaged< int*, int, nint >)orig_gc_allocator_alloc)(size, page_kind);
             *((nint*)(result + *size - 8)) = 0;
             Debug.Assert(hl_gc_get_memsize((void*)result) >= 0);
             //*size -= 8;
@@ -233,7 +232,7 @@ namespace ModCore.Native
             {
                 return ((delegate* unmanaged< byte*, int, void*, HL_code* >)orig_hl_code_read)(ptr, codeData.Length, unknown);
             }
-            
+
         }
 
         private static void HashlinkDynSet<T>( nint d, int hfield, T val, nint? extraTypePtr, nint origSet ) where T : unmanaged
@@ -302,7 +301,7 @@ namespace ModCore.Native
             var result = EventSystem.BroadcastEvent<IOnHashlinkDynHasField, IOnHashlinkDynHasField.Data, bool>(new(d, hfield));
             if (!result.HasValue)
             {
-                return ((delegate* unmanaged< nint, int, int>)orig_hl_obj_has_field)(d, hfield);
+                return ((delegate* unmanaged< nint, int, int >)orig_hl_obj_has_field)(d, hfield);
             }
             return result.Value ? 1 : 0;
         }
@@ -312,7 +311,7 @@ namespace ModCore.Native
             var result = EventSystem.BroadcastEvent<IOnHashlinkDynGet, IOnHashlinkDynGet.Data, object>(new(d, hfield, ptype));
             if (!result.HasValue)
             {
-                return ((delegate* unmanaged<nint, int, nint, T>)origGet)(d, hfield, ptype);
+                return ((delegate* unmanaged< nint, int, nint, T >)origGet)(d, hfield, ptype);
             }
             return (T)(dynamic)result.Value;
         }
@@ -334,7 +333,7 @@ namespace ModCore.Native
 
         private static nint orig_hl_dyn_getf;
         [UnmanagedCallersOnly]
-        protected static float Hook_hl_dyn_getf( nint d, int hfield)
+        protected static float Hook_hl_dyn_getf( nint d, int hfield )
         {
             return HashlinkDynGet<float>(d, hfield, 0, orig_hl_dyn_getf);
         }
@@ -366,9 +365,9 @@ namespace ModCore.Native
             return;
         }
         [UnmanagedCallersOnly]
-        private static void Capture_Current_Frame(nint ptr)
+        private static void Capture_Current_Frame( nint ptr )
         {
-            
+
         }
 
 
@@ -392,7 +391,7 @@ namespace ModCore.Native
 
         protected ICoreNativeDetour CreateNativeHookForHL( string srcName, string hookName, out nint orig )
         {
-            var hook = GetType().GetMethod(hookName, BindingFlags.Static | 
+            var hook = GetType().GetMethod(hookName, BindingFlags.Static |
                 BindingFlags.NonPublic |
                 BindingFlags.Public |
                 BindingFlags.FlattenHierarchy);
@@ -401,7 +400,7 @@ namespace ModCore.Native
 
             var ptr = hook.MethodHandle.GetFunctionPointer();
 
-            return Current.CreateNativeHookForHL(srcName, 
+            return Current.CreateNativeHookForHL(srcName,
                 ptr, out orig);
         }
         protected ICoreNativeDetour CreateNativeHookForHL( string srcName, nint hook, out nint orig )
@@ -468,7 +467,7 @@ namespace ModCore.Native
             InitializeNative();
             InitializeNativeHooks();
         }
-        public virtual void InitializeGame(ReadOnlySpan<byte> hlboot, out VMContext context)
+        public virtual void InitializeGame( ReadOnlySpan<byte> hlboot, out VMContext context )
         {
             HL_code* code;
             byte* err;
@@ -478,9 +477,9 @@ namespace ModCore.Native
             hl_global_init();
             fixed (byte* data = hlboot)
             {
-                ctx->code = code = (HL_code*) hl_code_read(data, hlboot.Length, &err);
+                ctx->code = code = (HL_code*)hl_code_read(data, hlboot.Length, &err);
             }
-           
+
             if (err != null)
             {
                 throw new InvalidProgramException($"An error occurred while loading bytecode: {Marshal.PtrToStringAnsi((nint)err)}");
@@ -527,7 +526,7 @@ namespace ModCore.Native
         }
 
         public abstract void MakePageWritable( nint ptr, out int old );
-        public abstract void RestorePageProtect( nint ptr, int val ); 
+        public abstract void RestorePageProtect( nint ptr, int val );
         public abstract ReadOnlySpan<byte> GetHlbootDataFromExe( string exePath );
     }
 }

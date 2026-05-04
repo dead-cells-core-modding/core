@@ -21,21 +21,18 @@ using System.Xml.Linq;
 namespace HashlinkNET.Compiler
 {
     public class HashlinkCompiler(
-        HlCode code, 
+        HlCode code,
         AssemblyDefinition output,
-        CompileConfig? config = null) : BaseCompiler
+        CompileConfig? config = null ) : BaseCompiler
     {
-        public CompileConfig Config
-        {
+        public CompileConfig Config {
             get;
         } = config ?? new();
         public AssemblyDefinition Output => output;
-        public BytecodeMappingData BytecodeMappingData
-        {
+        public BytecodeMappingData BytecodeMappingData {
             get;
         } = new();
-        public XDocument XmlDocument
-        {
+        public XDocument XmlDocument {
             get;
         } = new();
         protected override void InstallSteps()
@@ -76,7 +73,7 @@ namespace HashlinkNET.Compiler
             #region Virtual
             AddStep<FixVirtualGenericTypeStep>();
             AddStep<GenerateVirtualClassStep>();
-            
+
             #endregion
 
             #region Class
@@ -92,7 +89,7 @@ namespace HashlinkNET.Compiler
             AddStep<FindCastExplicitTypesStep>();
             AddStep<GenerateClassExplicitCastStep>();
             #endregion
-            
+
             #region Arrow Function 
             AddStep<FindArrowFuncDefinitionStep>();
             AddStep<GenerateArrowFuncContextStep>();
@@ -117,13 +114,15 @@ namespace HashlinkNET.Compiler
             AddStep<SolveNameConflictStep>();
             #endregion
 
+            AddStep<GenerateNativeImplClassStep>();
+            AddStep<GenerateNativeFieldsDefStep>();
+
             #region Pseudocode
             if (Config.GeneratePseudocode)
             {
                 AddStep<ScanGlobalValuesStep>();
 
-                AddStep<GenerateNativeImplClassStep>();
-                AddStep<GenerateNativeFieldsDefStep>();
+
 
                 AddStep<FindMissingFunctionStep>();
                 AddStep<CollectUnnamedFuncStep>();

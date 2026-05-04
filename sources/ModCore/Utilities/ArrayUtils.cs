@@ -81,7 +81,7 @@ namespace ModCore.Utilities
                     array = new(HashlinkMarshal.Module.KnownTypes.Dynamic, 0),
                     length = 0
                 },
-                
+
             };
         }
     }

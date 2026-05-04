@@ -4,7 +4,7 @@ using Hashlink.Reflection.Members.Enum;
 
 namespace Hashlink.Reflection.Types
 {
-    public unsafe class HashlinkEnumType(HashlinkModule module, HL_type* type) : 
+    public unsafe class HashlinkEnumType( HashlinkModule module, HL_type* type ) :
         HashlinkSpecialType<HL_type_enum>(module, type)
     {
         private HashlinkEnumConstruct[]? cachedConstructs;
@@ -12,11 +12,9 @@ namespace Hashlink.Reflection.Types
         {
             return new HashlinkEnum(this, 0);
         }
-        
-        public HashlinkEnumConstruct[] Constructs
-        {
-            get
-            {
+
+        public HashlinkEnumConstruct[] Constructs {
+            get {
                 if (cachedConstructs == null)
                 {
                     cachedConstructs = new HashlinkEnumConstruct[TypeData->nconstructs];

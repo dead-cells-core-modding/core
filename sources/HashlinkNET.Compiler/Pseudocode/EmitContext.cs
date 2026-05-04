@@ -6,7 +6,7 @@ using Mono.Cecil.Cil;
 namespace HashlinkNET.Compiler.Pseudocode
 {
     record class EmitContext(
-        IDataContainer DataContainer, 
+        IDataContainer DataContainer,
         MethodDefinition Definition,
         ModuleDefinition Module,
         TypeSystem TypeSystem,
@@ -14,14 +14,12 @@ namespace HashlinkNET.Compiler.Pseudocode
         CompileConfig Config,
         ScopeDebugInformation Scope,
         ILProcessor IL,
-        FuncEmitGlobalData GlobalData)
+        FuncEmitGlobalData GlobalData )
     {
-        public ScopeDebugInformation?[] VariableDebugs
-        {
+        public ScopeDebugInformation?[] VariableDebugs {
             get; set;
         } = [];
-        public bool RequestValue
-        {
+        public bool RequestValue {
             get; set;
         }
     }

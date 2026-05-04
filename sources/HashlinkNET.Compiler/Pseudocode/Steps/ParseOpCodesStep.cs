@@ -17,7 +17,6 @@ using HashlinkNET.Compiler.Pseudocode.IR.Ref;
 using HashlinkNET.Compiler.Steps;
 using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace HashlinkNET.Compiler.Pseudocode.Steps
@@ -655,7 +654,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             {
                 irbb.AddIR(new IR_Assert("Assert fail!"));
             }
-            else if (c == HlOpcodeKind.SetGlobal) 
+            else if (c == HlOpcodeKind.SetGlobal)
             {
                 irbb.AddIR(new IR_SetGlobal(
                     CreateLoadLocalReg(code.Parameters[1]),

@@ -84,7 +84,7 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial HL_vdynamic* hl_alloc_obj( HL_type* type );
         [LibraryImport(LIBHL)]
-        public static partial HL_enum* hl_alloc_enum( HL_type* type , int index );
+        public static partial HL_enum* hl_alloc_enum( HL_type* type, int index );
         [LibraryImport(LIBHL)]
         public static partial HL_field_lookup* hl_lookup_find( HL_field_lookup* l, int size, int hash );
 
@@ -169,7 +169,7 @@ namespace Hashlink
         public static partial bool hl_is_gc_ptr( void* ptr );
 
         [LibraryImport(LIBHL)]
-        public static partial void* hl_jit_alloc( );
+        public static partial void* hl_jit_alloc();
         [LibraryImport(LIBHL)]
         public static partial void hl_jit_init( void* ctx, HL_module* m );
         [LibraryImport(LIBHL)]
@@ -180,9 +180,9 @@ namespace Hashlink
         public static partial void* hl_jit_code( void* ctx, HL_module* m, int* codesize, void** debug, void* previous );
         [LibraryImport(LIBHL)]
         [SuppressGCTransition]
-        public static partial int hl_gc_get_memsize( void* ptr ); 
+        public static partial int hl_gc_get_memsize( void* ptr );
         [LibraryImport(LIBHL)]
-        public static partial HL_array* hl_exception_stack( );
+        public static partial HL_array* hl_exception_stack();
 
         [LibraryImport(LIBHL)]
         public static partial void hl_sys_init( void** args, int nargs, void* hlfile );
@@ -199,21 +199,21 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial void hl_remove_root( void* v );
         [LibraryImport(LIBHL)]
-        public static partial HL_gc_threads* hl_gc_threads_info(); 
+        public static partial HL_gc_threads* hl_gc_threads_info();
         [LibraryImport(LIBHL)]
         public static partial void gc_global_lock( [MarshalAs(UnmanagedType.I1)] bool b );
         [LibraryImport(LIBHL)]
         [SuppressGCTransition]
         public static partial int gc_allocator_get_block_id( HL_gc_pheader* page, void* block );
-        [LibraryImport(LIBHL)] 
+        [LibraryImport(LIBHL)]
         public static partial void gc_dispatch_mark( HL_gc_mstack* st, [MarshalAs(UnmanagedType.I1)] bool all );
         [LibraryImport(LIBHL)]
         public static partial void** hl_gc_mark_grow( HL_gc_mstack* stack );
         [LibraryImport(LIBHL)]
         [SuppressGCTransition]
-        public static partial HL_gc_pheader* hl_gc_get_page( void* v ); 
+        public static partial HL_gc_pheader* hl_gc_get_page( void* v );
         [LibraryImport(LIBHL)]
-        public static partial void gc_flush_mark(HL_gc_mstack* stack );
+        public static partial void gc_flush_mark( HL_gc_mstack* stack );
         [LibraryImport(LIBHL)]
         public static partial void hl_semaphore_acquire( void* sem );
         [LibraryImport(LIBHL)]

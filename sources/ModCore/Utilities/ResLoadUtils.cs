@@ -16,7 +16,7 @@ namespace ModCore.Utilities
                 return Res.Class.load(path.AsHaxeString());
             }
 
-            public static bool TryLoadResEx( string path, out Any? res, string? ns = null)
+            public static bool TryLoadResEx( string path, out Any? res, string? ns = null )
             {
                 res = null;
                 try

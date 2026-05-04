@@ -6,8 +6,7 @@ namespace HaxeProxy.Runtime.Internals
     public class HashlinkTIndexAttribute( int tindex ) : Attribute
     {
 
-        public int Index
-        {
+        public int Index {
             get;
         } = tindex;
     }

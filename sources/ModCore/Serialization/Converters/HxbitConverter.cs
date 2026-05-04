@@ -11,11 +11,11 @@ namespace ModCore.Serialization.Converters
     public class HxbitConverter : JsonConverter<HaxeObject>
     {
         ///<inheritdoc/>
-        public override HaxeObject? ReadJson( JsonReader reader, Type objectType, 
+        public override HaxeObject? ReadJson( JsonReader reader, Type objectType,
             HaxeObject? existingValue, bool hasExistingValue, JsonSerializer serializer )
         {
             var ctx = DeserializeContext.current ?? throw new InvalidOperationException();
-            var token = JToken.ReadFrom( reader );
+            var token = JToken.ReadFrom(reader);
             if (token == null ||
                 token is JValue and { Type: JTokenType.Null })
             {
@@ -29,18 +29,18 @@ namespace ModCore.Serialization.Converters
             return obj;
         }
         ///<inheritdoc/>
-        public override void WriteJson( JsonWriter writer, HaxeObject? value, 
+        public override void WriteJson( JsonWriter writer, HaxeObject? value,
             JsonSerializer serializer )
         {
             if (value == null)
             {
-                writer.WriteNull(); 
+                writer.WriteNull();
                 return;
             }
 
             var ctx = SerializeContext.current ?? throw new InvalidOperationException();
             var virt = value.ToVirtual<virtual___uid_getCLID_getSerializeSchema_serialize_unserialize_unserializeInit_>();
-            
+
             if (ctx.serializedHxObj.Add(value))
             {
                 ctx.Serializer.addAnyRef(virt);

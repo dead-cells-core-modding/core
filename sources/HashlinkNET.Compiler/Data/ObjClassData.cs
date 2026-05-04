@@ -17,71 +17,56 @@ namespace HashlinkNET.Compiler.Data
         IGlobalValueSetter,
         ITypeIndex
     {
-        public ObjClassData? Super
-        {
+        public ObjClassData? Super {
             get; set;
         }
-        public required TypeReference TypeRef
-        {
+        public required TypeReference TypeRef {
             get; set;
         }
-        public required TypeDefinition TypeDef
-        {
+        public required TypeDefinition TypeDef {
             get; set;
         }
-        public ConcurrentDictionary<TypeReference, bool> CastExplicitTypes
-        {
+        public ConcurrentDictionary<TypeReference, bool> CastExplicitTypes {
             get; set;
         } = [];
-        public List<PropertyDefinition> Fields
-        {
+        public List<PropertyDefinition> Fields {
             get;
         } = [];
-        public Dictionary<int, FuncData> Protos
-        {
+        public Dictionary<int, FuncData> Protos {
             get;
         } = [];
 
-        public MethodReference? Compare
-        {
+        public MethodReference? Compare {
             get; set;
         }
 
-        public new MethodReference? ToString
-        {
+        public new MethodReference? ToString {
             get; set;
         }
 
-        public MethodReference Construct
-        {
+        public MethodReference Construct {
             get; set;
         } = null!;
 
-        public TypeDefinition? GlobalClassType
-        {
+        public TypeDefinition? GlobalClassType {
             get; set;
         }
 
-        public PropertyDefinition? GlobalClassProp
-        {
+        public PropertyDefinition? GlobalClassProp {
             get; set;
         }
 
-        public FieldDefinition? GlobalClassField
-        {
+        public FieldDefinition? GlobalClassField {
             get; set;
         }
 
-        public HlFunction? InstanceCtor
-        {
+        public HlFunction? InstanceCtor {
             get; set;
         }
-        public int TypeIndex
-        {
+        public int TypeIndex {
             get; set;
         }
-        public HlTypeWithObj? GlobalHlType
-        {
+        public HlTypeWithObj? GlobalHlType {
             get; set;
         }
 

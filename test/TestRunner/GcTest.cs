@@ -48,7 +48,7 @@ namespace TestRunner
             HashlinkMarshal.EnsureThreadRegistered();
 
             var obj = new HashlinkDynObj();
-            var item0 = (nint) hl_alloc_dynobj();
+            var item0 = (nint)hl_alloc_dynobj();
             obj.SetFieldValue("test", new HashlinkObjPtr(item0));
             obj.SetFieldValue("test2", obj);
 
@@ -60,7 +60,7 @@ namespace TestRunner
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-            var item01 = obj.GetFieldValue("test") as HashlinkObj; 
+            var item01 = obj.GetFieldValue("test") as HashlinkObj;
             Assert.NotNull(item01);
             Assert.Equal(item01.HashlinkPointer, item0);
             Assert.True(hl_gc_get_memsize((void*)item0) > 0);

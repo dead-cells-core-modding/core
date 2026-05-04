@@ -3,28 +3,24 @@ using Mono.Cecil;
 
 namespace HashlinkNET.Compiler.Data
 {
-    class ClosureClassData : 
+    class ClosureClassData :
         IConstructable,
         IInvokable,
         ITypeReferenceValue,
         ITypeIndex
     {
-        public required MethodReference Construct
-        {
+        public required MethodReference Construct {
             get; set;
         }
-        public required MethodReference Invoke
-        {
-            get; set;
-        }
-
-        public required TypeReference TypeRef
-        {
+        public required MethodReference Invoke {
             get; set;
         }
 
-        public int TypeIndex
-        {
+        public required TypeReference TypeRef {
+            get; set;
+        }
+
+        public int TypeIndex {
             get; set;
         }
     }

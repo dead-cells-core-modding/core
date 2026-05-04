@@ -1,7 +1,6 @@
+using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Reflection.Types;
-using Hashlink.Marshaling;
-using System.Runtime.CompilerServices;
 using ModCore.Events;
 
 namespace Hashlink.Wrapper
@@ -12,12 +11,12 @@ namespace Hashlink.Wrapper
         {
             EventSystem.AddReceiver(new ExceptionEventHandler());
         }
-       
+
         public static object? GetObjectFromPtr( nint ptr )
         {
             return HashlinkMarshal.ConvertHashlinkObject(HashlinkObjPtr.Get(ptr), null);
         }
-       
+
         public static T GetObjectFrom<T>( object obj ) where T : class, IExtraDataItem
         {
             if (obj is T result)
@@ -30,24 +29,24 @@ namespace Hashlink.Wrapper
             }
             return (T)(dynamic)obj;
         }
-       
+
         public static nint AsPointer( object obj, int typeIdx )
         {
             return AsPointerWithType(obj, HashlinkMarshal.Module.Types[typeIdx]);
         }
-       
+
         public static nint AsPointerWithType( object obj, HashlinkType type )
         {
             if (!type.IsPointer)
             {
                 throw new InvalidOperationException();
             }
-            
+
             nint result = 0;
             HashlinkMarshal.WriteData(&result, obj, type);
             return result;
         }
-       
+
         public static void SetBlocking( bool b )
         {
             HashlinkMarshal.EnsureThreadRegistered();

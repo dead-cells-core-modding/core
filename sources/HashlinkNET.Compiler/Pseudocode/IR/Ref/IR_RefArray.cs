@@ -17,7 +17,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Ref
         {
             src.Emit(ctx, true);
             index.Emit(ctx, true);
-            il.Emit(OpCodes.Ldelema, ((ByReferenceType) refType).ElementType);
+            il.Emit(OpCodes.Ldelema, ((ByReferenceType)refType).ElementType);
             return refType;
         }
     }

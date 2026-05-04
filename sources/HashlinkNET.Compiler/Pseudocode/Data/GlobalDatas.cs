@@ -12,29 +12,23 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         )
     {
 
-        public List<HlBasicBlockData> HlBasicBlocks
-        {
+        public List<HlBasicBlockData> HlBasicBlocks {
             get;
         } = [];
-        public List<IRBasicBlockData> IRBasicBlocks
-        {
+        public List<IRBasicBlockData> IRBasicBlocks {
             get;
         } = [];
-        public Dictionary<int, List<string>> Assigns
-        {
+        public Dictionary<int, List<string>> Assigns {
             get;
         } = [];
-        public int VariablesCount
-        {
+        public int VariablesCount {
             get; set;
         }
 
-        public List<HlFuncRegisterData> LocalRegisters
-        {
+        public List<HlFuncRegisterData> LocalRegisters {
             get; set;
         } = [];
-        public List<HlFuncRegisterData?> Registers
-        {
+        public List<HlFuncRegisterData?> Registers {
             get;
         } = [];
     }

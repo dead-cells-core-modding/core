@@ -87,7 +87,7 @@ namespace ModCore.Events
             BroadcastEvent<TEvent, TArg>(ref arg, flags);
         }
         [StackTraceHidden]
-        public static void BroadcastEvent<TEvent, TArg>(ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
+        public static void BroadcastEvent<TEvent, TArg>( ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
                         where TArg : allows ref struct
         {
             _ = BroadcastEvent<TEvent, TArg, object?>(ref arg, flags);
@@ -102,7 +102,7 @@ namespace ModCore.Events
         public static unsafe EventResult<TResult> BroadcastEvent<TEvent, TArg, TResult>( ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
                         where TArg : allows ref struct
         {
-            if(EventCaller<TEvent>.Kind.HasFlag(EventAttribute.EventKind.ShowInLog))
+            if (EventCaller<TEvent>.Kind.HasFlag(EventAttribute.EventKind.ShowInLog))
             {
                 Logger.Debug("Broadcast Global Event: {Name}", typeof(TEvent).Name);
             }

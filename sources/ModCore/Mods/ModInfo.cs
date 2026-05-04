@@ -11,11 +11,17 @@ namespace ModCore.Mods
     public class ModInfo
     {
         [JsonProperty("name")]
-        public required string Name { get; set; }
+        public required string Name {
+            get; set;
+        }
         [JsonProperty("version")]
-        public required string Version { get; set; }
+        public required string Version {
+            get; set;
+        }
         [JsonProperty("type")]
-        public required string Type { get; set; }
+        public required string Type {
+            get; set;
+        }
         [JsonProperty("dependencies")]
         public List<string> Dependencies { get; set; } = [];
         [JsonProperty("repositoryUrl")]
@@ -23,7 +29,9 @@ namespace ModCore.Mods
         [JsonProperty("license")]
         public string License { get; set; } = "";
         [JsonProperty("dccmversion")]
-        public string? DCCMVersion { get; set; }
+        public string? DCCMVersion {
+            get; set;
+        }
 
         [JsonIgnore]
         public FolderInfo ModRoot { get; set; } = null!;

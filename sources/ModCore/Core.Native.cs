@@ -1,9 +1,6 @@
 using ModCore.Storage;
-using MonoMod.Core;
 using NonPublicNativeMembers;
 using Serilog;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 using NN = ModCore.Native.Native;
@@ -12,10 +9,11 @@ namespace ModCore
 {
     internal partial class Core
     {
-        
+
         private readonly static NativeMembersManager nativeMembers = NativeMembersManager.Create();
 
         private static nint phLibhl;
+        private static readonly Dictionary<string, nint> loadedLibraries = [];
         internal static void InitializeNative()
         {
             //AddPath();
@@ -52,7 +50,12 @@ namespace ModCore
 
                 if (member != null)
                 {
-                    var result = (nint)member.RVA + NativeLibrary.Load(member.ModuleName);
+                    if (!loadedLibraries.TryGetValue(member.ModuleName, out var lib))
+                    {
+                        lib = NativeLibrary.Load(member.ModuleName);
+                        loadedLibraries[member.ModuleName] = lib;
+                    }
+                    var result = (nint)member.RVA + lib;
                     return result;
                 }
                 return NativeLibrary.GetExport(phLibhl, name);

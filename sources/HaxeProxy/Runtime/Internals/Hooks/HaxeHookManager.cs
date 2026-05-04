@@ -9,7 +9,7 @@ namespace HaxeProxy.Runtime.Internals.Hooks
     {
         public static void AddHook( int fid, Delegate hook )
         {
-            var f = (HashlinkFunction) HashlinkMarshal.Module.GetFunctionByFIndex(fid);
+            var f = (HashlinkFunction)HashlinkMarshal.Module.GetFunctionByFIndex(fid);
             EventSystem.BroadcastEvent<IOnAddHashlinkHook, IOnAddHashlinkHook.Data>(new(f, hook));
         }
         public static void RemoveHook( int fid, Delegate hook )

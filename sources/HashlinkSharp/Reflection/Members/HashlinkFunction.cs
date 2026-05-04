@@ -5,7 +5,7 @@ using Hashlink.Wrapper;
 
 namespace Hashlink.Reflection.Members
 {
-    public unsafe class HashlinkFunction(HashlinkModule module, HL_function* func ) : HashlinkMember(module, func),
+    public unsafe class HashlinkFunction( HashlinkModule module, HL_function* func ) : HashlinkMember(module, func),
         IHashlinkMemberGenerator,
         IHashlinkFunc
     {
@@ -20,10 +20,8 @@ namespace Hashlink.Reflection.Members
 
         private Delegate? cachedDynInvoke;
 
-        public override HashlinkType? DeclaringType
-        {
-            get
-            {
+        public override HashlinkType? DeclaringType {
+            get {
                 if (cachedDeclaringType == null && func->obj != null)
                 {
                     cachedDeclaringType = GetMemberFrom<HashlinkObjectType>(func->obj->rt->t);
@@ -31,10 +29,8 @@ namespace Hashlink.Reflection.Members
                 return cachedDeclaringType;
             }
         }
-        public HashlinkType[] LocalRegisters
-        {
-            get
-            {
+        public HashlinkType[] LocalRegisters {
+            get {
                 if (cachedLocalRegs == null)
                 {
                     cachedLocalRegs = new HashlinkType[func->nregs];
@@ -62,21 +58,21 @@ namespace Hashlink.Reflection.Members
         public Delegate CreateDelegate( Type type )
         {
             return HashlinkWrapperFactory.GetWrapper(
-                FuncType, EntryPointer, type );
+                FuncType, EntryPointer, type);
         }
-        public T CreateDelegate<T>( ) where T : Delegate
+        public T CreateDelegate<T>() where T : Delegate
         {
             return (T)CreateDelegate(typeof(T));
         }
         public object? DynamicInvoke( params object?[]? args )
         {
             cachedDynInvoke ??= HashlinkWrapperFactory.GetWrapper(
-                FuncType, EntryPointer );
+                FuncType, EntryPointer);
             return cachedDynInvoke.DynamicInvoke(args);
         }
         static HashlinkMember IHashlinkMemberGenerator.GenerateFromPointer( HashlinkModule module, void* ptr )
         {
-            return new HashlinkFunction(module, (HL_function *) ptr);
+            return new HashlinkFunction(module, (HL_function*)ptr);
         }
     }
 }

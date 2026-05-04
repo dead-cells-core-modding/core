@@ -5,7 +5,7 @@ namespace ModCore.Storage
     /// </summary>
     public interface IHxbitSerializable
     {
-    
+
     }
     /// <summary>
     /// All types that can be serialized by hxbit should implement this interface
@@ -22,6 +22,6 @@ namespace ModCore.Storage
         /// Used to set the state of the object when deserialized by hxbit
         /// </summary>
         /// <param name="data"></param>
-        void SetData(TData data);
+        void SetData( TData data );
     }
 }

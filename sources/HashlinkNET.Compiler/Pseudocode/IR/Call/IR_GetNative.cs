@@ -14,9 +14,9 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
             il.Emit(OpCodes.Ldstr, native.Name);
             il.Emit(OpCodes.Call, ctx.RuntimeImports.phGetNativeMethod);
             return ctx.RuntimeImports.delegateBaseType;*/
-            var f = container.GetData<FieldReference>(native);
-            il.Emit(OpCodes.Ldsfld, f);
-            return f.FieldType;
+            var f = container.GetData<PropertyDefinition>(native);
+            il.Emit(OpCodes.Call, f.GetMethod);
+            return f.PropertyType;
         }
     }
 }

@@ -2,8 +2,7 @@ namespace HashlinkNET.Compiler.Data.Interfaces
 {
     internal interface ITypeIndex
     {
-        public int TypeIndex
-        {
+        public int TypeIndex {
             get;
         }
 

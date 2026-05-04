@@ -12,7 +12,7 @@ namespace HashlinkNET.Compiler.Steps.Class
                 GeneralUtils.ParseHlTypeName(obj.Name, out _, out var name) &&
                 name.StartsWith('_');
         }
-        public override void Execute( IDataContainer container, HlCode code, 
+        public override void Execute( IDataContainer container, HlCode code,
             GlobalData gdata, RuntimeImports rdata, HlType type )
         {
             var obj = ((HlTypeWithObj)type).Obj;

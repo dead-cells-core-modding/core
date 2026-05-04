@@ -21,7 +21,7 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
             {
                 td.Name = data.DirectParent.Definition.Name + "Context_" + type.TypeIndex;
             }
-            
+
         }
     }
 }

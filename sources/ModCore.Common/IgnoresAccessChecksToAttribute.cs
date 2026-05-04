@@ -4,7 +4,7 @@ namespace System.Runtime.CompilerServices
 {
     [AttributeUsage(AttributeTargets.Assembly)]
 #pragma warning disable CS9113
-    internal class IgnoresAccessChecksToAttribute(string asmName) : Attribute
+    internal class IgnoresAccessChecksToAttribute( string asmName ) : Attribute
 #pragma warning restore CS9113
     {
     }

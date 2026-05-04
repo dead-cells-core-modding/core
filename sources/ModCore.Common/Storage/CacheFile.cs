@@ -16,7 +16,7 @@ namespace ModCore.Storage
             public Dictionary<string, byte[]> metadata = [];
         }
 
-        private readonly bool debug_invalid_cache = 
+        private readonly bool debug_invalid_cache =
             Environment.GetEnvironmentVariable("DCCM_DEBUG_OPTION_CACHE_INVALID") == "true";
         private bool isValid;
         private readonly Metadata metadata;
@@ -24,8 +24,7 @@ namespace ModCore.Storage
         /// <summary>
         /// Cache file storage location
         /// </summary>
-        public string CachePath
-        {
+        public string CachePath {
             get;
         }
 
@@ -34,8 +33,7 @@ namespace ModCore.Storage
         /// </summary>
         public bool IsValid => isValid;
 
-        private string MetadataPath
-        {
+        private string MetadataPath {
             get;
         }
 
@@ -104,7 +102,7 @@ namespace ModCore.Storage
         /// <param name="data">Metadata content</param>
         public void UpdateMetadata( string name, string data )
         {
-            UpdateMetadata( name, Encoding.UTF8.GetBytes(data) );
+            UpdateMetadata(name, Encoding.UTF8.GetBytes(data));
         }
 
         /// <summary>

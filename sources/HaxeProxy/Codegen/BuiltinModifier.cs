@@ -6,20 +6,19 @@ namespace HaxeProxy.Codegen
 {
     internal abstract class BuiltinModifier
     {
-        public string? TargetName
-        {
+        public string? TargetName {
             get; set;
         }
         public abstract void Modify( TypeDefinition type );
         public virtual bool CanModify( TypeDefinition type )
         {
-            return type.FullName.Equals( TargetName );
+            return type.FullName.Equals(TargetName);
         }
         public virtual MethodBase FindMethod( string name )
         {
             var result = GetType().GetMethod(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic |
                 BindingFlags.Static);
-            Debug.Assert( result != null );
+            Debug.Assert(result != null);
             return result;
         }
 

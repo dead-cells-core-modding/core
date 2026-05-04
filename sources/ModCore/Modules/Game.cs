@@ -1,14 +1,10 @@
 using dc;
 using dc.en;
-using dc.h3d.impl;
 using dc.h3d.pass;
 using dc.hxsl;
 using dc.pr;
-using dc.sdl;
 using dc.tool;
 using Hashlink.Marshaling;
-using Hashlink.Proxy;
-using Hashlink.Virtuals;
 using HaxeProxy.Runtime;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
@@ -17,7 +13,6 @@ using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Events.Interfaces.Game.Save;
 using ModCore.Modules.Platforms;
 using ModCore.Utilities;
-using Steamworks;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -84,12 +79,11 @@ namespace ModCore.Modules
         /// <summary>
         /// Get an instance of Hero
         /// </summary>
-        public Hero? HeroInstance
-        {
+        public Hero? HeroInstance {
             get; private set;
         }
 
-       
+
         void IOnBeforeGameInit.OnBeforeGameInit()
         {
             Hook_Hero.init += Hook_Hero_init;
@@ -132,7 +126,7 @@ namespace ModCore.Modules
             Assets.Class.preInit();
             var lss = (LogoSplashscreen)self.curProcess;
             lss.nextProcess();
-            
+
         }
 
         private bool Hook__ServerApi_canSaveScore( Hook__ServerApi.orig_canSaveScore orig )
@@ -186,13 +180,13 @@ namespace ModCore.Modules
             Hook__Data.loadJson += Hook__Data_loadJson;
         }
 
-        private RuntimeShader Hook_CacheFile_compileRuntimeShader( Hook_CacheFile.orig_compileRuntimeShader orig, CacheFile self, 
+        private RuntimeShader Hook_CacheFile_compileRuntimeShader( Hook_CacheFile.orig_compileRuntimeShader orig, CacheFile self,
             ShaderList shaders )
         {
             ShaderManager.Class.STRICT = false;
 
             self.allowCompile = true;
-            
+
             return orig(self, shaders);
         }
 
@@ -252,7 +246,7 @@ namespace ModCore.Modules
             }
         }
 
-        private void Hook_TitleScreen_setMiscTexts( Hook_TitleScreen.orig_setMiscTexts orig, 
+        private void Hook_TitleScreen_setMiscTexts( Hook_TitleScreen.orig_setMiscTexts orig,
             TitleScreen self )
         {
             orig(self);
@@ -324,7 +318,7 @@ namespace ModCore.Modules
             self.engine.window.window.set_title("Dead Cells with Core Modding".AsHaxeString());
 
             EventSystem.BroadcastEvent<IOnGameInit>();
-            
+
         }
     }
 }

@@ -6,57 +6,47 @@ using Mono.Cecil;
 
 namespace HashlinkNET.Compiler.Data
 {
-    internal class EnumClassData : 
+    internal class EnumClassData :
         ITypeDefinitionValue,
         ITypeReferenceValue,
         IGlobalValue,
         IGlobalValueSetter,
         ITypeIndex
     {
-        public TypeDefinition IndexType
-        {
+        public TypeDefinition IndexType {
             get; set;
         } = null;
-        public TypeDefinition[] ItemTypes
-        {
+        public TypeDefinition[] ItemTypes {
             get; set;
         }
-        public MethodReference[] ItemCtors
-        {
+        public MethodReference[] ItemCtors {
             get; set;
         }
 
-        public List<int> GlobalValueIndex
-        {
+        public List<int> GlobalValueIndex {
             get; set;
         } = [];
-        public required TypeDefinition TypeDef
-        {
+        public required TypeDefinition TypeDef {
             get; set;
         }
         public TypeReference TypeRef => TypeDef;
 
-        public TypeDefinition GlobalClassType
-        {
+        public TypeDefinition GlobalClassType {
             get; set;
         }
 
-        public PropertyDefinition GlobalClassProp
-        {
+        public PropertyDefinition GlobalClassProp {
             get; set;
         }
 
-        public FieldDefinition GlobalClassField
-        {
+        public FieldDefinition GlobalClassField {
             get; set;
         }
 
-        public int TypeIndex
-        {
+        public int TypeIndex {
             get; set;
         }
-        public HlTypeWithObj GlobalHlType
-        {
+        public HlTypeWithObj GlobalHlType {
             get; set;
         }
     }

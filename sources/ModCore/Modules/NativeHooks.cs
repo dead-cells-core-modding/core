@@ -1,4 +1,4 @@
-﻿
+
 using MonoMod.Core;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
@@ -106,11 +106,11 @@ namespace ModCore.Modules
             hook.hook.Undo();
         }
 
-       /// <summary>
-       /// 
-       /// </summary>
-       /// <param name="del"></param>
-       /// <returns></returns>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="del"></param>
+        /// <returns></returns>
         public HookHandle GetHook( Delegate del )
         {
             return delegate2handle[del];

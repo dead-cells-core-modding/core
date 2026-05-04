@@ -12,7 +12,7 @@ namespace TestRunner
     {
         private static HashlinkObject CreateObject(string name)
         {
-            return (HashlinkObject) HashlinkMarshal.Module.GetTypeByName(name).CreateInstance();
+            return (HashlinkObject)HashlinkMarshal.Module.GetTypeByName(name).CreateInstance();
         }
         [Fact]
         public void Interaction_Object()
@@ -77,7 +77,7 @@ namespace TestRunner
             var tt = (HashlinkFuncType)trace.Type;
             var vt = tt.ArgTypes[1];
 
-            var vinst = (HashlinkVirtual) vt.CreateInstance();
+            var vinst = (HashlinkVirtual)vt.CreateInstance();
             vinst.SetFieldValue("lineNumber", 114514);
 
             Assert.Equal(114514, vinst.GetFieldValue("lineNumber"));

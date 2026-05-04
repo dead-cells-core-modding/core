@@ -52,7 +52,7 @@ namespace TestRunner
             var obj = new TestObject();
             var ptr = obj.HashlinkPointer;
 
-            var hobj = (HashlinkObject?) HashlinkMarshal.ConvertHashlinkObject(HashlinkObjPtr.Get(ptr));
+            var hobj = (HashlinkObject?)HashlinkMarshal.ConvertHashlinkObject(HashlinkObjPtr.Get(ptr));
             Assert.NotNull(hobj);
             Assert.Equal(obj.HashlinkObj, hobj);
             Assert.Equal(obj, hobj.AsHaxe<TestObject>());
@@ -74,7 +74,7 @@ namespace TestRunner
 
             var dyn = hobj.AsDynamic();
             Assert.Equal(114515, dyn.getSign());
-            Assert.Equal(2, (int) dyn.TEST_VAL);
+            Assert.Equal(2, (int)dyn.TEST_VAL);
 
             dynamic gcl = HaxeProxyUtils.GetClass<Class>(typeof(TestObject2)).HashlinkObj;
             Assert.Equal(3, (int)gcl.TEST_S_VAL);

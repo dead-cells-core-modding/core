@@ -21,7 +21,7 @@ namespace ModCore.Modules
         {
             Logger.Information("Registering mods type");
             Dictionary<string, Type> modsType = [];
-            EventSystem.BroadcastEvent<IOnRegisterModsType, IOnRegisterModsType.AddModType>((type, info) =>
+            EventSystem.BroadcastEvent<IOnRegisterModsType, IOnRegisterModsType.AddModType>(( type, info ) =>
             {
                 Logger.Information("Registered mod type: {type} -> {info}", type, info.FullName);
                 modsType.Add(type.ToLower(), info);
@@ -43,7 +43,7 @@ namespace ModCore.Modules
                     modsPathStr.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(Path.GetFullPath)
                     );
             }
-            
+
             lastLoadedExtraMods.UpdateCache(Encoding.UTF8.GetBytes(modsPathStr ?? ""));
 
 
@@ -56,7 +56,7 @@ namespace ModCore.Modules
             foreach (var dir in mods)
             {
                 var p = Path.Combine(dir, MODINFO_NAME);
-                if(!File.Exists(p))
+                if (!File.Exists(p))
                 {
                     continue;
                 }
@@ -73,13 +73,13 @@ namespace ModCore.Modules
                     Logger.Information("Collect mod info: {name} {version}", name, jinfo["version"]);
 
                     var type = jinfo["type"]!.ToString().ToLower();
-                    if(!modsType.TryGetValue(type, out var infotype))
+                    if (!modsType.TryGetValue(type, out var infotype))
                     {
                         Logger.Error("Unknown mod type: {type}", type);
                         continue;
                     }
                     var info = (ModInfo?)jinfo.ToObject(infotype);
-                    if(info == null)
+                    if (info == null)
                     {
                         Logger.Error("Unable to create mod info object", type);
                         continue;
@@ -90,7 +90,7 @@ namespace ModCore.Modules
                         if (buildDCCMVer > GameInfo.DCCMVersion ||
                                 buildDCCMVer.Major != GameInfo.DCCMVersion.Major)
                         {
-                            Logger.Warning("The target DCCM version for {A} is {B}, which does not match the current version.", 
+                            Logger.Warning("The target DCCM version for {A} is {B}, which does not match the current version.",
                                 info.Name, info.DCCMVersion);
                         }
                     }

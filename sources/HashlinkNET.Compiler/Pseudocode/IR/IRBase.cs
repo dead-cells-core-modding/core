@@ -5,8 +5,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
 {
     abstract class IRBase( params IRResult?[] values )
     {
-        public IRResult?[] Values
-        {
+        public IRResult?[] Values {
             get;
         } = values;
 
@@ -33,7 +32,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             return rt;
         }
 
-        protected abstract TypeReference? Emit( EmitContext ctx, IDataContainer container, 
+        protected abstract TypeReference? Emit( EmitContext ctx, IDataContainer container,
             ILProcessor il );
     }
 }

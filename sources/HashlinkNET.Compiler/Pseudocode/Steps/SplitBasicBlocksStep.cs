@@ -127,7 +127,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     var target = bbLookup[jmpNext + lastCode.Parameters[^1]];
                     bbd.transitions.Add(
                         new(
-                            target, lastCode, 
+                            target, lastCode,
                             lastCode.Kind == HlOpcodeKind.JAlways ?
                                 TransitionKind.Default : TransitionKind.Conditional
                             )

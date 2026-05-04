@@ -12,7 +12,7 @@ namespace HashlinkNET.Compiler.Pseudocode
         HlFunction function,
         FuncData func,
         IDataContainer parent,
-        BytecodeMappingData.FunctionData mappingData) : BaseCompiler
+        BytecodeMappingData.FunctionData mappingData ) : BaseCompiler
     {
         protected override void InstallSteps()
         {

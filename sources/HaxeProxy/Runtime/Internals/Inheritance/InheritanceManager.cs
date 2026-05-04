@@ -22,13 +22,13 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
                 var ca = t.GetCustomAttribute<HashlinkTIndexAttribute>();
                 if (ca != null)
                 {
-                    return (HashlinkObjectType) HashlinkMarshal.Module.Types[ca.Index];
+                    return (HashlinkObjectType)HashlinkMarshal.Module.Types[ca.Index];
                 }
                 t = t.BaseType;
             }
             throw new InvalidOperationException();
         }
-        
+
         public static void Check( Type type, HashlinkObjectType? otype, [NotNull] out CustomHaxeType? cht )
         {
             RuntimeHelpers.RunClassConstructor(type.TypeHandle);

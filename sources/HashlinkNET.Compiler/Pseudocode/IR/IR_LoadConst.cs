@@ -3,7 +3,7 @@ using Mono.Cecil.Cil;
 
 namespace HashlinkNET.Compiler.Pseudocode.IR
 {
-    class IR_LoadConst(object? val) : IRBase
+    class IR_LoadConst( object? val ) : IRBase
     {
         public object? value = val;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )

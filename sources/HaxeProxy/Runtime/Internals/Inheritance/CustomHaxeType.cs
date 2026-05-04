@@ -5,7 +5,6 @@ using Hashlink.Marshaling.ObjHandle;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection;
-using Hashlink.Reflection.Members.Object;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using ModCore.Collections;
@@ -14,7 +13,6 @@ using ModCore.Native.Events.Interfaces;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -34,7 +32,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
             private static readonly ConcurrentDictionary<Type, Func<object?, object?>> castDel = [];
             private static Func<object?, object?> GetCastDel( Type toType )
             {
-                return castDel.GetOrAdd(toType, (Type key) =>
+                return castDel.GetOrAdd(toType, ( Type key ) =>
                 {
                     var md = new DynamicMethod("dynamic_cast", typeof(object), [typeof(object)]);
                     var il = md.GetILGenerator();
@@ -204,7 +202,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
                     HashlinkMarshal.WriteDataDyn(&val, data.val);
                 }
                 var rval = HashlinkMarshal.ConvertHashlinkObject(HashlinkObjPtr.Get(val));
-                field.SetValue(finst, 
+                field.SetValue(finst,
                     GetCastDel(field.FieldType)(rval)
                     );
                 return true;
@@ -239,11 +237,10 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
         private readonly static HashlinkObjectType ClassType = (HashlinkObjectType)HashlinkMarshal.Module.GetTypeByName("hl.Class");
         private readonly static EventReceiver er = new();
 
-        public class ReflectType( HashlinkModule module, HL_type* type ) : 
+        public class ReflectType( HashlinkModule module, HL_type* type ) :
             HashlinkObjectType(module, type)
         {
-            public required CustomHaxeType CustomType
-            {
+            public required CustomHaxeType CustomType {
                 get; init;
             }
         }
@@ -267,8 +264,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
         public ref FakeTypeData Data => ref Unsafe.AsRef<FakeTypeData>((void*)fakeTypeDataPtr);
 
         public HL_type* nativeType;
-        public HashlinkObjectType Type
-        {
+        public HashlinkObjectType Type {
             get; private set;
         } = null!;
 
@@ -344,7 +340,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
                     {
                         throw new InvalidOperationException("The value of the `Class` field or property should inherit from `hl.Class`.");
                     }
-                    classObj = (HashlinkObject) HashlinkMarshal.ConvertHashlinkObject(optr)!;
+                    classObj = (HashlinkObject)HashlinkMarshal.ConvertHashlinkObject(optr)!;
                 }
                 else
                 {
@@ -383,11 +379,11 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
 
             data.globalValue = classObj;
             data.globalValue.SetFieldValue("__name__", type.AssemblyQualifiedName);
-            data.globalValue.SetFieldValue("__type__", (nint) nativeType);
+            data.globalValue.SetFieldValue("__type__", (nint)nativeType);
             data.globalValue.SetFieldValue("__constructor__", (nint)0);
             data.globalValue.SetFieldValue("__meta__", data.meta);
 
-            
+
 
             data.globalValuePtr = data.globalValue.HashlinkPointer;
             data.hlObj.global_value = (void**)Unsafe.AsPointer(ref data.globalValuePtr);
@@ -399,7 +395,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
 
             Debug.Assert(Type.GlobalValue == data.globalValue);
         }
-        
+
 
     }
 }

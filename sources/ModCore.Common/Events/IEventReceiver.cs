@@ -1,4 +1,4 @@
-﻿namespace ModCore.Events
+namespace ModCore.Events
 {
     /// <summary>
     /// All event receivers should implement this interface
@@ -8,12 +8,10 @@
         /// <summary>
         /// The priority of the event receiver
         /// </summary>
-        int Priority
-        {
-            get
-            {
+        int Priority {
+            get {
                 return 0;
             }
-        } 
+        }
     }
 }

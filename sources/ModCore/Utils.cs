@@ -19,7 +19,7 @@ namespace ModCore
         public static void HashlinkThrow( this Exception ex )
         {
             var err = new HashlinkNETExceptionObj(ex);
-            hl_throw((HL_vdynamic*) err.HashlinkPointer);
+            hl_throw((HL_vdynamic*)err.HashlinkPointer);
         }
         public static Type?[] SafeGetAllTypes( this Assembly assembly )
         {

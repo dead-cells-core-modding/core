@@ -21,8 +21,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                 _ => throw new NotImplementedException()
             };
         }
-        public IRBasicBlockData Target
-        {
+        public IRBasicBlockData Target {
             get => target;
             set => target = value;
         }
@@ -43,10 +42,10 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
 
             il.Emit(kind switch
             {
-               ConditionKind.True => OpCodes.Brtrue,
-               ConditionKind.False => OpCodes.Brfalse,
-               ConditionKind.Null => OpCodes.Brfalse,
-               ConditionKind.NotNull => OpCodes.Brtrue,
+                ConditionKind.True => OpCodes.Brtrue,
+                ConditionKind.False => OpCodes.Brfalse,
+                ConditionKind.Null => OpCodes.Brfalse,
+                ConditionKind.NotNull => OpCodes.Brtrue,
                 _ => throw new NotSupportedException()
             }, target.startInst);
 

@@ -18,7 +18,7 @@ namespace HashlinkNET.Compiler.Steps.Class
             var ot = (HlTypeWithObj)type;
             var info = container.GetData<ObjClassData>(type);
 
-            var ctor = (MethodDefinition) info.Construct;
+            var ctor = (MethodDefinition)info.Construct;
             var il = ctor.Body.GetILProcessor();
 
             il.Emit(OpCodes.Ldarg_0);

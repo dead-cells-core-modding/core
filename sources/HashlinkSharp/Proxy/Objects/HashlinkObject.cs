@@ -12,6 +12,6 @@ namespace Hashlink.Proxy.Objects
             Debug.Assert(Handle != null);
         }
         public HL_runtime_obj* RuntimeObj => NativeType->data.obj->rt;
-        
+
     }
 }

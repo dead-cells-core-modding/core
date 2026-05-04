@@ -16,7 +16,7 @@ namespace ModCore.Modules
     {
         private JObject? currentSave;
 
-        public static string GetModdedSavePath(int? slot)
+        public static string GetModdedSavePath( int? slot )
         {
             var name = Save.Class.fileName(slot).ToString();
 
@@ -65,7 +65,7 @@ namespace ModCore.Modules
         {
             var path = GetModdedSavePath(null);
             currentSave ??= [];
-            EventSystem.BroadcastEvent<IOnBeforeSavingModdedSave, Action<string, JObject?>>((name, data) =>
+            EventSystem.BroadcastEvent<IOnBeforeSavingModdedSave, Action<string, JObject?>>(( name, data ) =>
             {
                 currentSave[name] = data ?? [];
             });

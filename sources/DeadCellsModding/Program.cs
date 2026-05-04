@@ -18,11 +18,11 @@ namespace DeadCellsModding
         [LibraryImport("nethost")]
         private static partial int get_hostfxr_path( Span<char> buffer, in nint buffer_size, nint __param );
         [LibraryImport("hostfxr", StringMarshalling = StringMarshalling.Utf16)]
-        private static partial int hostfxr_initialize_for_dotnet_command_line(int argc, string[] argv, nint parameters, out nint hostContext );
+        private static partial int hostfxr_initialize_for_dotnet_command_line( int argc, string[] argv, nint parameters, out nint hostContext );
         [LibraryImport("hostfxr")]
         private static partial int hostfxr_run_app( nint hostContext );
 
-        private static int LoadHost(string shellPath)
+        private static int LoadHost( string shellPath )
         {
             var nethostPath = Path.Combine(Path.GetDirectoryName(shellPath)!, "..", "native", "win-x64", "nethost.dll");
             NativeLibrary.Load(nethostPath);

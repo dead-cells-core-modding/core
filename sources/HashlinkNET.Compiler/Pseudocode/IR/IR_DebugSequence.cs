@@ -4,16 +4,16 @@ using Mono.Cecil.Cil;
 
 namespace HashlinkNET.Compiler.Pseudocode.IR
 {
-    internal class IR_DebugSequence(HlFunDebug debug) : IRBase
+    internal class IR_DebugSequence( HlFunDebug debug ) : IRBase
     {
         public HlFunDebug Info => debug;
-        protected override TypeReference? Emit( EmitContext ctx, 
-            IDataContainer container, 
+        protected override TypeReference? Emit( EmitContext ctx,
+            IDataContainer container,
             ILProcessor il )
         {
             var inst = Instruction.Create(OpCodes.Nop);
             inst.Operand = this;
-            il.Append( inst );
+            il.Append(inst);
             return null;
         }
     }

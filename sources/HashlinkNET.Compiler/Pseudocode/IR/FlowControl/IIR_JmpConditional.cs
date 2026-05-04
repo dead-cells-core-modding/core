@@ -5,8 +5,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
     internal interface IIR_JmpConditional
     {
         void ReserveCondition();
-        IRBasicBlockData Target
-        {
+        IRBasicBlockData Target {
             get; set;
         }
     }

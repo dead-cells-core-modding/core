@@ -5,12 +5,10 @@ namespace Hashlink.Reflection.Members
 {
     public interface IHashlinkFunc
     {
-        int FunctionIndex
-        {
+        int FunctionIndex {
             get;
         }
-        HashlinkFuncType FuncType
-        {
+        HashlinkFuncType FuncType {
             get;
         }
 

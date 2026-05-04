@@ -16,7 +16,7 @@ namespace HashlinkNET.Compiler.Steps
             {
                 namespaces.Add(v.Namespace);
             }
-            foreach(var v in gdata.Module.Types)
+            foreach (var v in gdata.Module.Types)
             {
                 if (namespaces.Contains(v.FullName))
                 {

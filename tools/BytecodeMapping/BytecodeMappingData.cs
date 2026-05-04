@@ -43,11 +43,11 @@ namespace BytecodeMapping
                 {
                     var inst = fun.Instructions[i];
                     int id;
-                    if(inst.Path == null)
+                    if (inst.Path == null)
                     {
                         id = -1;
                     }
-                    else if(!stringMap.TryGetValue(inst.Path, out id))
+                    else if (!stringMap.TryGetValue(inst.Path, out id))
                     {
                         id = StringMap.Count;
                         stringMap.Add(inst.Path, id);

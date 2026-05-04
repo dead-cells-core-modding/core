@@ -18,7 +18,7 @@ namespace HashlinkNET.Compiler.Steps
             AddTypeKind Kind,
             int Index = 0
             );
-        protected readonly ConcurrentBag<AddTypeInfo> addedTypes = []; 
+        protected readonly ConcurrentBag<AddTypeInfo> addedTypes = [];
         protected readonly ConcurrentBag<CustomAttribute> addAssemblyAttributes = [];
 
         protected override void PostProcessing( IDataContainer container )
@@ -29,7 +29,7 @@ namespace HashlinkNET.Compiler.Steps
             var module = gdata.Module;
             foreach (var v in addedTypes)
             {
-                if (v.Kind.HasFlag(AddTypeKind.AddToModule) && v.Type is TypeDefinition td )
+                if (v.Kind.HasFlag(AddTypeKind.AddToModule) && v.Type is TypeDefinition td)
                 {
                     module.Types.Add(td);
                 }

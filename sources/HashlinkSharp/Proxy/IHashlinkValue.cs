@@ -1,9 +1,8 @@
-﻿namespace Hashlink.Proxy
+namespace Hashlink.Proxy
 {
     public interface IHashlinkValue
     {
-        object? Value
-        {
+        object? Value {
             get; set;
         }
     }

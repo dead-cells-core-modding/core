@@ -22,7 +22,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types
             if (!hasName)
             {
                 name = "UnnamedEnum" + type.TypeIndex;
-                
+
                 if (enumType.Enum.Constructs.Length == 1 &&
                     string.IsNullOrEmpty(enumType.Enum.Constructs[0].Name))
                 {

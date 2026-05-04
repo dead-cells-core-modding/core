@@ -10,10 +10,10 @@ namespace HashlinkNET.Compiler.Steps.Hooks
     {
         public override bool Filter( HlType type )
         {
-            return type is HlTypeWithObj obj && 
+            return type is HlTypeWithObj obj &&
                 (obj.Obj.Protos.Length > 0 || obj.Obj.Bindings.Length > 0);
         }
-        public override void Execute( IDataContainer container, HlCode code, 
+        public override void Execute( IDataContainer container, HlCode code,
             GlobalData gdata, RuntimeImports rdata, HlType type )
         {
             var obj = ((HlTypeWithObj)type).Obj;
@@ -44,7 +44,7 @@ namespace HashlinkNET.Compiler.Steps.Hooks
 
             foreach ((var name, int fidx, var pd) in methods)
             {
-                
+
 
                 var delOrig = HookGenerator.GenerateDelegateFor(pd, gdata.Module.TypeSystem, rdata);
                 delOrig.Name = "orig_" + name;

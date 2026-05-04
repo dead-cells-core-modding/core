@@ -22,13 +22,13 @@ namespace HashlinkNET.Compiler.Steps.Class
             var td = info.TypeDef;
             var protos = info.Protos;
 
-            void EmitFunc(HlFunction f)
+            void EmitFunc( HlFunction f )
             {
                 var fd = ((HlTypeWithFun)f.Type.Value).FunctionDescription;
                 var md = container.GetData<MethodDefinition>(f);
 
                 md.FixPIndex();
-                
+
                 md.Body.Instructions.Clear();
                 var ilp = md.Body.GetILProcessor();
 
@@ -47,7 +47,7 @@ namespace HashlinkNET.Compiler.Steps.Class
                     {
                         il.Emit(OpCodes.Ldarg_0);
                     }
-                    
+
                 });
 
                 ilp.Emit(OpCodes.Ret);

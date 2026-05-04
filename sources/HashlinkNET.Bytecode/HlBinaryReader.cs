@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Text;
 using static HashlinkNET.Bytecode.HlTypeObj;
 
@@ -327,7 +327,7 @@ public unsafe ref struct HlBinaryReader
         data.AddRange(intData);
         return new(start, data.Count - start, ctx);
     }
-    private HlOpcode ReadHlOpcode(HlOpcode.OpcodeContext ctx, List<int> data)
+    private HlOpcode ReadHlOpcode( HlOpcode.OpcodeContext ctx, List<int> data )
     {
         var kind = (HlOpcodeKind)ReadUIndex();
         var start = data.Count;
@@ -351,7 +351,7 @@ public unsafe ref struct HlBinaryReader
             case 1:
                 {
                     return CreateOpcode(
-                        ctx, data, 
+                        ctx, data,
                         ReadIndex()
                     );
                 }
@@ -439,7 +439,7 @@ public unsafe ref struct HlBinaryReader
                         extraParams[i] = ReadIndex();
                     }
 
-                    return CreateOpcode(ctx, data, [p1, p2, p3, ..extraParams]);
+                    return CreateOpcode(ctx, data, [p1, p2, p3, .. extraParams]);
                 }
         }
     }

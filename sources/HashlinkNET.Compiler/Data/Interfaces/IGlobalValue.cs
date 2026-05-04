@@ -5,21 +5,17 @@ namespace HashlinkNET.Compiler.Data.Interfaces
 {
     interface IGlobalValue
     {
-        TypeDefinition? GlobalClassType
-        {
+        TypeDefinition? GlobalClassType {
             get;
         }
-        PropertyDefinition? GlobalClassProp
-        {
+        PropertyDefinition? GlobalClassProp {
             get;
         }
-        FieldDefinition? GlobalClassField
-        {
+        FieldDefinition? GlobalClassField {
             get;
         }
-        HlTypeWithObj? GlobalHlType
-        {
-            get; 
+        HlTypeWithObj? GlobalHlType {
+            get;
         }
     }
 }

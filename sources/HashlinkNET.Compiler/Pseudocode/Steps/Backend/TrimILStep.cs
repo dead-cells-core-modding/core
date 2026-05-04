@@ -9,7 +9,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
     internal class TrimILStep : CompileStep
     {
         private static readonly object REMOVED_NOP = new();
-        private record struct StackItem(StlocInfo? Info, Instruction Instruction);
+        private record struct StackItem( StlocInfo? Info, Instruction Instruction );
         private class StlocInfo
         {
             public required HlFuncRegisterData? register;
@@ -73,7 +73,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             {
                 throw new InvalidOperationException();
             }
-               
+
         }
         private (int pop, int push) GetStackOperate( Instruction inst, MethodDefinition md )
         {
@@ -332,7 +332,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                     {
                         lastBr = null;
                     }
-                    
+
                 }
 
                 var array = md.Body.Instructions.ToArray();

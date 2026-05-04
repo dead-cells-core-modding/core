@@ -3,8 +3,7 @@ namespace ModCore
     public struct ContextConfig
     {
         private static bool is_locked = false;
-        public static ContextConfig Default
-        {
+        public static ContextConfig Default {
             get;
         } = new()
         {
@@ -22,14 +21,11 @@ namespace ModCore
             is_locked = true;
         }
 
-        public static ContextConfig Config
-        {
-            get
-            {
+        public static ContextConfig Config {
+            get {
                 return current;
             }
-            set
-            {
+            set {
                 if (is_locked)
                 {
                     throw new InvalidOperationException();

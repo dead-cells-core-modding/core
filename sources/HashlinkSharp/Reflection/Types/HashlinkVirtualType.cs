@@ -6,15 +6,13 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Hashlink.Reflection.Types
 {
-    public unsafe class HashlinkVirtualType(HashlinkModule module, HL_type* type) : 
+    public unsafe class HashlinkVirtualType( HashlinkModule module, HL_type* type ) :
         HashlinkSpecialType<HL_type_virtual>(module, type)
     {
         private HashlinkObjectField[]? cachedFields;
         private readonly ConcurrentDictionary<string, HashlinkObjectField?> cachedFieldLookup = [];
-        public HashlinkObjectField[] Fields
-        {
-            get
-            {
+        public HashlinkObjectField[] Fields {
+            get {
                 if (cachedFields == null)
                 {
                     cachedFields = new HashlinkObjectField[TypeData->nfields];

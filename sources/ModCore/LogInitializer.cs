@@ -11,6 +11,9 @@ namespace ModCore
         {
             var latest = Path.Combine(FolderInfo.Logs.FullPath, "log_latest.log");
 
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+
             if (Console.IsErrorRedirected)
             {
                 Console.Error.WriteLine("\n[DCCMLOGLATEST]" + latest);
@@ -24,7 +27,7 @@ namespace ModCore
                 }
                 catch
                 {
-                
+
                 }
             }
 
@@ -36,7 +39,7 @@ namespace ModCore
                 if (logs.Count > MAX_LOGS_COUNT)
                 {
                     //Remove the oldest
-                    foreach(var v in logs.Take(logs.Count - MAX_LOGS_COUNT))
+                    foreach (var v in logs.Take(logs.Count - MAX_LOGS_COUNT))
                     {
                         try
                         {
@@ -44,12 +47,10 @@ namespace ModCore
                         }
                         catch
                         {
-                        
+
                         }
                     }
                 }
-
-
             }
 
             var date = DateTime.Now;
@@ -65,7 +66,7 @@ namespace ModCore
                   Path.Combine(FolderInfo.Logs.FullPath, $"log_{date:yyyy-MM-dd-HH-mm-ss}.log"),
                   outputTemplate: OUTPUT_FORMAT_TEMPLATE,
                   rollingInterval: RollingInterval.Infinite,
-                  
+
                   buffered: false
               );
 

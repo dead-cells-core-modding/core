@@ -1,10 +1,7 @@
 using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Steps;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
 namespace HashlinkNET.Compiler.Pseudocode.Steps
 {
@@ -16,7 +13,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
 
             var func = gdata.Code.GetFunctionById(gdata.Code.Entrypoint);
 
-            Debug.Assert( func != null );
+            Debug.Assert(func != null);
 
             for (int i = 0; i < func.Opcodes.Length; i++)
             {

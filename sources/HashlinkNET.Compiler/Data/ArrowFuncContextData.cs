@@ -5,12 +5,10 @@ namespace HashlinkNET.Compiler.Data
     internal class ArrowFuncContextData :
         EnumClassData
     {
-        public FuncData? DirectParent
-        {
+        public FuncData? DirectParent {
             get; set;
         }
-        public ConcurrentBag<FuncData> Methods
-        {
+        public ConcurrentBag<FuncData> Methods {
             get; set;
         } = [];
     }

@@ -9,11 +9,11 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
     {
 
         public override bool Filter( HlType type ) => type.Kind == HlTypeKind.Ref;
-        public override void Execute( IDataContainer container, 
-            HlCode code, GlobalData gdata, 
+        public override void Execute( IDataContainer container,
+            HlCode code, GlobalData gdata,
             RuntimeImports rdata, HlType type )
         {
-            var tt = (HlTypeWithType) type;
+            var tt = (HlTypeWithType)type;
             var et = container.GetTypeRef(tt.Type.Value);
             if (gdata.Config.GeneratePseudocode)
             {

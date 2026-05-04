@@ -50,14 +50,11 @@ namespace Hashlink.Proxy.DynamicAccess
             }
         }
 
-        public object? this[int index]
-        {
-            get
-            {
+        public object? this[int index] {
+            get {
                 return DynamicAccessUtils.AsDynamic(array[index]);
             }
-            set
-            {
+            set {
                 array[index] = value;
             }
         }

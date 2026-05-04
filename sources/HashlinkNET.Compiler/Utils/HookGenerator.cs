@@ -7,10 +7,10 @@ namespace HashlinkNET.Compiler.Utils
     internal static class HookGenerator
     {
 
-        public static TypeDefinition GenerateDelegateFor( 
+        public static TypeDefinition GenerateDelegateFor(
             MethodDefinition method,
             TypeSystem typeSystem,
-            RuntimeImports rdata)
+            RuntimeImports rdata )
         {
             var del = new TypeDefinition(
                 null, null,

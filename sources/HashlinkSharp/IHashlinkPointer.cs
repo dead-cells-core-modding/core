@@ -1,9 +1,8 @@
-﻿namespace Hashlink
+namespace Hashlink
 {
     public interface IHashlinkPointer
     {
-        public nint HashlinkPointer
-        {
+        public nint HashlinkPointer {
             get;
         }
     }

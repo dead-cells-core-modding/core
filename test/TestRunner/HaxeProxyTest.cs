@@ -8,6 +8,7 @@ using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Types;
 using Hashlink.Virtuals;
+using HashlinkNET.Native.Impl;
 using HaxeProxy.Runtime;
 using ModCore.Utilities;
 
@@ -31,7 +32,7 @@ namespace TestRunner
 
             Assert.Equal(1d, p.x);
 
-            
+
         }
         [Fact]
         public unsafe void Interaction_Virtual()
@@ -85,8 +86,8 @@ namespace TestRunner
 
             double x = 114514;
             double y = 0;
-            var p = new Point(new(ref x), new(ref y)); 
-            
+            var p = new Point(new(ref x), new(ref y));
+
             var array = new ArrayObj()
             {
                 array = new(HashlinkMarshal.Module.KnownTypes.Dynamic, 0)
@@ -102,6 +103,13 @@ namespace TestRunner
 
             array.pushDyn(114514);
             Assert.Equal(114514, (int)array.pop());
+        }
+
+        [Fact]
+        public void Test_Native()
+        {
+            Assert.Equal(4, Lib_std.math_sqrt(16));
+            Assert.Equal(1, Lib_std.math_abs(-1));
         }
 
         [Fact]

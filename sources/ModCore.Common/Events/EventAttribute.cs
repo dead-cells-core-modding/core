@@ -4,7 +4,7 @@ namespace ModCore.Events
     /// All events should contain this attribute.
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface)]
-    public class EventAttribute: Attribute
+    public class EventAttribute : Attribute
     {
         [Flags]
         public enum EventKind
@@ -13,16 +13,15 @@ namespace ModCore.Events
             Once = 1,
             ShowInLog = 2
         }
-        public EventAttribute(bool once ) : this(once ? (EventKind.Once | EventKind.ShowInLog) : EventKind.None)
+        public EventAttribute( bool once ) : this(once ? (EventKind.Once | EventKind.ShowInLog) : EventKind.None)
         {
         }
         public EventAttribute( EventKind kind = EventKind.None )
         {
             Kind = kind;
         }
-        public EventKind Kind
-        {
-            get; 
+        public EventKind Kind {
+            get;
         }
         /// <summary>
         /// A value indicating whether the event is one-time.
