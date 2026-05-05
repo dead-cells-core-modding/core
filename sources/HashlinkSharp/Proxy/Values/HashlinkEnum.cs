@@ -1,4 +1,5 @@
 using Hashlink.Marshaling;
+using Hashlink.Reflection;
 using Hashlink.Reflection.Members.Enum;
 using Hashlink.Reflection.Types;
 using System.Diagnostics;
@@ -7,7 +8,8 @@ namespace Hashlink.Proxy.Values
 {
     public unsafe class HashlinkEnum( HashlinkObjPtr objPtr ) : HashlinkTypedObj<HL_enum>(objPtr)
     {
-        private static readonly System.Collections.Concurrent.ConcurrentDictionary<(nint, int), nint> _singletons = new();
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<(nint, int), nint> singletons = new();
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<nint, bool> prePopulated = new();
 
         public HashlinkEnum( HashlinkEnumType type, int index ) :
             this(HashlinkObjPtr.Get(GetOrCreateEnum(type, index)))
@@ -18,20 +20,29 @@ namespace Hashlink.Proxy.Values
         private static nint GetOrCreateEnum( HashlinkEnumType type, int index )
         {
             var key = ((nint)type.NativeType, index);
-            return _singletons.TryGetValue(key, out var cached)
+            if (singletons.TryGetValue(key, out var cached))
+                return cached;
+
+            // When the enumeration for this module is created for the first time
+            // Pre-populate the singleton cache from the Globals module
+            var modulePtr = (nint)type.Module.NativeModule;
+            if (prePopulated.TryAdd(modulePtr, true))
+                PrePopulateFromGlobals(type.Module);
+
+            return singletons.TryGetValue(key, out cached)
                 ? cached
                 : (nint)hl_alloc_enum(type.NativeType, index);
         }
 
-        // DefaultHashlinkMarshaler 从游戏读取枚举时调用。
-        // 游戏中的枚举是单例——将其缓存，以便后续的 new Align.Center() 操作能复用原生代码用于身份验证的同一指针。
-        internal static HashlinkEnum CacheAndCreate( HashlinkObjPtr ptr )
+        private static void PrePopulateFromGlobals( HashlinkModule module )
         {
-            var e = new HashlinkEnum(ptr);
-            if (e.Handle != null)
-                _singletons[((nint)e.EnumType.NativeType, e.Index)] = e.HashlinkPointer;
-            return e;
+            foreach (var g in module.Globals)
+            {
+                if (g.Type.IsEnum && g.Value is HashlinkEnum e)
+                    singletons[((nint)e.EnumType.NativeType, e.Index)] = e.HashlinkPointer;
+            }
         }
+
         public HashlinkEnumType EnumType => (HashlinkEnumType)Type;
         public HashlinkEnumConstruct CurrentConstruct => EnumType.Constructs[Index];
 
