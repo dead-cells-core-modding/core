@@ -253,7 +253,7 @@ namespace Hashlink.Marshaling
                 TypeKind.HABSTRACT => (nint)((HL_vdynamic*)target)->val.ptr,
                 TypeKind.HFUN => new HashlinkClosure(ptr),
                 TypeKind.HREF => (nint)((HL_vdynamic*)target)->val.ptr,
-                TypeKind.HENUM => new HashlinkEnum(ptr),
+                TypeKind.HENUM => HashlinkEnum.CacheAndCreate(ptr),
                 TypeKind.HARRAY => new HashlinkArray(ptr),
                 TypeKind.HDYNOBJ => new HashlinkDynObj(ptr),
                 TypeKind.HNULL or TypeKind.HDYN => HashlinkMarshal.ReadData(
