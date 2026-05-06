@@ -1,4 +1,9 @@
+using dc;
+using dc.h2d;
+using dc.hxd;
 using dc.ui;
+using dc.ui.pause;
+using Hashlink.Virtuals;
 using HaxeProxy.Runtime;
 using ModCore.Events;
 using ModCore.Events.Interfaces.Game;
@@ -8,6 +13,8 @@ using ModCore.Utilities;
 using Steamworks;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Hook_Options = dc.ui.Hook_Options;
+using Options = dc.ui.Options;
 
 namespace ModCore.Modules
 {
@@ -229,6 +236,52 @@ namespace ModCore.Modules
             Hook_Options.isOnAModSection += Hook_Options_isOnAModSection;
             Hook_Options.buildCurSection += Hook_Options_buildCurSection;
             Hook_OptionsBase.setSection += Hook_OptionsBase_setSection;
+            Hook__DefaultPause.__constructor__ += Hook_DefaultPause__constructor__;
+            Hook__RichterPause.__constructor__ += Hook__RichterPause__constructor__;
+        }
+
+        private void Hook__RichterPause__constructor__( Hook__RichterPause.orig___constructor__ orig, RichterPause arg1 )
+        {
+            orig(arg1);
+            AddCustomButtonToPause("Core.M", new Action<Pause>(OpenPauseCoreMenu), arg1, 1);
+        }
+
+        private void Hook_DefaultPause__constructor__( Hook__DefaultPause.orig___constructor__ orig, DefaultPause arg1 )
+        {
+            orig(arg1);
+            AddCustomButtonToPause("Core.M", new Action<Pause>(OpenPauseCoreMenu), arg1, 1);
+        }
+
+        private void OpenPauseCoreMenu( Pause pause)
+        {
+            pause.root.set_visible(false);
+            var opt = new Options(pause, null, null);
+            SetSection(_mainMenu);
+            opt.killOnBack = true;
+        }
+
+        private void AddCustomButtonToPause( string buttonText, Action<Pause> onClick, dynamic pause, int index)
+        {
+            dc.ui.Text text = Assets.Class.makeText(GetString(buttonText), null, true, null);
+            
+            text.set_textAlign(new Align.Center());
+
+            double width = text.get_textWidth();
+            double height = text.get_textHeight();
+
+            dc.h2d.Interactive interactive = new(width, height, text, null);
+            interactive.onClick = new HlAction<Event>(( e ) => { });
+            interactive.onOver = new HlAction<Event>(( e ) => { });
+
+            var entry = new virtual_cb_inter_t_();
+            entry.t = text;
+            entry.inter = interactive;
+            entry.cb = new HlAction(onClick(pause));
+
+            pause.botMenu.addChildAt(text, index + 1);
+            pause.options.insertDyn(index, entry);
+
+            pause.onResize();
         }
 
         private bool Hook_Options_isOnAModSection( Hook_Options.orig_isOnAModSection orig, Options self )

@@ -109,8 +109,11 @@ namespace Hashlink.Marshaling
 
             if (value is IHashlinkPointer hlptr)
             {
+                var ptr = hlptr.HashlinkPointer;
+                if (type is HashlinkEnumType)
+                    ptr = HashlinkEnum.ResolveWritePointer(ptr);
                 HashlinkMarshal.MarkUsed(hlptr);
-                Unsafe.WriteUnaligned(target, hlptr.HashlinkPointer);
+                Unsafe.WriteUnaligned(target, ptr);
                 return true;
             }
 

@@ -2,6 +2,7 @@ using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
+using Hashlink.Proxy.Values;
 using HaxeProxy.Runtime.Internals;
 using System.Diagnostics;
 using System.Dynamic;
@@ -25,7 +26,13 @@ namespace HaxeProxy.Runtime
                 {
                     throw new InvalidOperationException();
                 }
+
+                if (this is HaxeEnum && obj is HashlinkEnum e &&
+                    !HaxeProxyManager.IsKnownEnumType(this.GetType()))
+                    HashlinkEnum.MarkNoSingleton(e);
+                    
                 HaxeProxyManager.CheckCustomProxy(this, obj);
+
             }
             AfterBinding();
         }

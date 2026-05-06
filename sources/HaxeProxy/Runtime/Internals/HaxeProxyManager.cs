@@ -21,30 +21,36 @@ namespace HaxeProxy.Runtime.Internals
         public static readonly Dictionary<Type, int> type2typeId = [];
         private static Type[] bindingTypes = [];
         private static ImmutableDictionary<int, Type> subTypes = ImmutableDictionary<int, Type>.Empty;
-
-
+        private static HashSet<Type> allKnownTypes = [];
 
         public static void Initialize( Assembly proxyAssembly )
         {
             bindingTypes = new Type[HashlinkMarshal.Module.Types.Length];
             var types = proxyAssembly.GetCustomAttributes<HaxeProxyBindingAttribute>();
             var subTypes = new Dictionary<int, Type>();
+            var allKnown = new HashSet<Type>();
             foreach (var v in types)
             {
                 if ((v.TypeIndex & 0x80000000) == 0)
                 {
                     bindingTypes[v.TypeIndex] = v.Type;
                     type2typeId[v.Type] = v.TypeIndex;
+                    allKnown.Add(v.Type);
                 }
                 else
                 {
                     subTypes[v.TypeIndex] = v.Type;
+                    allKnown.Add(v.Type);
                 }
             }
             HaxeProxyManager.subTypes = subTypes.ToImmutableDictionary();
+            allKnownTypes = allKnown;
 
             knownProxyTypes = [.. bindingTypes];
         }
+
+        internal static bool IsKnownEnumType( Type t ) => allKnownTypes.Contains(t);
+
         public static void CheckCustomProxy( HaxeProxyBase proxy, HashlinkObj obj )
         {
             var type = proxy.GetType();
