@@ -4,6 +4,8 @@ using dc.hl.types;
 using dc.tool;
 using Hashlink;
 using Hashlink.Marshaling;
+using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Types;
@@ -54,6 +56,22 @@ namespace TestRunner
             var hlobj = HashlinkNative.hl_alloc_virtual(iterType.NativeType);
             var iter2 = ((HashlinkVirtual?)HashlinkMarshal.ConvertHashlinkObject(hlobj))?.AsHaxe();
             Assert.Equal(iterType, iter2?.HashlinkObj.Type);
+
+            int v2v = 0;
+
+            var v2 = new virtual_cb_inter_t_()
+            {
+                cb = () => v2v++
+            };
+
+            HashlinkClosure v2cl = v2.HashlinkObj.AsDynamic().cb;
+
+            v2.cb();
+
+            Assert.Equal(1, v2v);
+
+            
+
         }
         [Fact]
         public void Interaction_Enum()

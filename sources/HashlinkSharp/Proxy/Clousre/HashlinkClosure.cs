@@ -22,7 +22,7 @@ namespace Hashlink.Proxy.Clousre
         }
         public HashlinkClosure( HashlinkFuncType funcType, nint funcPtr, nint self ) :
             this(HashlinkObjPtr.Get(self != 0 ?
-                hl_alloc_closure_ptr(funcType.NativeType, (void*)funcPtr, (void*)self) :
+                hl_alloc_closure_ptr(funcType.BaseFunc.NativeType, (void*)funcPtr, (void*)self) :
                 hl_alloc_closure_void(funcType.NativeType, (void*)funcPtr)))
         {
 

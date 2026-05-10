@@ -93,6 +93,16 @@ namespace Hashlink.Marshaling
             WriteData(target, val, Module.KnownTypes.Dynamic, marshaler);
         }
 
+        public static nint GetDyn(
+           object? val,
+           IHashlinkMarshaler? marshaler = null )
+        {
+            nint target = 0;
+
+            WriteData(&target, val, Module.KnownTypes.Dynamic, marshaler);
+            return target;
+        }
+
         public static void WriteData(
             void* target,
             object? val,

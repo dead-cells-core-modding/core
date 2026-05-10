@@ -1,3 +1,8 @@
+using Hashlink.Marshaling;
+using Hashlink.Proxy.Values;
+using HaxeProxy.Runtime.Internals;
+using System.Dynamic;
+
 namespace HaxeProxy.Runtime
 {
     public abstract class HaxeEnum<TEnum, TIndex> : HaxeEnum where TIndex : struct, Enum
@@ -71,6 +76,16 @@ namespace HaxeProxy.Runtime
         {
             return !(left == right);
         }
+
+        public dynamic? this[int paramId] {
+            get {
+                return HaxeProxyHelper.GetProxy<object>(((HashlinkEnum)HashlinkObj)[paramId]);
+            }
+            set {
+                ((HashlinkEnum)HashlinkObj)[paramId] = value;
+            }
+        }
+
         public override int GetHashCode()
         {
             return base.GetHashCode();

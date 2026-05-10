@@ -1,13 +1,26 @@
+using dc;
+using dc.h2d;
+using dc.hl.types;
 using dc.ui;
+using dc.ui.pause;
+using Hashlink.Proxy.Clousre;
+using Hashlink.Proxy.Values;
+using Hashlink.Reflection.Types;
+using Hashlink.Virtuals;
 using HaxeProxy.Runtime;
 using ModCore.Events;
 using ModCore.Events.Interfaces.Game;
+using ModCore.Events.Interfaces.Game.Menu;
 using ModCore.Menu;
 using ModCore.Mods;
 using ModCore.Utilities;
 using Steamworks;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using static dc.hxd.PixelFormat;
+using Hook_Options = dc.ui.Hook_Options;
+using Options = dc.ui.Options;
 
 namespace ModCore.Modules
 {
@@ -91,11 +104,13 @@ namespace ModCore.Modules
 
                 var flow = options.scrollerFlow;
 
-                options.addSimpleWidget(GetString("About Core Modding"),
+                var w = options.addSimpleWidget(GetString("About Core Modding"),
                     $"DCCM Version: {Core.Version}".AsHaxeString(), () =>
                 {
                     OpenURL("https://dead-cells-core-modding.github.io/docs/docs/");
                 }, Ref<int>.In(5), flow);
+
+                w.set_horizontalAlign(new FlowAlign.Right());
 
                 if (Environment.GetEnvironmentVariable("DCCM_STEAMWORKSHOP_ENABLED") == "true")
                 {
@@ -229,6 +244,115 @@ namespace ModCore.Modules
             Hook_Options.isOnAModSection += Hook_Options_isOnAModSection;
             Hook_Options.buildCurSection += Hook_Options_buildCurSection;
             Hook_OptionsBase.setSection += Hook_OptionsBase_setSection;
+            Hook__DefaultPause.__constructor__ += Hook_DefaultPause__constructor__;
+            Hook__RichterPause.__constructor__ += Hook__RichterPause__constructor__;
+        }
+
+
+        private void Hook__RichterPause__constructor__( Hook__RichterPause.orig___constructor__ orig, RichterPause arg1 )
+        {
+            orig(arg1);
+            EventSystem.BroadcastEvent<IOnAfterPauseMenuBuild, Pause>(arg1);
+        }
+
+        private void Hook_DefaultPause__constructor__( Hook__DefaultPause.orig___constructor__ orig, DefaultPause arg1 )
+        {
+            orig(arg1);
+            EventSystem.BroadcastEvent<IOnAfterPauseMenuBuild, Pause>(arg1);
+        }
+
+        private void OpenPauseCoreMenu( Pause pause )
+        {
+            pause.root.set_visible(false);
+            var opt = new Options(pause, null, null);
+            SetSection(_mainMenu);
+            opt.killOnBack = true;
+        }
+
+        /// <summary>
+        /// Insert a custom button at the bottom of the pause menu and bind a callback to it.
+        /// </summary>
+        /// <param name="buttonText"></param>
+        /// <param name="onClick"></param>
+        /// <param name="pause"></param>
+        /// <param name="index">Insertion position index (offset relative to the existing bottom button)</param>
+        public void AddCustomButtonToPause( string buttonText, Action<Pause> onClick, Pause pause, int index )
+        {
+            dc.ui.Text text = Assets.Class.makeText(GetString(buttonText), null, true, null);
+
+            text.set_textAlign(new Align.Center());
+
+            var options = (ArrayObj) ((dynamic)pause).options;
+            var botMenu = (Flow)((dynamic)pause).botMenu;
+
+            Interactive? templateInteractive = null;
+
+            foreach (virtual_cb_inter_t_? v in options)
+            {
+                var inter = v?.inter;
+                if (inter == null)
+                {
+                    continue;
+                }
+                
+                if(inter.onClick != null && inter.onOver != null)
+                {
+                    var clickCL = (HashlinkClosure)((dynamic)inter.HashlinkObj).onClick;
+
+
+                    //Find native closure
+                    if (clickCL?.BindingThis == null)
+                    {
+                        continue;
+                    }
+
+                    templateInteractive = inter;
+                    break;
+                }
+            }
+
+            double width = text.get_textWidth();
+            double height = text.get_textHeight();
+
+            Interactive interactive = new(width, height, text, null)
+            {
+                onClick = _ => { },
+                onOver = _ => { }
+            };
+
+            var entry = new virtual_cb_inter_t_
+            {
+                t = text,
+                inter = interactive,
+                cb = () => onClick(pause)
+            };
+
+            if (templateInteractive != null)
+            {
+                interactive.onClick = templateInteractive.onClick;
+
+                static HashlinkClosure NewArrowClosure(HashlinkClosure cl, virtual_cb_inter_t_ entry)
+                {
+                    Debug.Assert(cl.BindingThis != null);
+
+                    var arrowCtx = (HashlinkEnum) cl.BindingThis;
+
+                    var newCtx = new HashlinkEnum((HashlinkEnumType) arrowCtx.Type, 0);
+                    newCtx[0] = arrowCtx[0];
+                    newCtx[1] = entry;
+                    return new HashlinkClosure((HashlinkFuncType) cl.Type, cl.FunctionPtr, newCtx.HashlinkPointer);
+                }
+
+                //Unsafe
+                interactive.onOver = (dynamic)NewArrowClosure((HashlinkClosure)((dynamic)templateInteractive.HashlinkObj).onOver, entry);
+            }
+
+           
+
+            botMenu.addChildAt(text, index + 1);
+            options.insertDyn(index, entry);
+
+            pause.onResize();
         }
 
         private bool Hook_Options_isOnAModSection( Hook_Options.orig_isOnAModSection orig, Options self )

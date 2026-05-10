@@ -15,7 +15,7 @@ namespace Hashlink.Proxy.Values
         public HashlinkEnumType EnumType => (HashlinkEnumType)Type;
         public HashlinkEnumConstruct CurrentConstruct => EnumType.Constructs[Index];
 
-        public byte* ParamsData => (byte*)(TypedRef + 1);
+        public byte* ParamsData => (byte*)(TypedRef);
 
         public object? this[int paramId] {
             get {

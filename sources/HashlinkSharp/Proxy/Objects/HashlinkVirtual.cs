@@ -24,16 +24,14 @@ namespace Hashlink.Proxy.Objects
             return null;
         }
 
-        public override object? GetFieldValue( int hashedName )
-        {
-            return HashlinkMarshal.ConvertHashlinkObject(
-                hl_dyn_getp((HL_vdynamic*)TypedRef, hashedName, InternalTypes.hlt_dyn));
-        }
-        public override void SetFieldValue( int hashedName, object? value )
-        {
-            nint v;
-            HashlinkMarshal.WriteDataDyn(&v, value);
-            hl_dyn_setp((HL_vdynamic*)TypedRef, hashedName, InternalTypes.hlt_dyn, (void*)v);
-        }
+        //public override object? GetFieldValue( int hashedName )
+        //{
+        //    return HashlinkMarshal.ConvertHashlinkObject(
+        //        hl_dyn_getp((HL_vdynamic*)TypedRef, hashedName, InternalTypes.hlt_dyn));
+        //}
+        //public override void SetFieldValue( int hashedName, object? value )
+        //{
+        //    hl_dyn_setp((HL_vdynamic*)TypedRef, hashedName, InternalTypes.hlt_dyn, (void*) HashlinkMarshal.GetDyn(value));
+        //}
     }
 }
