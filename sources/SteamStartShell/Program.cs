@@ -1,4 +1,5 @@
 using ModCore;
+using Newtonsoft.Json.Linq;
 using Serilog;
 using Steamworks;
 using System.ComponentModel;
@@ -46,6 +47,7 @@ You can report or contact us via:
             SteamUGC.GetSubscribedItems(items, count, false);
 
             List<string> mods = [];
+            List<string> plugins = [];
 
             foreach (var v in items)
             {
@@ -56,11 +58,22 @@ You can report or contact us via:
                     {
                         continue;
                     }
-                    Logger.Information("Found workshop mod: {path}", modinfoPath);
-                    mods.Add(modPath);
+                    var info = (JObject) JToken.Parse(File.ReadAllText(modinfoPath));
+
+                    Logger.Information("Found workshop mod: {name} {path}", info["name"]?.ToString(), modinfoPath);
+
+                    if (info["type"]?.ToString() == "plugin")
+                    {
+                        plugins.Add(modPath);
+                    }
+                    else
+                    {
+                        mods.Add(modPath);
+                    }
+                    
                 }
             }
-
+            Environment.SetEnvironmentVariable("DCCM_EXTRA_PLUGINS_PATHS", string.Join(';', plugins));
             Environment.SetEnvironmentVariable("DCCM_EXTRA_MODS_PATHS", string.Join(';', mods));
         }
 

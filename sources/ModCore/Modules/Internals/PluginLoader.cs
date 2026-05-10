@@ -1,27 +1,50 @@
-﻿using ModCore.Events;
+using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Plugins;
 using ModCore.Storage;
 using System.Reflection;
+using System.Text;
 
 namespace ModCore.Modules.Internals
 {
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     internal class PluginLoader : CoreModule<PluginLoader>, IOnCoreModuleInitializing
     {
+        private readonly CacheFile lastLoadedExtraPlugins = new("last_load_extra_plugins_paths");
         public override int Priority => ModulePriorities.PluginLoader;
 
         void IOnCoreModuleInitializing.OnCoreModuleInitializing()
         {
             Logger.Information("Loading plugins");
-            foreach (var dir in FolderInfo.Plugins.Info.GetDirectories("*"))
+
+            List<string> plugins = [.. FolderInfo.Plugins.Info.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Select(x => x.FullName)];
+
+            var pluginsPathStr = Environment.GetEnvironmentVariable("DCCM_EXTRA_PLUGINS_PATHS");
+
+            if (pluginsPathStr == null && lastLoadedExtraPlugins.TryGetCache(out var modsPathStrBytes))
             {
-                foreach (var v in dir.GetFiles("*.dll"))
+                pluginsPathStr = Encoding.UTF8.GetString(modsPathStrBytes);
+            }
+
+            if (!string.IsNullOrWhiteSpace(pluginsPathStr))
+            {
+                plugins.AddRange(
+                    pluginsPathStr.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(Path.GetFullPath)
+                    );
+            }
+
+            lastLoadedExtraPlugins.UpdateCache(Encoding.UTF8.GetBytes(pluginsPathStr ?? ""));
+
+
+            foreach (var dir in plugins)
+            {
+                foreach (var v in Directory.GetFiles(dir, "*.dll", SearchOption.TopDirectoryOnly))
                 {
                     try
                     {
-                        Logger.Information("Loading {path}", v.Name);
-                        var asm = Assembly.LoadFrom(v.FullName);
+                        var fi = new FileInfo(v);
+                        Logger.Information("Loading {path}", fi.Name);
+                        var asm = Assembly.LoadFrom(fi.FullName);
                         Logger.Information("Finding plugins");
                         foreach (var t in asm.SafeGetAllTypes())
                         {

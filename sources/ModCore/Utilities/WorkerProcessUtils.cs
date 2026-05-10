@@ -44,7 +44,8 @@ namespace ModCore.Utilities
                 startInfo.FileName = Environment.ProcessPath;
             }
 
-            if (startInfo.FileName == Environment.ProcessPath)
+            if (startInfo.FileName == Environment.ProcessPath
+                && string.IsNullOrWhiteSpace(startInfo.Arguments))
             {
                 startInfo.Arguments = $" --worker {typeFullName}";
             }
