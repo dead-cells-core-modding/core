@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Hashlink
 {
+
     [Flags]
     public enum HL_GC_Flags
     {
@@ -59,6 +60,15 @@ namespace Hashlink
         // ---------
         HLAST = 23,
         _H_FORCE_INT = 0x7FFFFFFF
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct HL_jit_vreg
+    {
+        public int stackPos;
+        public int size;
+        public HL_type* t;
+        public nint current;
     }
 
     [StructLayout(LayoutKind.Sequential)]

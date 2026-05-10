@@ -54,6 +54,50 @@ namespace ModCore.Native
 
         private HL_module* module;
 
+        private static nint orig_hl_dyn_compare;
+
+        [UnmanagedCallersOnly]
+        protected static int Hook_hl_dyn_compare( HL_vdynamic* a, HL_vdynamic* b )
+        {
+            if (a == b)
+            {
+                return 0;
+            }
+
+            if (a != null && b != null)
+            {
+
+                if (a->type->kind == TypeKind.HENUM &&
+                    b->type->kind == TypeKind.HENUM)
+                {
+                    var ea = (HL_enum*)a;
+                    var eb = (HL_enum*)b;
+
+                    return ea->index == eb->index ? 0 : (ea > eb ? 1 : -1);
+
+                }
+            }
+            
+            return ((delegate* unmanaged< nint, nint, int >)orig_hl_dyn_compare)((nint)a, (nint)b);
+        }
+
+        private static nint orig_jit_op_jump;
+
+        [UnmanagedCallersOnly]
+        protected static void Hook_jit_op_jump( nint ctx, HL_jit_vreg* ra, HL_jit_vreg* rb, nint op, int targetPos )
+        {
+            var oat = ra->t;
+            var obt = rb->t;
+            if (ra->t->kind == TypeKind.HENUM && rb->t->kind == TypeKind.HENUM)
+            {
+                ra->t = TYPE_DYN;
+                rb->t = TYPE_DYN;
+            }
+            ((delegate* unmanaged< nint, nint, nint, nint, int, void >)orig_jit_op_jump)(ctx, (nint) ra, (nint) rb, op, targetPos);
+            ra->t = oat;
+            rb->t = obt;
+        }
+
         [UnmanagedCallersOnly]
         protected static nint Hook_trap_filter( nint t, HL_trap_ctx* ctx, nint v )
         {
@@ -451,6 +495,10 @@ namespace ModCore.Native
             CreateNativeHookForHL("hl_dyn_getf", nameof(Hook_hl_dyn_getf), out orig_hl_dyn_getf);
             CreateNativeHookForHL("hl_dyn_geti64", nameof(Hook_hl_dyn_geti64), out orig_hl_dyn_geti64);
             CreateNativeHookForHL("hl_obj_lookup_extra", nameof(Hook_hl_obj_lookup_extra), out orig_hl_obj_lookup_extra);
+
+            CreateNativeHookForHL("hl_dyn_compare", nameof(Hook_hl_dyn_compare), out orig_hl_dyn_compare);
+
+            CreateNativeHookForHL("op_jump", nameof(Hook_jit_op_jump), out orig_jit_op_jump);
 
             Data->trap_filter = (nint)(delegate* unmanaged< nint, HL_trap_ctx*, nint, nint >)&Hook_trap_filter;
 

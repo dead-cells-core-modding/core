@@ -67,7 +67,6 @@ namespace Hashlink.Proxy
             HashlinkPointer = 0;
 
         }
-
         private HL_type* nativeType;
         private HashlinkType? type;
 

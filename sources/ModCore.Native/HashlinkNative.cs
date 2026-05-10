@@ -218,5 +218,7 @@ namespace Hashlink
         public static partial void hl_semaphore_acquire( void* sem );
         [LibraryImport(LIBHL)]
         public static partial void hl_gc_major();
+        [LibraryImport(LIBHL)]
+        public static partial int hl_dyn_compare( HL_vdynamic* a, HL_vdynamic* b );
     }
 }
