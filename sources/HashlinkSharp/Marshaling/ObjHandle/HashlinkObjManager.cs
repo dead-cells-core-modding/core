@@ -304,6 +304,10 @@ namespace Hashlink.Marshaling.ObjHandle
 
         private static nint* GetObjWrapperPtr( void* ptr )
         {
+            if (hl_get_thread() == null)
+            {
+                return null;
+            }
             var size = hl_gc_get_memsize(ptr);
             if (size <= 0)
             {

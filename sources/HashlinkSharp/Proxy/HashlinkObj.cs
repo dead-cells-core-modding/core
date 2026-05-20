@@ -54,7 +54,7 @@ namespace Hashlink.Proxy
         }
         public TypeKind TypeKind => Type.TypeKind;
         public bool IsValid => nativeType != null && type != null &&
-            HashlinkPointer != 0 && hl_gc_get_memsize((void*)HashlinkPointer) > 0;
+            HashlinkPointer != 0 && hl_get_thread() != null && hl_gc_get_memsize((void*)HashlinkPointer) > 0;
         public void Detach()
         {
             nativeType = null;
