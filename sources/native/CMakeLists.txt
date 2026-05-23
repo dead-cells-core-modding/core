@@ -52,12 +52,12 @@ set(WITH_FMT off)
 set(WITH_DIRECTX off)
 set(WITH_VIDEO off)
 
-# Compile native libraries only on Windows platforms
-if(WIN32)
-    
+ 
     list(APPEND CMAKE_MODULE_PATH
         ${CMAKE_CURRENT_SOURCE_DIR}/hdlls/other/cmake
     )
+
+    set(BUILD_SHARED_LIBS on)
     
     add_subdirectory ("3rd/hashlink")
     
@@ -65,7 +65,7 @@ if(WIN32)
     
     get_filename_component(HDLLS_INCLUDE "3rd/hashlink/include" ABSOLUTE)
     
-    set(LIBHL_OUTPUT_DIR $<TARGET_FILE_DIR:libhl>)
+    get_target_property(LIBHL_OUTPUT_DIR libhl RUNTIME_OUTPUT_DIRECTORY)
     
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR})
     set(OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -77,7 +77,7 @@ if(WIN32)
         #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
 
-endif()
+message(${DCCM_OUTPUT_DIR})
 
 add_subdirectory ("hdlls/libs")
 add_subdirectory ("modcorenative")

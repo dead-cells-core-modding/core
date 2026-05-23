@@ -4,7 +4,6 @@ file(GLOB SOURCES ./*.c ./*.cpp)
 
 remove_definitions(-DLIBHL_EXPORTS)
 
-if(WIN32)
     set(HL_SRC_ROOT ../3rd/hashlink/src)
     file(GLOB hl_srcs 
         ${HL_SRC_ROOT}/code.c
@@ -14,8 +13,12 @@ if(WIN32)
         ${HL_SRC_ROOT}/debugger.c
         ${HL_SRC_ROOT}/profile.c)
     add_library(hljit SHARED  ${hl_srcs})
+    set_target_properties(hljit PROPERTIES 
+        RUNTIME_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
+        LIBRARY_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
+    )
     target_link_libraries(hljit libhl)
-endif()
+
 
 add_library (modcorenative SHARED ${SOURCES})
 
@@ -30,6 +33,7 @@ set(NETHOST_PACK_NAME "microsoft.netcore.app.host.linux-x64")
 set(NETHOST_PLATFORM "linux-x64")
 endif()
 
+if(WIN32)
 execute_process(
     COMMAND dotnet --info
     OUTPUT_VARIABLE DOTNET_INFO
@@ -53,10 +57,11 @@ target_include_directories(modcorenative PRIVATE ${NETHOST_PACK_PATH})
 find_library(NetHost_LIBRARY libnethost PATHS ${NETHOST_PACK_PATH})
 target_link_libraries(modcorenative ${NetHost_LIBRARY})
 message(${NetHost_LIBRARY})
+endif()
 
 SET_TARGET_PROPERTIES(modcorenative PROPERTIES 
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        RUNTIME_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
+        LIBRARY_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
         CXX_STANDARD 17
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
@@ -86,12 +91,14 @@ if(MSVC)
 endif()
 
 #Copy libhl
+
+message(${LIBHL_OUTPUT_DIR})
 add_custom_command(TARGET modcorenative POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${LIBHL_OUTPUT_DIR}"
-            "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+            "${LIBHL_OUTPUT_DIR}/"
+            "${DCCM_OUTPUT_DIR}/"
 )
-
+ 
 #Copy nethost
 if(WIN32)
 add_custom_command(TARGET modcorenative POST_BUILD

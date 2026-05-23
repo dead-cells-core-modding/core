@@ -1,4 +1,4 @@
-﻿{
+{
   "version": 3,
   "configurePresets": [
     {
@@ -18,6 +18,22 @@
       }
     },
     {
+      "name": "linux-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
       "name": "win-x64-debug",
       "displayName": "x64 Debug",
       "inherits": "windows-base",
@@ -30,6 +46,21 @@
       "name": "win-x64-release",
       "displayName": "x64 Release",
       "inherits": "win-x64-debug",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    },
+    {
+      "name": "linux-x64-debug",
+      "displayName": "x64 Debug",
+      "inherits": "linux-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "TARGET_ARCH": "x64"
+      }
+    },
+    {
+      "name": "linux-x64-release",
+      "displayName": "x64 Release",
+      "inherits": "linux-x64-debug",
       "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     }
   ]
