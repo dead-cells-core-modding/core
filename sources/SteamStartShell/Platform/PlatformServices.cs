@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Serilog;
@@ -15,10 +15,23 @@ namespace SteamStartShell.Platform
         /// <summary>
         /// 运行时平台实例——根据当前操作系统自动选择
         /// </summary>
-        public static PlatformServices Current { get; } =
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? new WindowsPlatformServices()
-                : new LinuxPlatformServices();
+        public static PlatformServices Current { get; } = CreateService();
+
+        private static PlatformServices CreateService()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return new WindowsPlatformServices();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return new LinuxPlatformServices();
+            }
+            else
+            {
+                throw new PlatformNotSupportedException();
+            }
+        }
 
         /// <summary>
         /// 加载平台原生 Steam 库（Windows: steam_api64.dll, Linux: libsteam_api.so）
