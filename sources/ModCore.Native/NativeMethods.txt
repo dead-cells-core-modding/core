@@ -23,3 +23,5 @@ RtlVirtualUnwind
 RtlCaptureContext
 
 EnumDisplayDevices
+GetCurrentThreadStackLimits
+

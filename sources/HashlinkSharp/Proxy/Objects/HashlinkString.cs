@@ -9,7 +9,7 @@ namespace Hashlink.Proxy.Objects
         private nint cachedPtr;
         public HashlinkString() : this(
             HashlinkObjPtr.Get(
-                hl_alloc_obj(HashlinkMarshal.Module.KnownTypes.String.NativeType)
+                hl_alloc_obj(EnsureThreadRegistered(HashlinkMarshal.Module.KnownTypes.String.NativeType))
                 )
             )
         {

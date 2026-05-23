@@ -35,6 +35,12 @@ namespace ModCore.Native
                 (Windows.Win32.System.Memory.PAGE_PROTECTION_FLAGS)val, out _);
         }
 
+        public override nint GetCurrentThreadStackBase()
+        {
+            GetCurrentThreadStackLimits(out _, out var highLimit);
+            return (nint)highLimit;
+        }
+
         [UnmanagedCallersOnly]
         protected static int Hook_throw_handler( int code )
         {

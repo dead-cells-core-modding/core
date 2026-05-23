@@ -150,6 +150,8 @@ namespace Hashlink.Marshaling
             {
                 return null;
             }
+            EnsureThreadRegistered();
+
             marshaler ??= DefaultHashlinkMarshaler.Instance;
             var handle = HashlinkObjManager.GetHandle((nint)target);
             return handle != null && handle.Target != null

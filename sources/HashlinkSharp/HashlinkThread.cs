@@ -86,9 +86,12 @@ namespace Hashlink
             {
                 if (stacktop == 0)
                 {
+                    stacktop = Native.Current.GetCurrentThreadStackBase();
+                }
+                if (stacktop == 0)
+                {
                     stacktop = (nint)Unsafe.AsPointer(ref stacktop);
                 }
-
                 hl_register_thread((void*)stacktop);
                 hl_get_thread()->gc_blocking = 1;
             }

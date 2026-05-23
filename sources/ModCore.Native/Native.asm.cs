@@ -115,6 +115,7 @@ namespace ModCore.Native
             c.Label(ref suc);
         }
 
+        public abstract nint GetCurrentThreadStackBase();
         public abstract void SetTlsValue( int index, nint val );
         public abstract nint GetTlsValue( int index );
         public abstract int AllocTls();

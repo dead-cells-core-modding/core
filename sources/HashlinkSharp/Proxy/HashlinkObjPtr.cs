@@ -1,3 +1,5 @@
+using Hashlink.Marshaling;
+
 namespace Hashlink.Proxy
 {
     public readonly unsafe struct HashlinkObjPtr : IHashlinkPointer
@@ -7,6 +9,12 @@ namespace Hashlink.Proxy
         public bool IsNull => Pointer == 0;
         public nint Pointer {
             get;
+        }
+
+        public int GetMemSize()
+        {
+            HashlinkThread.EnsureThreadRegistered();
+            return hl_gc_get_memsize((void*)Pointer);
         }
 
         nint IHashlinkPointer.HashlinkPointer => Pointer;
@@ -30,6 +38,7 @@ namespace Hashlink.Proxy
 
         private HashlinkObjPtr( nint ptr )
         {
+            HashlinkMarshal.EnsureThreadRegistered();
             Pointer = ptr;
         }
     }

@@ -6,7 +6,7 @@ namespace Hashlink.Proxy.Objects
     public unsafe class HashlinkObject( HashlinkObjPtr objPtr ) : HashlinkFieldObject<HL_vdynamic>(objPtr)
     {
         public HashlinkObject( HashlinkObjectType objType ) : this(HashlinkObjPtr.Get(
-            hl_alloc_obj(objType.NativeType))
+            hl_alloc_obj(EnsureThreadRegistered(objType.NativeType)))
             )
         {
             Debug.Assert(Handle != null);

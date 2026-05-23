@@ -8,6 +8,18 @@ namespace Hashlink.Proxy
     public abstract unsafe partial class HashlinkObj :
         IHashlinkPointer
     {
+        //They have no special meaning; they are simply there to execute `HashlinkMarshal.EnsureThreadRegistered` in the constructor.
+        protected static HL_type* EnsureThreadRegistered( HL_type* obj )
+        {
+            HashlinkMarshal.EnsureThreadRegistered();
+            return obj;
+        }
+        protected static T EnsureThreadRegistered<T>( Func<T> factory )
+        {
+            HashlinkMarshal.EnsureThreadRegistered();
+            return factory();
+        }
+
         [MemberNotNull(nameof(nativeType))]
         [MemberNotNull(nameof(type))]
         internal void RefreshTypeInfo( HL_type* ptr, bool clearExtraData )
@@ -26,6 +38,8 @@ namespace Hashlink.Proxy
 
         public HashlinkObj( HashlinkObjPtr objPtr )
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var ptr = objPtr.Pointer;
             Handle = HashlinkObjManager.GetHandle(ptr);
             if (Handle != null)
@@ -54,7 +68,7 @@ namespace Hashlink.Proxy
         }
         public TypeKind TypeKind => Type.TypeKind;
         public bool IsValid => nativeType != null && type != null &&
-            HashlinkPointer != 0 && hl_get_thread() != null && hl_gc_get_memsize((void*)HashlinkPointer) > 0;
+            HashlinkPointer != 0 && HashlinkObjPtr.Get(HashlinkPointer).GetMemSize() > 0;
         public void Detach()
         {
             nativeType = null;
