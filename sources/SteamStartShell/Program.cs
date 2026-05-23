@@ -508,6 +508,12 @@ You can report or contact us via:
                     }
                 }
 
+                errText.AppendLine();
+                errText.Append("Exit code: ");
+                errText.Append(game.ExitCode);
+                errText.Append(" (0x");
+                errText.Append(game.ExitCode.ToString("X"));
+                errText.AppendLine(")");
 
 
                 if (errOutputBuilder.Length > 0)

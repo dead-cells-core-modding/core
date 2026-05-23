@@ -4,6 +4,7 @@ using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Native.Events.Interfaces;
 using MonoMod.Core;
+using Serilog;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -243,6 +244,23 @@ namespace ModCore.Native
             //Debug.Assert(count == result);
 
             return result;
+        }
+
+        private static nint orig_hl_fatal_error;
+        [UnmanagedCallersOnly]
+        protected static void Hook_hl_fatal_error( byte* msg, byte* file, int line )
+        {
+            Log.Fatal("Hashlink fatal error at {File}:{Line}: {Message}",
+                Marshal.PtrToStringAnsi((nint)file), line, Marshal.PtrToStringAnsi((nint)msg));
+
+            if (!ContextConfig.Config.suppressFatalWindows)
+            {
+                ((delegate* unmanaged< byte*, byte*, int, void >)orig_hl_fatal_error)(msg, file, line);
+            }
+            else
+            {
+                Environment.FailFast(null);
+            }
         }
 
         private static nint orig_gc_allocator_alloc;
@@ -499,6 +517,8 @@ namespace ModCore.Native
             CreateNativeHookForHL("hl_dyn_compare", nameof(Hook_hl_dyn_compare), out orig_hl_dyn_compare);
 
             CreateNativeHookForHL("op_jump", nameof(Hook_jit_op_jump), out orig_jit_op_jump);
+
+            CreateNativeHookForHL("hl_fatal_error", nameof(Hook_hl_fatal_error), out orig_hl_fatal_error);
 
             Data->trap_filter = (nint)(delegate* unmanaged< nint, HL_trap_ctx*, nint, nint >)&Hook_trap_filter;
 

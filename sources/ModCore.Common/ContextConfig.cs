@@ -38,5 +38,6 @@ namespace ModCore
         public string[] hashlinkLibraries;
         public Memory<byte>? hlbcOverride;
         public bool consoleOutput;
+        public bool suppressFatalWindows;
     }
 }

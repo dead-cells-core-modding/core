@@ -30,6 +30,7 @@ namespace TestRunner
             {
                 consoleOutput = Debugger.IsAttached,
                 disableWorkerProcessUtils = true,
+                suppressFatalWindows = true,
             };
             //Console.WriteLine("Setup receiver");
             EventSystem.AddReceiver(this);
