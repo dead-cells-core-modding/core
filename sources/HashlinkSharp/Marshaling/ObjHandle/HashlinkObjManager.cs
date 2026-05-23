@@ -304,7 +304,8 @@ namespace Hashlink.Marshaling.ObjHandle
 
         private static nint* GetObjWrapperPtr( void* ptr )
         {
-            var size = hl_gc_get_memsize(ptr);
+
+            var size = HashlinkObjPtr.Get(ptr).GetMemSize();
             if (size <= 0)
             {
                 return null;
@@ -329,6 +330,8 @@ namespace Hashlink.Marshaling.ObjHandle
         }
         public static HashlinkObjHandle? GetHandle( nint ptr )
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var p = HashlinkObjPtr.Get(ptr);
             if (p.TypeKind < TypeKind.HBYTES)
             {

@@ -9,7 +9,7 @@ namespace Hashlink.Proxy.Objects
         HashlinkTypedObj<HL_array>(objPtr)
     {
         public HashlinkArray( HashlinkType elementType, int size ) :
-            this(HashlinkObjPtr.Get(hl_alloc_array(elementType.NativeType, size)))
+            this(HashlinkObjPtr.Get(hl_alloc_array(EnsureThreadRegistered(elementType.NativeType), size )))
         {
             Debug.Assert(Handle != null || elementType.IsDyn || size == 0);
         }
