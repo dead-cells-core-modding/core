@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest]
-        debug: [ true, false ]
+        debug: [ true ]
         include:
           - os: windows-latest
             os_name: win
@@ -48,6 +48,7 @@ jobs:
           - os: ubuntu-latest
             os_name: linux
             arch: x64
+
     runs-on: ${{ matrix.os }}
     needs: [build (${{ matrix.os }}, ${{ matrix.debug }})]
     steps:
@@ -61,7 +62,7 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@v4
       with: 
-        name: build-win-x64
+        name: build-${{ matrix.os_name }}-${{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}
         path: ctx/coremod
     - name: Copy hlboot
       run: |
@@ -83,7 +84,7 @@ jobs:
 
   test-build-samples:
     runs-on: windows-latest
-    needs: build-win-x64
+    needs: [build (windows-latest, false)]
     steps:
     - uses: actions/checkout@v4
       with:
@@ -183,5 +184,5 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4.6.0
       with:
-        name: build-{{ matrix.os_name }}-{{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}
+        name: build-${{ matrix.os_name }}-${{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}
         path: ./bin/*
