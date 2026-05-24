@@ -226,8 +226,17 @@ function Invoke-NativeBuild {
     $nativedir = Join-Path $PSScriptRoot $BuildConfig.NativeOutputDir
 
     # Verify key native artifacts
-    $nativeArtifacts = @('libhl.dll', 'hljit.dll', 'modcorenative.dll', 'nethost.dll')
-    foreach ($artifact in $nativeArtifacts) {
+    if($IsWindows) {
+        $expectedArtifacts = @('libhl.dll', 'hljit.dll', 'modcorenative.dll', 'nethost.dll')
+    }
+    elseif($IsLinux) {
+        $expectedArtifacts = @('libhl.so', 'hljit.so', 'modcorenative.so', 'nethost.so')
+    }
+    else {
+        throw "Unsupported OS platform. This build script only supports Windows and Linux."
+    }
+
+    foreach ($artifact in $expectedArtifacts) {
         $artifactPath = Join-Path $nativedir $artifact
         if (-not (Test-Path $artifactPath)) {
             throw "Missing native artifact: $artifactPath"
@@ -409,15 +418,29 @@ function Write-BuildSummary {
     Write-Host '--- Artifacts ---' -ForegroundColor Yellow
 
     $outputDir = Join-Path $PSScriptRoot $BuildConfig.OutputDir
-    $artifacts = @(
-        @{ Path = "$outputDir/host/DCCMShell.dll";                   Name = 'DCCMShell.dll' },
-        @{ Path = "$outputDir/host/startup/DeadCellsModding.exe";    Name = 'DeadCellsModding.exe' },
-        @{ Path = "$outputDir/host/startup/steam/deadcells.exe";     Name = 'deadcells.exe (steam)' },
-        @{ Path = "$outputDir/host/res.pak";                         Name = 'res.pak' },
-        @{ Path = "$outputDir/native/win-x64/libhl.dll";             Name = 'libhl.dll' },
-        @{ Path = "$outputDir/native/win-x64/modcorenative.dll";     Name = 'modcorenative.dll' },
-        @{ Path = "$outputDir/mdk/ref/GameProxy.dll";                Name = 'GameProxy.dll' }
-    )
+
+    if($IsWindows) {
+        $artifacts = @(
+            @{ Path = "$outputDir/host/DCCMShell.dll";                   Name = 'DCCMShell.dll' },
+            @{ Path = "$outputDir/host/startup/DeadCellsModding.exe";    Name = 'DeadCellsModding.exe' },
+            @{ Path = "$outputDir/host/startup/steam/deadcells.exe";     Name = 'deadcells.exe (steam)' },
+            @{ Path = "$outputDir/host/res.pak";                         Name = 'res.pak' },
+            @{ Path = "$outputDir/native/win-x64/libhl.dll";             Name = 'libhl.dll' },
+            @{ Path = "$outputDir/native/win-x64/modcorenative.dll";     Name = 'modcorenative.dll' },
+            @{ Path = "$outputDir/mdk/ref/GameProxy.dll";                Name = 'GameProxy.dll' }
+        )
+    }
+    elseif($IsLinux) {
+        $artifacts = @(
+            @{ Path = "$outputDir/host/DCCMShell.dll";                   Name = 'DCCMShell.dll' },
+            @{ Path = "$outputDir/host/startup/DeadCellsModding";    Name = 'DeadCellsModding' },
+            @{ Path = "$outputDir/host/startup/steam/deadcells";     Name = 'deadcells (steam)' },
+            @{ Path = "$outputDir/host/res.pak";                         Name = 'res.pak' },
+            @{ Path = "$outputDir/native/linux-x64/libhl.so";             Name = 'libhl.so' },
+            @{ Path = "$outputDir/native/linux-x64/modcorenative.so";     Name = 'modcorenative.so' },
+            @{ Path = "$outputDir/mdk/ref/GameProxy.dll";                Name = 'GameProxy.dll' }
+        )
+    }
 
     $allPresent = $true
     foreach ($artifact in $artifacts) {
