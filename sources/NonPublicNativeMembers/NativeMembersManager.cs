@@ -1,5 +1,5 @@
 using Newtonsoft.Json;
-using NonPublicNativeMembers.Win;
+using NonPublicNativeMembers.Platforms;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -13,6 +13,10 @@ namespace NonPublicNativeMembers
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return new WindowsNativeMembersManager();
+            }
+            else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return new LinuxNativeMembersManager();
             }
             throw new PlatformNotSupportedException();
         }

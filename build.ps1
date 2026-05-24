@@ -69,6 +69,7 @@ if($IsWindows) {
         CMakePreset           = 'win-x64-release'
         CMakeBuildDir         = 'out/build/win-x64-release'
         BuildConf             = if ($DebugBuild) { 'Debug' } else { 'Release' }
+        ExposureLib           = @('hljit.dll', 'libhl.dll')
     }
 } 
 elseif($IsLinux) {
@@ -80,6 +81,7 @@ elseif($IsLinux) {
         CMakePreset           = 'linux-x64-release'
         CMakeBuildDir         = 'out/build/linux-x64-release'
         BuildConf             = if ($DebugBuild) { 'Debug' } else { 'Release' }
+        ExposureLib           = @('libhl.so', 'hljit.so')
     }
 }
 else {
@@ -249,31 +251,33 @@ function Invoke-NativeBuild {
 
     & dotnet run -c Release --no-launch-profile `
         --project "$PSScriptRoot/tools/NonPublicMemberScanner" `
-        "$nativedir" hljit.dll libhl.dll 2>&1
+        "$nativedir" $($BuildConfig.ExposureLib)  2>&1
 
     if ($LASTEXITCODE -ne 0) {   
         throw "NonPublicMemberScanner failed with exit code: $LASTEXITCODE"
     }    
 
-    # Copy Goldberg
-    Write-BuildStep 'Native' 'Copying Goldberg library...'
-    $goldbergSrc = Join-Path $PSScriptRoot '3rd/Goldberg/win-x64'
-    if (-not (Test-Path $goldbergSrc)) {
-        throw "Goldberg source directory not found: $goldbergSrc"
-    }
-
-    $goldbergDest = Join-Path $nativedir 'goldberg'
-    if (-not (Test-Path $goldbergDest)) {
-        New-Item -ItemType Directory -Path $goldbergDest -Force | Out-Null
-    }
-
+    if($IsWindows) {
+        # Copy Goldberg
+        Write-BuildStep 'Native' 'Copying Goldberg library...'
+        $goldbergSrc = Join-Path $PSScriptRoot '3rd/Goldberg/win-x64'
+        if (-not (Test-Path $goldbergSrc)) {
+            throw "Goldberg source directory not found: $goldbergSrc"
+        }
+    
+        $goldbergDest = Join-Path $nativedir 'goldberg'
+        if (-not (Test-Path $goldbergDest)) {
+            New-Item -ItemType Directory -Path $goldbergDest -Force | Out-Null
+        }
+    
         # Use robocopy instead of Copy-Item for incremental copy and cleaner logging
-    robocopy $goldbergSrc $goldbergDest /E /NP /NJH /NJS /R:3 /W:3
-    # robocopy exit codes 0-7 are considered success (0=nothing copied, 1=files copied, 2=extra files in dest, 3=copied+extra)    # robocopy exit codes 0-7 are considered success (0=nothing copied, 1=files copied, 2=extra files in dest, 3=copied+extra)
-    if ($LASTEXITCODE -ge 8) {
-        throw "Goldberg copy failed, robocopy exit code: $LASTEXITCODE"
+        robocopy $goldbergSrc $goldbergDest /E /NP /NJH /NJS /R:3 /W:3
+        # robocopy exit codes 0-7 are considered success (0=nothing copied, 1=files copied, 2=extra files in dest, 3=copied+extra)    # robocopy exit codes 0-7 are considered success (0=nothing copied, 1=files copied, 2=extra files in dest, 3=copied+extra)
+        if ($LASTEXITCODE -ge 8) {
+            throw "Goldberg copy failed, robocopy exit code: $LASTEXITCODE"
+        }
+        Write-BuildSuccess 'Goldberg copy completed'
     }
-    Write-BuildSuccess 'Goldberg copy completed'
 }
 
 # ============================================================

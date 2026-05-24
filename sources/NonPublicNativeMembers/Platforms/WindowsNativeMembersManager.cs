@@ -7,7 +7,7 @@ using static Windows.Win32.PInvoke;
 
 #pragma warning disable CA1416
 
-namespace NonPublicNativeMembers.Win
+namespace NonPublicNativeMembers.Platforms
 {
     [SupportedOSPlatform("windows")]
     internal unsafe class WindowsNativeMembersManager : NativeMembersManager
