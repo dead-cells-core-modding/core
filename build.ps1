@@ -230,7 +230,7 @@ function Invoke-NativeBuild {
         $expectedArtifacts = @('libhl.dll', 'hljit.dll', 'modcorenative.dll', 'nethost.dll')
     }
     elseif($IsLinux) {
-        $expectedArtifacts = @('libhl.so', 'hljit.so', 'modcorenative.so', 'nethost.so')
+        $expectedArtifacts = @('libhl.so', 'hljit.so', 'modcorenative.so')
     }
     else {
         throw "Unsupported OS platform. This build script only supports Windows and Linux."
