@@ -210,6 +210,7 @@ function Invoke-NativeBuild {
                 # CMake build
         Write-BuildStep 'Native' 'Starting CMake build...'
         & cmake --build ./$($BuildConfig.CMakeBuildDir) 2>&1
+        & cmake --build ./$($BuildConfig.CMakeBuildDir) 2>&1
         if ($LASTEXITCODE -ne 0) {
             throw "CMake build failed with exit code: $LASTEXITCODE"
         }        
