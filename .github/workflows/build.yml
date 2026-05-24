@@ -36,9 +36,20 @@ jobs:
              win-x64-no-mdk.zip
              win-x64/core/host/startup/steam/deadcells.exe
 
-  test-win-x64:
-    runs-on: windows-latest
-    #needs: build-win-x64
+  test:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        debug: [ true, false ]
+        include:
+          - os: windows-latest
+            os_name: win
+            arch: x64
+          - os: ubuntu-latest
+            os_name: linux
+            arch: x64
+    runs-on: ${{ matrix.os }}
+    needs: [build (${{ matrix.os }}, ${{ matrix.debug }})]
     steps:
     - uses: actions/checkout@v4
       with:
@@ -72,7 +83,7 @@ jobs:
 
   test-build-samples:
     runs-on: windows-latest
-    #needs: build-win-x64
+    needs: build-win-x64
     steps:
     - uses: actions/checkout@v4
       with:
@@ -143,7 +154,18 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake libpng-dev libturbojpeg-dev libvorbis-dev libopenal-dev libsdl2-dev libglu1-mesa-dev libmbedtls-dev libuv1-dev libsqlite3-dev
+        sudo apt-get install -y build-essential \
+          cmake \
+          libpng-dev \
+          libturbojpeg-dev \
+          libvorbis-dev \
+          libopenal-dev \
+          libsdl2-dev \
+          libglu1-mesa-dev \
+          libmbedtls-dev \
+          libuv1-dev \
+          libsqlite3-dev \
+          libjpeg-dev 
 
     - name: Build Core
       shell: pwsh
