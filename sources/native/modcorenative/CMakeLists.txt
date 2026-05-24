@@ -16,6 +16,7 @@ remove_definitions(-DLIBHL_EXPORTS)
     set_target_properties(hljit PROPERTIES 
         RUNTIME_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
         LIBRARY_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
+        PREFIX ""
     )
     target_link_libraries(hljit libhl)
 
