@@ -62,7 +62,7 @@ jobs:
         modcoreroot: ./ctx/coremod
     - name: Build ModCore
       run: |
-        ./buildWin.ps1 -BuildNative 0 -BuildMDK 1 -BuildAssets 0 -BuildCore 0
+        ./build.ps1 -BuildNative 0 -BuildMDK 1 -BuildAssets 0 -BuildCore 0
     - name: Run Tests
       shell: pwsh
       run: |
@@ -102,7 +102,18 @@ jobs:
         
 
   build-win-x64:
-    runs-on: windows-latest
+   strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            os_name: win
+            arch: x64
+          - os: ubuntu-latest
+            os_name: linux
+            arch: x64
+    
+    runs-on: ${{ matrix.os }}
+    
     strategy:
       matrix:
         debug: [ true, false ]
@@ -114,11 +125,13 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 10
-    - name: Setup MSVC
+    - name: Setup MSVC (Windows)
       uses: ilammy/msvc-dev-cmd@v1
+      if: runner.os == 'Windows'
       with: 
         arch: x64
-    - name: Download Dependencies
+    - name: Download Dependencies (Windows)
+      if: runner.os == 'Windows'
       run: |
         cd ./sources/native/3rd/hashlink/include
 
@@ -129,20 +142,25 @@ jobs:
         Invoke-WebRequest -Uri https://www.libsdl.org/release/SDL2-devel-2.32.8-VC.zip -OutFile ./SDL.zip
         Expand-Archive -LiteralPath ./SDL.zip -DestinationPath . -Force
         Move-Item -Path ./SDL2-2.32.8 -Destination ./sdl -Force
+    -name: Download Dependencies (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake libpng-dev libturbojpeg-dev libvorbis-dev libopenal-dev libsdl2-dev libglu1-mesa-dev libmbedtls-dev libuv1-dev libsqlite3-dev
 
     - name: Build Core
       run: |
-        ./buildWin.ps1 ${{ matrix.debug == true && '-Debug' || '' }} -BuildAssets 0
+        ./build.ps1 ${{ matrix.debug == true && '-Debug' || '' }} -BuildAssets 0
     - name: Install MDK
       uses: dead-cells-core-modding/setup-mdk@main
       with:
         modcoreroot: ./bin
     - name: Build Assets
       run: |
-        ./buildWin.ps1 ${{ matrix.debug == true && '-Debug' || '' }} -BuildNative 0 -BuildMDK 0 -BuildCore 0 -BuildAssets 1
+        ./build.ps1 ${{ matrix.debug == true && '-Debug' || '' }} -BuildNative 1 -BuildMDK 0 -BuildCore 0 -BuildAssets 1
 
     - name: Upload
       uses: actions/upload-artifact@v4.6.0
       with:
-        name: build-win-x64${{ matrix.debug == true && '-Debug' || '' }}
+        name: build-{{ matrix.os_name }}-{{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}
         path: ./bin/*

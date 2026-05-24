@@ -95,7 +95,7 @@ endif()
 message(${LIBHL_OUTPUT_DIR})
 add_custom_command(TARGET modcorenative POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${LIBHL_OUTPUT_DIR}/"
+            "${LIBHL_OUTPUT_DIR}"
             "${DCCM_OUTPUT_DIR}/"
 )
  

@@ -407,3 +407,4 @@ vcpkg_installed/
 /sources/DeadCellsModding/Properties/launchSettings.json
 /weaver
 /test/TestRunner/mods/*
+.vscode/*

@@ -1,4 +1,6 @@
-﻿<#
+﻿#!/bin/pwsh
+
+<#
 .SYNOPSIS
     DeadCellsCoreModding build script
 .DESCRIPTION
@@ -54,14 +56,34 @@ $ErrorActionPreference = 'Stop'
 # ============================================================
 # Centralized build configuration
 # ============================================================
-$BuildConfig = @{
-    OutputDir             = 'bin/core'
-    NativeOutputDir       = 'bin/core/native/win-x64'
-    MDKOutputDir          = 'bin/core/mdk'
-    MDKRefDir             = 'bin/core/mdk/ref'
-    CMakePreset           = 'win-x64-release'
-    CMakeBuildDir         = 'out/build/win-x64-release'
-    BuildConf             = if ($DebugBuild) { 'Debug' } else { 'Release' }
+
+#$IsWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)
+#$IsLinux = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux)
+
+if($IsWindows) {
+    $BuildConfig = @{
+        OutputDir             = 'bin/core'
+        NativeOutputDir       = 'bin/core/native/win-x64'
+        MDKOutputDir          = 'bin/core/mdk'
+        MDKRefDir             = 'bin/core/mdk/ref'
+        CMakePreset           = 'win-x64-release'
+        CMakeBuildDir         = 'out/build/win-x64-release'
+        BuildConf             = if ($DebugBuild) { 'Debug' } else { 'Release' }
+    }
+} 
+elseif($IsLinux) {
+    $BuildConfig = @{
+        OutputDir             = 'bin/core'
+        NativeOutputDir       = 'bin/core/native/linux-x64'
+        MDKOutputDir          = 'bin/core/mdk'
+        MDKRefDir             = 'bin/core/mdk/ref'
+        CMakePreset           = 'linux-x64-release'
+        CMakeBuildDir         = 'out/build/linux-x64-release'
+        BuildConf             = if ($DebugBuild) { 'Debug' } else { 'Release' }
+    }
+}
+else {
+    throw "Unsupported OS platform. This build script only supports Windows and Linux."
 }
 
 # Build stage timing tracker
@@ -313,7 +335,7 @@ function Invoke-CoreBuild {
 
     # Publish DeadCellsModding (NativeAOT)
     Write-BuildStep 'Core' 'Publishing DeadCellsModding (NativeAOT)...'
-    Invoke-DotNet -Command 'publish' -Arguments "-c Release -r win-x64 `"$srcDir/DeadCellsModding`""
+    Invoke-DotNet -Command 'publish' -Arguments "-c Release `"$srcDir/DeadCellsModding`""
 
     # Verify DeadCellsModding output
     $dcModdingExe = Join-Path $PSScriptRoot 'bin/core/host/startup/DeadCellsModding.exe'
@@ -323,7 +345,7 @@ function Invoke-CoreBuild {
 
     # Publish SteamStartShell
     Write-BuildStep 'Core' 'Publishing SteamStartShell...'
-    Invoke-DotNet -Command 'publish' -Arguments "-c $buildConf -r win-x64 `"$srcDir/SteamStartShell`""
+    Invoke-DotNet -Command 'publish' -Arguments "-c $buildConf `"$srcDir/SteamStartShell`""
 }
 
 # ============================================================
