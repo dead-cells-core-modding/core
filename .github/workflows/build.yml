@@ -50,7 +50,7 @@ jobs:
             arch: x64
 
     runs-on: ${{ matrix.os }}
-    needs: [build (${{ matrix.os }}, ${{ matrix.debug }})]
+    needs: ["build (${{ matrix.os }}, ${{ matrix.debug }})"]
     steps:
     - uses: actions/checkout@v4
       with:
