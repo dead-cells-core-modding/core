@@ -78,11 +78,6 @@ namespace TestRunner
             gameThread.Start();
             gameInitEvent.WaitOne();
             HashlinkThread.RegisterThread();
-
-            NativeHooks.Instance.CreateHook(NativeLibrary.GetExport(NativeLibrary.Load("libhl"), "hl_fatal_error"), (Action)(() =>
-            {
-                Environment.FailFast("fatal error");
-            }));
         }
     }
 }

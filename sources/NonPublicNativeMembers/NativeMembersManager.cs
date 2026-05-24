@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using NonPublicNativeMembers.Platforms;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -55,16 +56,37 @@ namespace NonPublicNativeMembers
             {
                 return true;
             }
-            if (!ActivateModule(moduleName, string.IsNullOrEmpty(path) ?
-                null : SHA256.HashData(File.ReadAllBytes(path))))
+            var module = Process.GetCurrentProcess().Modules.Cast<ProcessModule>()
+                .FirstOrDefault(m => Path.GetFileNameWithoutExtension(m.ModuleName)
+                    .Equals(moduleName, StringComparison.OrdinalIgnoreCase));
+            Debug.Assert(module != null);
+
+            var hash = SHA256.HashData(File.ReadAllBytes(module.FileName));
+            moduleName = Path.GetFileNameWithoutExtension(moduleName);
+            if (!ActivateModule(moduleName, hash))
             {
-                return false;
+                Generate(module.FileName);
+                if (!ActivateModule(moduleName, hash))
+                {
+                    return false;
+                }
             }
             return true;
         }
         public virtual bool ActivateModule( string name )
         {
-            return ActivateModule(name, null);
+            if (IsActivated(name))
+            {
+                return true;
+            }
+            var module = Process.GetCurrentProcess().Modules.Cast<ProcessModule>()
+                .FirstOrDefault(m => Path.GetFileNameWithoutExtension(m.ModuleName)
+                    .Equals(name, StringComparison.OrdinalIgnoreCase));
+            Debug.Assert(module != null);
+
+            var hash = SHA256.HashData(File.ReadAllBytes(module.FileName));
+            name = Path.GetFileNameWithoutExtension(name);
+            return ActivateModule(name, hash);
         }
         public virtual bool ActivateModule( string name, byte[]? hash256 )
         {

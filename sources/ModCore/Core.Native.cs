@@ -18,7 +18,7 @@ namespace ModCore
         {
             //AddPath();
 
-            _ = NativeLibrary.TryLoad(FolderInfo.CurrentNativeRoot.GetFilePath("modcorenative"), out _);
+            _ = NN.Current.LoadLibrary(FolderInfo.CurrentNativeRoot.GetFilePath("modcorenative"));
 
 
             foreach (var v in Directory.EnumerateFiles(FolderInfo.CurrentNativeRoot.FullPath, "*.json"))
@@ -35,14 +35,14 @@ namespace ModCore
 
             foreach (var v in ContextConfig.Config.hashlinkLibraries)
             {
-                if (!NativeLibrary.TryLoad(v, out _))
+                if (!NN.Current.TryLoadLibrary(v, out _))
                 {
-                    NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath(v));
+                    NN.Current.LoadLibrary(FolderInfo.CurrentNativeRoot.GetFilePath(v + ".so"));
                 }
                 nativeMembers.LoadAndActivateModule(v);
             }
 
-            phLibhl = NativeLibrary.Load("libhl");
+            phLibhl = NN.Current.LoadLibrary("libhl");
 
             NN.GetLibhlSymbolFunc = name =>
             {
@@ -52,7 +52,7 @@ namespace ModCore
                 {
                     if (!loadedLibraries.TryGetValue(member.ModuleName, out var lib))
                     {
-                        lib = NativeLibrary.Load(member.ModuleName);
+                        lib = NN.Current.LoadLibrary(member.ModuleName);
                         loadedLibraries[member.ModuleName] = lib;
                     }
                     var result = (nint)member.RVA + lib;

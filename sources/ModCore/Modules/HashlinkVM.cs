@@ -85,7 +85,7 @@ namespace ModCore.Modules
 
             MainThread = Thread.CurrentThread;
 
-            LibhlHandle = NativeLibrary.Load("libhl");
+            LibhlHandle = Native.Native.Current.LoadLibrary("libhl");
 
             Logger.Information("Hooking functions");
 

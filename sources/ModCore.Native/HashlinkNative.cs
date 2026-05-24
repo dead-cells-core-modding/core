@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using ModCore.Native;
 
 #pragma warning disable CA1401
 
@@ -12,7 +13,7 @@ namespace Hashlink
 
         public static class InternalTypes
         {
-            private static readonly nint hLibhl = NativeLibrary.Load(LIBHL);
+            private static readonly nint hLibhl = Native.Current.LoadLibrary(LIBHL);
 
             private static readonly Dictionary<Type, nint> net2hltype = [];
             private static readonly Dictionary<TypeKind, Type> hltype2net = [];

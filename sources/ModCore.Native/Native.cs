@@ -23,11 +23,12 @@ namespace ModCore.Native
 
         public HL_setup_t* hl_setup;
 
-        public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(NativeLibrary.Load("libhl"), name);
+        public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(Current!.LoadLibrary("libhl"), name);
 
         public static Native Current {
             get;
         } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new WindowsNative() :
+            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? new LinuxNative() :
             throw new PlatformNotSupportedException();
 
 
@@ -80,6 +81,24 @@ namespace ModCore.Native
             }
             
             return ((delegate* unmanaged< nint, nint, int >)orig_hl_dyn_compare)((nint)a, (nint)b);
+        }
+
+        public virtual bool TryLoadLibrary( string path, out nint handle )
+        {
+            return NativeLibrary.TryLoad(path, out handle);
+        }
+
+        public virtual nint LoadLibrary( string path )
+        {
+            if (TryLoadLibrary(path, out var handle))
+            {
+                return handle;
+            }
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return NativeLibrary.Load(path + ".so");
+            }
+            return NativeLibrary.Load(path);
         }
 
         private static nint orig_jit_op_jump;
@@ -484,7 +503,7 @@ namespace ModCore.Native
 
         protected virtual void InitializeNativeHooks()
         {
-            var phLibhl = NativeLibrary.Load("libhl");
+            var phLibhl = LoadLibrary("libhl");
 
             CreateNativeHookForHL("hl_module_alloc", nameof(Hook_hl_module_alloc), out orig_hl_module_alloc);
             CreateNativeHookForHL("hl_code_read", nameof(Hook_hl_code_read), out orig_hl_code_read);

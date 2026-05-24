@@ -5,6 +5,9 @@ using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace NonPublicNativeMembers.Platforms
 {
@@ -63,12 +66,8 @@ namespace NonPublicNativeMembers.Platforms
                 };
                 proc.BeginOutputReadLine();
                 proc.WaitForExit();
-
-
-
-                // Linux does not have a standard debug info format like PDB, so we cannot reliably extract member information.
-                // Instead, we will just store the module information and rely on the user to provide correct hashes for verification.
             }
         }
+
     }
 }

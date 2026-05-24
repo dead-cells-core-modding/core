@@ -60,43 +60,5 @@ namespace NonPublicNativeMembers.Platforms
 
 
         }
-
-        public override bool LoadAndActivateModule( string moduleName, string? path = null )
-        {
-            if (IsActivated(moduleName))
-            {
-                return true;
-            }
-            if (!NativeLibrary.TryLoad(moduleName, out var hDll))
-            {
-                return false;
-            }
-            char* nameBuf = stackalloc char[1024];
-            _ = GetModuleFileName(new HMODULE(hDll), new PWSTR(nameBuf), 1024);
-            var dllPath = new string(nameBuf);
-            var hash = SHA256.HashData(File.ReadAllBytes(dllPath));
-            moduleName = Path.GetFileNameWithoutExtension(moduleName);
-            if (!ActivateModule(moduleName, hash))
-            {
-                Generate(dllPath);
-                if (!ActivateModule(moduleName, hash))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-        public override bool ActivateModule( string name )
-        {
-            if (IsActivated(name))
-            {
-                return true;
-            }
-            var hDll = NativeLibrary.Load(name);
-            char* nameBuf = stackalloc char[1024];
-            _ = GetModuleFileName(new HMODULE(hDll), new PWSTR(nameBuf), 1024);
-            var dllPath = new string(nameBuf);
-            return ActivateModule(name, SHA256.HashData(File.ReadAllBytes(dllPath)));
-        }
     }
 }
