@@ -101,9 +101,11 @@ jobs:
         path: ./sample/bin/*
         
 
-  build-win-x64:
-   strategy:
+  build:
+    strategy:
       matrix:
+        os: [windows-latest, ubuntu-latest]
+        debug: [ true, false ]
         include:
           - os: windows-latest
             os_name: win
@@ -111,12 +113,7 @@ jobs:
           - os: ubuntu-latest
             os_name: linux
             arch: x64
-    
     runs-on: ${{ matrix.os }}
-    
-    strategy:
-      matrix:
-        debug: [ true, false ]
     steps:
     - uses: actions/checkout@v4
       with:
@@ -142,13 +139,14 @@ jobs:
         Invoke-WebRequest -Uri https://www.libsdl.org/release/SDL2-devel-2.32.8-VC.zip -OutFile ./SDL.zip
         Expand-Archive -LiteralPath ./SDL.zip -DestinationPath . -Force
         Move-Item -Path ./SDL2-2.32.8 -Destination ./sdl -Force
-    -name: Download Dependencies (Linux)
+    - name: Download Dependencies (Linux)
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential cmake libpng-dev libturbojpeg-dev libvorbis-dev libopenal-dev libsdl2-dev libglu1-mesa-dev libmbedtls-dev libuv1-dev libsqlite3-dev
 
     - name: Build Core
+      shell: pwsh
       run: |
         ./build.ps1 ${{ matrix.debug == true && '-Debug' || '' }} -BuildAssets 0
     - name: Install MDK
@@ -156,6 +154,7 @@ jobs:
       with:
         modcoreroot: ./bin
     - name: Build Assets
+      shell: pwsh
       run: |
         ./build.ps1 ${{ matrix.debug == true && '-Debug' || '' }} -BuildNative 1 -BuildMDK 0 -BuildCore 0 -BuildAssets 1
 
