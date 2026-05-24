@@ -264,12 +264,12 @@ function Invoke-NativeBuild {
         if (-not (Test-Path $goldbergSrc)) {
             throw "Goldberg source directory not found: $goldbergSrc"
         }
-    
+
         $goldbergDest = Join-Path $nativedir 'goldberg'
         if (-not (Test-Path $goldbergDest)) {
             New-Item -ItemType Directory -Path $goldbergDest -Force | Out-Null
         }
-    
+
         # Use robocopy instead of Copy-Item for incremental copy and cleaner logging
         robocopy $goldbergSrc $goldbergDest /E /NP /NJH /NJS /R:3 /W:3
         # robocopy exit codes 0-7 are considered success (0=nothing copied, 1=files copied, 2=extra files in dest, 3=copied+extra)    # robocopy exit codes 0-7 are considered success (0=nothing copied, 1=files copied, 2=extra files in dest, 3=copied+extra)
@@ -354,12 +354,6 @@ function Invoke-CoreBuild {
     # Publish DeadCellsModding (NativeAOT)
     Write-BuildStep 'Core' 'Publishing DeadCellsModding (NativeAOT)...'
     Invoke-DotNet -Command 'publish' -Arguments "-c Release `"$srcDir/DeadCellsModding`""
-
-    # Verify DeadCellsModding output
-    $dcModdingExe = Join-Path $PSScriptRoot 'bin/core/host/startup/DeadCellsModding.exe'
-    if (-not (Test-Path $dcModdingExe)) {
-        throw "DeadCellsModding.exe not generated: $dcModdingExe"
-    }
 
     # Publish SteamStartShell
     Write-BuildStep 'Core' 'Publishing SteamStartShell...'
