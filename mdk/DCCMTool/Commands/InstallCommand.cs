@@ -24,7 +24,7 @@ namespace DCCMTool.Commands
                 Environment.SetEnvironmentVariable("Path", p, EnvironmentVariableTarget.User);
             }
 
-            Process.Start(new ProcessStartInfo("dotnet", $"nuget add source \"{Arguments.MDKRoot}\\packages\"  --name DeadCoreModdingMDK"));
+            Process.Start(new ProcessStartInfo("dotnet", $"nuget add source \"{Arguments.MDKRoot}/packages\"  --name DeadCoreModdingMDK"));
 
             return 0;
         }
