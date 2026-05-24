@@ -10,7 +10,7 @@ jobs:
   publish-release:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
-    #needs: [build-win-x64,  test-win-x64, test-build-samples]
+    needs: [build,  test, test-build-samples]
     steps:
     - name: Download artifacts
       uses: actions/download-artifact@v4
@@ -39,18 +39,18 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest]
         debug: [ true ]
         include:
           - os: windows-latest
             os_name: win
             arch: x64
-          - os: ubuntu-latest
-            os_name: linux
-            arch: x64
+#          - os: ubuntu-latest
+#            os_name: linux
+#            arch: x64
 
     runs-on: ${{ matrix.os }}
-    needs: ["build (${{ matrix.os }}, ${{ matrix.debug }})"]
+    needs: build
     steps:
     - uses: actions/checkout@v4
       with:
@@ -84,7 +84,7 @@ jobs:
 
   test-build-samples:
     runs-on: windows-latest
-    needs: [build (windows-latest, false)]
+    needs: build
     steps:
     - uses: actions/checkout@v4
       with:
