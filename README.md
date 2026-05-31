@@ -137,10 +137,8 @@ mods
 
 ### Build
 
-#### Windows
-
 1. Clone the repository
-2. Run `buildWin.ps1`
+2. Run `build.ps1`
 
 ## Credit
 
