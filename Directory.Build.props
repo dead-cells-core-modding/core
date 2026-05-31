@@ -8,6 +8,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CopyDocumentationFilesFromPackages>true</CopyDocumentationFilesFromPackages>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Platforms>AnyCPU;x64</Platforms>
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
   </PropertyGroup>
 
