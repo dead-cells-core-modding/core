@@ -169,17 +169,15 @@ jobs:
           libjpeg-dev 
 
     - name: Build Core
-      shell: pwsh
       run: |
-        ./build.ps1 ${{ matrix.debug == true && '-Debug' || '' }} -BuildAssets 0
+        ./build --configuration ${{ matrix.debug == true && 'Debug' || 'Release' }} BuildMDK BuildCore BuildNative
     - name: Install MDK
       uses: dead-cells-core-modding/setup-mdk@main
       with:
         modcoreroot: ./bin
     - name: Build Assets
-      shell: pwsh
       run: |
-        ./build.ps1 ${{ matrix.debug == true && '-Debug' || '' }} -BuildNative 0 -BuildMDK 0 -BuildCore 0 -BuildAssets 1
+        ./build --configuration  ${{ matrix.debug == true && '-Debug' || 'Release' }} BuildAll
 
     - name: Upload
       uses: actions/upload-artifact@v4.6.0

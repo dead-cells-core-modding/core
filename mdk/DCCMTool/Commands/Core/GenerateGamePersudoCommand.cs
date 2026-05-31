@@ -66,6 +66,11 @@ namespace DCCMTool.Commands.Core
                 }
             }
 
+            foreach(var v in m.Types.ToArray())
+            {
+                CleanupType(v);
+            }
+
             var mscorlibRef = asm.MainModule.AssemblyReferences.First(x => x.Name == "mscorlib");
             var corelibRef = asm.MainModule.AssemblyReferences.FirstOrDefault(x => x.Name == "System.Private.CoreLib");
             if (corelibRef != null)

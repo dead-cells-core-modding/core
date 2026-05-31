@@ -3,6 +3,12 @@
     <Platform Name="x64" />
   </Configurations>
   <Folder Name="/3rd/" />
+  <Folder Name="/build/">
+    <Project Path="../build/_build.csproj" />
+  </Folder>
+  <Folder Name="/build/scripts/">
+    <File Path="../.github/workflows/build.yml" />
+  </Folder>
   <Folder Name="/hxproxy/">
     <Project Path="../tools/BytecodeMapping/BytecodeMapping.csproj" />
     <Project Path="HashlinkNET.Bytecode/HashlinkNET.Bytecode.csproj" />
@@ -19,10 +25,6 @@
   </Folder>
   <Folder Name="/plugins/">
     <Project Path="ModCore.ModLoader.Default/ModCore.ModLoader.Default.csproj" />
-  </Folder>
-  <Folder Name="/scripts/">
-    <File Path="../.github/workflows/build.yml" />
-    <File Path="../buildWin.ps1" />
   </Folder>
   <Folder Name="/shell/">
     <Project Path="DCCMShell/DCCMShell.csproj" />
