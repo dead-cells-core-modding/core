@@ -171,15 +171,15 @@ jobs:
     - name: Build Core
       shell: pwsh
       run: |
-        ./build.ps1 --configuration ${{ matrix.debug == true && 'Debug' || 'Release' }} BuildMDK BuildCore BuildNative
+        ./build.ps1 BuildMDK BuildCore BuildNative --configuration ${{ matrix.debug == true && 'Debug' || 'Release' }}
     - name: Install MDK
       uses: dead-cells-core-modding/setup-mdk@main
       with:
         modcoreroot: ./bin
-    - name: Build Assets
+    - name: Build 
       shell: pwsh
       run: |
-        ./build.ps --configuration  ${{ matrix.debug == true && '-Debug' || 'Release' }} BuildAll
+        ./build.ps  BuildAll --configuration ${{ matrix.debug == true && '-Debug' || 'Release' }}
 
     - name: Upload
       uses: actions/upload-artifact@v4.6.0

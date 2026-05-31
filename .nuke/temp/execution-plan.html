@@ -198,8 +198,12 @@ window.addEventListener("load",function(){e.contentLoaded()},!1)}).call(e,n(9))}
 
     <script>
 $(document).ready(function() {
-  $("#Restore").addClass('highlight');
-  $("#Compile").addClass('highlight');
+  $("#GenerateGameProxy").addClass('highlight');
+  $("#BuildMDK").addClass('highlight');
+  $("#BuildAssets").addClass('highlight');
+  $("#BuildCore").addClass('highlight');
+  $("#BuildNative").addClass('highlight');
+  $("#BuildAll").addClass('highlight');
   $("#GenerateGameProxy").hover(
     function() {
         $("#GenerateGameProxy").removeClass('highlight');
@@ -207,15 +211,17 @@ $(document).ready(function() {
         $("#BuildNative").removeClass('highlight');
         $("#BuildCore").removeClass('highlight');
         $("#BuildAssets").removeClass('highlight');
-        $("#Clean").removeClass('highlight');
-        $("#Restore").removeClass('highlight');
-        $("#Compile").removeClass('highlight');
+        $("#BuildAll").removeClass('highlight');
         $("#GenerateGameProxy").addClass('highlight');
     },
     function() {
         $("#GenerateGameProxy").removeClass('highlight');
-        $("#Restore").addClass('highlight');
-        $("#Compile").addClass('highlight');
+        $("#GenerateGameProxy").addClass('highlight');
+        $("#BuildMDK").addClass('highlight');
+        $("#BuildAssets").addClass('highlight');
+        $("#BuildCore").addClass('highlight');
+        $("#BuildNative").addClass('highlight');
+        $("#BuildAll").addClass('highlight');
     });
   $("#BuildMDK").hover(
     function() {
@@ -224,17 +230,19 @@ $(document).ready(function() {
         $("#BuildNative").removeClass('highlight');
         $("#BuildCore").removeClass('highlight');
         $("#BuildAssets").removeClass('highlight');
-        $("#Clean").removeClass('highlight');
-        $("#Restore").removeClass('highlight');
-        $("#Compile").removeClass('highlight');
+        $("#BuildAll").removeClass('highlight');
         $("#GenerateGameProxy").addClass('highlight');
         $("#BuildMDK").addClass('highlight');
     },
     function() {
         $("#GenerateGameProxy").removeClass('highlight');
         $("#BuildMDK").removeClass('highlight');
-        $("#Restore").addClass('highlight');
-        $("#Compile").addClass('highlight');
+        $("#GenerateGameProxy").addClass('highlight');
+        $("#BuildMDK").addClass('highlight');
+        $("#BuildAssets").addClass('highlight');
+        $("#BuildCore").addClass('highlight');
+        $("#BuildNative").addClass('highlight');
+        $("#BuildAll").addClass('highlight');
     });
   $("#BuildNative").hover(
     function() {
@@ -243,15 +251,17 @@ $(document).ready(function() {
         $("#BuildNative").removeClass('highlight');
         $("#BuildCore").removeClass('highlight');
         $("#BuildAssets").removeClass('highlight');
-        $("#Clean").removeClass('highlight');
-        $("#Restore").removeClass('highlight');
-        $("#Compile").removeClass('highlight');
+        $("#BuildAll").removeClass('highlight');
         $("#BuildNative").addClass('highlight');
     },
     function() {
         $("#BuildNative").removeClass('highlight');
-        $("#Restore").addClass('highlight');
-        $("#Compile").addClass('highlight');
+        $("#GenerateGameProxy").addClass('highlight');
+        $("#BuildMDK").addClass('highlight');
+        $("#BuildAssets").addClass('highlight');
+        $("#BuildCore").addClass('highlight');
+        $("#BuildNative").addClass('highlight');
+        $("#BuildAll").addClass('highlight');
     });
   $("#BuildCore").hover(
     function() {
@@ -260,17 +270,19 @@ $(document).ready(function() {
         $("#BuildNative").removeClass('highlight');
         $("#BuildCore").removeClass('highlight');
         $("#BuildAssets").removeClass('highlight');
-        $("#Clean").removeClass('highlight');
-        $("#Restore").removeClass('highlight');
-        $("#Compile").removeClass('highlight');
+        $("#BuildAll").removeClass('highlight');
         $("#GenerateGameProxy").addClass('highlight');
         $("#BuildCore").addClass('highlight');
     },
     function() {
         $("#GenerateGameProxy").removeClass('highlight');
         $("#BuildCore").removeClass('highlight');
-        $("#Restore").addClass('highlight');
-        $("#Compile").addClass('highlight');
+        $("#GenerateGameProxy").addClass('highlight');
+        $("#BuildMDK").addClass('highlight');
+        $("#BuildAssets").addClass('highlight');
+        $("#BuildCore").addClass('highlight');
+        $("#BuildNative").addClass('highlight');
+        $("#BuildAll").addClass('highlight');
     });
   $("#BuildAssets").hover(
     function() {
@@ -279,68 +291,50 @@ $(document).ready(function() {
         $("#BuildNative").removeClass('highlight');
         $("#BuildCore").removeClass('highlight');
         $("#BuildAssets").removeClass('highlight');
-        $("#Clean").removeClass('highlight');
-        $("#Restore").removeClass('highlight');
-        $("#Compile").removeClass('highlight');
+        $("#BuildAll").removeClass('highlight');
+        $("#GenerateGameProxy").addClass('highlight');
+        $("#BuildMDK").addClass('highlight');
         $("#BuildAssets").addClass('highlight');
     },
     function() {
+        $("#GenerateGameProxy").removeClass('highlight');
+        $("#BuildMDK").removeClass('highlight');
         $("#BuildAssets").removeClass('highlight');
-        $("#Restore").addClass('highlight');
-        $("#Compile").addClass('highlight');
+        $("#GenerateGameProxy").addClass('highlight');
+        $("#BuildMDK").addClass('highlight');
+        $("#BuildAssets").addClass('highlight');
+        $("#BuildCore").addClass('highlight');
+        $("#BuildNative").addClass('highlight');
+        $("#BuildAll").addClass('highlight');
     });
-  $("#Clean").hover(
+  $("#BuildAll").hover(
     function() {
         $("#GenerateGameProxy").removeClass('highlight');
         $("#BuildMDK").removeClass('highlight');
         $("#BuildNative").removeClass('highlight');
         $("#BuildCore").removeClass('highlight');
         $("#BuildAssets").removeClass('highlight');
-        $("#Clean").removeClass('highlight');
-        $("#Restore").removeClass('highlight');
-        $("#Compile").removeClass('highlight');
-        $("#Clean").addClass('highlight');
+        $("#BuildAll").removeClass('highlight');
+        $("#GenerateGameProxy").addClass('highlight');
+        $("#BuildMDK").addClass('highlight');
+        $("#BuildAssets").addClass('highlight');
+        $("#BuildCore").addClass('highlight');
+        $("#BuildNative").addClass('highlight');
+        $("#BuildAll").addClass('highlight');
     },
-    function() {
-        $("#Clean").removeClass('highlight');
-        $("#Restore").addClass('highlight');
-        $("#Compile").addClass('highlight');
-    });
-  $("#Restore").hover(
     function() {
         $("#GenerateGameProxy").removeClass('highlight');
         $("#BuildMDK").removeClass('highlight');
-        $("#BuildNative").removeClass('highlight');
-        $("#BuildCore").removeClass('highlight');
         $("#BuildAssets").removeClass('highlight');
-        $("#Clean").removeClass('highlight');
-        $("#Restore").removeClass('highlight');
-        $("#Compile").removeClass('highlight');
-        $("#Restore").addClass('highlight');
-    },
-    function() {
-        $("#Restore").removeClass('highlight');
-        $("#Restore").addClass('highlight');
-        $("#Compile").addClass('highlight');
-    });
-  $("#Compile").hover(
-    function() {
-        $("#GenerateGameProxy").removeClass('highlight');
-        $("#BuildMDK").removeClass('highlight');
-        $("#BuildNative").removeClass('highlight');
         $("#BuildCore").removeClass('highlight');
-        $("#BuildAssets").removeClass('highlight');
-        $("#Clean").removeClass('highlight');
-        $("#Restore").removeClass('highlight');
-        $("#Compile").removeClass('highlight');
-        $("#Restore").addClass('highlight');
-        $("#Compile").addClass('highlight');
-    },
-    function() {
-        $("#Restore").removeClass('highlight');
-        $("#Compile").removeClass('highlight');
-        $("#Restore").addClass('highlight');
-        $("#Compile").addClass('highlight');
+        $("#BuildNative").removeClass('highlight');
+        $("#BuildAll").removeClass('highlight');
+        $("#GenerateGameProxy").addClass('highlight');
+        $("#BuildMDK").addClass('highlight');
+        $("#BuildAssets").addClass('highlight');
+        $("#BuildCore").addClass('highlight');
+        $("#BuildNative").addClass('highlight');
+        $("#BuildAll").addClass('highlight');
     });
 
 });
@@ -388,13 +382,12 @@ $(document).ready(function() {
 graph LR
 GenerateGameProxy --> BuildMDK
 GenerateGameProxy --> BuildCore
-BuildMDK
-BuildNative
-BuildCore
-BuildAssets
-Clean -.-> Restore
-Restore --> Compile
-Compile
+BuildMDK --> BuildAssets
+BuildMDK --> BuildAll
+BuildNative --> BuildAll
+BuildCore --> BuildAll
+BuildAssets --> BuildAll
+BuildAll
 
 
 linkStyle default interpolate basis
