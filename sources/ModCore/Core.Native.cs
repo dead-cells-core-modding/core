@@ -18,6 +18,15 @@ namespace ModCore
         {
             //AddPath();
 
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.dll"));
+            }
+            else
+            {
+                NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so"));
+            }
+
             _ = NN.Current.LoadLibrary(FolderInfo.CurrentNativeRoot.GetFilePath("modcorenative"));
 
 
@@ -35,10 +44,7 @@ namespace ModCore
 
             foreach (var v in ContextConfig.Config.hashlinkLibraries)
             {
-                if (!NN.Current.TryLoadLibrary(v, out _))
-                {
-                    NN.Current.LoadLibrary(FolderInfo.CurrentNativeRoot.GetFilePath(v + ".so"));
-                }
+                NN.Current.LoadLibrary(FolderInfo.CurrentNativeRoot.GetFilePath(v));
                 nativeMembers.LoadAndActivateModule(v);
             }
 

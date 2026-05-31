@@ -23,7 +23,7 @@ namespace ModCore.Native
 
         public HL_setup_t* hl_setup;
 
-        public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(Current!.LoadLibrary("libhl"), name);
+        public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(Current?.LoadLibrary("libhl") ?? NativeLibrary.Load("libhl"), name);
 
         public static Native Current {
             get;
