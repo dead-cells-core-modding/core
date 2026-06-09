@@ -91,6 +91,11 @@ class Build : NukeBuild
     .DependsOn(GenerateGameProxy)
     .Executes(() =>
     {
+        DotNetTasks.DotNetBuild(s =>
+            s.SetProjectFile(MDKSrcRoot + "/mdk.slnx")
+            .SetConfiguration(Configuration)
+            );
+
         DotNetTasks.DotNetPublish(s =>
             s.SetProject(MDKSrcRoot + "/mdk.slnx")
             .SetConfiguration(Configuration)
