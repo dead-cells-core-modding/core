@@ -166,6 +166,7 @@ class Build : NukeBuild
     #region Core Build
 
     Target BuildCore => _ => _.DependsOn(GenerateGameProxy)
+            .DependsOn(BuildNative)
             .Executes(() =>
             {
                 DotNetTasks.DotNetBuild(s => s.SetConfiguration(Configuration)
