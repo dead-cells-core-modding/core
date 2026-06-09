@@ -111,10 +111,10 @@ class Build : NukeBuild
         var cmakePreset = $"{CurrentOSPlatform}-{CurrentArchPlatform}-{Configuration.ToString().ToLower()}";
         ProcessTasks.StartProcess("cmake",
             $". --preset={cmakePreset}",
-            NativeSrcRoot);
+            NativeSrcRoot).WaitForExit();
         ProcessTasks.StartProcess("cmake",
             $"--build ./out/build/{cmakePreset}",
-            NativeSrcRoot);
+            NativeSrcRoot).WaitForExit();
 
         Log.Information("Copying Goldberg");
 
