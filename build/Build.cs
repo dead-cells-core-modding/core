@@ -93,12 +93,12 @@ class Build : NukeBuild
     {
         DotNetTasks.DotNetBuild(s =>
             s.SetProjectFile(MDKSrcRoot + "/mdk.slnx")
-            .SetConfiguration(Configuration)
+            .SetConfiguration("Release")
             );
 
         DotNetTasks.DotNetPublish(s =>
             s.SetProject(MDKSrcRoot + "/mdk.slnx")
-            .SetConfiguration(Configuration)
+            .SetConfiguration("Release")
             );
 
         Log.Information("Copying mdk");
