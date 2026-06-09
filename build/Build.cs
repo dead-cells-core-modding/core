@@ -183,7 +183,7 @@ class Build : NukeBuild
         .DependsOn(BuildMDK)
         .Executes(() =>
         {
-            DotNetTasks.DotNetBuild(s => s.SetConfiguration(Configuration)
+            DotNetTasks.DotNetBuild(s => s.SetConfiguration(Configuration) 
                 .SetProjectFile(SourceRoot + "/ModCore.Assets"));
         });
 
