@@ -221,5 +221,7 @@ namespace Hashlink
         public static partial void hl_gc_major();
         [LibraryImport(LIBHL)]
         public static partial int hl_dyn_compare( HL_vdynamic* a, HL_vdynamic* b );
+        [LibraryImport(LIBHL)]
+        public static partial int hl_type_enum_eq(HL_enum* a, HL_enum* b );
     }
 }

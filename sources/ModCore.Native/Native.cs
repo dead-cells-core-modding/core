@@ -68,14 +68,13 @@ namespace ModCore.Native
 
             if (a != null && b != null)
             {
-
                 if (a->type->kind == TypeKind.HENUM &&
                     b->type->kind == TypeKind.HENUM)
                 {
                     var ea = (HL_enum*)a;
                     var eb = (HL_enum*)b;
 
-                    return ea->index == eb->index ? 0 : (ea > eb ? 1 : -1);
+                    return hl_type_enum_eq(ea, eb) == 1 ? 0 : (ea > eb ? 1 : -1);
 
                 }
             }
