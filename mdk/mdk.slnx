@@ -1,21 +1,46 @@
 <Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
   <Folder Name="/deps/">
-    <Project Path="../sources/HashlinkNET.Bytecode/HashlinkNET.Bytecode.csproj" />
-    <Project Path="../sources/HashlinkNET.Compiler/HashlinkNET.Compiler.csproj" />
-    <Project Path="../sources/HaxeProxy/HaxeProxy.csproj" />
-    <Project Path="../sources/NonPublicNativeMembers/NonPublicNativeMembers.csproj" />
+    <Project Path="../sources/HashlinkNET.Bytecode/HashlinkNET.Bytecode.csproj">
+      <Platform Solution="Release|x64" Project="x64" />
+    </Project>
+    <Project Path="../sources/HashlinkNET.Compiler/HashlinkNET.Compiler.csproj">
+      <Platform Solution="Release|x64" Project="x64" />
+    </Project>
+    <Project Path="../sources/HaxeProxy/HaxeProxy.csproj">
+      <Platform Solution="Release|x64" Project="x64" />
+    </Project>
+    <Project Path="../sources/NonPublicNativeMembers/NonPublicNativeMembers.csproj">
+      <Platform Solution="Release|x64" Project="x64" />
+    </Project>
   </Folder>
   <Folder Name="/tools/">
-    <Project Path="../sources/HaxeDocs/HaxeDocs.csproj" Id="dc9df1fe-c6db-4d82-b6c7-e8ab94cbbb15" />
-    <Project Path="../tools/BytecodeMapping/BytecodeMapping.csproj" />
-    <Project Path="DCCMTool/DCCMTool.csproj" Id="8dd879e0-8dbe-4c73-b890-4095dd842b65" />
+    <Project Path="../sources/HaxeDocs/HaxeDocs.csproj" Id="dc9df1fe-c6db-4d82-b6c7-e8ab94cbbb15">
+      <Platform Solution="Release|x64" Project="x64" />
+    </Project>
+    <Project Path="../tools/BytecodeMapping/BytecodeMapping.csproj">
+      <Platform Solution="Release|x64" Project="x64" />
+    </Project>
+    <Project Path="DCCMTool/DCCMTool.csproj" Id="8dd879e0-8dbe-4c73-b890-4095dd842b65">
+      <Platform Solution="Release|x64" Project="x64" />
+    </Project>
   </Folder>
   <Folder Name="/tools/res/">
-    <Project Path="GameRes.Core/GameRes.Core.csproj" Id="5b4bf380-21c4-4cee-af12-cfcb93f62baf" />
+    <Project Path="GameRes.Core/GameRes.Core.csproj" Id="5b4bf380-21c4-4cee-af12-cfcb93f62baf">
+      <Platform Solution="Release|x64" Project="x64" />
+    </Project>
   </Folder>
-  <Project Path="DeadCellsCoreModding.MDK/DeadCellsCoreModding.MDK.csproj" />
+  <Project Path="DeadCellsCoreModding.MDK/DeadCellsCoreModding.MDK.csproj">
+    <Platform Solution="Release|x64" Project="x64" />
+  </Project>
   <Project Path="MDK.Package/MDK.Package.csproj">
     <BuildDependency Project="DeadCellsCoreModding.MDK/DeadCellsCoreModding.MDK.csproj" />
+    <Platform Solution="Release|x64" Project="x64" />
   </Project>
-  <Project Path="ModCore.Tasks/ModCore.Tasks.csproj" />
+  <Project Path="ModCore.Tasks/ModCore.Tasks.csproj">
+    <Platform Solution="Release|x64" Project="x64" />
+  </Project>
 </Solution>
