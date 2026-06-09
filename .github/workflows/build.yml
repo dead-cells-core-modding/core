@@ -179,7 +179,7 @@ jobs:
     - name: Build 
       shell: pwsh
       run: |
-        ./build.ps1  BuildAll --configuration ${{ matrix.debug == true && '-Debug' || 'Release' }}
+        ./build.ps1  BuildAssets --configuration ${{ matrix.debug == true && '-Debug' || 'Release' }}
 
     - name: Upload
       uses: actions/upload-artifact@v4.6.0
