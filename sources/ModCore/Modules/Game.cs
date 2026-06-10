@@ -181,8 +181,16 @@ namespace ModCore.Modules
             Hook__Save.tryLoad += Hook__Save_tryLoad;
             Hook__Save.save += Hook__Save_save;
 
+            Hook_GlslOut.run += Hook_GlslOut_run;
+
             Hook__Data.loadFrom += Hook__Data_loadFrom;
             Hook__Data.loadJson += Hook__Data_loadJson;
+        }
+
+        private dc.String Hook_GlslOut_run( Hook_GlslOut.orig_run orig, GlslOut self, Hashlink.Virtuals.virtual_funs_name_vars_ s )
+        {
+            self.glES = null;
+            return orig(self, s);
         }
 
         private unsafe object Hook__Type_createEmptyInstance( Hook__Type.orig_createEmptyInstance orig, dc.hl.Class c )
