@@ -134,11 +134,73 @@ mods
 
 - .NET SDK 10
 - CMake
+- MSVC
+
+### Download Additional Dependencies
+
+The native build requires **OpenAL** and **SDL2** headers and libraries:
+
+```pwsh
+cd sources\native\3rd\hashlink\include
+
+# OpenAL
+Invoke-WebRequest -Uri "https://github.com/kcat/openal-soft/releases/download/1.23.1/openal-soft-1.23.1-bin.zip" -OutFile "OpenAL.zip"
+Expand-Archive -LiteralPath "OpenAL.zip" -DestinationPath . -Force
+Move-Item -Path "openal-soft-1.23.1-bin" -Destination "openal" -Force
+
+# SDL2
+Invoke-WebRequest -Uri "https://www.libsdl.org/release/SDL2-devel-2.32.8-VC.zip" -OutFile "SDL.zip"
+Expand-Archive -LiteralPath "SDL.zip" -DestinationPath . -Force
+Move-Item -Path "SDL2-2.32.8" -Destination "sdl" -Force
+```
 
 ### Build
 
-1. Clone the repository
-2. Run `build.ps1`
+```pwsh
+# Full build (Debug)
+.\build.ps1
+
+# Full build (Release)
+.\build.ps1 --configuration Release
+
+# Individual targets
+.\build.ps1 BuildNative                  # Native runtime only
+.\build.ps1 BuildCore                    # Managed core only
+.\build.ps1 BuildMDK                     # MDK toolchain only
+.\build.ps1 BuildAssets                  # Assets project only
+
+# Combine multiple targets
+.\build.ps1 BuildCore BuildMDK BuildAssets --configuration Release
+
+```
+
+> ⚠️ Before running BuildAssets, the MDK must be installed. See the step below.
+
+#### Install MDK
+
+After building the MDK, install it by running the setup script:
+
+```pwsh
+.\build.ps1 BuildMDK
+.\bin\core\mdk\install.ps1
+```
+
+### Output
+
+Build artifacts are placed in the `bin/` directory:
+
+```
+bin/
+├── core/
+│   ├── host/startup/          
+│   │   └── DeadCellsModding.exe # Game launcher
+│   ├── mdk/                   # MDK toolchain
+│   └── native/
+│       └── win-x64/           # Native runtime
+│           └── goldberg/      # Goldberg Steam emulator
+└── ...
+```
+
 
 ## Credit
 
