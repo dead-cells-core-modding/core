@@ -14,18 +14,22 @@ namespace HaxeProxy.Runtime.Internals
     internal static unsafe class HaxeProxyManager
     {
 
+
         private static readonly delegate*< HaxeProxyBase, HashlinkObj, void > baseCtor =
             (delegate*< HaxeProxyBase, HashlinkObj, void >)
                 typeof(HaxeProxyBase).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic).First().MethodHandle.GetFunctionPointer();
         public static ImmutableHashSet<Type> knownProxyTypes = [];
         public static readonly Dictionary<Type, int> type2typeId = [];
         public static Type[] bindingTypes = [];
+        public static Assembly? proxyAssembly;
         private static ImmutableDictionary<int, Type> subTypes = ImmutableDictionary<int, Type>.Empty;
 
 
 
         public static void Initialize( Assembly proxyAssembly )
         {
+            HaxeProxyManager.proxyAssembly = proxyAssembly;
+
             bindingTypes = new Type[HashlinkMarshal.Module.Types.Length];
             var types = proxyAssembly.GetCustomAttributes<HaxeProxyBindingAttribute>();
             var subTypes = new Dictionary<int, Type>();
@@ -91,13 +95,13 @@ namespace HaxeProxy.Runtime.Internals
         {
             var ht = obj.Type;
 
-            if (ht is CustomHaxeType.ReflectType rt)
-            {
-                if (!obj.isChangedTypeInfo)
-                {
-                    throw new InvalidProgramException();
-                }
-            }
+            //if (ht is CustomHaxeType.ReflectType rt)
+            //{
+            //    if (!obj.isChangedTypeInfo)
+            //    {
+            //        throw new InvalidOperationException();
+            //    }
+            //}
 
             var type = GetTypeFromHashlinkType(ht, obj);
 

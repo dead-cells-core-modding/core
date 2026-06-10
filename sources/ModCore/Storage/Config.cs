@@ -83,8 +83,8 @@ namespace ModCore.Storage
                 else
                 {
                     value = new();
-                    Save();
                 }
+                Save();
             }
             catch (Exception ex)
             {

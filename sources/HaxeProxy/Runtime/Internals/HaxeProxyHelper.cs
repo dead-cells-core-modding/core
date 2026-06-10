@@ -278,5 +278,10 @@ namespace HaxeProxy.Runtime.Internals
         {
             HaxeHookManager.RemoveHook(findex, hook);
         }
+
+        public static bool IsCSharpCustomType( Type type )
+        {
+            return type.Assembly != HaxeProxyManager.proxyAssembly;
+        }
     }
 }

@@ -140,6 +140,11 @@ namespace ModCore.Modules
                             }
                         }
 
+                        if (mm == null)
+                        {
+                            continue;
+                        }
+
                         var cm = GetCustomMenu(mm);
 
                         var name = mm.GetName();

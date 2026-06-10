@@ -35,6 +35,7 @@ namespace HaxeProxy.Runtime
 
         public nint HashlinkPointer => ((IHashlinkPointer)HashlinkObj).HashlinkPointer;
 
+
         internal bool createByManager;
 
         static object IExtraDataItem.Create( HashlinkObj obj )

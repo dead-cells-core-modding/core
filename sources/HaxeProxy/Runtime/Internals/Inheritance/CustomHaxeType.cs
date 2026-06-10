@@ -7,6 +7,7 @@ using Hashlink.Proxy.Objects;
 using Hashlink.Reflection;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
+using HaxeProxy.Events;
 using ModCore.Collections;
 using ModCore.Events;
 using ModCore.Native.Events.Interfaces;
@@ -25,7 +26,8 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
         private class EventReceiver : IEventReceiver,
             IOnHashlinkDynGet,
             IOnHashlinkDynSet,
-            IOnHashlinkDynHasField
+            IOnHashlinkDynHasField,
+            IOnHashlinkCreateEmptyInstance
         {
             private static readonly MethodInfo MI_castObject = typeof(UtilityDelegates)
             .GetMethod(nameof(UtilityDelegates.CastObject), BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -231,6 +233,11 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
                 }
 
                 return TryGetField(hobj, data.hfield, out var _, out var _);
+            }
+
+            EventResult<object> IOnHashlinkCreateEmptyInstance.OnHashlinkCreateEmptyInstance( HashlinkType type )
+            {
+                return default;
             }
         }
 
