@@ -7,6 +7,7 @@ using MonoMod.Core;
 using Serilog;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -133,6 +134,8 @@ namespace ModCore.Native
         [UnmanagedCallersOnly]
         protected static void Hook_gc_mark()
         {
+            
+
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
                 new(IOnNativeEvent.EventId.HL_EV_GC_BEFORE_MARK, 0));
 
@@ -157,6 +160,10 @@ namespace ModCore.Native
         [UnmanagedCallersOnly]
         protected static void Hook_gc_major()
         {
+            if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
+            {
+                return;
+            }
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
                 new(IOnNativeEvent.EventId.HL_EV_BEGORE_GC, 0));
 
@@ -170,7 +177,7 @@ namespace ModCore.Native
         [UnmanagedCallersOnly]
         protected static void Hook_gc_mark_stack( nint start, nint end )
         {
-            if (start == 0 || end == 0)
+            if (start == 0 || end == 0 || Current.IsBadPtr(start))
             {
                 return;
             }
@@ -281,11 +288,14 @@ namespace ModCore.Native
             }
         }
 
+        public static long totalAllocMemory = 0;
+
         private static nint orig_gc_allocator_alloc;
         [UnmanagedCallersOnly]
         protected static nint Hook_gc_allocator_alloc( int* size, int page_kind )
         {
             *size += 8;
+            totalAllocMemory += *size;
             var result = ((delegate* unmanaged< int*, int, nint >)orig_gc_allocator_alloc)(size, page_kind);
             *((nint*)(result + *size - 8)) = 0;
             Debug.Assert(hl_gc_get_memsize((void*)result) >= 0);
@@ -614,5 +624,6 @@ namespace ModCore.Native
         public abstract void MakePageWritable( nint ptr, out int old );
         public abstract void RestorePageProtect( nint ptr, int val );
         public abstract ReadOnlySpan<byte> GetHlbootDataFromExe( string exePath );
+        public abstract bool IsBadPtr( nint ptr );
     }
 }

@@ -11,7 +11,7 @@ namespace ModCore
         {
             var latest = Path.Combine(FolderInfo.Logs.FullPath, "log_latest.log");
 
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            //Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 
             if (Console.IsErrorRedirected)

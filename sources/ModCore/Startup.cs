@@ -37,6 +37,8 @@ namespace ModCore
                 return -1;
             }
 
+           
+
             ContextConfig.SetReadonly();
 
             LogInitializer.InitializeLog();

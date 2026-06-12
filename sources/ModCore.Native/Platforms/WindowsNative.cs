@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.System.Diagnostics.Debug;
 using static iced::Iced.Intel.AssemblerRegisters;
@@ -368,6 +369,9 @@ namespace ModCore.Native
             return (int)TlsAlloc();
         }
 
-
+        public override bool IsBadPtr( nint ptr )
+        {
+            return IsBadReadPtr((void*)ptr, 8) && IsBadWritePtr((void*)ptr, 8) && IsBadCodePtr((FARPROC)ptr);
+        }
     }
 }

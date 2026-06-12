@@ -1,6 +1,7 @@
 using ModCore;
 using System.Diagnostics;
 using System.Runtime.Loader;
+using System.Text;
 
 namespace DCCMShell
 {

@@ -98,4 +98,9 @@ internal unsafe partial class LinuxNative : Native
     {
         throw new NotImplementedException();
     }
+
+    public override bool IsBadPtr( nint ptr )
+    {
+        throw new NotImplementedException();
+    }
 }

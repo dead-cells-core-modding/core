@@ -49,7 +49,7 @@ namespace ModCore.Modules.Internals
                 hlbootCache.UpdateCache(data);
             }
 
-            var code = Code = HlCode.FromBytes(data);
+            var code = HlCode.FromBytes(data);
 
             if (Core.Config.Value.GeneratePseudocodeAssembly &&
                 !pseudoCache.IsValid)

@@ -6,6 +6,7 @@ using ModCore.Storage;
 using Newtonsoft.Json;
 using Serilog;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -53,12 +54,19 @@ namespace ModCore
             Assembly asm,
             CoreModuleAttribute.CoreModuleKind kind )
         {
+            var disabledModules = new HashSet<string>(Environment.GetEnvironmentVariable("DCCM_DISABLE_CORE_MODULES")?.Split(';') ?? []);
+
             var os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                    ? CoreModuleAttribute.SupportOSKind.Windows
                    : CoreModuleAttribute.SupportOSKind.Linux;
             foreach (var type in asm.SafeGetAllTypes())
             {
                 if (type == null)
+                {
+                    continue;
+                }
+                Debug.Assert(type.FullName != null);
+                if (disabledModules.Contains(type.FullName) || disabledModules.Contains(type.Name))
                 {
                     continue;
                 }

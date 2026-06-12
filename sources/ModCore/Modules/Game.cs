@@ -36,11 +36,6 @@ namespace ModCore.Modules
         {
             public override void Post( SendOrPostCallback d, object? state )
             {
-                if (Core.InMainThread)
-                {
-                    d(state);
-                    return;
-                }
                 queues.Enqueue((d, state));
             }
             public override void Send( SendOrPostCallback d, object? state )
@@ -185,6 +180,19 @@ namespace ModCore.Modules
 
             Hook__Data.loadFrom += Hook__Data_loadFrom;
             Hook__Data.loadJson += Hook__Data_loadJson;
+
+            Hook__Sys.getPath += Hook__Sys_getPath;
+        }
+
+        private nint Hook__Sys_getPath( Hook__Sys.orig_getPath orig, dc.String s )
+        {
+            var p = s.ToString();
+            if (string.IsNullOrWhiteSpace(p))
+            {
+                return orig(s);
+            }
+            var str = System.IO.Path.GetFullPath(s.ToString());
+            return orig(str.AsHaxeString());
         }
 
         private dc.String Hook_GlslOut_run( Hook_GlslOut.orig_run orig, GlslOut self, Hashlink.Virtuals.virtual_funs_name_vars_ s )

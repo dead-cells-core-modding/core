@@ -25,3 +25,6 @@ RtlCaptureContext
 EnumDisplayDevices
 GetCurrentThreadStackLimits
 
+IsBadReadPtr
+IsBadWritePtr
+IsBadCodePtr
