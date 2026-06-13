@@ -182,7 +182,7 @@ namespace ModCore.Events.Collections
                 for (var i = 0; i < curBlock.Count; i++)
                 {
                     ref var rec = ref curBlock.Items[i];
-                    if (rec == receiver)
+                    if (rec != null && rec.Receiver == receiver)
                     {
                         return;
                     }
@@ -218,10 +218,9 @@ namespace ModCore.Events.Collections
                 for (var i = 0; i < curBlock.Count; i++)
                 {
                     ref var rec = ref curBlock.Items[i];
-                    if (rec == receiver)
+                    if (rec != null && rec.Receiver == receiver)
                     {
                         rec = null;
-                        return;
                     }
                 }
                 curBlock = curBlock.NextBlock;
