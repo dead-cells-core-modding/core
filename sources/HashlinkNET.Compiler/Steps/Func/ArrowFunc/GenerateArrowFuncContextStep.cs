@@ -30,7 +30,15 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
                 var md = method.Definition;
                 var usedby = method.UsedBy[0];
 
-                md.Name = "ArrowFunctionEntry_" + f.FunctionIndex;
+                if (f.Debug == null)
+                {
+                    md.Name = "ArrowFunctionEntry_" + f.FunctionIndex;
+                }
+                else
+                {
+                    md.Name = $"ArrowFunctionEntry_{Path.GetFileNameWithoutExtension(f.Debug[0].FileName)}_L{f.Debug[0].Line}_LC{f.Debug.Length}";
+                }
+
                 md.HasThis = true;
                 md.IsStatic = false;
                 md.IsPublic = true;

@@ -1,5 +1,8 @@
 using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
+using K4os.Hash.xxHash;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
 {
@@ -19,7 +22,11 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
             var td = data.TypeDef;
             if (data.DirectParent != null)
             {
-                td.Name = data.DirectParent.Definition.Name + "Context_" + type.TypeIndex;
+                var l = new List<FuncData>(data.Methods);
+                l.Sort(( a, b ) => a.Definition.Name.CompareTo(b.Definition.Name));
+                td.Name = data.DirectParent.Definition.Name + "Context_" + XXH32.DigestOf(
+                    Encoding.UTF8.GetBytes(l[0].Definition.Name)
+                    );
             }
 
         }

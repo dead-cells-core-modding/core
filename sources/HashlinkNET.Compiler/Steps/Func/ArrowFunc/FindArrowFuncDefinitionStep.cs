@@ -46,7 +46,16 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
                 {
                     return;
                 }
-                md.Definition.Name = "ArrowFunction_" + parentM!.Name + "_" + item.FunctionIndex;
+
+                if (item.Debug == null)
+                {
+                    md.Definition.Name = "ArrowFunction_" + parentM!.Name + "_" + item.FunctionIndex;
+                }
+                else
+                {
+                    md.Definition.Name = "ArrowFunction_" + parentM!.Name + "_L" + item.Debug[0].Line + "_LC" + item.Debug.Length
+                    ;
+                }
                 if (md.Definition.Parameters.Count > 0)
                 {
                     var fp = md.Definition.Parameters[0];
