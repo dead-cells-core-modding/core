@@ -76,7 +76,7 @@ namespace ModCore
                 configuration.WriteTo.Console(Serilog.Events.LogEventLevel.Verbose,
                   outputTemplate: OUTPUT_FORMAT_TEMPLATE, applyThemeToRedirectedOutput: true);
 
-                if (Console.IsErrorRedirected)
+                if (Console.IsErrorRedirected && !Console.IsOutputRedirected)
                 {
                     configuration.WriteTo.Console(Serilog.Events.LogEventLevel.Warning,
                         outputTemplate: OUTPUT_FORMAT_TEMPLATE, standardErrorFromLevel: Serilog.Events.LogEventLevel.Warning,
