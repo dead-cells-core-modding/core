@@ -1,7 +1,9 @@
 using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace ModCore.Native.Fody
@@ -11,6 +13,10 @@ namespace ModCore.Native.Fody
         public override void Execute()
         {
             var nt = ModuleDefinition.GetType("ModCore.Native.Native");
+
+
+            //Debug.Assert(false, latr.GetType().ToString());
+
             var getSym = nt.Methods.First(x => x.Name == "GetLibhlSymbolEx");
             var hn = ModuleDefinition.GetType("Hashlink.HashlinkNative");
 
@@ -25,25 +31,35 @@ namespace ModCore.Native.Fody
                 m.PInvokeInfo = null;
                 m.IsPInvokeImpl = false;
                 m.IsIL = true;
+                
 
                 var body = new MethodBody(m);
-
-
+                //m.ImplAttributes |= MethodImplAttributes.AggressiveInlining;
                 m.Body = body;
                 var il = body.GetILProcessor();
 
 
                 var callInfo = new CallSite(m.ReturnType)
                 {
-                    CallingConvention = MethodCallingConvention.Unmanaged
+                    CallingConvention = MethodCallingConvention.Unmanaged,
                 };
+
+                var suppressGCTransitionAttr = m.CustomAttributes.FirstOrDefault(x => x.AttributeType.FullName ==
+                "System.Runtime.InteropServices.SuppressGCTransitionAttribute");
+
+                if (suppressGCTransitionAttr != null)
+                {
+                    callInfo.ReturnType = callInfo.ReturnType.MakeOptionalModifierType(suppressGCTransitionAttr.AttributeType);
+                }
+                
+                
 
                 var fpt = new FunctionPointerType()
                 {
                     ReturnType = callInfo.ReturnType,
-                    CallingConvention = callInfo.CallingConvention,
+                    CallingConvention = callInfo.CallingConvention
                 };
-
+                
 
                 foreach (var p in m.Parameters)
                 {

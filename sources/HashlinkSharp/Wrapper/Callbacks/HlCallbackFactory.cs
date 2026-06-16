@@ -10,7 +10,8 @@ namespace Hashlink.Wrapper.Callbacks
 {
     public static unsafe class HlCallbackFactory
     {
-        private static readonly ConcurrentDictionary<HashlinkFuncType, MethodInfo> hl_callback_cache = [];
+        [ThreadStatic]
+        private static ConcurrentDictionary<HashlinkFuncType, MethodInfo>? hl_callback_cache;
         private static readonly FieldInfo FI_hlrouterinfo_entry = typeof(HlCallbackInfo)
             .GetField(nameof(HlCallbackInfo.entry))!;
         private static readonly FieldInfo FI_hlrouterinfo_directRoute = typeof(HlCallbackInfo)
@@ -187,7 +188,13 @@ namespace Hashlink.Wrapper.Callbacks
 
         public static HlCallback GetHlCallback( HashlinkFuncType sign )
         {
-            var mi = hl_callback_cache.GetOrAdd(sign, CreateHlCallback);
+            hl_callback_cache ??= [];
+
+            if (!hl_callback_cache.TryGetValue(sign, out var mi))
+            {
+                mi = CreateHlCallback(sign);
+                hl_callback_cache[sign] = mi;
+            }
             return new HlCallback(mi);
         }
     }

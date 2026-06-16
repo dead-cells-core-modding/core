@@ -5,6 +5,7 @@ using ModCore.Storage;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace ModCore.Modules.Internals
 {
@@ -103,6 +104,13 @@ namespace ModCore.Modules.Internals
             return default;
         }
 
+        [SupportedOSPlatform("windows")]
+        private void TryLoadSDLWindows()
+        {
+            NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("SDL3.dll"));
+            NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("SDL2.dll"));
+        }
+
         private void TryLoadSteam()
         {
             GameInfo.Platform = GameInfo.PlatformKind.Steam;
@@ -140,6 +148,11 @@ namespace ModCore.Modules.Internals
             {
                 Logger.Fatal("DirectX is not supported on this platform");
                 return default;
+            }
+
+            if (name == "sdl" && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                TryLoadSDLWindows();
             }
 
             var path = FolderInfo.CurrentNativeRoot.GetFilePath(name + ".hdll");

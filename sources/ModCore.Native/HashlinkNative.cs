@@ -58,6 +58,7 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial void hl_global_init();
         [LibraryImport(LIBHL)]
+        [SuppressGCTransition]
         public static partial HL_thread_info* hl_get_thread();
 
         [LibraryImport(LIBHL)]
@@ -125,6 +126,7 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial void* hl_obj_lookup_set( HL_vdynamic* d, int hfield, HL_type* t, out HL_type* ft );
         [LibraryImport(LIBHL)]
+        [SuppressGCTransition]
         public static partial int hl_hash_gen( char* name, [MarshalAs(UnmanagedType.Bool)] bool cache_name );
         [LibraryImport(LIBHL)]
         public static partial HL_vdynamic* hl_make_dyn( void* data, HL_type* t );
@@ -161,8 +163,10 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial HL_GC_Flags hl_gc_get_flags();
         [LibraryImport(LIBHL)]
+        [SuppressGCTransition]
         public static partial char* hl_field_name( int hashedName );
         [LibraryImport(LIBHL)]
+        [SuppressGCTransition]
         public static partial void* hl_alloc_executable_memory( int size );
         [LibraryImport(LIBHL)]
         [SuppressGCTransition]
@@ -200,6 +204,7 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial void hl_remove_root( void* v );
         [LibraryImport(LIBHL)]
+        [SuppressGCTransition]
         public static partial HL_gc_threads* hl_gc_threads_info();
         [LibraryImport(LIBHL)]
         public static partial void gc_global_lock( [MarshalAs(UnmanagedType.I1)] bool b );

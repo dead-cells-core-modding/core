@@ -36,7 +36,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
             {
                 return castDel.GetOrAdd(toType, ( Type key ) =>
                 {
-                    var md = new DynamicMethod("dynamic_cast", typeof(object), [typeof(object)]);
+                    var md = new DynamicMethod("dynamic_cast", typeof(object), [typeof(object)], true);
                     var il = md.GetILGenerator();
 
                     il.Emit(OpCodes.Ldarg_0);

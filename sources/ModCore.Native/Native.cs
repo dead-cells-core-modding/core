@@ -470,6 +470,8 @@ namespace ModCore.Native
         {
             return GetLibhlSymbolFunc(name);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static nint GetLibhlSymbolEx( string name, ref nint cache )
         {
             if (cache != 0)

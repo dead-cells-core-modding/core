@@ -9,7 +9,8 @@ namespace Hashlink.Wrapper
 {
     internal static class HashlinkWrapperFactory
     {
-        private static readonly ConcurrentDictionary<HashlinkFuncType, DynamicMethod> hl_wrapper_cache = [];
+        [ThreadStatic]
+        private static Dictionary<HashlinkFuncType, DynamicMethod>? hl_wrapper_cache;
         private static readonly FieldInfo FI_wrapperInfo_target = typeof(WrapperInfo)
             .GetField(nameof(WrapperInfo.target))!;
         private static readonly MethodInfo MI_WrapperHelper_AsPointer = typeof(WrapperHelper)
@@ -58,7 +59,7 @@ namespace Hashlink.Wrapper
 
             var dm = new DynamicMethod("cs_to_hl+" + func.ToString(),
                 GetManageType(func.ReturnType.TypeKind),
-                targs);
+                targs, true);
             var ilg = dm.GetILGenerator();
 
             var loc_eh = ilg.DeclareLocal(typeof(WrapperHelper.ErrorHandle));
@@ -140,7 +141,14 @@ namespace Hashlink.Wrapper
             HashlinkFuncType func,
             nint target )
         {
-            var mi = hl_wrapper_cache.GetOrAdd(func, CreateWrapper);
+            hl_wrapper_cache ??= [];
+
+            if (!hl_wrapper_cache.TryGetValue(func, out var mi))
+            {
+                mi = CreateWrapper(func);
+                hl_wrapper_cache[func] = mi;
+            }
+
             var info = new WrapperInfo()
             {
                 target = target,
