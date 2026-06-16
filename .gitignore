@@ -408,3 +408,4 @@ vcpkg_installed/
 /weaver
 /test/TestRunner/mods/*
 .vscode/*
+/.nuke
