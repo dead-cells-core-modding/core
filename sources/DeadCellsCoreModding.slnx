@@ -40,6 +40,11 @@
       <BuildDependency Project="DeadCellsModding/DeadCellsModding.csproj" />
     </Project>
   </Folder>
+  <Folder Name="/shell/gog/">
+    <Project Path="GOGStartShell/GOGStartShell.csproj">
+      <BuildDependency Project="DeadCellsModding/DeadCellsModding.csproj" />
+    </Project>
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../.gitignore" />
     <File Path="../Directory.Build.props" />

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <PublishDir>../../bin/core/host/startup/gog</PublishDir>
+    <AssemblyName>deadcells</AssemblyName>
+
+    <PublishTrimmed>true</PublishTrimmed>
+
+    <RootNamespace>GOGStartShell</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+  </ItemGroup>
+
+</Project>
