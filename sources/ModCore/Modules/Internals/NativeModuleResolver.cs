@@ -160,13 +160,20 @@ namespace ModCore.Modules.Internals
                 TryLoadSDLWindows();
             }
 
-            var path = FolderInfo.CurrentNativeRoot.GetFilePath(name + ".hdll");
-            if (!File.Exists(path))
+            // Some platform hdlls (e.g. GOG's gog.hdll) ship in the game root rather than
+            // under coremod/native. Try the current native root first, then fall back.
+            var searchPaths = new[] { FolderInfo.CurrentNativeRoot.FullPath, FolderInfo.GameRoot.FullPath };
+            foreach (var dir in searchPaths)
             {
-                return default;
+                var path = Path.Combine(dir, name + ".hdll");
+                if (File.Exists(path))
+                {
+                    Logger.Information("Loading native module from {path}", path);
+                    return NativeLibrary.Load(path);
+                }
             }
-            Logger.Information("Loading native module from {path}", path);
-            return NativeLibrary.Load(path);
+
+            return default;
         }
     }
 }
