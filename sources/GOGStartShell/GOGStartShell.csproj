@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
 

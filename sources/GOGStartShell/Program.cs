@@ -110,6 +110,10 @@ namespace GOGStartShell
             if (game.ExitCode != 0)
             {
                 logger.Error("Game exited with non-zero code {code}", game.ExitCode);
+                if (gameLogPath != null)
+                    logger.Error("Game log: {path}", gameLogPath);
+                if (crashDumpPath != null)
+                    logger.Error("Crash dump: {path}", crashDumpPath);
                 if (errOutput.Length > 0)
                     logger.Error("stderr:\n{err}", errOutput);
                 await Task.Delay(5000);

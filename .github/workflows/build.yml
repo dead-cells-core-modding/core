@@ -28,6 +28,8 @@ jobs:
         rm -rf ./core/mdk
 
         zip -r ../win-x64-no-mdk.zip ./*
+
+        cp ./core/host/startup/gog/deadcells.exe ../deadcells-gog.exe
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
@@ -35,6 +37,7 @@ jobs:
              win-x64.zip
              win-x64-no-mdk.zip
              win-x64/core/host/startup/steam/deadcells.exe
+             deadcells-gog.exe
 
   test:
     strategy:
