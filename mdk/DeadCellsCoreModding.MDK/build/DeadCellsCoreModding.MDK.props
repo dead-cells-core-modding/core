@@ -11,7 +11,7 @@
 
   <Target Name="ResolveMDKBuildError" BeforeTargets="ResolveReferences"
           Condition="!Exists('$(_DCCM_MDK_Build_Root)build.props')">
-    <Error Text="The installed Dead Celss Core Modding MDK was not found. Please confirm whether the environment variable 'DCCM_MDK_ROOT' is added correctly." />
+    <Error Text="The installed Dead Cells Core Modding MDK was not found. Please confirm whether the environment variable 'DCCM_MDK_ROOT' is added correctly." />
   </Target>
   
 </Project>
