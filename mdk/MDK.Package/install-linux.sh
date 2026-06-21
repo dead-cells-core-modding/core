@@ -29,7 +29,8 @@ esac
 if [ "$SHELL_NAME" = "fish" ]; then
     if ! grep -q "DCCM_MDK_ROOT" "$CONFIG_FILE" 2>/dev/null; then
         cat >> "$CONFIG_FILE" << EOF
-
+        
+# DCCM MDK
 set -x DCCM_MDK_ROOT "$MDK_ROOT"
 set -x DEAD_CELLS_GAME_PATH "$DEAD_CELLS_GAME_PATH"
 set -x DCCM_MDK_BIN_ROOT "$DCCM_MDK_BIN_ROOT"
