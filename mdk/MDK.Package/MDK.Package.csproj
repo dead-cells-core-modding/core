@@ -17,6 +17,7 @@
     <RawFiles Include="raw/**/*" />
     <RawFiles Include="Newtonsoft.Json.dll" />
     <RawFiles Include="*.ps1" />
+    <RawFiles Include="*.sh" />
 
     <None Include="@(RawFiles)" />
   </ItemGroup>
