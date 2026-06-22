@@ -41,14 +41,14 @@ namespace TestRunner
         {
             HashlinkMarshal.EnsureThreadRegistered();
 
-            var v = new virtual_fileName_lineNumber_
+            var v = new virtual_file_line_s_
             {
-                lineNumber = 114514,
-                fileName = "Test".AsHaxeString()
+                line = 114514,
+                file = "Test".AsHaxeString()
             };
 
-            Assert.Equal(114514, v.lineNumber);
-            Assert.Equal("Test", v.fileName.ToString());
+            Assert.Equal(114514, v.line);
+            Assert.Equal("Test", v.file.ToString());
 
             var iter = new virtual_hasNext_next_<HlFunc<int>>();
             var iterType = iter.HashlinkObj.Type;

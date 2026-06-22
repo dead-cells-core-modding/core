@@ -1,4 +1,4 @@
-using dc.steam;
+using Hashlink.Proxy.Clousre;
 using MonoMod.RuntimeDetour;
 using Steamworks;
 
@@ -26,7 +26,7 @@ namespace ModCore.Modules.Platforms
 
         public SteamPlatformModule()
         {
-            Hook__Api.sync += Hook__Api_sync;
+            HashlinkHooks.Instance.CreateHook("steam.$Api", "sync", Hook__Api_sync, true);
 
             steamAPIInitHook = new(typeof(SteamAPI).GetMethod(nameof(SteamAPI.InitEx))!, Hook_SteamAPI_InitEx);
             steamAPIInitHook.Apply();
@@ -37,7 +37,7 @@ namespace ModCore.Modules.Platforms
             }
         }
 
-        private void Hook__Api_sync( Hook__Api.orig_sync orig )
+        private void Hook__Api_sync( HashlinkClosure orig )
         {
             SteamAPI.RunCallbacks();
         }

@@ -1,5 +1,4 @@
 using dc;
-using dc.tool.mod;
 using HaxeProxy.Runtime;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Mods;
@@ -31,7 +30,7 @@ namespace ModCore.ModLoader.Default
                 Logger.Information("Loading mod res pak: {pak}", v);
                 FsPak.Instance.FileSystem.loadPak(v.AsHaxeString());
             }
-            Data.Class.loadJson(CDBManager.Class.instance.getAlteredCDB(), default);
+            CDBManager.Instance.LoadJsonData(CDBManager.Instance.GetAlteredCDB());
         }
 
         void IOnBeforeGameInit.OnBeforeGameInit()

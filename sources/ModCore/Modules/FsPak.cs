@@ -1,5 +1,4 @@
 using dc;
-using dc.tool.mod;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
@@ -40,7 +39,7 @@ namespace ModCore.Modules
         private bool Hook__Assets_init( Hook__Assets.orig_init orig )
         {
             var result = orig();
-            Data.Class.loadJson(CDBManager.Class.instance.getAlteredCDB(), default);
+            CDBManager.Instance.LoadJsonData(CDBManager.Instance.GetAlteredCDB());
             return result;
         }
 

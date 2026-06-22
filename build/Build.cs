@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Nuke.Common;
@@ -43,7 +45,7 @@ class Build : NukeBuild
 
     #region Sources Path
 
-    AbsolutePath HlbootPath => RootDirectory + "/hlboots" + "/hlboot-opengl-steam.dat";
+    AbsolutePath HlbootPath => RootDirectory + "/hlboots";
     AbsolutePath SourceRoot => RootDirectory + "/sources";
     AbsolutePath NativeSrcRoot => SourceRoot + "/native";
     AbsolutePath MDKSrcRoot => RootDirectory + "/mdk";
@@ -71,16 +73,41 @@ class Build : NukeBuild
 
     Target GenerateGameProxy => _ => _.Executes(() =>
     {
-        DotNetTasks.DotNetRun(s => 
-            s.SetProjectFile(DCCMToolSrcProject)
-            .EnableNoLaunchProfile()
-            .SetConfiguration("Release")
-            .SetApplicationArguments(
-                "generate-game-persudo",
-                "-i", HlbootPath.ToString("d"),
-                "-o", ProxyBinRoot.CreateDirectory(),
-                "-n", "GameProxy",
-                "-r"));
+        var tempDir = Path.GetTempFileName() + ".dir";
+        Directory.CreateDirectory(tempDir);
+
+        List<string> dat = [];
+
+        foreach (var v in Directory.EnumerateFiles(HlbootPath, "*.dat", SearchOption.TopDirectoryOnly))
+        {
+            var name = $"GameProxy_{Path.GetFileNameWithoutExtension(v)}";
+            var proxyPath = Path.Combine(tempDir, name + ".dll");
+           
+            
+            DotNetTasks.DotNetRun(s =>
+                s.SetProjectFile(DCCMToolSrcProject)
+                .EnableNoLaunchProfile()
+                .SetConfiguration("Release")
+                .SetApplicationArguments(
+                    "generate-game-persudo",
+                    "-i", v,
+                    "-o", tempDir,
+                    "-n", name,
+                    "-r"));
+
+            dat.Add(proxyPath);
+        }
+
+        DotNetTasks.DotNetRun(s =>
+                s.SetProjectFile(DCCMToolSrcProject)
+                .EnableNoLaunchProfile()
+                .SetConfiguration("Release")
+                .SetApplicationArguments([
+                    "internal",
+                    "generate-sub-assembly",
+                    ..dat.SelectMany<string, string>(x => [ "-i", x]),
+                    "-o", Path.Combine(ProxyBinRoot, "GameProxy.dll")
+                    ]));
     });
 
     #endregion

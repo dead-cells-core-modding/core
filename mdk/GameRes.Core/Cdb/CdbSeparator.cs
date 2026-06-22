@@ -12,6 +12,7 @@ namespace GameRes.Core.Cdb
         public string? Name { get; set; }
         public List<CdbLine> Lines { get; set; } = [];
         public required CdbSheet Sheet { get; set; }
+
         public override string? ToString()
         {
             return Name;

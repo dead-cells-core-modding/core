@@ -19,6 +19,7 @@ using ModCore.Modules.Platforms;
 using ModCore.Utilities;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace ModCore.Modules
 {
@@ -179,9 +180,16 @@ namespace ModCore.Modules
             Hook_GlslOut.run += Hook_GlslOut_run;
 
             Hook__Data.loadFrom += Hook__Data_loadFrom;
-            Hook__Data.loadJson += Hook__Data_loadJson;
 
             Hook__Sys.getPath += Hook__Sys_getPath;
+
+            try
+            {
+                HashlinkHooks.Instance.CreateHook("$Data", "loadJson", Hook__Data_loadJson, true);
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private nint Hook__Sys_getPath( Hook__Sys.orig_getPath orig, dc.String s )
@@ -222,9 +230,9 @@ namespace ModCore.Modules
             FlushSyncTasks();
         }
 
-        private void Hook__Data_loadJson( Hook__Data.orig_loadJson orig, dc.String json, Ref<bool> allowReload )
+        private unsafe void Hook__Data_loadJson( Action<dc.String, nint> orig, dc.String json, Ref<bool> allowReload )
         {
-            orig(json, allowReload);
+            orig(json, (nint) Unsafe.AsPointer(ref allowReload.value));
             EventSystem.BroadcastEvent<IOnAfterLoadingCDB, _Data_>(Data.Class);
         }
 

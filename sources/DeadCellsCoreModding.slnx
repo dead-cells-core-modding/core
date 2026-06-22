@@ -52,6 +52,9 @@
     <Project Path="../test/TestMod/TestMod.csproj" />
     <Project Path="../test/TestRunner/TestRunner.csproj" />
   </Folder>
+  <Project Path="../mdk/GameRes.Core/GameRes.Core.csproj">
+    <Platform Project="x64" />
+  </Project>
   <Project Path="HashlinkSharp/HashlinkSharp.csproj" />
   <Project Path="Haxe2CSharp/Haxe2CSharp.csproj" Id="83cb2ff3-256d-4077-8d20-430af9b9589b" />
   <Project Path="ModCore.Assets/ModCore.Assets.csproj" Id="74c363b3-adde-42c7-94d8-d19d6ad00e13" />

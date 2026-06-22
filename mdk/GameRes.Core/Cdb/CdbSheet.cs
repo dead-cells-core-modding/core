@@ -14,6 +14,43 @@ namespace GameRes.Core.Cdb
         public JArray Columns { get; set; } = [];
         public JObject? Props { get; set; }
         public List<CdbSeparator> Separators { get; set; } = [];
+
+        public void WriteTo(JObject root)
+        {
+            root["name"] = Name;
+            root["columns"] = Columns;
+            root["props"] = Props;
+
+            var lines = new JArray();
+            var separators = new JArray();
+
+            if(Props != null)
+            {
+                var separatorTitles = new JArray();
+                foreach(var v in Separators)
+                {
+                    separatorTitles.Add(v.Name);
+                }
+                Props["separatorTitles"] = separatorTitles;
+            }
+
+            int startIdx = 0;
+
+            foreach(var v in Separators)
+            {
+                separators.Add(startIdx);
+                startIdx += v.Lines.Count;
+
+                foreach(var l in v.Lines)
+                {
+                    lines.Add(l.Value);
+                }
+            }
+
+            root["separators"] = separators;
+            root["lines"] = lines;
+        }
+
         public static CdbSheet ReadFrom(JObject root)
         {
             var sheet = new CdbSheet
@@ -97,6 +134,8 @@ namespace GameRes.Core.Cdb
 
             return sheet;
         }
+        
+        
         public override string ToString()
         {
             return Name;

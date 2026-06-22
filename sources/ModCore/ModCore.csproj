@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\mdk\GameRes.Core\GameRes.Core.csproj" />
     <ProjectReference Include="..\HashlinkNET.Compiler\HashlinkNET.Compiler.csproj" />
     <ProjectReference Include="..\HashlinkSharp\HashlinkSharp.csproj" />
     <ProjectReference Include="..\HaxeProxy\HaxeProxy.csproj" />

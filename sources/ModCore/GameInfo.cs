@@ -20,7 +20,12 @@ namespace ModCore
             /// <summary>
             /// Represents Steam
             /// </summary>
-            Steam
+            Steam,
+
+            /// <summary>
+            /// Represents GOG
+            /// </summary>
+            GOG
         }
         /// <summary>
         /// Gets the current version number of the game.

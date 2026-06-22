@@ -37,6 +37,7 @@ namespace DCCMTool
                     inter.AddCommand<GenerateHaxeDBCommand>("generate-haxedb");
                     inter.AddCommand<ScanNativePrivateMemberCommand>("scan-native-private-member");
                     inter.AddCommand<InstallCommand>("install-mdk");
+                    inter.AddCommand<GenerateSubAssemblyCommand>("generate-sub-assembly");
                 });
 
                 config.AddBranch("steam", steam =>

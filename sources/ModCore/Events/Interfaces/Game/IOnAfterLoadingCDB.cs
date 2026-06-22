@@ -1,5 +1,4 @@
 using dc;
-using dc.tool.mod;
 
 namespace ModCore.Events.Interfaces.Game
 {
