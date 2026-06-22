@@ -44,13 +44,13 @@ namespace ModCore.Native.Fody
                     CallingConvention = MethodCallingConvention.Unmanaged,
                 };
 
-                var suppressGCTransitionAttr = m.CustomAttributes.FirstOrDefault(x => x.AttributeType.FullName ==
-                "System.Runtime.InteropServices.SuppressGCTransitionAttribute");
-
-                if (suppressGCTransitionAttr != null)
-                {
-                    callInfo.ReturnType = callInfo.ReturnType.MakeOptionalModifierType(suppressGCTransitionAttr.AttributeType);
-                }
+                //var suppressGCTransitionAttr = m.CustomAttributes.FirstOrDefault(x => x.AttributeType.FullName ==
+                //"System.Runtime.InteropServices.SuppressGCTransitionAttribute");
+                //
+                //if (suppressGCTransitionAttr != null)
+                //{
+                //    callInfo.ReturnType = callInfo.ReturnType.MakeOptionalModifierType(suppressGCTransitionAttr.AttributeType);
+                //}
                 
                 
 

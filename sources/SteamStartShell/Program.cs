@@ -1,10 +1,11 @@
-﻿using ModCore;
+using ModCore;
 using Serilog;
 using SteamStartShell.ErrorReporting;
 using SteamStartShell.Launcher;
 using SteamStartShell.Platform;
 using SteamStartShell.Workshop;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace SteamStartShell
 {
@@ -134,6 +135,12 @@ namespace SteamStartShell
                 // 启动游戏
                 var launcher = new GameLauncher(gameRoot);
                 var deadCellsExePath = Path.Combine(gameRoot, "coremod", "core", "host", "startup", "DeadCellsModding");
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    File.SetUnixFileMode(deadCellsExePath, File.GetUnixFileMode(deadCellsExePath) | UnixFileMode.UserExecute);
+                }
+
                 var result = await launcher.LaunchGame(deadCellsExePath, Environment.ProcessId, diagnosticMode);
 
                 if (result.ExitCode == 0)

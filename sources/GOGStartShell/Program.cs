@@ -1,5 +1,6 @@
 using Serilog;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace GOGStartShell
@@ -60,6 +61,12 @@ namespace GOGStartShell
             }
 
             var deadCellsExePath = Path.Combine(gameRoot, "coremod", "core", "host", "startup", "DeadCellsModding");
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                File.SetUnixFileMode(deadCellsExePath, File.GetUnixFileMode(deadCellsExePath) | UnixFileMode.UserExecute);
+            }
+
 
             logger.Information("Starting game from {root}", gameRoot);
 
