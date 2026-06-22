@@ -138,7 +138,7 @@ mods
 
 ### Download Additional Dependencies
 
-The native build requires **OpenAL** and **SDL2** headers and libraries:
+The native build requires **OpenAL** and **SDL2 Compat** headers and libraries:
 
 ```pwsh
 cd sources\native\3rd\hashlink\include
@@ -148,10 +148,10 @@ Invoke-WebRequest -Uri "https://github.com/kcat/openal-soft/releases/download/1.
 Expand-Archive -LiteralPath "OpenAL.zip" -DestinationPath . -Force
 Move-Item -Path "openal-soft-1.23.1-bin" -Destination "openal" -Force
 
-# SDL2
-Invoke-WebRequest -Uri "https://www.libsdl.org/release/SDL2-devel-2.32.8-VC.zip" -OutFile "SDL.zip"
-Expand-Archive -LiteralPath "SDL.zip" -DestinationPath . -Force
-Move-Item -Path "SDL2-2.32.8" -Destination "sdl" -Force
+# SDL2 Compat
+Invoke-WebRequest -Uri https://github.com/libsdl-org/sdl2-compat/releases/download/release-2.32.70/sdl2-compat-devel-2.32.70-VC.zip -OutFile ./SDL.zip
+Expand-Archive -LiteralPath ./SDL.zip -DestinationPath . -Force
+Move-Item -Path ./sdl2-compat-2.32.70 -Destination ./sdl -Force
 ```
 
 ### Build
