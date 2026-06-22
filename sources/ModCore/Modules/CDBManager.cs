@@ -4,12 +4,15 @@ using dc.hxd;
 using dc.hxd.fmt.pak;
 using dc.hxd.res;
 using GameRes.Core.Cdb;
+using Hashlink.Marshaling;
+using Hashlink.Reflection.Types;
 using HaxeProxy.Runtime;
 using ModCore.Events.Interfaces;
 using ModCore.Utilities;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace ModCore.Modules
@@ -19,8 +22,18 @@ namespace ModCore.Modules
         IOnAdvancedModuleInitializing
     {
         private string? overrideJsonData = null;
-        public void LoadJsonData( string jsonData )
+        public unsafe void LoadJsonData( string jsonData )
         {
+            if (Core.Config.Value.UseGameCDBManager)
+            {
+                if (HashlinkMarshal.Module.TryGetTypeByName("Data", out var gDataType))
+                {
+                    bool b = true;
+                    ((dynamic)((HashlinkObjectType)gDataType).GlobalValue).loadJson(jsonData.AsHaxeString(), (nint)Unsafe.AsPointer(ref b));
+                    return;
+                }
+            }
+
             try
             {
                 overrideJsonData = jsonData;
@@ -34,6 +47,15 @@ namespace ModCore.Modules
 
         public string GetAlteredCDB()
         {
+            if (Core.Config.Value.UseGameCDBManager)
+            {
+                if (HashlinkMarshal.Module.TryGetTypeByName("tool.mod.CDBManager", out var gCDBManagerType))
+                {
+                    var inst = ((dynamic)((HashlinkObjectType)gCDBManagerType).GlobalValue).instance;
+                    return inst.getAlteredCDB();
+                }
+            }
+
             Loader loader = Res.Class.get_loader();
             dc.String jsonStr = loader.loadCache("data.cdb".AsHaxeString(), Resource.Class).entry.getBytes().toString();
             if (!FsPak.Instance.FileSystem.exists("data.cdb_".AsHaxeString()))

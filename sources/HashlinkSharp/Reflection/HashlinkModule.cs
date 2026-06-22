@@ -141,6 +141,10 @@ namespace Hashlink.Reflection
                 findex
                 ];
         }
+        public bool TryGetTypeByName( string name, [NotNullWhen(true)] out HashlinkType? type )
+        {
+            return typeNameMapping.TryGetValue( name, out type );
+        }
         public HashlinkType GetTypeByName( string name )
         {
             return typeNameMapping[name];
