@@ -10,8 +10,9 @@ namespace ModCore
         public bool GeneratePseudocodeAssembly { get; set; } = false;
         public bool AllowCloseConsole { get; set; } = false;
         public bool AllowLockCursor { get; set; } = true;
-        // Enabled by default for non-Steam platforms
-        public bool EnableGoldberg { get; set; } = !File.Exists(FolderInfo.GameRoot.GetFilePath("steam.hdll"));
+        // Enabled by default when neither Steam nor GOG native libs are present
+        public bool EnableGoldberg { get; set; } = !File.Exists(FolderInfo.GameRoot.GetFilePath("steam.hdll")) &&
+                                                    !File.Exists(FolderInfo.GameRoot.GetFilePath("gog.hdll"));
         public bool SkipLogoSplash { get; set; } = true;
     }
 }

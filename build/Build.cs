@@ -208,6 +208,8 @@ class Build : NukeBuild
 
                 DotNetTasks.DotNetPublish(s => s.SetConfiguration(Configuration)
                     .SetProject(SourceRoot + "/SteamStartShell"));
+                DotNetTasks.DotNetPublish(s => s.SetConfiguration(Configuration)
+                    .SetProject(SourceRoot + "/GOGStartShell"));
                 DotNetTasks.DotNetPublish(s => s.SetConfiguration("Release")
                     .SetProject(SourceRoot + "/DeadCellsModding"));
             });

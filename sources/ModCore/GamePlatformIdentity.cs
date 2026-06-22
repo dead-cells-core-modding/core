@@ -12,6 +12,10 @@ namespace ModCore
         /// <summary>
         /// Represents the Steam platform.
         /// </summary>
-        Steam = 1
+        Steam = 1,
+        /// <summary>
+        /// Represents the GOG platform.
+        /// </summary>
+        GOG = 2
     }
 }

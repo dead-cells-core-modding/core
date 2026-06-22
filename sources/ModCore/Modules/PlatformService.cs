@@ -23,8 +23,11 @@ namespace ModCore.Modules
             var code = HlCode.FromBytes(data);
             if (code.Natives.Any(x => x.Lib == "hlsteam"))
             {
-                //Steam Platform
                 CurrentPlatform = GamePlatformIdentity.Steam;
+            }
+            else if (code.Natives.Any(x => x.Lib == "gog"))
+            {
+                CurrentPlatform = GamePlatformIdentity.GOG;
             }
         }
     }
