@@ -3,6 +3,7 @@ namespace ModCore
     /// <summary>
     /// Specifies the supported game platform identities.
     /// </summary>
+    [Obsolete]
     public enum GamePlatformIdentity
     {
         /// <summary>

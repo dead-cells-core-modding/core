@@ -1,3 +1,4 @@
+using dc.achievements;
 using Hashlink.Proxy.Clousre;
 using MonoMod.RuntimeDetour;
 using Steamworks;
@@ -27,6 +28,8 @@ namespace ModCore.Modules.Platforms
         public SteamPlatformModule()
         {
             HashlinkHooks.Instance.CreateHook("steam.$Api", "sync", Hook__Api_sync, true);
+            HashlinkHooks.Instance.CreateHook("achievements.SteamAchievementManager", "unlock", Hook_SteamAchievementManager_unlock, true);
+            HashlinkHooks.Instance.CreateHook("achievements.SteamAchievementManager", "isUnlocked", Hook_SteamAchievementManager_isUnlocked, true);
 
             steamAPIInitHook = new(typeof(SteamAPI).GetMethod(nameof(SteamAPI.InitEx))!, Hook_SteamAPI_InitEx);
             steamAPIInitHook.Apply();
@@ -35,6 +38,16 @@ namespace ModCore.Modules.Platforms
             {
                 Logger.Warning("Unable to initialize the Steam API: {reason}", err);
             }
+        }
+
+        private void Hook_SteamAchievementManager_unlock( HashlinkClosure orig, EAchievement arg1 )
+        {
+            return;
+        }
+
+        private bool Hook_SteamAchievementManager_isUnlocked( HashlinkClosure orig, EAchievement arg1 )
+        {
+            return false;
         }
 
         private void Hook__Api_sync( HashlinkClosure orig )

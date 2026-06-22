@@ -172,6 +172,9 @@ namespace ModCore.Modules
             Hook_Boot.forceRender += Hook_Boot_forceRender;
             Hook_Boot.render += Hook_Boot_render;
 
+            Hook__Achievements.setAchievement += Hook__Achievements_setAchievement;
+            Hook__Achievements.hasAchievement += Hook__Achievements_hasAchievement;
+
             Hook__Save.delete += Hook__Save_delete;
             Hook__Save.copy += Hook__Save_copy;
             Hook__Save.tryLoad += Hook__Save_tryLoad;
@@ -190,6 +193,17 @@ namespace ModCore.Modules
             catch (Exception)
             {
             }
+        }
+
+        private bool Hook__Achievements_hasAchievement( Hook__Achievements.orig_hasAchievement orig, dc.achievements.EAchievement id )
+        {
+            return false;
+        }
+
+        private void Hook__Achievements_setAchievement( Hook__Achievements.orig_setAchievement orig, 
+            dc.achievements.EAchievement id, Ref<bool> showLog )
+        {
+            
         }
 
         private nint Hook__Sys_getPath( Hook__Sys.orig_getPath orig, dc.String s )

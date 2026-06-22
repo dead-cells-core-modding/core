@@ -7,28 +7,15 @@ namespace ModCore.Modules
     /// Provides access to information about the current game platform.
     /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
+    [Obsolete("Use GameInfo")]
     public class PlatformService :
-        CoreModule<PlatformService>,
-        IOnCodeLoading
+        CoreModule<PlatformService>
     {
 
         /// <summary>
         /// Gets the identity of the current game platform.
         /// </summary>
-        public GamePlatformIdentity CurrentPlatform {
-            get; private set;
-        } = GamePlatformIdentity.Unknown;
-        void IOnCodeLoading.OnCodeLoading( ref ReadOnlySpan<byte> data )
-        {
-            var code = HlCode.FromBytes(data);
-            if (code.Natives.Any(x => x.Lib == "hlsteam"))
-            {
-                CurrentPlatform = GamePlatformIdentity.Steam;
-            }
-            else if (code.Natives.Any(x => x.Lib == "gog"))
-            {
-                CurrentPlatform = GamePlatformIdentity.GOG;
-            }
-        }
+        [Obsolete]
+        public GamePlatformIdentity CurrentPlatform => (GamePlatformIdentity) GameInfo.Platform;
     }
 }
