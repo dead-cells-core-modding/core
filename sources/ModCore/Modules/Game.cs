@@ -188,7 +188,7 @@ namespace ModCore.Modules
 
             try
             {
-                HashlinkHooks.Instance.CreateHook("$Data", "loadJson", Hook__Data_loadJson, true);
+                //HashlinkHooks.Instance.CreateHook("$Data", "loadJson", Hook__Data_loadJson, true); 
             }
             catch (Exception)
             {
@@ -244,9 +244,9 @@ namespace ModCore.Modules
             FlushSyncTasks();
         }
 
-        private unsafe void Hook__Data_loadJson( Action<dc.String, nint> orig, dc.String json, Ref<bool> allowReload )
+        private unsafe void Hook__Data_loadJson( Action<dc.String, nint> orig, dc.String json, nint allowReload )
         {
-            orig(json, (nint) Unsafe.AsPointer(ref allowReload.value));
+            orig(json, allowReload);
             EventSystem.BroadcastEvent<IOnAfterLoadingCDB, _Data_>(Data.Class);
         }
 
