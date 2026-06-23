@@ -188,7 +188,7 @@ namespace ModCore.Modules
 
             try
             {
-                //HashlinkHooks.Instance.CreateHook("$Data", "loadJson", Hook__Data_loadJson, true); 
+                HashlinkHooks.Instance.CreateHook("$Data", "loadJson", Hook__Data_loadJson, true); 
             }
             catch (Exception)
             {

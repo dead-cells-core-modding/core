@@ -28,7 +28,7 @@ namespace ModCore.Modules
             {
                 if (HashlinkMarshal.Module.TryGetTypeByName("Data", out var gDataType))
                 {
-                    bool b = true;
+                    bool b = false;
                     ((dynamic)((HashlinkObjectType)gDataType).GlobalValue).loadJson(jsonData.AsHaxeString(), (nint)Unsafe.AsPointer(ref b));
                     return;
                 }
@@ -37,7 +37,7 @@ namespace ModCore.Modules
             try
             {
                 overrideJsonData = jsonData;
-                dc.Data.Class.loadFrom("CDBManager_Override".AsHaxeString(), Ref<bool>.In(true));
+                dc.Data.Class.loadFrom("CDBManager_Override".AsHaxeString(), Ref<bool>.In(false));
             }
             finally
             {
