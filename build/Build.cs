@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using Nuke.Common;
 using Nuke.Common.CI;
 using Nuke.Common.CI.GitHubActions;
@@ -12,7 +7,13 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Utilities.Collections;
+using Octokit;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.PathConstruction;
 
@@ -105,6 +106,7 @@ class Build : NukeBuild
                 .SetApplicationArguments([
                     "internal",
                     "generate-sub-assembly",
+                    "-i", Path.Combine(tempDir, "GameProxy_hlboot-opengl-steam.dll"),
                     ..dat.SelectMany<string, string>(x => [ "-i", x]),
                     "-o", Path.Combine(ProxyBinRoot, "GameProxy.dll")
                     ]));
