@@ -17,23 +17,21 @@ using System.Text;
 
 namespace ModCore.Modules
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     public class CDBManager : CoreModule<CDBManager>,
         IOnAdvancedModuleInitializing
     {
         private string? overrideJsonData = null;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="jsonData"></param>
         public unsafe void LoadJsonData( string jsonData )
         {
-            if (Core.Config.Value.UseGameCDBManager)
-            {
-                if (HashlinkMarshal.Module.TryGetTypeByName("Data", out var gDataType))
-                {
-                    bool b = false;
-                    ((dynamic)((HashlinkObjectType)gDataType).GlobalValue).loadJson(jsonData.AsHaxeString(), (nint)Unsafe.AsPointer(ref b));
-                    return;
-                }
-            }
-
             try
             {
                 overrideJsonData = jsonData;
@@ -45,6 +43,10 @@ namespace ModCore.Modules
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public string GetAlteredCDB()
         {
             if (Core.Config.Value.UseGameCDBManager)
