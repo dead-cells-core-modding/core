@@ -42,7 +42,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, ubuntu-latest]
         debug: [ true ]
         platform: [ steam, gog ]
         include:
