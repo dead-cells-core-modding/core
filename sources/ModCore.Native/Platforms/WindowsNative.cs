@@ -72,8 +72,6 @@ namespace ModCore.Native
         protected override void InitializeAsm()
         {
             base.InitializeAsm();
-
-            Data->tls_slot_index = AllocTls();
         }
 
         public override string[] GetDisplayDevices()

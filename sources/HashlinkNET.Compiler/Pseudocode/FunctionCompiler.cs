@@ -30,6 +30,7 @@ namespace HashlinkNET.Compiler.Pseudocode
             AddStep<PostprocessBasicBlocksStep>();
             AddStep<LinearizeBasicBlocksStep>();
             AddStep<EmitILStep>();
+            //AddStep<SetupExceptionHandlersStep>();
             AddStep<TrimILStep>();
             if (config.GenerateBytecodeMapping)
             {

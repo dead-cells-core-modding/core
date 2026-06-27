@@ -23,6 +23,19 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             BitArray visited = new(gdata.IRBasicBlocks.Count);
 
             highQueue.Enqueue(gdata.IRBasicBlocks[0]);
+
+            // Ensure catch handler BBs are visited even though they have no
+            // normal control-flow predecessors (reachable only via exception dispatch).
+            foreach (var tr in gdata.TrapRegions)
+            {
+                var handlerBB = gdata.IRBasicBlocks.Find(
+                    b => b.startInHlbc == tr.CatchHandlerPosition);
+                if (handlerBB != null && handlerBB.index >= 0)
+                {
+                    highQueue.Enqueue(handlerBB);
+                }
+            }
+
             visited.SetAll(false);
             while (highQueue.TryDequeue(out var bb) ||
                queue.TryDequeue(out bb))

@@ -118,6 +118,8 @@ public enum HlOpcodeKind
     RefOffset,
     Nop,
 
+    Catch,
+
     Last,
 }
 
@@ -236,6 +238,7 @@ public static class HlOpcodeKindExtensions
         { HlOpcodeKind.RefData,          2 },
         { HlOpcodeKind.RefOffset,        3 },
         { HlOpcodeKind.Nop,              0 },
+        { HlOpcodeKind.Catch,            1 },
 
         { HlOpcodeKind.Last,             0 },
     };

@@ -8,7 +8,7 @@ namespace Hashlink.Wrapper
 {
     internal unsafe partial class WrapperHelper
     {
-        private readonly static nint* TRAP_MAGIC_NUMBER = (nint*) NativeMemory.Alloc((nuint)sizeof(nint) * 2, 16);
+        private readonly static nint* TRAP_MAGIC_NUMBER = (nint*) NativeMemory.Alloc((nuint)sizeof(nint) * 4, 16);
         static WrapperHelper()
         {
             EventSystem.AddReceiver(new ExceptionEventHandler());

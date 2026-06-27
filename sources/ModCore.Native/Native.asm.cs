@@ -65,7 +65,10 @@ namespace ModCore.Native
         {
             nativeCodePage = (nint)HashlinkNative.hl_alloc_executable_memory(8192);
 
-            *Data = new();
+            *Data = new()
+            {
+                tls_slot_index = AllocTls()
+            };
             var st = GetType();
 
             using var stream = new UnmanagedMemoryStream((byte*)nativeCodePage, 8192, 8192, FileAccess.ReadWrite);

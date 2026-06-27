@@ -3,6 +3,7 @@ using HashlinkNET.Compiler.Steps;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Diagnostics;
+using System.Linq;
 
 namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 {
@@ -166,8 +167,21 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             }
 
 
+            // Build set of BB positions that belong to try/catch regions.
+            // The stloc/ldloc optimization is skipped for these BBs to avoid
+            // interfering with exception handler liveness requirements.
+            var trapBBPositions = new HashSet<int>(gdata.TrapRegions
+                .SelectMany(tr => new[] { tr.TrapOpcodePosition, tr.CatchHandlerPosition }));
+
             foreach (var bb in list)
             {
+                if (trapBBPositions.Contains(bb.startInHlbc))
+                {
+                    // Skip stloc/ldloc optimization for try/catch BBs.
+                    // Global Nop cleanup (below) still applies to all BBs.
+                    continue;
+                }
+
                 var rad = bb.registerAccessData!;
                 var it = bb.startInst;
                 var buf = new StlocInfo?[md.Body.Variables.Count];
@@ -283,14 +297,22 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                         goto SKIP;
                     }
                     SKIP:
-                    (var pop, var push) = GetStackOperate(it, md);
-                    for (var i = 0; i < pop; i++)
+                    if (it.OpCode.StackBehaviourPop == StackBehaviour.PopAll)
                     {
-                        Pop();
+                        stack_id = 0;
                     }
-                    for (var i = 0; i < push; i++)
+                    else
                     {
-                        Push(it, null);
+
+                        (var pop, var push) = GetStackOperate(it, md);
+                        for (var i = 0; i < pop; i++)
+                        {
+                            Pop();
+                        }
+                        for (var i = 0; i < push; i++)
+                        {
+                            Push(it, null);
+                        }
                     }
                     FINALLY:
                     it = it.Next;

@@ -31,5 +31,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         public List<HlFuncRegisterData?> Registers {
             get;
         } = [];
+        public List<TrapRegionData> TrapRegions {
+            get;
+        } = [];
     }
 }

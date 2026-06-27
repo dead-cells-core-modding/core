@@ -566,6 +566,12 @@ namespace HashlinkNET.Bytecode.OpCodeParser
                HlOpCode.PayloadKind.Register
            ]
            );
+        public readonly static HlOpCode OCatch = new(
+           OpCodeKind.Catch,
+           [
+               HlOpCode.PayloadKind.GlobalIndex
+           ]
+           );
 
         public readonly static HlOpCode OGetI8 = new(
            OpCodeKind.GetI8,

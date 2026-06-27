@@ -661,6 +661,14 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     code.Parameters[0]
                     ));
             }
+            else if (c == HlOpcodeKind.Trap
+                  || c == HlOpcodeKind.EndTrap
+                  || c == HlOpcodeKind.Catch)
+            {
+                // Exception handling metadata — no IR emitted.
+                // ExceptionHandlers are built from TrapRegionData after IL emission.
+                currentAssign = null;
+            }
             Debug.Assert(currentAssign == null);
         }
     }

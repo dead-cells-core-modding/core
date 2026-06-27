@@ -97,13 +97,6 @@ namespace ModCore.Native
                 AllocPthreadKey();
 
             base.InitializeAsm();
-
-            // base.InitializeAsm() did *Data = new() which resets tls_slot_index
-            // to 0.  On Linux the real TLS identifier is the pthread key, so we
-            // must patch it — otherwise HashlinkThread passes slot 0 to
-            // SetTlsValue/GetTlsValue while AsmGetTlsDataPtrRax loads the
-            // actual key from _pthreadKeyPtr.
-            Data->tls_slot_index = *_pthreadKeyPtr;
         }
 
         // ── TLS (pthread_key) ───────────────────────────────────────────
