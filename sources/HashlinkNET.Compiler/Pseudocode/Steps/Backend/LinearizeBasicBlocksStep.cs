@@ -22,53 +22,64 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             Queue<IRBasicBlockData> highQueue = [];
             BitArray visited = new(gdata.IRBasicBlocks.Count);
 
+
+
+            // --- Pass 1: normal control-flow BFS (entry + reachable BBs) ---
             highQueue.Enqueue(gdata.IRBasicBlocks[0]);
 
-            // Ensure catch handler BBs are visited even though they have no
-            // normal control-flow predecessors (reachable only via exception dispatch).
-            foreach (var tr in gdata.TrapRegions)
+            void RunBFS()
             {
-                var handlerBB = gdata.IRBasicBlocks.Find(
-                    b => b.startInHlbc == tr.CatchHandlerPosition);
-                if (handlerBB != null && handlerBB.index >= 0)
+                while (highQueue.TryDequeue(out var bb) ||
+                       queue.TryDequeue(out bb))
                 {
-                    highQueue.Enqueue(handlerBB);
+                    if (bb.index >= 0)
+                    {
+                        if (visited[bb.index])
+                        {
+                            continue;
+                        }
+                        visited[bb.index] = true;
+                    }
+                    else
+                    {
+                        bb.index = -2;
+                    }
+
+                    list.Add(bb);
+
+                    Debug.Assert(bb.defaultTransition != null || bb.transitions.Count == 0);
+
+                    foreach (var v in bb.transitions)
+                    {
+                        if (v.Kind == TransitionKind.Default)
+                        {
+                            highQueue.Enqueue(v.Target);
+                        }
+                        else
+                        {
+                            queue.Enqueue(v.Target);
+                        }
+                    }
                 }
             }
 
             visited.SetAll(false);
-            while (highQueue.TryDequeue(out var bb) ||
-               queue.TryDequeue(out bb))
+            RunBFS();
+
+            // --- Pass 2: handler BBs ---
+            // .NET requires the handler to be at a higher IL offset than the
+            // protected region.  Defer handler BBs until after all normal-flow
+            // BBs have been emitted so that HandlerStart > TryEnd.
+            foreach (var tr in gdata.TrapRegions)
             {
-                if (bb.index >= 0)
+                var handlerBB = gdata.IRBasicBlocks.Find(
+                    b => b.startInHlbc == tr.CatchHandlerPosition);
+                if (handlerBB != null && handlerBB.index >= 0 && !visited[handlerBB.index])
                 {
-                    if (visited[bb.index])
-                    {
-                        continue;
-                    }
-                    visited[bb.index] = true;
-                }
-                else
-                {
-                    bb.index = -2;
-                }
-
-                list.Add(bb);
-
-                Debug.Assert(bb.defaultTransition != null || bb.transitions.Count == 0);
-
-                foreach (var v in bb.transitions)
-                {
-                    if (v.Kind == TransitionKind.Default)
-                    {
-                        highQueue.Enqueue(v.Target);
-                    }
-                    else
-                    {
-                        queue.Enqueue(v.Target);
-                    }
+                    highQueue.Enqueue(handlerBB);
                 }
             }
+            RunBFS();
         }
     }
 }
