@@ -39,8 +39,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEBUG /OPT:ICF")
 
 else()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-inline")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-inline")
+add_compile_options(-fno-inline -fno-inline-functions-called-once)
 
 endif()
 
@@ -81,8 +80,6 @@ set(WITH_VIDEO off)
         set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
         #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
-
-message(${DCCM_OUTPUT_DIR})
 
 add_subdirectory ("hdlls/libs")
 add_subdirectory ("modcorenative")

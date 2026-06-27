@@ -194,14 +194,10 @@ namespace Hashlink.Wrapper
             HashlinkMarshal.EnsureThreadRegistered();
 
             var ti = hl_get_thread();
-            if (ti == null)
-            {
-                return target;
-            }
             HashlinkThread.Current.CleanupInvalidReturnPointers((nint)Unsafe.AsPointer(ref handle));
 
             handle.trap_ctx.prev = ti->trap_current;
-            handle.trap_ctx.tcheck = (HL_vdynamic*)0x4e455445;
+            handle.trap_ctx.tcheck = (HL_vdynamic*)Native.Current.Data->trap_magic_number;
             ti->trap_current = (HL_trap_ctx*)Unsafe.AsPointer(ref handle.trap_ctx);
 
             prepare_exception_handle_data->buffer = (byte*)Unsafe.AsPointer(ref handle.trap_ctx.buf) + sizeof(C_jmpbuf);

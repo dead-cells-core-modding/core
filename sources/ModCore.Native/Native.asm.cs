@@ -26,7 +26,7 @@ namespace ModCore.Native
             public nint phLibhl;
 
             // Hook break_on_trap
-
+            public nint trap_magic_number;
             public nint orig_break_on_trap;
             public nint trap_filter;
             public nint return_from_managed;
@@ -37,6 +37,7 @@ namespace ModCore.Native
 
             public nint longjmp;
             public nint setjmp;
+            
         }
 
         [StructLayout(LayoutKind.Sequential)]

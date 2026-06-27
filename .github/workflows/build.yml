@@ -126,9 +126,9 @@ jobs:
           - os: windows-latest
             os_name: win
             arch: x64
-#          - os: ubuntu-latest
-#            os_name: linux
-#            arch: x64
+          - os: ubuntu-latest
+            os_name: linux
+            arch: x64
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4

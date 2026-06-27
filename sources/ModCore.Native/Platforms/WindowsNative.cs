@@ -69,6 +69,13 @@ namespace ModCore.Native
             }
         }
 
+        protected override void InitializeAsm()
+        {
+            base.InitializeAsm();
+
+            Data->tls_slot_index = AllocTls();
+        }
+
         public override string[] GetDisplayDevices()
         {
             List<string> devices = [];
@@ -200,6 +207,19 @@ namespace ModCore.Native
 
             c.sub(rsp, 40);
 
+            c.mov(rax, (long)&Data->orig_break_on_trap);
+            c.mov(r11, __[rax]);
+            c.call(r11);
+
+            c.add(rsp, 40);
+
+            c.pop(r9);
+            c.pop(r8);
+            c.pop(rdx);
+            c.pop(rcx);
+
+            c.sub(rsp, 40);
+
             c.mov(rax, (long)&Data->trap_filter);
             c.mov(r11, __[rax]);
             c.call(r11);
@@ -255,10 +275,9 @@ namespace ModCore.Native
             // Fallback
 
             c.Label(ref fallback);
-            c.pop(r9);
-            c.pop(r8);
-            c.pop(rdx);
-            c.pop(rcx);
+            c.mov(rax, 0);
+            c.ret();
+           
 
             c.mov(rax, (long)&Data->orig_break_on_trap);
             c.jmp(__qword_ptr[rax]);

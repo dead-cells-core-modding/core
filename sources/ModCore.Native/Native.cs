@@ -3,6 +3,7 @@ using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Native.Events.Interfaces;
+using ModCore.Storage;
 using MonoMod.Core;
 using Serilog;
 using System.Diagnostics;
@@ -24,7 +25,11 @@ namespace ModCore.Native
 
         public HL_setup_t* hl_setup;
 
-        public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(Current?.LoadLibrary("libhl") ?? NativeLibrary.Load("libhl"), name);
+        public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(Current?.LoadLibrary("libhl") ?? (
+            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? NativeLibrary.Load(
+                FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so")
+            ) : NativeLibrary.Load("libhl")
+            ), name);
 
         public static Native Current {
             get;
@@ -121,7 +126,7 @@ namespace ModCore.Native
         [UnmanagedCallersOnly]
         protected static nint Hook_trap_filter( nint t, HL_trap_ctx* ctx, nint v )
         {
-            if ((nint)ctx->tcheck != 0x4e455445)
+            if ((nint)ctx->tcheck != Current.Data->trap_magic_number)
             {
                 return 0;
             }

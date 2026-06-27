@@ -57,7 +57,6 @@ set(NETHOST_PACK_PATH "${NETHOST_PACK_PATH}/runtimes/${NETHOST_PLATFORM}/native"
 target_include_directories(modcorenative PRIVATE ${NETHOST_PACK_PATH})
 find_library(NetHost_LIBRARY libnethost PATHS ${NETHOST_PACK_PATH})
 target_link_libraries(modcorenative ${NetHost_LIBRARY})
-message(${NetHost_LIBRARY})
 endif()
 
 SET_TARGET_PROPERTIES(modcorenative PROPERTIES 
@@ -93,7 +92,6 @@ endif()
 
 #Copy libhl
 
-message(${LIBHL_OUTPUT_DIR})
 add_custom_command(TARGET modcorenative POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${LIBHL_OUTPUT_DIR}"

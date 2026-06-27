@@ -422,7 +422,22 @@ namespace Hashlink
         public HL_alloc_block* falloc;
     }
 
+    /// <summary>
+    /// Mirrors the platform C <c>jmp_buf</c>.  The size MUST match the
+    /// actual <c>sizeof(jmp_buf)</c> so that the managed <c>HL_trap_ctx</c>
+    /// has the same field offsets as the native <c>hl_trap_ctx</c>.
+    /// A mismatch causes <c>tcheck</c> to read garbage from beyond the
+    /// native struct boundary.
+    /// </summary>
+#if WINDOWS
+    // Windows x64 JUMP_BUFFER ranges 240–272 bytes depending on CRT; 256
+    // fits the common layouts where XMM registers are excluded.
     [StructLayout(LayoutKind.Explicit, Size = 256, Pack = 16)]
+#else
+    // glibc x86_64 jmp_buf = 200 bytes (__jmpbuf 64 + mask_was_saved 4 +
+    // padding 4 + __saved_mask 128).  musl is similar.
+    [StructLayout(LayoutKind.Explicit, Size = 200, Pack = 16)]
+#endif
     public struct C_jmpbuf
     {
 

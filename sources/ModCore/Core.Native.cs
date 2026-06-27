@@ -61,8 +61,15 @@ namespace ModCore
                         lib = NN.Current.LoadLibrary(member.ModuleName);
                         loadedLibraries[member.ModuleName] = lib;
                     }
-                    var result = (nint)member.RVA + lib;
-                    return result;
+
+                    // On Linux, dlopen (via NativeLibrary.Load) returns a link_map*
+                    // whose first field l_addr is the actual load base address.
+                    // On Windows, LoadLibrary returns HMODULE which is already the base.
+                    nint baseAddr = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                        ? Marshal.ReadIntPtr(lib)
+                        : lib;
+
+                    return (nint)member.RVA + baseAddr;
                 }
                 return NativeLibrary.GetExport(phLibhl, name);
             };

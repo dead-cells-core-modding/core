@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Reflection.Types;
@@ -7,9 +8,14 @@ namespace Hashlink.Wrapper
 {
     internal unsafe partial class WrapperHelper
     {
+        private readonly static nint* TRAP_MAGIC_NUMBER = (nint*) NativeMemory.Alloc((nuint)sizeof(nint) * 2, 16);
         static WrapperHelper()
         {
             EventSystem.AddReceiver(new ExceptionEventHandler());
+
+            ModCore.Native.Native.Current.Data->trap_magic_number = (nint)TRAP_MAGIC_NUMBER;
+            *TRAP_MAGIC_NUMBER = 0x4e455445; // "NETE"
+            *(TRAP_MAGIC_NUMBER + 1) = 0;
         }
 
         public static object? GetObjectFromPtr( nint ptr )
