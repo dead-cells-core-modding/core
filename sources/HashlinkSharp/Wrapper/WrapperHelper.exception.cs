@@ -154,7 +154,12 @@ namespace Hashlink.Wrapper
             int t = 0;
 
             th.CleanupInvalidReturnPointers((nint)Unsafe.AsPointer(ref t));
-            th.NativeData.hl2cs_return_pointers -= sizeof(nint);
+
+            if (th.ReturnPointerCount > 0)
+            {
+                th.NativeData.hl2cs_return_pointers -= sizeof(nint);
+            }
+           
             Debug.Assert(th.ReturnPointerCount >= 0);
         }
         public static void ThrowNetException( Exception ex )
