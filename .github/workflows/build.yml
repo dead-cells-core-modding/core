@@ -120,7 +120,7 @@ jobs:
   build:
     strategy:
       matrix:
-#        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
         debug: [ true, false ]
         include:
           - os: windows-latest
