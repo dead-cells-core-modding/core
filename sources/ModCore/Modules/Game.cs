@@ -165,7 +165,7 @@ namespace ModCore.Modules
 
             Hook_TitleScreen.setMiscTexts += Hook_TitleScreen_setMiscTexts;
             Hook__Boot.main += Hook__Boot_main;
-            Hook__Boot.initLogSystem += Hook__Boot_initLogSystem;
+            //Hook__Boot.initLogSystem += Hook__Boot_initLogSystem;
             Hook_Boot.init += Hook_Boot_init1;
             Hook_Boot.endInit += Hook_Boot_endInit1;
             Hook_Boot.update += Hook_Boot_update1;

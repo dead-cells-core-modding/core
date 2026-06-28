@@ -50,8 +50,6 @@ namespace DeadCellsModding
                 gameRoot = Path.GetDirectoryName(Environment.ProcessPath!)!;
             }
 
-
-
             string? modcore = null;
             gameRoot = Path.GetFullPath(gameRoot);
             while (!string.IsNullOrEmpty(gameRoot))
