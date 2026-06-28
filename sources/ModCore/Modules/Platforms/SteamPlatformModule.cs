@@ -69,7 +69,14 @@ namespace ModCore.Modules.Platforms
 
         private void Hook__Api_sync( HashlinkClosure orig )
         {
-            SteamAPI.RunCallbacks();
+            try
+            {
+                SteamAPI.RunCallbacks();
+            }
+            catch
+            {
+                // ignore
+            }
         }
     }
 }
