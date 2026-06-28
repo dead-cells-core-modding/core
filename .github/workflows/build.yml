@@ -13,7 +13,7 @@ jobs:
     needs: [build,  test, test-build-samples]
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with: 
         name: build-win-x64
         path: win-x64
@@ -56,20 +56,23 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: build
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: true
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 10
     - name: Download artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with: 
         name: build-${{ matrix.os_name }}-${{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}
         path: ctx/coremod
     - name: Copy hlboot
       run: |
+        ls
+        ls ./hlboots
+        ls ./ctx
         echo "DEAD_CELLS_GAME_PATH=$env:GITHUB_WORKSPACE/ctx" >> $env:GITHUB_ENV    
         Copy-Item -Path ./hlboots/hlboot-opengl-${{ matrix.platform }}.dat -Destination "./ctx/hlboot.dat" -Recurse -Force
     - name: Install MDK
@@ -90,7 +93,7 @@ jobs:
     runs-on: windows-latest
     needs: build
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: true
     - name: Setup .NET
@@ -98,7 +101,7 @@ jobs:
       with:
         dotnet-version: 10
     - name: Download artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with: 
         name: build-win-x64
         path: coremod
@@ -111,7 +114,7 @@ jobs:
         cd sample
         dotnet build -c Release
     - name: Upload
-      uses: actions/upload-artifact@v4.6.0
+      uses: actions/upload-artifact@v7
       with:
         name: build-samples
         path: ./sample/bin/*
@@ -131,7 +134,7 @@ jobs:
             arch: x64
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
     - name: Setup .NET
@@ -187,7 +190,7 @@ jobs:
         ./build.ps1  BuildAssets --configuration ${{ matrix.debug == true && '-Debug' || 'Release' }}
 
     - name: Upload
-      uses: actions/upload-artifact@v4.6.0
+      uses: actions/upload-artifact@v7
       with:
         name: build-${{ matrix.os_name }}-${{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}
         path: ./bin/*
