@@ -79,13 +79,6 @@ namespace ModCore.Native
         protected override void InitializeNativeHooks()
         {
             base.InitializeNativeHooks();
-
-            // global_handler may or may not exist in the Linux libhl build.
-            try
-            {
-                CreateNativeHookForHL("global_handler", nameof(Hook_throw_handler), out _);
-            }
-            catch (Exception) { }
         }
 
         // ── Assembly entry point (called before InitializeAsm) ──────────

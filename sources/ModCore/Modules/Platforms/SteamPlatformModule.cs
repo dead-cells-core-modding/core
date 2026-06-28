@@ -1,5 +1,7 @@
+using System.Runtime.InteropServices;
 using dc.achievements;
 using Hashlink.Proxy.Clousre;
+using ModCore.Storage;
 using MonoMod.RuntimeDetour;
 using Steamworks;
 
@@ -30,6 +32,21 @@ namespace ModCore.Modules.Platforms
             HashlinkHooks.Instance.CreateHook("steam.$Api", "sync", Hook__Api_sync, true);
             HashlinkHooks.Instance.CreateHook("achievements.SteamAchievementManager", "unlock", Hook_SteamAchievementManager_unlock, true);
             HashlinkHooks.Instance.CreateHook("achievements.SteamAchievementManager", "isUnlocked", Hook_SteamAchievementManager_isUnlocked, true);
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                NativeLibrary.SetDllImportResolver(typeof(SteamAPI).Assembly, 
+                    ( name, assembly, path ) =>
+                {
+                    if (name == "steam_api")
+                    {
+                        return NativeLibrary.Load(
+                            FolderInfo.CurrentNativeRoot.GetFilePath("libsteam_api.so")
+                        );
+                    }
+                    return IntPtr.Zero;
+                });
+            }
 
             steamAPIInitHook = new(typeof(SteamAPI).GetMethod(nameof(SteamAPI.InitEx))!, Hook_SteamAPI_InitEx);
             steamAPIInitHook.Apply();

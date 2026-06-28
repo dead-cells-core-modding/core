@@ -51,22 +51,21 @@ namespace TestRunner
         public GameContext()
         {
             //Console.WriteLine("Setup enviroment variables");
-            var testRoot = Path.Combine(
-                     Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!,
-                    "coremod",
-                    "test");
+            var gamePath = Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH");
+            if (string.IsNullOrEmpty(gamePath))
+            {
+                throw new InvalidOperationException(
+                    "DEAD_CELLS_GAME_PATH environment variable is not set. " +
+                    "Please set it to the Dead Cells game installation directory, e.g.:\n" +
+                    "  export DEAD_CELLS_GAME_PATH=\"path to Dead Cells\"");
+            }
+            var testRoot = Path.Combine(gamePath, "coremod", "test");
             Environment.SetEnvironmentVariable("DCCM_OverridePath_CORE_ROOT",
-                Path.Combine(
-                    Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!,
-                    "coremod"));
+                Path.Combine(gamePath, "coremod"));
             Environment.SetEnvironmentVariable("DCCM_OverridePath_CORE_CONFIG",
-                Path.Combine(testRoot,
-                    "config"
-                    ));
+                Path.Combine(testRoot, "config"));
             Environment.SetEnvironmentVariable("DCCM_OverridePath_CORE_LOGS",
-                 Path.Combine(testRoot,
-                    "logs"
-                    ));
+                Path.Combine(testRoot, "logs"));
 
             //Console.WriteLine("Start game thread");
             gameThread = new Thread(GameThread)

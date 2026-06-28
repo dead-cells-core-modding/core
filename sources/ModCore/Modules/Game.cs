@@ -161,11 +161,11 @@ namespace ModCore.Modules
             System.Threading.SynchronizationContext.SetSynchronizationContext(SynchronizationContext);
 
             Hook__Type.createEmptyInstance += Hook__Type_createEmptyInstance;
-            
+
 
             Hook_TitleScreen.setMiscTexts += Hook_TitleScreen_setMiscTexts;
             Hook__Boot.main += Hook__Boot_main;
-            //Hook__Boot.initLogSystem += Hook__Boot_initLogSystem;
+            Hook__Boot.initLogSystem += Hook__Boot_initLogSystem;
             Hook_Boot.init += Hook_Boot_init1;
             Hook_Boot.endInit += Hook_Boot_endInit1;
             Hook_Boot.update += Hook_Boot_update1;
@@ -189,7 +189,7 @@ namespace ModCore.Modules
 
             try
             {
-                HashlinkHooks.Instance.CreateHook("$Data", "loadJson", Hook__Data_loadJson, true); 
+                HashlinkHooks.Instance.CreateHook("$Data", "loadJson", Hook__Data_loadJson, true);
             }
             catch (Exception)
             {
@@ -198,7 +198,7 @@ namespace ModCore.Modules
 
         private void Hook__Boot_initLogSystem( Hook__Boot.orig_initLogSystem orig )
         {
-            
+
         }
 
         private bool Hook__Achievements_hasAchievement( Hook__Achievements.orig_hasAchievement orig, dc.achievements.EAchievement id )
@@ -206,10 +206,10 @@ namespace ModCore.Modules
             return false;
         }
 
-        private void Hook__Achievements_setAchievement( Hook__Achievements.orig_setAchievement orig, 
+        private void Hook__Achievements_setAchievement( Hook__Achievements.orig_setAchievement orig,
             dc.achievements.EAchievement id, Ref<bool> showLog )
         {
-            
+
         }
 
         private nint Hook__Sys_getPath( Hook__Sys.orig_getPath orig, dc.String s )
@@ -340,7 +340,14 @@ namespace ModCore.Modules
 
             if (GameInfo.Platform == GameInfo.PlatformKind.Steam)
             {
-                _ = new SteamPlatformModule();
+                try
+                {
+                    _ = new SteamPlatformModule();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warning(ex, "Failed to initialize SteamPlatformModule");
+                }
             }
 
             EventSystem.BroadcastEvent<IOnBeforeGameInit>();
