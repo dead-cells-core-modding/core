@@ -42,7 +42,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
         debug: [ true ]
         platform: [ steam, gog ]
         include:
@@ -69,25 +69,58 @@ jobs:
         name: build-${{ matrix.os_name }}-${{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}
         path: ctx/coremod
     - name: Copy hlboot
+      shell: pwsh
       run: |
-        ls
-        ls ./hlboots
-        ls ./ctx
         echo "DEAD_CELLS_GAME_PATH=$env:GITHUB_WORKSPACE/ctx" >> $env:GITHUB_ENV    
         Copy-Item -Path ./hlboots/hlboot-opengl-${{ matrix.platform }}.dat -Destination "./ctx/hlboot.dat" -Recurse -Force
     - name: Install MDK
       uses: dead-cells-core-modding/setup-mdk@main
       with:
         modcoreroot: ./ctx/coremod
-    - name: Build ModCore
+    - name: Install MDK
+      if: runner.os == 'Linux'
       run: |
-        ./build.ps1 BuildMDK
-    - name: Run Tests
+        chmod +x ./ctx/coremod/core/mdk/install-linux.sh
+        ./ctx/coremod/core/mdk/install-linux.sh
+    - name: Download Dependencies (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        # Require fixing for SDL3 SDL2-compact
+        sudo apt-get update
+        sudo apt-get install -y build-essential \
+          cmake \
+          libpng-dev \
+          libturbojpeg-dev \
+          libvorbis-dev \
+          libopenal-dev \
+          libsdl2-dev \
+          libglu1-mesa-dev \
+          libmbedtls-dev \
+          libuv1-dev \
+          libsqlite3-dev \
+          libjpeg-dev 
+    - name: Build ModCore
       shell: pwsh
       run: |
+        ./build.ps1 BuildMDK
+        ./ctx/coremod/core/mdk/install.ps1
+    - name: Run Tests
+      shell: pwsh
+      id: run_tests
+      env:
+        DOTNET_DbgEnableMiniDump: 1
+        COMPlus_DbgEnableMiniDump: 1
+        DOTNET_DbgMiniDumpName: "/tmp/dccm_dump_crash_%d.dmp"
+      run: |
         cd sources
-        
         dotnet test
+    - name: Upload dumps on failure
+      if: failure()
+      uses: actions/upload-artifact@v7
+      with: 
+        name: dumps-${{ matrix.os }}
+        path: /tmp/dccm_dump_crash_*.dmp
+        retention-days: 7
 
   test-build-samples:
     runs-on: windows-latest
@@ -110,6 +143,7 @@ jobs:
       with:
         modcoreroot: ./coremod
     - name: Build Samples
+      shell: pwsh
       run: |
         cd sample
         dotnet build -c Release
@@ -123,7 +157,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
         debug: [ true, false ]
         include:
           - os: windows-latest

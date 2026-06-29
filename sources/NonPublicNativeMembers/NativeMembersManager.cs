@@ -25,6 +25,18 @@ namespace NonPublicNativeMembers
         protected NativeMembersData data = new();
         private readonly Dictionary<string, NativeMembersData.ModuleInfo> activeModules = [];
 
+        private string GetModuleNameFromPath(string path)
+        {
+            var fn = Path.GetFileNameWithoutExtension(path);
+            if (fn.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) ||
+                fn.EndsWith(".so", StringComparison.OrdinalIgnoreCase) ||
+                fn.Contains(".so.", StringComparison.OrdinalIgnoreCase))
+            {
+                return GetModuleNameFromPath(fn);
+            }
+            return fn;
+        }
+
         public abstract void Generate( params string[] modules );
 
         public void LoadFromFile( string filePath )
@@ -57,12 +69,13 @@ namespace NonPublicNativeMembers
                 return true;
             }
             var module = Process.GetCurrentProcess().Modules.Cast<ProcessModule>()
-                .FirstOrDefault(m => Path.GetFileNameWithoutExtension(m.ModuleName)
+                .FirstOrDefault(m => GetModuleNameFromPath(m.ModuleName)
                     .Equals(moduleName, StringComparison.OrdinalIgnoreCase));
             Debug.Assert(module != null);
 
             var hash = SHA256.HashData(File.ReadAllBytes(module.FileName));
-            moduleName = Path.GetFileNameWithoutExtension(moduleName);
+            moduleName = GetModuleNameFromPath(moduleName);
+
             if (!ActivateModule(moduleName, hash))
             {
                 Generate(module.FileName);

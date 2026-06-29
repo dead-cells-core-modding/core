@@ -28,7 +28,7 @@ namespace TestRunner
             };
             ContextConfig.Config = ContextConfig.Default with
             {
-                consoleOutput = Debugger.IsAttached,
+                consoleOutput = Debugger.IsAttached || Environment.GetEnvironmentVariable("DCCM_TEST_OUTPUT") == "1",
                 disableWorkerProcessUtils = true,
                 suppressFatalWindows = true,
             };

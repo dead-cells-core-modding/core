@@ -110,6 +110,7 @@ namespace Hashlink.Wrapper
 
                     try
                     {
+                        var str = hl_to_string((HL_vdynamic*)exc);
                         throw new HashlinkError((nint)exc);
                     }
                     catch (HashlinkError ex)

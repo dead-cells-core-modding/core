@@ -16,17 +16,19 @@ namespace ModCore
         private static readonly Dictionary<string, nint> loadedLibraries = [];
         internal static void InitializeNative()
         {
-            //AddPath();
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            try
             {
-                NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.dll"));
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.dll"));
+                }
+                else
+                {
+                    NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so.1"));
+                }
             }
-            else
-            {
-                NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so"));
-            }
-
+            catch { }
+            phLibhl = NN.Current.LoadLibrary("libhl");
             _ = NN.Current.LoadLibrary(FolderInfo.CurrentNativeRoot.GetFilePath("modcorenative"));
 
 
@@ -48,7 +50,7 @@ namespace ModCore
                 nativeMembers.LoadAndActivateModule(v);
             }
 
-            phLibhl = NN.Current.LoadLibrary("libhl");
+           
 
             NN.GetLibhlSymbolFunc = name =>
             {

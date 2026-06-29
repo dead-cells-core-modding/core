@@ -14,8 +14,7 @@ namespace SteamStartShell.Platform
         /// </summary>
         public override void CheckNativeLib()
         {
-            throw new PlatformNotSupportedException(
-                "Linux platform native Steam library loading is not yet supported.");
+            
         }
 
         /// <summary>

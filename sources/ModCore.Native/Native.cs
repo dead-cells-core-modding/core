@@ -27,7 +27,7 @@ namespace ModCore.Native
 
         public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(Current?.LoadLibrary("libhl") ?? (
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? NativeLibrary.Load(
-                FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so")
+                FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so.1")
             ) : NativeLibrary.Load("libhl")
             ), name);
 

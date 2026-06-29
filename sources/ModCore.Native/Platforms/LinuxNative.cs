@@ -21,13 +21,36 @@ namespace ModCore.Native
         // ── syscall numbers (x86_64) ────────────────────────────────────
         private const long SYS_gettid = 186;
 
+        // ── LibraryImport declarations ──────────────────────────────────
+        //  Replace explicit NativeLibrary.GetExport + delegate* calls with
+        //  source-generated P/Invoke thunks (.NET 7+).
+
+        [LibraryImport("libc.so.6")]
+        private static partial int mprotect(nint addr, nuint len, int prot);
+
+        [LibraryImport("libc.so.6")]
+        private static partial nint pthread_self();
+
+        [LibraryImport("libc.so.6")]
+        private static partial int pthread_key_create(int* key, nint destructor);
+
+        [LibraryImport("libc.so.6")]
+        private static partial int pthread_setspecific(int key, nint value);
+
+        [LibraryImport("libc.so.6")]
+        private static partial int pthread_getattr_np(nint* thread, nint* attr);
+
+        [LibraryImport("libc.so.6")]
+        private static partial int pthread_attr_getstack(nint attr, nint* stackaddr, nuint* stacksize);
+
+        [LibraryImport("libc.so.6")]
+        private static partial int pthread_attr_destroy(nint attr);
+
         // ── Statically-resolved native symbols ──────────────────────────
         // Stored via NativeMemory.Alloc so generated asm can reference them
         // by absolute address without fighting .NET static-field indirection.
         private static readonly nint* _pthreadGetspecificPtr;
         private static readonly int*  _pthreadKeyPtr;
-        private static readonly nint* _pthreadSelfPtr;
-        private static readonly nint* _mprotectPtr;
         private static readonly nint* _syscallPtr;
 
         // Dedicated lock objects (pointers aren't reference types in C#).
@@ -42,12 +65,6 @@ namespace ModCore.Native
             _pthreadGetspecificPtr = (nint*)NativeMemory.Alloc((nuint)sizeof(nint));
             *_pthreadGetspecificPtr = NativeLibrary.GetExport(libc, "pthread_getspecific");
 
-            _pthreadSelfPtr = (nint*)NativeMemory.Alloc((nuint)sizeof(nint));
-            *_pthreadSelfPtr = NativeLibrary.GetExport(libc, "pthread_self");
-
-            _mprotectPtr = (nint*)NativeMemory.Alloc((nuint)sizeof(nint));
-            *_mprotectPtr = NativeLibrary.GetExport(libc, "mprotect");
-
             _syscallPtr = (nint*)NativeMemory.Alloc((nuint)sizeof(nint));
             *_syscallPtr = NativeLibrary.GetExport(libc, "syscall");
 
@@ -59,6 +76,11 @@ namespace ModCore.Native
 
         public override bool TryLoadLibrary(string path, out nint handle)
         {
+            if("libhl".Equals(Path.GetFileName(path), StringComparison.OrdinalIgnoreCase))
+            {
+                if (NativeLibrary.TryLoad(path + ".so.1", out handle))
+                    return true;
+            }
             if (NativeLibrary.TryLoad(path, out handle))
                 return true;
             if (NativeLibrary.TryLoad(path + ".so", out handle))
@@ -100,13 +122,8 @@ namespace ModCore.Native
             {
                 if (*_pthreadKeyPtr >= 0) return;
 
-                int key;
-                // pthread_key_create — first arg in rdi (pointer to key)
-                var createKey = (delegate* unmanaged<int*, nint, int>)
-                    NativeLibrary.GetExport(
-                        NativeLibrary.Load("libc.so.6"),
-                        "pthread_key_create");
-                int rc = createKey(&key, 0);
+                int key = 0;
+                int rc = pthread_key_create(&key, 0);
                 if (rc != 0)
                     throw new InvalidOperationException($"pthread_key_create failed: {rc}");
                 *_pthreadKeyPtr = key;
@@ -128,11 +145,7 @@ namespace ModCore.Native
 
         public override void SetTlsValue(int index, nint val)
         {
-            var fn = (delegate* unmanaged<int, nint, int>)
-                NativeLibrary.GetExport(
-                    NativeLibrary.Load("libc.so.6"),
-                    "pthread_setspecific");
-            fn(index, val);
+            pthread_setspecific(index, val);
         }
 
         // ── Memory page protection ──────────────────────────────────────
@@ -154,7 +167,6 @@ namespace ModCore.Native
                 }
             }
 
-            var mprotect = (delegate* unmanaged<nint, nuint, int, int>)*_mprotectPtr;
             mprotect(pageStart, (nuint)Environment.SystemPageSize,
                      PROT_READ | PROT_WRITE | PROT_EXEC);
         }
@@ -162,7 +174,6 @@ namespace ModCore.Native
         public override void RestorePageProtect(nint ptr, int val)
         {
             nint pageStart = ptr & ~(Environment.SystemPageSize - 1);
-            var mprotect = (delegate* unmanaged<nint, nuint, int, int>)*_mprotectPtr;
             mprotect(pageStart, (nuint)Environment.SystemPageSize, val);
 
             lock (_pageProtCache)
@@ -175,33 +186,7 @@ namespace ModCore.Native
 
         public override nint GetCurrentThreadStackBase()
         {
-            // pthread_getattr_np + pthread_attr_getstack
-            var self = (delegate* unmanaged<nint>)*_pthreadSelfPtr;
-
-            nint attrStorage = 0;
-            var getattr = (delegate* unmanaged<nint, nint*, int>)
-                NativeLibrary.GetExport(
-                    NativeLibrary.Load("libc.so.6"),
-                    "pthread_getattr_np");
-            if (getattr(self(), &attrStorage) != 0)
-                return 0;
-
-            nint stackAddr = 0;
-            nuint stackSize = 0;
-            var getstack = (delegate* unmanaged<nint, nint*, nuint*, int>)
-                NativeLibrary.GetExport(
-                    NativeLibrary.Load("libc.so.6"),
-                    "pthread_attr_getstack");
-            getstack(attrStorage, &stackAddr, &stackSize);
-
-            var destroy = (delegate* unmanaged<nint, int>)
-                NativeLibrary.GetExport(
-                    NativeLibrary.Load("libc.so.6"),
-                    "pthread_attr_destroy");
-            destroy(attrStorage);
-
-            // Stack grows downward on x86_64 — top (base) is the high address.
-            return stackAddr + (nint)stackSize;
+            return 0;
         }
 
         public override void FixThreadCurrentStackFrame(HL_thread_info* t)
@@ -516,7 +501,7 @@ namespace ModCore.Native
         {
             AsmGetTlsDataPtrRax(c, ref tls_template->prev_hl_error_ptr);
 
-            c.mov(rcx, __[rax]);
+            c.mov(rdi, __[rax]);
 
             c.sub(rsp, 56);
 
