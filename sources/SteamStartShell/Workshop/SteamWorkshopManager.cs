@@ -1,5 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using Serilog;
+using SteamStartShell.Platform;
 using Steamworks;
 using System.Diagnostics;
 
@@ -195,10 +196,12 @@ namespace SteamStartShell.Workshop
                     continue;
                 }
 
+                mapiFolder = Path.Combine(mapiFolder, PlatformServices.Current.Name);
+
                 Logger.Information("DCCM Workshop Version Path: {path}", mapiFolder);
 
                 // 检查 Shell 自更新
-                var shellPath = Path.Combine(mapiFolder, "core", "host", "startup", "steam", "deadcells.exe");
+                var shellPath = Path.Combine(mapiFolder, "content", "core", "host", "startup", "steam", "deadcells.exe");
                 if (File.Exists(shellPath))
                 {
                     var ws_shellVer = System.Version.Parse(
@@ -218,7 +221,7 @@ namespace SteamStartShell.Workshop
                     }
                 }
 
-                var mccv_path = Path.Combine(mapiFolder, "ModCoreVersion.txt");
+                var mccv_path = Path.Combine(mapiFolder, "content", "ModCoreVersion.txt");
 
                 if (!File.Exists(mccv_path))
                 {
@@ -274,16 +277,12 @@ namespace SteamStartShell.Workshop
                             }
                             else if (fi is DirectoryInfo d)
                             {
-                                if (d.Name == ".dotnet")
-                                {
-                                    continue;
-                                }
                                 CopyDir(d, new(Path.Combine(dst.FullName, d.Name)));
                             }
                         }
                     }
 
-                    CopyDir(new(mapiFolder), new(Path.Combine(_gameRoot, "coremod")));
+                    CopyDir(new(Path.Combine(mapiFolder, "content")), new(Path.Combine(_gameRoot, "coremod")));
 
                     File.WriteAllText(Path.Combine(_gameRoot, "coremod", "ModCoreVersion.txt"), mccv.ToString());
                 }

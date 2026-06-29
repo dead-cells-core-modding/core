@@ -6,13 +6,16 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.NSwag;
 using Nuke.Common.Utilities.Collections;
 using Octokit;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.PathConstruction;
@@ -26,7 +29,12 @@ class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main () => Execute<Build>(x => x.BuildAll);
+    public static int Main()
+    {
+        HttpTasks.DefaultTimeout = TimeSpan.FromSeconds(60);
+
+        return Execute<Build>(x => x.BuildAll);
+    }
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -67,6 +75,17 @@ class Build : NukeBuild
     AbsolutePath ProxyBinRoot => MDKSelfBinRoot + "/ref";
 
     AbsolutePath MDKBinRoot => CoreBinRoot + "/mdk";
+
+    AbsolutePath WorkshopTemp { get; } = Path.GetTempFileName() + ".dir";
+
+    AbsolutePath WorkshopBinWin64Zip => WorkshopTemp + "/win-x64.zip";
+    AbsolutePath WorkshopBinLinux64Zip => WorkshopTemp + "/linux-x64.zip";
+
+    AbsolutePath WorkshopPublishRoot => RootDirectory + "/workshop-publish";
+
+    AbsolutePath WorkshopDummySteamStartShell => WorkshopPublishRoot + "/core/host/startup/steam";
+    AbsolutePath WorkshopPublishWin64Content => WorkshopPublishRoot + "/win-x64/content";
+    AbsolutePath WorkshopPublishLinux64Content => WorkshopPublishRoot + "/linux-x64/content";
 
     #endregion
 
@@ -233,5 +252,50 @@ class Build : NukeBuild
         BuildAssets
         )
     ;
+
+    Target DownloadWin64Bin => _ => _.Executes(async () =>
+    {
+        WorkshopTemp.CreateDirectory();
+        Log.Information("Downloading...");
+
+        await HttpTasks.HttpDownloadFileAsync("https://nightly.link/dead-cells-core-modding/core/workflows/build/dev/build-win-x64-Debug.zip", WorkshopBinWin64Zip, 
+            System.IO.FileMode.Create);
+        WorkshopPublishWin64Content.CreateOrCleanDirectory();
+
+        Log.Information("Extracting...");
+        await ZipFile.ExtractToDirectoryAsync(WorkshopBinWin64Zip, WorkshopPublishWin64Content);
+
+        Log.Information("Copying SteamStartShell");
+        WorkshopDummySteamStartShell.CreateOrCleanDirectory();
+
+        File.Copy(Path.Combine(WorkshopPublishWin64Content, "ModCoreVersion.txt"), Path.Combine(WorkshopPublishRoot, "ModCoreVersion.txt"), true);
+        File.Copy(Path.Combine(WorkshopPublishWin64Content, "core", "host", "startup", "steam", "deadcells.exe"), 
+            Path.Combine(WorkshopDummySteamStartShell, "deadcells.exe"), true);
+    });
+
+    Target DownloadLinux64Bin => _ => _.Executes(async () =>
+    {
+        WorkshopTemp.CreateDirectory();
+        Log.Information("Downloading...");
+
+        await HttpTasks.HttpDownloadFileAsync("https://nightly.link/dead-cells-core-modding/core/workflows/build/dev/build-linux-x64-Debug.zip", WorkshopBinLinux64Zip,
+            System.IO.FileMode.Create);
+        WorkshopPublishLinux64Content.CreateOrCleanDirectory();
+
+        Log.Information("Extracting...");
+        await ZipFile.ExtractToDirectoryAsync(WorkshopBinLinux64Zip, WorkshopPublishLinux64Content);
+    });
+
+    Target PublishMAPI => _ => _
+        .DependsOn(DownloadWin64Bin)
+        .DependsOn(DownloadLinux64Bin)
+        .Executes(async () =>
+    {
+        DotNetTasks.DotNetRun(s =>
+               s.SetProjectFile(DCCMToolSrcProject)
+               .EnableNoLaunchProfile()
+               .SetConfiguration("Release")
+               .SetApplicationArguments());
+    });
 
 }

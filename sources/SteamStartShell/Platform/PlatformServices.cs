@@ -12,6 +12,8 @@ namespace SteamStartShell.Platform
     {
         protected static ILogger Logger => Log.Logger;
 
+        public abstract string Name { get; }
+
         /// <summary>
         /// 运行时平台实例——根据当前操作系统自动选择
         /// </summary>

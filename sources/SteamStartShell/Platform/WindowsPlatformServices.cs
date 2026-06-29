@@ -13,6 +13,8 @@ namespace SteamStartShell.Platform
     [SupportedOSPlatform("windows")]
     internal class WindowsPlatformServices : PlatformServices
     {
+        public override string Name => "win-x64";
+
         /// <summary>
         /// 从嵌入资源提取 steam_api64.dll 到临时目录并加载
         /// </summary>

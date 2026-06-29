@@ -29,7 +29,10 @@
         "BuildCore",
         "BuildMDK",
         "BuildNative",
-        "GenerateGameProxy"
+        "DownloadLinux64Bin",
+        "DownloadWin64Bin",
+        "GenerateGameProxy",
+        "PublishMAPI"
       ]
     },
     "Verbosity": {

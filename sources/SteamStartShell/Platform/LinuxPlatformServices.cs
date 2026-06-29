@@ -9,6 +9,8 @@ namespace SteamStartShell.Platform
     [SupportedOSPlatform("linux")]
     internal class LinuxPlatformServices : PlatformServices
     {
+        public override string Name => "linux-x64";
+
         /// <summary>
         /// Linux 平台暂不支持原生 Steam 库加载
         /// </summary>

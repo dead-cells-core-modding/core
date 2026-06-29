@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using SteamStartShell.Platform;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -78,7 +78,7 @@ namespace SteamStartShell.Launcher
             }
             catch (Exception)
             {
-                Logger.Error("Failed to start the game process. Please try deleting {path} to reset DCCM.",
+                Logger.Error("Failed to start the game process. Please try deleting '{path}' to reset DCCM.",
                     Path.GetFullPath(Path.Combine(_gameRoot, "coremod")));
                 throw;
             }
