@@ -295,7 +295,10 @@ class Build : NukeBuild
                s.SetProjectFile(DCCMToolSrcProject)
                .EnableNoLaunchProfile()
                .SetConfiguration("Release")
-               .SetApplicationArguments());
+               .SetApplicationArguments(
+                   "internal", "upload-mapi",
+                   "-i", WorkshopPublishRoot
+                   ));
     });
 
 }
