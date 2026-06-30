@@ -323,6 +323,7 @@ class Build : NukeBuild
             GitTasks.Git($"tag v{ver}");
             GitTasks.Git("push origin");
             GitTasks.Git("push origin --tags");
+            GitTasks.Git("push origin dev:main");
         });
 
     Target PublishMAPI => _ => _
