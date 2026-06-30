@@ -321,13 +321,13 @@ class Build : NukeBuild
             GitTasks.Git("add latest-release.md");
             GitTasks.Git($"commit -m {("chore: update release info")}");
             GitTasks.Git($"tag v{ver}");
+            GitTasks.Git("push origin");
             GitTasks.Git("push origin --tags");
         });
 
     Target PublishMAPI => _ => _
         .DependsOn(DownloadWin64Bin)
         .DependsOn(DownloadLinux64Bin)
-        .DependsOn(GenerateReleaseInfo)
         .Executes(async () =>
     {
         DotNetTasks.DotNetRun(s =>
@@ -337,7 +337,7 @@ class Build : NukeBuild
                .SetApplicationArguments(
                    "internal", "upload-mapi",
                    "-i", WorkshopPublishRoot,
-                   "-r", ReleaseInfoPath
+                   "-r", Path.Combine(RootDirectory, "latest-release.md")
                    ));
     });
 
