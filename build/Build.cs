@@ -316,7 +316,7 @@ class Build : NukeBuild
         .Executes(async () =>
         {
             var msg = await File.ReadAllTextAsync(ReleaseInfoPath);
-            var ver = File.ReadAllText(BinRoot + "/ModCoreVersion.txt");
+            var ver = File.ReadAllText(BinRoot + "/ModCoreVersion.txt").Trim();
             File.Copy(ReleaseInfoPath, Path.Combine(RootDirectory, "latest-release.md"), true);
             GitTasks.Git("add latest-release.md");
             GitTasks.Git($"commit -m {("chore: update release info")}");
