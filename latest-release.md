@@ -1,25 +1,37 @@
-
 # Release Notes - 35.11.3
 
 ## Feature
 
-- Full Linux platform native support: implemented all previously unimplemented Linux native methods including TLS thread-local storage, memory page protection, stack frame management, HL↔C# context switching via generated assembly code, HL boot data extraction, and more — the game is now playable on Linux
-- Steam Workshop automated publishing pipeline: new build targets to download CI artifacts and auto-package/publish to Steam Workshop for both win-x64 and linux-x64 platforms
-- CI/CD extended to Linux platform: GitHub Actions now enables Ubuntu build and test workflows, with automatic crash dump upload on test failure
-- Pseudocode compiler exception handling infrastructure: added Trap/EndTrap/Catch opcode parsing and exception handler generation steps for the pseudocode DLL, supporting try-catch region detection and IL exception handler creation
-- Hashlink Catch opcode support: new Catch opcode added to the bytecode parser for exception type filtering
-- Platform architecture identification: PlatformServices now exposes a Name property for win-x64/linux-x64 path resolution
-- Goldberg Steam emulator updated to latest version
+- Added full Linux platform support including native interop, TLS handling, library loading, build pipeline, and test CI
+- Added HLVM trap/exception handling in pseudocode compiler for generating .NET try-catch exception handlers
+- Added automated workshop publish pipeline with platform-specific content layout and release note changelog
 
 ## Fix
 
-- Fix Linux crash due to wrong TLS slot: trap_magic_number now reads from a dynamically allocated memory address instead of a hardcoded value, resolving jmp_buf struct size and trap_ctx offset mismatch issues that caused assertion failures
-- Fix break_on_trap hook fallback stack leak: the fallback path now correctly cleans up the stack and returns zero, instead of leaking arguments by jumping to the original function
-- Fix libhl native library loading path on Linux: prioritizes libhl.so.1 loading and correctly reads the link_map first field to obtain the actual load base address for proper symbol offset resolution
-- Fix Linux jmp_buf struct size mismatch: added platform-conditional compilation — glibc jmp_buf is 200 bytes, previously incorrectly used the Windows size of 256 bytes
-- Fix game crash on Steam platform module initialization: added try-catch error handling for Steam module init and callback invocations
-- Fix Steam API native library resolution on Linux: loads libsteam_api.so from the native directory to work with the Goldberg emulator
-- Fix test runner crash when DEAD_CELLS_GAME_PATH is not set: replaced null reference crash with a clear error message
-- Fix CMake compiler flags: removed -fno-inline and replaced with -fno-inline-functions-called-once to properly disable inline compilation
-- Fix release workflow push order: commit now executes before tag creation to ensure correct version release flow
-- Fix Steam Workshop content directory structure: adapted for win-x64/linux-x64 subdirectories to ensure mod content deploys to the correct platform path
+- Fixed trap magic number to use runtime-allocated value preventing potential memory conflicts across native modules
+- Fixed jmp_buf struct size mismatch between Windows and Linux causing struct layout corruption during exception handling
+- Fixed library base address resolution on Linux where dlopen returns a link_map pointer rather than a direct base address
+- Fixed native library loading to use libhl.so.1 on Linux and added crash protection around SteamPlatformModule initialization and SteamAPI callbacks
+- Fixed release workflow push order and PublishMAPI dependency ordering
+- Fixed version string trimming when reading ModCoreVersion.txt
+- Updated Goldberg emulator binaries for Linux compatibility
+
+---
+
+# 更新说明
+
+## 新功能
+
+- 新增完整的 Linux 平台支持，包括原生互操作、TLS 处理、库加载、构建流水线和测试 CI
+- 新增伪代码编译器中的 HLVM 陷阱/异常处理支持，可生成 .NET try-catch 异常处理器
+- 新增自动化创意工坊发布流水线，支持平台特定的内容布局和更新日志
+
+## 修复
+
+- 修复了陷阱魔数使用运行时分配的值，避免跨原生模块的潜在内存冲突
+- 修复了 Windows 和 Linux 之间 jmp_buf 结构体大小不匹配导致异常处理时结构布局损坏的问题
+- 修复了 Linux 上库基地址解析问题，dlopen 返回的是 link_map 指针而非直接基地址
+- 修复了 Linux 上原生库加载使用 libhl.so.1 文件名，并为 SteamPlatformModule 初始化和 SteamAPI 回调添加崩溃保护
+- 修复了发布工作流的推送顺序和 PublishMAPI 依赖排序
+- 修复了读取 ModCoreVersion.txt 时版本字符串未去除空白字符的问题
+- 更新了 Goldberg 模拟器二进制文件以支持 Linux 兼容性
