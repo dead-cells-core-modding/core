@@ -5,6 +5,7 @@ using Spectre.Console.Cli;
 using Steamworks;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace DCCMTool.Commands.Steam
@@ -17,6 +18,9 @@ namespace DCCMTool.Commands.Steam
         {
             [CommandOption("-i|--inputDir", true)]
             public required string InputDir { get; set; }
+
+            [CommandOption("-r|--release-info", true)]
+            public required string ReleaseInfoPath { get; set; }
         }
 
         public override async Task<int> ExecuteSteamAsync()
@@ -27,7 +31,7 @@ namespace DCCMTool.Commands.Steam
 
             var ver = File.ReadAllText(Path.Combine(Arguments.InputDir, "ModCoreVersion.txt")).Trim();
 
-            var cb = SteamUGC.SubmitItemUpdate(updateHandle, $"Upload to v{ver}").Wait<RemoteStorageUpdatePublishedFileResult_t>();
+            var cb = SteamUGC.SubmitItemUpdate(updateHandle, File.ReadAllText(Arguments.ReleaseInfoPath)).Wait<RemoteStorageUpdatePublishedFileResult_t>();
 
             await AnsiConsole.Progress()
                 .StartAsync(async ctx =>

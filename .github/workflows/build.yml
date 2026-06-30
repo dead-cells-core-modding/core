@@ -12,6 +12,9 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     needs: [build,  test, test-build-samples]
     steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
     - name: Download artifacts win-x64
       uses: actions/download-artifact@v7
       with: 
@@ -41,9 +44,11 @@ jobs:
 
          zip -r ../linux-x64.zip ./*
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       with:
+         body_path: latest-release.md
          files: |
+             latest-release.md
              linux-x64.zip
              win-x64.zip
              win-x64-no-mdk.zip

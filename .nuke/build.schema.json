@@ -32,7 +32,9 @@
         "DownloadLinux64Bin",
         "DownloadWin64Bin",
         "GenerateGameProxy",
-        "PublishMAPI"
+        "GenerateReleaseInfo",
+        "PublishMAPI",
+        "Release"
       ]
     },
     "Verbosity": {

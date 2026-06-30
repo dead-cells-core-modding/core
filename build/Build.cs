@@ -6,6 +6,8 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.Git;
+using Nuke.Common.Tools.MSBuild;
 using Nuke.Common.Tools.NSwag;
 using Nuke.Common.Utilities.Collections;
 using Octokit;
@@ -89,6 +91,14 @@ class Build : NukeBuild
 
     #endregion
 
+    #region Release Info
+
+    AbsolutePath ReleaseInfoPath => BinRoot + "/ReleaseInfo.md";
+    AbsolutePath ReleaseInfoChinesePath => BinRoot + "/ReleaseInfo.zh.md";
+    AbsolutePath ReleaseInfoEnglishPath => BinRoot + "/ReleaseInfo.en.md";
+
+    #endregion
+
     #region Common
 
     Target GenerateGameProxy => _ => _.Executes(() =>
@@ -164,10 +174,10 @@ class Build : NukeBuild
         var cmakePreset = $"{CurrentOSPlatform}-{CurrentArchPlatform}-{Configuration.ToString().ToLower()}";
         ProcessTasks.StartProcess("cmake",
             $". --preset={cmakePreset}",
-            NativeSrcRoot).WaitForExit();
+            NativeSrcRoot).AssertZeroExitCode();
         ProcessTasks.StartProcess("cmake",
             $"--build ./out/build/{cmakePreset}",
-            NativeSrcRoot).WaitForExit();
+            NativeSrcRoot).AssertZeroExitCode();
 
         Log.Information("Copying Goldberg");
 
@@ -286,9 +296,38 @@ class Build : NukeBuild
         await ZipFile.ExtractToDirectoryAsync(WorkshopBinLinux64Zip, WorkshopPublishLinux64Content);
     });
 
+    Target GenerateReleaseInfo => _ => _.Executes(async () =>
+    {
+        ReleaseInfoPath.DeleteFile();
+        ReleaseInfoEnglishPath.DeleteFile();
+        ReleaseInfoChinesePath.DeleteFile();
+
+        ProcessTasks.StartProcess("opencode", " run -m deepseek/deepseek-v4-pro --dangerously-skip-permissions --format json --command release-info --log-level ERROR", 
+            RootDirectory)
+            .AssertZeroExitCode();
+
+        Assert.FileExists(ReleaseInfoPath);
+        Assert.FileExists(ReleaseInfoEnglishPath);
+        Assert.FileExists(ReleaseInfoChinesePath);
+    });
+
+    Target Release => _ => _
+        .DependsOn(GenerateReleaseInfo)
+        .Executes(async () =>
+        {
+            var msg = await File.ReadAllTextAsync(ReleaseInfoPath);
+            var ver = File.ReadAllText(BinRoot + "/ModCoreVersion.txt");
+            File.Copy(ReleaseInfoPath, Path.Combine(RootDirectory, "latest-release.md"), true);
+            GitTasks.Git("add latest-release.md");
+            GitTasks.Git($"commit -m {("chore: update release info")}");
+            GitTasks.Git($"tag v{ver}");
+            GitTasks.Git("push origin --tags");
+        });
+
     Target PublishMAPI => _ => _
         .DependsOn(DownloadWin64Bin)
         .DependsOn(DownloadLinux64Bin)
+        .DependsOn(GenerateReleaseInfo)
         .Executes(async () =>
     {
         DotNetTasks.DotNetRun(s =>
@@ -297,7 +336,8 @@ class Build : NukeBuild
                .SetConfiguration("Release")
                .SetApplicationArguments(
                    "internal", "upload-mapi",
-                   "-i", WorkshopPublishRoot
+                   "-i", WorkshopPublishRoot,
+                   "-r", ReleaseInfoPath
                    ));
     });
 
