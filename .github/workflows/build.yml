@@ -58,14 +58,14 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-26.04, windows-latest]
         debug: [ true ]
         platform: [ steam, gog ]
         include:
           - os: windows-latest
             os_name: win
             arch: x64
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             os_name: linux
             arch: x64
 
@@ -173,13 +173,13 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-26.04, windows-latest]
         debug: [ true, false ]
         include:
           - os: windows-latest
             os_name: win
             arch: x64
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             os_name: linux
             arch: x64
     runs-on: ${{ matrix.os }}
