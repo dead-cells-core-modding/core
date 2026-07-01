@@ -42,7 +42,7 @@ else()
 
 add_compile_options(-fno-inline -fno-inline-functions-called-once -fno-strict-aliasing -fno-delete-null-pointer-checks -fno-omit-frame-pointer -fno-optimize-sibling-calls)
 
-add_compile_options(-Wno-incompatible-pointer-types)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-incompatible-pointer-types")
 
 endif()
 
