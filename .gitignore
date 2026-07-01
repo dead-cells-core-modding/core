@@ -409,3 +409,4 @@ vcpkg_installed/
 /test/TestRunner/mods/*
 .vscode/*
 /.nuke
+/.playwright-mcp

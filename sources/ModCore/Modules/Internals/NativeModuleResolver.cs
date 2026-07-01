@@ -108,7 +108,6 @@ namespace ModCore.Modules.Internals
         private void TryLoadSDLWindows()
         {
             NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("SDL3.dll"));
-            NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("SDL2.dll"));
         }
 
         private void TryLoadSteam()

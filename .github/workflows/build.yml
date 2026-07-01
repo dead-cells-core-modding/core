@@ -205,13 +205,12 @@ jobs:
         Expand-Archive -LiteralPath ./OpenAL.zip -DestinationPath . -Force
         Move-Item -Path ./openal-soft-1.23.1-bin -Destination ./openal -Force
         
-        Invoke-WebRequest -Uri https://github.com/libsdl-org/sdl2-compat/releases/download/release-2.32.70/sdl2-compat-devel-2.32.70-VC.zip -OutFile ./SDL.zip
+        Invoke-WebRequest -Uri https://github.com/libsdl-org/SDL/releases/download/release-3.4.10/SDL3-devel-3.4.10-VC.zip -OutFile ./SDL.zip
         Expand-Archive -LiteralPath ./SDL.zip -DestinationPath . -Force
-        Move-Item -Path ./sdl2-compat-2.32.70 -Destination ./sdl -Force
+        Move-Item -Path ./SDL3-3.4.10 -Destination ./sdl -Force
     - name: Download Dependencies (Linux)
       if: runner.os == 'Linux'
       run: |
-        # Require fixing for SDL3 SDL2-compact
         sudo apt-get update
         sudo apt-get install -y build-essential \
           cmake \
@@ -219,7 +218,7 @@ jobs:
           libturbojpeg-dev \
           libvorbis-dev \
           libopenal-dev \
-          libsdl2-dev \
+          libsdl3-dev \
           libglu1-mesa-dev \
           libmbedtls-dev \
           libuv1-dev \
