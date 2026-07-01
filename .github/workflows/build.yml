@@ -109,7 +109,7 @@ jobs:
           libturbojpeg-dev \
           libvorbis-dev \
           libopenal-dev \
-          libsdl2-dev \
+          libsdl3-dev \
           libglu1-mesa-dev \
           libmbedtls-dev \
           libuv1-dev \
