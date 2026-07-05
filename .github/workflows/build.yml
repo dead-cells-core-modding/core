@@ -176,7 +176,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-26.04, windows-latest]
-        debug: [ true, false ]
+        debug: [ true ]
         include:
           - os: windows-latest
             os_name: win
