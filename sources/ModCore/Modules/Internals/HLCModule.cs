@@ -3,6 +3,7 @@ using ModCore.Events.Interfaces.VM;
 using ModCore.Native;
 using ModCore.Native.Events.Interfaces;
 using ModCore.Storage;
+using ModCore.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -51,11 +52,14 @@ namespace ModCore.Modules.Internals
                     $"{hlboot}"
                 },
                 WorkingDirectory = FolderInfo.CoreRoot.GetFilePath("core/crashlink"),
-                UseShellExecute = false
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
             });
 
             Debug.Assert(proc != null);
 
+            proc.RedirectOutputToLogger(Logger);
             proc.WaitForExit();
 
             if (proc.ExitCode != 0)
