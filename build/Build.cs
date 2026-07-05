@@ -33,7 +33,7 @@ class Build : NukeBuild
 
     public static int Main()
     {
-        HttpTasks.DefaultTimeout = TimeSpan.FromSeconds(60);
+        HttpTasks.DefaultTimeout = TimeSpan.FromSeconds(600);
 
         return Execute<Build>(x => x.BuildAll);
     }

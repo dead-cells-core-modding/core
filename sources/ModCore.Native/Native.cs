@@ -647,8 +647,8 @@ namespace ModCore.Native
                 sb.Append(orig_str);
                 sb.Append(')');
             }
-            sb.Append(":(addr: 0x");
-            sb.Append(naddr.ToString("x"));
+            sb.Append(":(addr: +0x");
+            sb.Append((naddr - fit.startPtr).ToString("x"));
             sb.Append(')');
 
             var str = sb.ToString();
