@@ -10,6 +10,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Platforms>AnyCPU;x64</Platforms>
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
+    <CETCompat>false</CETCompat>
   </PropertyGroup>
 
 </Project>
