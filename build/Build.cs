@@ -70,6 +70,7 @@ class Build : NukeBuild
     AbsolutePath TinyCCWin32Root => TinyCCRoot + "/win32";
 
     AbsolutePath CrashlinkSrcRoot => RootDirectory + "/3rd/crashlink/crashlink";
+    AbsolutePath HlrunSrcRoot => RootDirectory + "/3rd/crashlink/hlrun";
 
     #endregion
 
@@ -198,17 +199,18 @@ class Build : NukeBuild
                 .AssertZeroExitCode();
 
             // Copy dep
-
-            
             File.Copy(TinyCCWin32Root + "/lib/libtcc1.a", TinyCCBinRoot + "/libtcc1.a", true);
             
         }
         else // Unix
         {
-            ProcessTasks.StartShell("./configure && make", TinyCCWin32Root)
+            ProcessTasks.StartShell("./configure", TinyCCRoot)
+                .AssertZeroExitCode();
+            ProcessTasks.StartShell("make", TinyCCRoot)
                 .AssertZeroExitCode();
 
-            throw new NotImplementedException();
+            // Copy dep
+            File.Copy(TinyCCRoot + "/libtcc1.a", TinyCCBinRoot + "/libtcc1.a", true);
         }
     });
 
@@ -305,6 +307,7 @@ class Build : NukeBuild
         {
             // Copy crashlink
             CrashlinkSrcRoot.CopyToDirectory(CrashlinkDstRoot, ExistsPolicy.MergeAndOverwrite);
+            HlrunSrcRoot.CopyToDirectory(CrashlinkDstRoot, ExistsPolicy.MergeAndOverwrite);
 
             foreach(var v in Directory.GetDirectories(CrashlinkDstRoot, "__pycache__",SearchOption.AllDirectories))
             {
