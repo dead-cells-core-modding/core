@@ -76,6 +76,8 @@ namespace ModCore.Modules.Internals
             }
 
             hlcCompiled.UpdateMetadata("hlbc", GameInfo.HlbootHash);
+            hlcCompiled.UpdateMetadata("dccm_version", GameInfo.DCCMVersion.ToString());
+            hlcCompiled.UpdateMetadata("rid", RuntimeInformation.RuntimeIdentifier.ToString());
 
             if (!hlcCompiled.IsValid)
             {
@@ -98,7 +100,7 @@ namespace ModCore.Modules.Internals
 
                 tcc.OnError += Tcc_OnError;
 
-                tcc.AddOptions(" -nostdinc -rdynamic -g1dwarf-5 ");
+                tcc.AddOptions(" -nostdinc -rdynamic -gdwarf-5 ");
 
                 tcc.SetOutputType(TCCCompiler.OutputType.DLL);
                 tcc.AddIncludePath(incRoot, true);
@@ -111,31 +113,6 @@ namespace ModCore.Modules.Internals
                     Logger.Error("Failed to compile HLC!");
                     throw new InvalidOperationException("Failed to compile HLC.");
                 }
-
-#if DEBUG
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && ContextConfig.Config.hlcPDB)
-                {
-                    Logger.Information("Generating pdb...");
-                    var proc = Process.Start(new ProcessStartInfo()
-                    {
-                        FileName = FolderInfo.CurrentNativeRoot.GetFilePath("cv2pdb"),
-                        ArgumentList =
-                        {
-                            hlcCompiled.CachePath
-                        },
-                        UseShellExecute = false
-                    });
-
-                    Debug.Assert(proc != null);
-
-                    proc.WaitForExit();
-
-                    if (proc.ExitCode != 0)
-                    {
-                        throw new InvalidOperationException("Failed to generate pdb!");
-                    }
-                }
-#endif
 
                 hlcCompiled.UpdateCache();
             }

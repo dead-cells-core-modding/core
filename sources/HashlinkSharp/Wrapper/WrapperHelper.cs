@@ -38,7 +38,7 @@ namespace Hashlink.Wrapper
 
         public static nint AsPointer( object obj, int typeIdx )
         {
-            return AsPointerWithType(obj, HashlinkMarshal.Module.Types[typeIdx]);
+            return AsPointerWithType(obj, HashlinkMarshal.Module.PreferTypes[typeIdx]);
         }
 
         public static nint AsPointerWithType( object obj, HashlinkType type )

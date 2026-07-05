@@ -22,7 +22,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
                 var ca = t.GetCustomAttribute<HashlinkTIndexAttribute>();
                 if (ca != null)
                 {
-                    return (HashlinkObjectType)HashlinkMarshal.Module.Types[ca.Index];
+                    return (HashlinkObjectType)HashlinkMarshal.Module.PreferTypes[ca.Index];
                 }
                 t = t.BaseType;
             }

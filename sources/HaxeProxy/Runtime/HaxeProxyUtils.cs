@@ -31,7 +31,7 @@ namespace HaxeProxy.Runtime
             var ca = type.GetCustomAttribute<HashlinkTIndexAttribute>(false);
             if (ca is not null)
             {
-                return (HashlinkObjectType)HashlinkMarshal.Module.Types[ca.Index];
+                return (HashlinkObjectType)HashlinkMarshal.Module.PreferTypes[ca.Index];
             }
             InheritanceManager.Check(type, null, out var cht);
             return cht.Type;

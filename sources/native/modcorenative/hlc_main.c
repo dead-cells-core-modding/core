@@ -76,7 +76,7 @@ extern void sys_global_exit();
 #	include <execinfo.h>
 #endif
 
-static uchar *hlc_resolve_symbol( void *addr, uchar *out, int *outSize ) {
+HL_EXPORT uchar *hlc_resolve_symbol( void *addr, uchar *out, int *outSize ) {
 #ifdef HL_WIN_DESKTOP
 	static HANDLE stack_process_handle = NULL;
 	DWORD64 index;
@@ -117,7 +117,7 @@ static uchar *hlc_resolve_symbol( void *addr, uchar *out, int *outSize ) {
 	return NULL;
 }
 
-static int hlc_capture_stack( void **stack, int size ) {
+HL_EXPORT int hlc_capture_stack( void **stack, int size ) {
 	int count = 0;
 #	if defined(HL_WIN_DESKTOP) || defined(HL_LINUX_BACKTRACE) || defined(HL_MAC)
 	// force return total count when output stack is null
@@ -142,6 +142,7 @@ static int hlc_capture_stack( void **stack, int size ) {
 }
 
 HL_EXPORT void hlc_setup_callback(
+	void* hlc_resolve_symbol,
 	void* hlc_capture_stack,
 	void* hlc_static_call, 
 	void* hlc_get_wrapper, 

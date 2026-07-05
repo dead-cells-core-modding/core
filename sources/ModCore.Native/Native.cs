@@ -11,21 +11,27 @@ using System.Reflection;
 using System.Runtime;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-
+using System.Text;
 using static Hashlink.HashlinkNative;
 
 namespace ModCore.Native
 {
     internal unsafe abstract partial class Native
     {
-
+        
         private readonly static HL_type* TYPE_DYN = (HL_type*)NativeMemory.AllocZeroed((nuint)sizeof(HL_type));
         public nint phl_throw;
         public nint phl_rethrow;
 
+        private readonly List<(int fidx, nint startPtr)> hlc_functions = [];
         public HL_type** hlc_instance_types;
 
         public HL_setup_t* hl_setup;
+
+        public bool RunOnHLC
+        {
+            get; private set;
+        } = false;
 
         public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(Current?.LoadLibrary("libhl") ?? (
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? NativeLibrary.Load(
@@ -233,15 +239,10 @@ namespace ModCore.Native
         }
 
         private static nint orig_module_capture_stack;
-        [UnmanagedCallersOnly]
-        protected static int Hook_module_capture_stack( void** stack, int size )
-        {
-            var result = ((delegate* unmanaged< void**, int, int >)orig_module_capture_stack)(stack, size);
 
-            int count = 0;
-            void** stack_ptr = (void**)&stack;
-            void* stack_bottom = stack_ptr;
-            void* stack_top = hl_get_thread()->stack_top;
+
+        private static void GetHLCodeRange( out nint low, out nint high )
+        {
             var m = Current.module;
 
             nint code;
@@ -260,33 +261,66 @@ namespace ModCore.Native
             else
             {
                 // HLC
-                var funcCount = m->code->nfunctions;
-                var span = new ReadOnlySpan<nint>(m->functions_ptrs, funcCount);
-
-                nint min = nint.MaxValue;
-                nint max = 0;
-                foreach (var v in span)
-                {
-                    if (min > v)
-                    {
-                        min = v;
-                    }
-                    if (max < v)
-                    {
-                        max = v;
-                    }
-                }
+                nint min = Current.hlc_functions[0].startPtr;
+                nint max = Current.hlc_functions[^1].startPtr;
 
                 code = min;
                 code_size = (int)(max - min);
             }
+            low = code;
+            high = code + code_size;
+        }
+
+
+        private static int FallbackCaptureStack( void** stack, int size )
+        {
+            var count = 0;
+            void** stack_ptr = (void**)&stack;
+            void* stack_bottom = stack_ptr;
+            void* stack_top = hl_get_thread()->stack_top;
+            var m = Current.module;
+
+            GetHLCodeRange(out var clow, out var chigh);
+
+            while (stack_ptr < (void**)stack_top && count < size)
+            {
+                void* stack_addr = *stack_ptr++; // EBP
+                if (stack_addr > stack_bottom && stack_addr < stack_top)
+                {
+                    void* module_addr = *stack_ptr; // EIP
+                    if (module_addr >= (void*)clow && module_addr < (void*)chigh)
+                    {
+                        stack[count++] = module_addr;
+                    }
+                }
+            }
+            return count;
+        }
+        [UnmanagedCallersOnly]
+        protected static int Hook_module_capture_stack( void** stack, int size )
+        {
+            var result = ((delegate* unmanaged< void**, int, int >)orig_module_capture_stack)(stack, size);
+
+            if (result == 0)
+            {
+                result = FallbackCaptureStack(stack, size);
+            }
+
+            int count = 0;
+            void** stack_ptr = (void**)&stack;
+            void* stack_bottom = stack_ptr;
+            void* stack_top = hl_get_thread()->stack_top;
+            var m = Current.module;
+
+            GetHLCodeRange(out var clow, out var chigh);
+
             while (stack_ptr < (void**)stack_top)
             {
                 void* stack_addr = *stack_ptr++; // EBP
                 if (stack_addr > stack_bottom && stack_addr < stack_top)
                 {
                     void* module_addr = *stack_ptr; // EIP
-                    if (module_addr >= (void*)code && module_addr < (void*)(code + code_size))
+                    if (module_addr >= (void*)clow && module_addr < (void*)chigh)
                     {
 
                         while (stack[count] != module_addr &&
@@ -304,7 +338,7 @@ namespace ModCore.Native
 
             //Debug.Assert(count == result);
 
-            return count;
+            return result;
         }
 
         private static nint orig_hl_fatal_error;
@@ -548,6 +582,88 @@ namespace ModCore.Native
 
         private static readonly Dictionary<string, nint> cachedHDLLs = [];
 
+        private static nint orig_hlc_resolve_symbol;
+
+        [UnmanagedCallersOnly]
+        private static char* ResolveHLCSymbolNative( void* addr, char* out_str, int* outSize )
+        {
+            return ResolveHLCSymbol(addr, out_str, outSize);
+        }
+
+        public static char* ResolveHLCSymbol( void* addr, char* out_str, int* outSize )
+        {
+            var naddr = (nint)addr;
+            var out_span = new Span<char>(out_str, *outSize);
+
+            var result = ((delegate* unmanaged< void*, char*, int*, char* >)orig_hlc_resolve_symbol)(addr, out_str, outSize);
+
+            string? orig_str = null;
+            if (result != null)
+            {
+                orig_str = new(out_str);
+            }
+
+            GetHLCodeRange(out var low, out var high);
+
+            if (naddr < low || naddr > high)
+            {
+                return null;
+            }
+
+            var functions = Current.hlc_functions;
+            var fit = functions[0];
+
+            foreach (var v in functions)
+            {
+                if (v.startPtr <= naddr)
+                {
+                    fit = v;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            var fidx = fit.fidx;
+
+            var resolve_result = EventSystem.BroadcastEvent<IOnResolveHLCSymbol, IOnResolveHLCSymbol.Data, string>(new(naddr, fidx));
+
+            StringBuilder sb = new();
+
+            if (resolve_result.HasValue && !string.IsNullOrEmpty(resolve_result.Value))
+            {
+                sb.Append(resolve_result.Value);
+            }
+            else
+            {
+                sb.Append("hlc$fidx_");
+                sb.Append(fidx);
+            }
+
+            if (!string.IsNullOrEmpty(orig_str))
+            {
+                sb.Append(":(");
+                sb.Append(orig_str);
+                sb.Append(')');
+            }
+            sb.Append(":(addr: 0x");
+            sb.Append(naddr.ToString("x"));
+            sb.Append(')');
+
+            var str = sb.ToString();
+
+            if (str.Length < out_span.Length)
+            {
+                *outSize = str.Length;
+            }
+
+            str.TryCopyTo(out_span);
+
+            out_span[*outSize] = (char)0;
+            return out_str;
+        }
+
         [UnmanagedCallersOnly]
         private static nint ResolveHLCLibrary( byte* lib, byte* name )
         {
@@ -601,7 +717,6 @@ namespace ModCore.Native
 
             CreateNativeHookForHL("hl_module_alloc", nameof(Hook_hl_module_alloc), out orig_hl_module_alloc);
             CreateNativeHookForHL("hl_code_read", nameof(Hook_hl_code_read), out orig_hl_code_read);
-            CreateNativeHookForHL("module_capture_stack", nameof(Hook_module_capture_stack), out orig_module_capture_stack);
             CreateNativeHookForHL("break_on_trap", asm_hook_break_on_trap_Entry, out Data->orig_break_on_trap);
             CreateNativeHookForHL("gc_mark_stack", nameof(Hook_gc_mark_stack), out orig_gc_mark_stack);
             CreateNativeHookForHL("gc_mark", nameof(Hook_gc_mark), out orig_gc_mark);
@@ -632,6 +747,8 @@ namespace ModCore.Native
             CreateNativeHookForHL("op_jump", nameof(Hook_jit_op_jump), out orig_jit_op_jump);
 
             CreateNativeHookForHL("hl_fatal_error", nameof(Hook_hl_fatal_error), out orig_hl_fatal_error);
+
+            CreateNativeHookForHL("module_capture_stack", nameof(Hook_module_capture_stack), out orig_module_capture_stack);
 
             Data->trap_filter = (nint)(delegate* unmanaged< nint, HL_trap_ctx*, nint, nint >)&Hook_trap_filter;
 
@@ -680,6 +797,8 @@ namespace ModCore.Native
 
             if (ContextConfig.Config.useHLC)
             {
+                RunOnHLC = true;
+
                 var libmodcorenative = LoadLibrary("modcorenative");
                 var libhlc = EventSystem.BroadcastEvent<IOnGetCompiledHLC, ReadOnlySpan<byte>, nint>(hlboot).Value;
 
@@ -694,6 +813,8 @@ namespace ModCore.Native
 
                 hl_alloc_init(&mctx->alloc);
 
+                hl_module_init_indexes(ctx->m);
+
                 mctx->functions_ptrs = ctx->m->functions_ptrs;
                 mctx->functions_types = (HL_type**)NativeLibrary.GetExport(libhlc, "hl_functions_types");
 
@@ -701,8 +822,12 @@ namespace ModCore.Native
                 *(void**)NativeLibrary.GetExport(libhlc, "hl_get_thread") = (void*)GetLibhlSymbol("hl_get_thread");
                 *(void**)NativeLibrary.GetExport(libhlc, "hlc_setjmp") = *(void**)NativeLibrary.GetExport(libmodcorenative, "ptr_setjmp");
 
-                ((delegate* unmanaged< nint, nint, nint, nint, void >)NativeLibrary.GetExport(libmodcorenative, "hlc_setup_callback"))(
-                    GetLibhlSymbol("module_capture_stack"),
+                orig_hlc_resolve_symbol = NativeLibrary.GetExport(libmodcorenative, "hlc_resolve_symbol");
+                orig_module_capture_stack = NativeLibrary.GetExport(libmodcorenative, "hlc_capture_stack");
+
+                ((delegate* unmanaged< nint, nint, nint, nint, nint, void >)NativeLibrary.GetExport(libmodcorenative, "hlc_setup_callback"))(
+                    (nint)(delegate* unmanaged< void*, char*, int*, char* >)&ResolveHLCSymbolNative,
+                    (nint)(delegate* unmanaged< void**, int, int>)&Hook_module_capture_stack,
                     NativeLibrary.GetExport(libhlc, "hlc_static_call"),
                     NativeLibrary.GetExport(libhlc, "hlc_get_wrapper"),
                     RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? asm_custom_longjump : 0
@@ -734,9 +859,20 @@ namespace ModCore.Native
                 }
 
                 ctx->c.type = mctx->functions_types[ctx->m->code->entrypoint];
+
+                var funcCount = ctx->m->code->nfunctions;
+                var funcPtrSpan = new ReadOnlySpan<nint>(ctx->m->functions_ptrs, funcCount);
+
+                for (int i = 0; i < funcPtrSpan.Length; i++)
+                {
+                    hlc_functions.Add((i, funcPtrSpan[i]));
+                }
+
+                hlc_functions.Sort(( a, b ) => (int)(a.startPtr - b.startPtr));
             }
             else
             {
+                RunOnHLC = false;
                 if (hl_module_init(ctx->m, 0, 0) == 0)
                 {
                     throw new InvalidProgramException("Failed to init module");

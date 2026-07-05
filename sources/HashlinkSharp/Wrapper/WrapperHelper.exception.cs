@@ -1,6 +1,7 @@
 using Hashlink.Marshaling;
 using Hashlink.Marshaling.ObjHandle;
 using Hashlink.Proxy.Objects;
+using Hashlink.Reflection.Members;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Native;
@@ -40,7 +41,8 @@ namespace Hashlink.Wrapper
         }
         private class ExceptionEventHandler : IEventReceiver,
             IOnNativeEvent,
-            IOnPrepareExceptionReturn
+            IOnPrepareExceptionReturn,
+            IOnResolveHLCSymbol
         {
 
             public int Priority => 0;
@@ -56,6 +58,25 @@ namespace Hashlink.Wrapper
             public EventResult<nint> OnPrepareExceptionReturn( nint data )
             {
                 return PrepareExceptionReturn((void*)data);
+            }
+
+            public EventResult<string?> OnResolveHLCSymbol( IOnResolveHLCSymbol.Data ev )
+            {
+                var func = HashlinkMarshal.Module.GetFunctionByFIndex(ev.FunctionIndex);
+                if (func is not HashlinkFunction f)
+                {
+                    return default;
+                }
+                var nf = (HL_function*)f.NativePointer;
+                if (nf->obj != null)
+                {
+                    return $"{new string(nf->obj->name)}.{new string(nf->field.field)}";
+                }
+                else if (nf->field.@ref != null)
+                {
+                    return $"{new string(nf->field.@ref->obj->name)}.{new string(nf->field.@ref->field.field)}.{nf->@ref}";
+                }
+                return default;
             }
         }
 
@@ -319,22 +340,32 @@ namespace Hashlink.Wrapper
                         var size = 0x100;
 
                         string str;
-                        if (HashlinkMarshal.Module.NativeModule->jit_code != null)
+                        if (Native.Current.RunOnHLC)
+                        {
+                            Native.ResolveHLCSymbol((void*)ip, (char*)hlbuf, &size);
+                            str = new string((char*)hlbuf) + "()";
+                        }
+                        else
                         {
                             module_resolve_symbol((void*)ip, (char*)hlbuf, ref size);
                             str = new string((char*)hlbuf);
                         }
-                        else
-                        {
-                            str = $"hlc+{ip:x}";
-                        }
+                        
 
                         var lastDot = str.LastIndexOf('.');
                         var className = "global";
                         var funcName = "";
                         if (lastDot == -1)
                         {
-                            funcName = str[..^2];
+                            if (string.IsNullOrEmpty(str))
+                            {
+                                funcName = "empty";
+                            }
+                            else
+                            {
+                                funcName = str[..^2];
+                            }
+                            
                         }
                         else
                         {

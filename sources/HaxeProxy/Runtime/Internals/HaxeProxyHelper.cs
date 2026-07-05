@@ -209,13 +209,13 @@ namespace HaxeProxy.Runtime.Internals
         public static HashlinkObj CreateInstance( int typeIndex )
         {
             HashlinkMarshal.EnsureThreadRegistered();
-            return HashlinkMarshal.Module.Types[typeIndex].CreateInstance();
+            return HashlinkMarshal.Module.PreferTypes[typeIndex].CreateInstance();
         }
 
         public static HashlinkEnum CreateEnumInstance( int typeIndex, int elIndex )
         {
             HashlinkMarshal.EnsureThreadRegistered();
-            var t = (HashlinkEnumType)HashlinkMarshal.Module.Types[typeIndex];
+            var t = (HashlinkEnumType)HashlinkMarshal.Module.PreferTypes[typeIndex];
             return new HashlinkEnum(t, elIndex);
         }
 

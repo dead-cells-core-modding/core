@@ -1,7 +1,8 @@
+using ModCore.Native;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using ModCore.Native;
+using Windows.Win32.Foundation;
 
 #pragma warning disable CA1401
 
@@ -238,5 +239,7 @@ namespace Hashlink
         public static partial HL_runtime_obj* hl_get_obj_proto( HL_type* ot );
         [LibraryImport(LIBHL)]
         public static partial void hl_alloc_init( HL_alloc_block** ot );
+        [LibraryImport(LIBHL)]
+        public static partial void hl_module_init_indexes( HL_module* m );
     }
 }

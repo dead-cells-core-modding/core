@@ -68,7 +68,7 @@ namespace HaxeProxy.Runtime
         public virtual T ToVirtual<T>() where T : HaxeVirtual
         {
             var tid = HaxeProxyManager.type2typeId[typeof(T)];
-            var vt = HashlinkMarshal.Module.Types[tid];
+            var vt = HashlinkMarshal.Module.PreferTypes[tid];
             var result = (HashlinkVirtual)HashlinkMarshal.ConvertHashlinkObject(
                 HashlinkNative.hl_to_virtual(vt.NativeType, (HL_vdynamic*)HashlinkPointer)
                 )!;

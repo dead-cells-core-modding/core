@@ -3,6 +3,7 @@ using Hashlink.Reflection.Types;
 using HashlinkNET.Bytecode;
 using ModCore.Native;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
@@ -18,10 +19,12 @@ namespace Hashlink.Reflection
             get;
         }
 
-        public HashlinkType[]? HlcType
+        public HashlinkType[]? HlcTypes
         {
             get;
         }
+
+        public HashlinkType[] PreferTypes => HlcTypes ?? Types;
 
         public IHashlinkFunc[] Functions {
             get;
@@ -123,18 +126,20 @@ namespace Hashlink.Reflection
 
             if (Native.Current.hlc_instance_types != null)
             {
-                HlcType = new HashlinkType[NativeCode->ntypes];
+                HlcTypes = new HashlinkType[NativeCode->ntypes];
                 var types = Native.Current.hlc_instance_types;
                 for (int i = 0; i < NativeCode->ntypes; i++)
                 {
                     var type = GetMemberFrom<HashlinkType>(types[i]);
-                    HlcType[i] = type;
+                    HlcTypes[i] = type;
                     type.TypeIndex = i;
                     if (type.Name != null)
                     {
                         typeNameMapping[type.Name] = type;
                     }
                 }
+
+                Debug.Assert(HlcTypes.Length == Types.Length);
             }
 
             Globals = new HashlinkGlobal[NativeCode->nglobals];

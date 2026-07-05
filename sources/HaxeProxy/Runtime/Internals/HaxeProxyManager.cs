@@ -30,7 +30,7 @@ namespace HaxeProxy.Runtime.Internals
         {
             HaxeProxyManager.proxyAssembly = proxyAssembly;
 
-            bindingTypes = new Type[HashlinkMarshal.Module.Types.Length];
+            bindingTypes = new Type[HashlinkMarshal.Module.PreferTypes.Length];
             var types = proxyAssembly.GetCustomAttributes<HaxeProxyBindingAttribute>();
             var subTypes = new Dictionary<int, Type>();
             foreach (var v in types)

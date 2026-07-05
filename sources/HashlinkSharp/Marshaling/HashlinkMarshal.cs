@@ -34,12 +34,12 @@ namespace Hashlink.Marshaling
         {
             var tindex = (int)(((nint)type - (nint)Module.NativeCode->types) / sizeof(HL_type));
 
-            if (tindex >= 0 && tindex < Module.Types.Length)
+            if (tindex >= 0 && tindex < Module.PreferTypes.Length)
             {
-                Debug.Assert(Module.Types.Length == Module.NativeCode->ntypes);
-                Debug.Assert(Module.Types.Length > tindex);
+                Debug.Assert(Module.PreferTypes.Length == Module.NativeCode->ntypes);
+                Debug.Assert(Module.PreferTypes.Length > tindex);
 
-                return Module.Types[tindex];
+                return Module.PreferTypes[tindex];
             }
             return Module.GetMemberFrom<HashlinkType>(type);
         }
