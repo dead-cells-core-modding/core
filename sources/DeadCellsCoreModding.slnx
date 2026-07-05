@@ -46,6 +46,7 @@
     </Project>
   </Folder>
   <Folder Name="/Solution Items/">
+    <File Path="../.github/dependabot.yml" />
     <File Path="../.gitignore" />
     <File Path="../Directory.Build.props" />
     <File Path="../IncludeSteamworkNET.props" />
