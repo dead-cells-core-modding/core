@@ -260,13 +260,12 @@ jobs:
           -pv $ver `
           -ps dead-cells-core-modding `
           -nsb https://github.com/dead-cells-core-modding/core `
-          -m ./sources
-        Copy-Item ./bin/_manifest/spdx_2.2/manifest.spdx.json ./sbom.spdx.json
+          -m .
     - name: Generate artifact attestation
       uses: actions/attest@v4
       with:
         subject-path: ./bin/*
-        sbom-path: ./sbom.spdx.json
+        sbom-path: ./_manifest/spdx_2.2/manifest.spdx.json
 
 
 

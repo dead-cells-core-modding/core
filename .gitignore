@@ -410,3 +410,4 @@ vcpkg_installed/
 .vscode/*
 /.nuke
 /.playwright-mcp
+/_manifest
