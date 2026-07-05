@@ -131,7 +131,7 @@ jobs:
         DCCM_USE_HLC: ${{ matrix.debug }}
       run: |
         cd sources
-        dotnet test --timeout 0
+        dotnet test
     - name: Upload dumps on failure
       if: failure()
       uses: actions/upload-artifact@v7
