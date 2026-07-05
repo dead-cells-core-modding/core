@@ -6,7 +6,7 @@
 	url = git@github.com:dead-cells-core-modding/hdlls.git
 [submodule "sources/native/3rd/tinycc"]
 	path = sources/native/3rd/tinycc
-	url = https://repo.or.cz/tinycc.git
+	url = git@github.com:dead-cells-core-modding/tinycc.git
 [submodule "3rd/crashlink"]
 	path = 3rd/crashlink
 	url = git@github.com:dead-cells-core-modding/crashlink.git
