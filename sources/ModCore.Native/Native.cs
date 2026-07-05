@@ -23,10 +23,11 @@ namespace ModCore.Native
         public nint phl_throw;
         public nint phl_rethrow;
 
-        private readonly List<(int fidx, nint startPtr)> hlc_functions = [];
+        public readonly List<(int fidx, nint startPtr)> hlc_functions = [];
         public HL_type** hlc_instance_types;
-
+        public void** hlc_global_data;
         public HL_setup_t* hl_setup;
+
 
         public bool RunOnHLC
         {
@@ -809,6 +810,7 @@ namespace ModCore.Native
 
                 var hlc_types = new ReadOnlySpan<nint>(hlc_instance_types = (HL_type**)NativeLibrary.GetExport(libhlc, "hl_instance_types"), code->ntypes);
 
+                hlc_global_data = (void**) NativeLibrary.GetExport(libhlc, "hlc_global_data");
                 ctx->m->globals_data = (void*)NativeLibrary.GetExport(libhlc, "g_s_0"); // First
 
                 hl_alloc_init(&mctx->alloc);

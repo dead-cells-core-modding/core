@@ -253,7 +253,7 @@ namespace ModCore.Modules
             EventSystem.BroadcastEvent<IOnAfterLoadingCDB, _Data_>(Data.Class);
         }
 
-        private void Hook__Data_loadFrom( Hook__Data.orig_loadFrom orig, dc.String path, Ref<bool> allowReload )
+        private unsafe void Hook__Data_loadFrom( Hook__Data.orig_loadFrom orig, dc.String path, Ref<bool> allowReload )
         {
             orig(path, allowReload);
             EventSystem.BroadcastEvent<IOnAfterLoadingCDB, _Data_>(Data.Class);

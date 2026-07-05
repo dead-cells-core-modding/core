@@ -1,3 +1,4 @@
+using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Members.Object;
@@ -69,8 +70,17 @@ namespace Hashlink.Reflection.Types
                 return cachedFields;
             }
         }
+
         public HashlinkObject GlobalValue {
             get {
+                if (TypeIndex >= 0)
+                {
+                    var t = (HashlinkObjectType)HashlinkMarshal.Module.PreferTypes[TypeIndex];
+                    if (t != this)
+                    {
+                        return t.GlobalValue;
+                    }
+                }
                 return (nint)TypeData->global_value != 0 ?
                     Utils.TryGetFromPointerWithCache((nint)(*TypeData->global_value), ref cachedGlobalValue) :
                     throw new InvalidOperationException();

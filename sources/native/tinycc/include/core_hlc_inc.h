@@ -53,6 +53,7 @@
 #define hl_aptr(a,t)	((t*)(((varray*)(a))+1))
 
 #define USTR(str) L##str
+#define USTRN(str) str
 
 #define true 1
 #define false 0
@@ -60,7 +61,12 @@
 typedef unsigned short uchar;
 typedef char bool;
 typedef long long int64;
+
+#ifdef _WIN32
 typedef uchar pchar;
+#else
+typedef char pchar;
+#endif
 
 typedef struct _hl_mutex hl_mutex;
 typedef struct _hl_trap_ctx hl_trap_ctx;
