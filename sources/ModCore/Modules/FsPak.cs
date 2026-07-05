@@ -4,6 +4,7 @@ using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Storage;
 using ModCore.Utilities;
+using System.Diagnostics;
 
 namespace ModCore.Modules
 {

@@ -217,7 +217,7 @@ namespace Hashlink.Wrapper
 
             return (nint)prepare_exception_handle_data->shellcode;
         }
-        [StackTraceHidden]
+        //[StackTraceHidden]
         private static void FixExceptionTrace( Exception ex, nint stackTop )
         {
             static ref sbyte[] GetStackTraceData( ref object stackTrace )
@@ -252,6 +252,10 @@ namespace Hashlink.Wrapper
                         var curFrame = old[i];
                         while (index < ti->exc_stack_count)
                         {
+                            if (index >= 128)
+                            {
+                                break;
+                            }
                             var sp = exc_stack_ptrs[index];
                             if (sp <= 0)
                             {
@@ -270,6 +274,10 @@ namespace Hashlink.Wrapper
 
                     while (index < ti->exc_stack_count)
                     {
+                        if (index >= 128)
+                        {
+                            break;
+                        }
                         var sp = exc_stack_ptrs[index];
                         if (sp < 0)
                         {
@@ -309,8 +317,17 @@ namespace Hashlink.Wrapper
                         id = -id - 1;
                         var ip = ti->exc_stack_trace[id];
                         var size = 0x100;
-                        module_resolve_symbol((void*)ip, (char*)hlbuf, ref size);
-                        var str = new string((char*)hlbuf);
+
+                        string str;
+                        if (HashlinkMarshal.Module.NativeModule->jit_code != null)
+                        {
+                            module_resolve_symbol((void*)ip, (char*)hlbuf, ref size);
+                            str = new string((char*)hlbuf);
+                        }
+                        else
+                        {
+                            str = $"hlc+{ip:x}";
+                        }
 
                         var lastDot = str.LastIndexOf('.');
                         var className = "global";

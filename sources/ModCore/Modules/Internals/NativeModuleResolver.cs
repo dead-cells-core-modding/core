@@ -1,6 +1,7 @@
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
+using ModCore.Native;
 using ModCore.Storage;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -135,7 +136,7 @@ namespace ModCore.Modules.Internals
         {
             if (name == "std" || name == "builtin")
             {
-                return default;
+                return Native.Native.Current.LoadLibrary("libhl");
             }
 
             if (name == "steam")

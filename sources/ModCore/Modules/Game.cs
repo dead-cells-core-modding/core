@@ -6,6 +6,7 @@ using dc.pr;
 using dc.tool;
 using Hashlink;
 using Hashlink.Marshaling;
+using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
 using HaxeProxy.Events;
 using HaxeProxy.Runtime;
@@ -17,6 +18,7 @@ using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Events.Interfaces.Game.Save;
 using ModCore.Modules.Platforms;
 using ModCore.Utilities;
+using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -194,11 +196,6 @@ namespace ModCore.Modules
             catch (Exception)
             {
             }
-        }
-
-        private void Hook__Boot_initLogSystem( Hook__Boot.orig_initLogSystem orig )
-        {
-
         }
 
         private bool Hook__Achievements_hasAchievement( Hook__Achievements.orig_hasAchievement orig, dc.achievements.EAchievement id )

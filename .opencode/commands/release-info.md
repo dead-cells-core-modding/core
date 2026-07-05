@@ -25,8 +25,8 @@ description: 生成 release notes
 17. 删除feature 和 fix之间重复的条目，仅保留一个
 18. commit message可作为参考，但请注！意！：一个commit ！中！可！能！存！在！多！个!修!改!，commit 和！修！改！可！能！不！对！应！，仅！供！参！考！
 19. 忽略 CI 相关的更改
-20. 忽略 3rd/hashlink 的更改
-21. 忽略 latest-release.md 的更改
+20. 一定忽略 所用 git 子模块的更改！！！
+21. 一定忽略 latest-release.md 的更改
 
 ReleaseInfo.en.md 格式：
 ```

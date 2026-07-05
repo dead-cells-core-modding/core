@@ -610,5 +610,10 @@ namespace ModCore.Native
             c.AnonymousLabel();
             c.int3();
         }
+
+        protected override void Generate_asm_custom_longjump( Assembler c )
+        {
+            c.int3();
+        }
     }
 }

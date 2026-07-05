@@ -210,6 +210,54 @@ bin/
 - [DeadCellsDecomp](https://github.com/N3rdL0rd/DeadCellsDecomp) and [alivecells](https://github.com/N3rdL0rd/alivecells) from N3rdL0rd
 - [Hashlink](https://github.com/HaxeFoundation/hashlink) from HaxeFoundation
 
+## Third-Party Open Source Libraries
+
+This project uses the following open source libraries directly (bundled or linked):
+
+### Native (C/C++)
+
+| Library | License | Path |
+| --- | --- | --- |
+| [HashLink](https://github.com/HaxeFoundation/hashlink) | MIT | `sources/native/3rd/hashlink/` |
+| [TinyCC](https://repo.or.cz/tinycc.git) | LGPL 2.1 | `sources/native/3rd/tinycc/` |
+| [mbedTLS](https://github.com/Mbed-TLS/mbedtls) | Apache 2.0 / GPL 2.0+ | `sources/native/3rd/hashlink/include/mbedtls/` |
+| [zlib](https://zlib.net/) | zlib | `sources/native/3rd/hashlink/include/zlib/` |
+| [libpng](http://www.libpng.org/pub/png/libpng.html) | libpng | `sources/native/3rd/hashlink/include/png/` |
+| [libjpeg-turbo](https://libjpeg-turbo.org/) | IJG / Modified BSD | `sources/native/3rd/hashlink/include/turbojpeg/` |
+| [minimp3](https://github.com/lieff/minimp3) | CC0 1.0 | `sources/native/3rd/hashlink/include/minimp3/` |
+| [libogg + libvorbis](https://xiph.org/vorbis/) | BSD-style (Xiph.org) | `sources/native/3rd/hashlink/include/vorbis/` |
+| [SDL](https://www.libsdl.org/) | zlib | `sources/native/3rd/hashlink/include/sdl/` |
+| [OpenAL Soft](https://openal-soft.org/) | LGPL 2.0 | `sources/native/3rd/hashlink/include/openal/` |
+| [libuv](https://libuv.org/) | MIT | `sources/native/3rd/hashlink/include/libuv/` |
+| [PCRE2](https://www.pcre.org/) | BSD | `sources/native/3rd/hashlink/include/pcre/` |
+| [meshoptimizer](https://github.com/zeux/meshoptimizer) | MIT | `sources/native/3rd/hashlink/include/meshoptimizer/` |
+| [MikkTSpace](https://github.com/mmikk/MikkTSpace) | zlib-like | `sources/native/3rd/hashlink/include/mikktspace/` |
+| [V-HACD](https://github.com/kmammou/v-hacd) | BSD 3-Clause | `sources/native/3rd/hashlink/include/vhacd/` |
+| [SQLite](https://www.sqlite.org/) | Public Domain | `sources/native/3rd/hashlink/include/sqlite/` |
+| [hlsteam](https://github.com/dead-cells-core-modding/hdlls) | MIT | `sources/native/hdlls/libs/hlsteam/` |
+| [hlgog](https://github.com/dead-cells-core-modding/hdlls) | MIT | `sources/native/hdlls/libs/hlgog/` |
+| [Goldberg Emulator](https://gitlab.com/Mr_Goldberg/goldberg_emulator) | LGPL 3.0 | `3rd/Goldberg/` |
+| [Steamworks.NET](https://github.com/rlabrecque/Steamworks.NET) | MIT | `3rd/Steamworks.NET/` |
+| [RectpackSharp](https://github.com/ThomasMiz/RectpackSharp) | MIT | `3rd/RectpackSharp/` |
+| [crashlink](https://github.com/dead-cells-core-modding/crashlink) | MIT | `3rd/crashlink/` |
+
+### NuGet Packages
+
+| Package | License |
+| --- | --- |
+| [Newtonsoft.Json](https://www.newtonsoft.com/json) | MIT |
+| [Mono.Cecil](https://github.com/jbevain/cecil) | MIT |
+| [MonoMod](https://github.com/MonoMod/MonoMod) | MIT |
+| [Iced](https://github.com/icedland/iced) | MIT |
+| [Fody](https://github.com/Fody/Fody) | MIT |
+| [Serilog](https://serilog.net/) | Apache 2.0 |
+| [StbImageSharp](https://github.com/StbSharp/StbImageSharp) | MIT |
+| [StbImageWriteSharp](https://github.com/StbSharp/StbImageWriteSharp) | MIT |
+| [K4os.Hash.xxHash](https://github.com/K4os/K4os.Hash.xxHash) | MIT |
+| [SharpPdb](https://github.com/aziz-sharp/SharpPdb) | MIT |
+| [System.IO.Hashing](https://github.com/dotnet/runtime) | MIT |
+| [CsWin32](https://github.com/microsoft/CsWin32) | MIT |
+
 ## License
 
 Distributed under the MIT [license](https://github.com/DreamBoxSpy/DeadCellsCoreModding/blob/main/LICENSE).

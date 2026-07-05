@@ -232,5 +232,11 @@ namespace Hashlink
         public static partial int hl_gc_get_live_objects( HL_type* t, nint arr );
         [LibraryImport(LIBHL)]
         public static partial void hl_gc_enable( int b );
+        [LibraryImport(LIBHL)]
+        public static partial HL_runtime_obj* hl_get_obj_rt( HL_type* ot );
+        [LibraryImport(LIBHL)]
+        public static partial HL_runtime_obj* hl_get_obj_proto( HL_type* ot );
+        [LibraryImport(LIBHL)]
+        public static partial void hl_alloc_init( HL_alloc_block** ot );
     }
 }

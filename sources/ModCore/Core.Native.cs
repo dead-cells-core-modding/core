@@ -30,6 +30,7 @@ namespace ModCore
             catch { }
             phLibhl = NN.Current.LoadLibrary("libhl");
             _ = NN.Current.LoadLibrary(FolderInfo.CurrentNativeRoot.GetFilePath("modcorenative"));
+            _ = NN.Current.LoadLibrary(FolderInfo.CurrentNativeRoot.GetFilePath("libtcc"));
 
 
             foreach (var v in Directory.EnumerateFiles(FolderInfo.CurrentNativeRoot.FullPath, "*.json"))

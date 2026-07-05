@@ -273,7 +273,7 @@ namespace Hashlink.UnsafeUtilities
             ilg.Emit(OpCodes.Ldarg_0);
             ilg.Emit(OpCodes.Ldfld, DelegateInfo.FI_self);
 
-            for (int i = 0; i < ts.Length; i++)
+            for (int i = 0; i < ps.Length; i++)
             {
                 ilg.Emit(OpCodes.Ldarg, i + 1);
                 var t = ts[i];

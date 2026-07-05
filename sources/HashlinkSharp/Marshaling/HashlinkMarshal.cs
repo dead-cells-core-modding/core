@@ -154,7 +154,7 @@ namespace Hashlink.Marshaling
 
             marshaler ??= DefaultHashlinkMarshaler.Instance;
             var handle = HashlinkObjManager.GetHandle((nint)target);
-            return handle != null && handle.Target != null
+            return (handle != null && handle.Target != null)
                 ? handle.Target
                 : marshaler.TryConvertHashlinkObject(target) ?? throw new InvalidOperationException();
         }

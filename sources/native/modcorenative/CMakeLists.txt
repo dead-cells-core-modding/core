@@ -4,26 +4,30 @@ file(GLOB SOURCES ./*.c ./*.cpp)
 
 remove_definitions(-DLIBHL_EXPORTS)
 
-    set(HL_SRC_ROOT ../3rd/hashlink/src)
-    file(GLOB hl_srcs 
-        ${HL_SRC_ROOT}/code.c
-        ${HL_SRC_ROOT}/jit.c
-        ${HL_SRC_ROOT}/main.c
-        ${HL_SRC_ROOT}/module.c
-        ${HL_SRC_ROOT}/debugger.c
-        ${HL_SRC_ROOT}/profile.c)
-    add_library(hljit SHARED  ${hl_srcs})
-    set_target_properties(hljit PROPERTIES 
-        RUNTIME_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
-        LIBRARY_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
-        PREFIX ""
-    )
-    target_link_libraries(hljit libhl)
+# hljit
+set(HL_SRC_ROOT ../3rd/hashlink/src)
+file(GLOB hl_srcs 
+    ${HL_SRC_ROOT}/code.c
+    ${HL_SRC_ROOT}/jit.c
+    ${HL_SRC_ROOT}/main.c
+    ${HL_SRC_ROOT}/module.c
+    ${HL_SRC_ROOT}/debugger.c
+    ${HL_SRC_ROOT}/profile.c)
+add_library(hljit SHARED  ${hl_srcs})
+set_target_properties(hljit PROPERTIES 
+    RUNTIME_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
+    LIBRARY_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
+    PREFIX ""
+)
+target_link_libraries(hljit libhl)
 
-
+# modcorenative
 add_library (modcorenative SHARED ${SOURCES})
+target_link_libraries(modcorenative libhl hljit)
+target_include_directories(modcorenative PRIVATE "./include")
 
 target_compile_features(modcorenative PRIVATE cxx_std_20)
+
 
 # Find nethost
 if(WIN32)

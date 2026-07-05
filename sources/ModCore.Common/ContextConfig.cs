@@ -11,7 +11,8 @@ namespace ModCore
                 "libhl",
                 "hljit"
                 ],
-            consoleOutput = true
+            consoleOutput = true,
+            useHLC = "true".Equals(Environment.GetEnvironmentVariable("DCCM_USE_HLC"), StringComparison.OrdinalIgnoreCase)
         };
 
         private static ContextConfig current = Default;
@@ -39,5 +40,7 @@ namespace ModCore
         public Memory<byte>? hlbcOverride;
         public bool consoleOutput;
         public bool suppressFatalWindows;
+        public bool useHLC;
+        public bool hlcPDB;
     }
 }

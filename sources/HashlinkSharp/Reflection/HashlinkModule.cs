@@ -1,5 +1,7 @@
 using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Types;
+using HashlinkNET.Bytecode;
+using ModCore.Native;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
@@ -15,6 +17,12 @@ namespace Hashlink.Reflection
         public HashlinkType[] Types {
             get;
         }
+
+        public HashlinkType[]? HlcType
+        {
+            get;
+        }
+
         public IHashlinkFunc[] Functions {
             get;
         }
@@ -110,6 +118,22 @@ namespace Hashlink.Reflection
                 if (type.Name != null)
                 {
                     typeNameMapping[type.Name] = type;
+                }
+            }
+
+            if (Native.Current.hlc_instance_types != null)
+            {
+                HlcType = new HashlinkType[NativeCode->ntypes];
+                var types = Native.Current.hlc_instance_types;
+                for (int i = 0; i < NativeCode->ntypes; i++)
+                {
+                    var type = GetMemberFrom<HashlinkType>(types[i]);
+                    HlcType[i] = type;
+                    type.TypeIndex = i;
+                    if (type.Name != null)
+                    {
+                        typeNameMapping[type.Name] = type;
+                    }
                 }
             }
 

@@ -101,8 +101,6 @@ namespace ModCore.Modules
             Logger.Information("Initializing Haxe Utils Utils");
 
             HashlinkMarshal.Initialize(Context->m, HaxeProxyGenerator.Instance.Code);
-
-            //hl_gc_set_flags(HL_GC_Flags.GC_PROFILE);
         }
 
         void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )

@@ -51,6 +51,7 @@ class Build : NukeBuild
     {
         Architecture.X64 => "x64",
         Architecture.Arm => "arm",
+        Architecture.Arm64 => "arm",
         _ => throw new PlatformNotSupportedException()
     };
 
@@ -62,11 +63,19 @@ class Build : NukeBuild
     AbsolutePath MDKSrcRoot => RootDirectory + "/mdk";
     AbsolutePath DCCMToolSrcProject => MDKSrcRoot + "/DCCMTool" + "/DCCMTool.csproj";
 
-    AbsolutePath GoldbergRoot => RootDirectory + "/3rd/Goldberg" + $"/{CurrentOSPlatform}-{CurrentArchPlatform}"; 
+    AbsolutePath GoldbergRoot => RootDirectory + "/3rd/Goldberg" + $"/{CurrentOSPlatform}-{CurrentArchPlatform}";
+
+    AbsolutePath TinyCCRoot => NativeSrcRoot + "/3rd/tinycc";
+    AbsolutePath TinyCCBuildRoot => NativeSrcRoot + "/tinycc";
+    AbsolutePath TinyCCWin32Root => TinyCCRoot + "/win32";
+
+    AbsolutePath CrashlinkSrcRoot => RootDirectory + "/3rd/crashlink/crashlink";
 
     #endregion
 
     #region Bin Path
+
+    AbsolutePath TinyCCBinRoot => NativeBinRoot + "/tinycc";
 
     AbsolutePath BinRoot => RootDirectory + "/bin";
     AbsolutePath CoreBinRoot => BinRoot + "/core";
@@ -77,6 +86,8 @@ class Build : NukeBuild
     AbsolutePath ProxyBinRoot => MDKSelfBinRoot + "/ref";
 
     AbsolutePath MDKBinRoot => CoreBinRoot + "/mdk";
+
+    AbsolutePath CrashlinkDstRoot => CoreBinRoot + "/crashlink";
 
     AbsolutePath WorkshopTemp { get; } = Path.GetTempFileName() + ".dir";
 
@@ -168,7 +179,41 @@ class Build : NukeBuild
 
     #region Native Build
 
+    Target BuildTinyCC => _ => _
+    .Executes(() =>
+    {
+        TinyCCBinRoot.CreateDirectory();
+
+        File.Copy(TinyCCRoot + "/include/tccdefs.h", TinyCCBinRoot + "/tccdefs.h", true);
+        File.Copy(TinyCCBuildRoot + "/include/core_hlc_inc.h", TinyCCBinRoot + "/core_hlc_inc.h", true);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            var arch = CurrentArchPlatform switch
+            {
+                "x64" => "x86_64",
+                "arm" => "arm64",
+                _ => throw new PlatformNotSupportedException()
+            };
+            ProcessTasks.StartShell($"cmd.exe /c call build-tcc.bat -c cl -t {arch}", TinyCCWin32Root)
+                .AssertZeroExitCode();
+
+            // Copy dep
+
+            
+            File.Copy(TinyCCWin32Root + "/lib/libtcc1.a", TinyCCBinRoot + "/libtcc1.a", true);
+            
+        }
+        else // Unix
+        {
+            ProcessTasks.StartShell("./configure && make", TinyCCWin32Root)
+                .AssertZeroExitCode();
+
+            throw new NotImplementedException();
+        }
+    });
+
     Target BuildNative => _ => _
+    .DependsOn(BuildTinyCC)
     .Executes(() =>
     {
         var cmakePreset = $"{CurrentOSPlatform}-{CurrentArchPlatform}-{Configuration.ToString().ToLower()}";
@@ -230,6 +275,7 @@ class Build : NukeBuild
 
     Target BuildCore => _ => _.DependsOn(GenerateGameProxy)
             .DependsOn(BuildNative)
+            .DependsOn(PrepareHLC)
             .Executes(() =>
             {
                 DotNetTasks.DotNetBuild(s => s.SetConfiguration(Configuration)
@@ -251,6 +297,22 @@ class Build : NukeBuild
         {
             DotNetTasks.DotNetBuild(s => s.SetConfiguration(Configuration) 
                 .SetProjectFile(SourceRoot + "/ModCore.Assets"));
+        });
+
+    Target PrepareHLC => _ => _
+        .DependsOn(BuildTinyCC)
+        .Executes(() =>
+        {
+            // Copy crashlink
+            CrashlinkSrcRoot.CopyToDirectory(CrashlinkDstRoot, ExistsPolicy.MergeAndOverwrite);
+
+            foreach(var v in Directory.GetDirectories(CrashlinkDstRoot, "__pycache__",SearchOption.AllDirectories))
+            {
+                if(Directory.Exists(v))
+                {
+                    Directory.Delete(v, true);
+                }
+            }
         });
 
     #endregion

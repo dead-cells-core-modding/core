@@ -86,9 +86,11 @@ set(WITH_VIDEO off)
 
 add_subdirectory ("hdlls/libs")
 add_subdirectory ("modcorenative")
+add_subdirectory ("tinycc")
 
 if(WIN32)
 
 add_subdirectory ("host_lib")
+add_subdirectory ("cv2pdb")
 
 endif()

@@ -4,3 +4,12 @@
 [submodule "sources/native/hdlls"]
 	path = sources/native/hdlls
 	url = git@github.com:dead-cells-core-modding/hdlls.git
+[submodule "sources/native/3rd/tinycc"]
+	path = sources/native/3rd/tinycc
+	url = https://repo.or.cz/tinycc.git
+[submodule "3rd/crashlink"]
+	path = 3rd/crashlink
+	url = git@github.com:dead-cells-core-modding/crashlink.git
+[submodule "sources/native/3rd/cv2pdb"]
+	path = sources/native/3rd/cv2pdb
+	url = git@github.com:dead-cells-core-modding/cv2pdb.git

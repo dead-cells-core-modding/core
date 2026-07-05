@@ -390,5 +390,65 @@ namespace ModCore.Native
         {
             return IsBadReadPtr((void*)ptr, 8) && IsBadWritePtr((void*)ptr, 8) && IsBadCodePtr((FARPROC)ptr);
         }
+
+        protected override void Generate_asm_custom_longjump( Assembler c )
+        {
+            /**
+    preg *buf = REG_AT(CALL_REGS[0]);
+	preg *ret = REG_AT(CALL_REGS[1]);
+	preg p;
+	int i;
+	op64(ctx,MOV,PEAX,ret); // return value
+	op64(ctx,MOV,REG_AT(Edx),pmem(&p,buf->id,0x0));
+	op64(ctx,MOV,REG_AT(Ebx),pmem(&p,buf->id,0x8));
+	op64(ctx,MOV,REG_AT(Esp),pmem(&p,buf->id,0x10));
+	op64(ctx,MOV,REG_AT(Ebp),pmem(&p,buf->id,0x18));
+	op64(ctx,MOV,REG_AT(Esi),pmem(&p,buf->id,0x20));
+	op64(ctx,MOV,REG_AT(Edi),pmem(&p,buf->id,0x28));
+	op64(ctx,MOV,REG_AT(R12),pmem(&p,buf->id,0x30));
+	op64(ctx,MOV,REG_AT(R13),pmem(&p,buf->id,0x38));
+	op64(ctx,MOV,REG_AT(R14),pmem(&p,buf->id,0x40));
+	op64(ctx,MOV,REG_AT(R15),pmem(&p,buf->id,0x48));
+	op64(ctx,LDMXCSR,pmem(&p,buf->id,0x58), UNUSED);
+	op64(ctx,FLDCW,pmem(&p,buf->id,0x5C), UNUSED);
+	for(i=0;i<10;i++)
+		op64(ctx,MOVSD,REG_AT(XMM(i+6)),pmem(&p,buf->id,0x60 + i * 16));
+	op64(ctx,PUSH,pmem(&p,buf->id,0x50),UNUSED);
+	op64(ctx,RET,UNUSED,UNUSED);
+             */
+
+            c.mov(rax, rdx);
+            c.mov(rdx, __[rcx]);
+            c.mov(rbx, __[rcx + 0x8]);
+            c.mov(rsp, __[rcx + 0x10]);
+            c.mov(rbp, __[rcx + 0x18]);
+            c.mov(rsi, __[rcx + 0x20]);
+            c.mov(rdi, __[rcx + 0x28]);
+            c.mov(r12, __[rcx + 0x30]);
+            c.mov(r13, __[rcx + 0x38]);
+            c.mov(r14, __[rcx + 0x40]);
+            c.mov(r15, __[rcx + 0x48]);
+            c.ldmxcsr(__[rcx + 0x58]);
+            c.fldcw(__[rcx + 0x5C]);
+
+            var xmms = new AssemblerRegisterXMM[] {
+                xmm6,
+                xmm7,
+                xmm8,
+                xmm9,
+                xmm10,
+                xmm11,
+                xmm12,
+                xmm13,
+                xmm14,
+                xmm15
+                };
+            for (int i = 0; i < xmms.Length; i++)
+            {
+                c.movsd(xmms[i], __[rcx + i * 16 + 0x60]);
+            }
+            c.push(__qword_ptr[rcx + 0x50]);
+            c.ret();
+        }
     }
 }
