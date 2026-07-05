@@ -5,6 +5,8 @@ on: [push, pull_request]
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   publish-release:
@@ -245,3 +247,27 @@ jobs:
       with:
         name: build-${{ matrix.os_name }}-${{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}
         path: ./bin/*
+    - name: Install SBOM tool
+      run: dotnet tool install --global Microsoft.Sbom.DotNetTool
+    - name: Generate SBOM
+      shell: pwsh
+      run: |
+        $ver = Get-Content ./bin/ModCoreVersion.txt
+        sbom-tool generate `
+          -b ./bin `
+          -bc ./sources `
+          -pn DeadCellsCoreModding `
+          -pv $ver `
+          -ps dead-cells-core-modding `
+          -nsb https://github.com/dead-cells-core-modding/core `
+          -m ./sources
+        Copy-Item ./bin/_manifest/spdx_2.2/manifest.spdx.json ./sbom.spdx.json
+    - name: Generate artifact attestation
+      uses: actions/attest@v4
+      with:
+        subject-path: ./bin/*
+        sbom-path: ./sbom.spdx.json
+
+
+
+
