@@ -6,6 +6,6 @@
     <OutputPath>../../weaver/</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FodyHelpers" Version="6.6.4" />
+    <PackageReference Include="FodyHelpers" Version="6.9.3" />
   </ItemGroup>
 </Project>
