@@ -29,7 +29,6 @@
         "BuildCore",
         "BuildMDK",
         "BuildNative",
-        "BuildTinyCC",
         "DownloadLinux64Bin",
         "DownloadWin64Bin",
         "GenerateGameProxy",

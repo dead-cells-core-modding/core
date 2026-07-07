@@ -62,6 +62,39 @@
       "displayName": "x64 Release",
       "inherits": "linux-x64-debug",
       "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    },
+    {
+      "name": "android-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "toolchainFile": "$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        "ANDROID_ABI": "x86_64",
+        "ANDROID_PLATFORM": "24",
+        "ANDROID_STL": "c++_shared"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "android-x64-debug",
+      "displayName": "Android x86_64 Debug",
+      "inherits": "android-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "TARGET_ARCH": "x64"
+      }
+    },
+    {
+      "name": "android-x64-release",
+      "displayName": "Android x86_64 Release",
+      "inherits": "android-x64-debug",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     }
   ]
 }

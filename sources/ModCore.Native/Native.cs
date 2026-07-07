@@ -19,7 +19,7 @@ namespace ModCore.Native
 {
     internal unsafe abstract partial class Native
     {
-
+        private nint hlibc;
         private readonly static HL_type* TYPE_DYN = (HL_type*)NativeMemory.AllocZeroed((nuint)sizeof(HL_type));
         public nint phl_throw;
         public nint phl_rethrow;
@@ -559,6 +559,23 @@ namespace ModCore.Native
 
         public Native()
         {
+            NativeLibrary.SetDllImportResolver(typeof(Native).Assembly, ( lib, asm, _ ) =>
+            {
+                if (hlibc == 0 && !OperatingSystem.IsWindows())
+                {
+                    if (!NativeLibrary.TryLoad("libc.so", out hlibc))
+                    {
+                        hlibc = NativeLibrary.Load("libc.so.6");
+                    }
+                }
+
+                if (lib.StartsWith("libc.so"))
+                {
+                    return hlibc;
+                }
+                return default;
+            });
+
             InitializeAsm();
         }
 
@@ -925,6 +942,7 @@ namespace ModCore.Native
         }
         public virtual void InitializeNative()
         {
+
             hl_setup = (HL_setup_t*)GetLibhlSymbol("hl_setup");
             phl_gc_page_map = (HL_gc_pheader***)GetLibhlSymbol("hl_gc_page_map");
             pglobal_mark_stack = (HL_gc_mstack*)GetLibhlSymbol("global_mark_stack");

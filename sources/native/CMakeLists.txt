@@ -16,6 +16,8 @@ set(ARCH_NAME x64)
 if(WIN32)
 set(DCCM_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}win-${ARCH_NAME})
 add_definitions(-DJIT_CUSTOM_LONGJUMP)
+elseif(ANDROID)
+set(DCCM_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}android-${ARCH_NAME})
 else()
 set(DCCM_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}linux-${ARCH_NAME})
 endif()
@@ -67,7 +69,8 @@ set(WITH_VIDEO off)
     set(BUILD_SHARED_LIBS on)
     
     add_subdirectory ("3rd/hashlink")
-    
+    add_subdirectory ("3rd/tinycc")
+
     include_directories("3rd/hashlink/src")
     
     get_filename_component(HDLLS_INCLUDE "3rd/hashlink/include" ABSOLUTE)

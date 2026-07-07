@@ -42,7 +42,8 @@ class Build : NukeBuild
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     [Parameter("Target OS Platform to build")]
-    readonly string CurrentOSPlatform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "win" :
+    readonly string CurrentOSPlatform = OperatingSystem.IsAndroid() ? "android" :
+                                        RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "win" :
                                         RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "linux" :
                                         throw new NotSupportedException();
 
@@ -180,45 +181,11 @@ class Build : NukeBuild
 
     #region Native Build
 
-    Target BuildTinyCC => _ => _
+    Target BuildNative => _ => _
     .Executes(() =>
     {
         TinyCCBinRoot.CreateDirectory();
 
-        File.Copy(TinyCCRoot + "/include/tccdefs.h", TinyCCBinRoot + "/tccdefs.h", true);
-        File.Copy(TinyCCBuildRoot + "/include/core_hlc_inc.h", TinyCCBinRoot + "/core_hlc_inc.h", true);
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            var arch = CurrentArchPlatform switch
-            {
-                "x64" => "x86_64",
-                "arm" => "arm64",
-                _ => throw new PlatformNotSupportedException()
-            };
-            ProcessTasks.StartShell($"cmd.exe /c call build-tcc.bat -c cl -t {arch}", TinyCCWin32Root)
-                .AssertZeroExitCode();
-
-            // Copy dep
-            File.Copy(TinyCCWin32Root + "/lib/libtcc1.a", TinyCCBinRoot + "/libtcc1.a", true);
-            File.Copy(TinyCCWin32Root + "/lib/bt-dll.o", TinyCCBinRoot + "/bt-dll.o", true);
-            File.Copy(TinyCCWin32Root + "/lib/bcheck.o", TinyCCBinRoot + "/bbcheck.o", true);
-        }
-        else // Unix
-        {
-            ProcessTasks.StartShell("./configure", TinyCCRoot)
-                .AssertZeroExitCode();
-            ProcessTasks.StartShell("make", TinyCCRoot)
-                .AssertZeroExitCode();
-
-            // Copy dep
-            File.Copy(TinyCCRoot + "/libtcc1.a", TinyCCBinRoot + "/libtcc1.a", true);
-        }
-    });
-
-    Target BuildNative => _ => _
-    .DependsOn(BuildTinyCC)
-    .Executes(() =>
-    {
         var cmakePreset = $"{CurrentOSPlatform}-{CurrentArchPlatform}-{Configuration.ToString().ToLower()}";
         ProcessTasks.StartProcess("cmake",
             $". --preset={cmakePreset}",
@@ -227,15 +194,18 @@ class Build : NukeBuild
             $"--build ./out/build/{cmakePreset}",
             NativeSrcRoot).AssertZeroExitCode();
 
-        Log.Information("Copying Goldberg");
+        if (CurrentOSPlatform != "android")
+        {
+            Log.Information("Copying Goldberg");
 
-        GoldbergRoot.GlobFiles("*").ForEach(
-            x => {
-                Log.Information("Copying {file}", x);
-                x.CopyToDirectory(
-                    (NativeBinRoot + "/goldberg").CreateDirectory(), ExistsPolicy.FileOverwrite
-                );
-                });
+            GoldbergRoot.GlobFiles("*").ForEach(
+                x => {
+                    Log.Information("Copying {file}", x);
+                    x.CopyToDirectory(
+                        (NativeBinRoot + "/goldberg").CreateDirectory(), ExistsPolicy.FileOverwrite
+                    );
+                    });
+        }
 
         Log.Information("Scanning private members");
 
@@ -248,6 +218,12 @@ class Build : NukeBuild
                 ];
         }
         else if(CurrentOSPlatform == "linux")
+        {
+            scanLibraries = [
+                "libhl.so", "hljit.so"
+                ];
+        }
+        else if(CurrentOSPlatform == "android")
         {
             scanLibraries = [
                 "libhl.so", "hljit.so"
@@ -303,9 +279,14 @@ class Build : NukeBuild
         });
 
     Target PrepareHLC => _ => _
-        .DependsOn(BuildTinyCC)
+        .DependsOn(BuildNative)
         .Executes(() =>
         {
+            TinyCCBinRoot.CreateDirectory();
+
+            File.Copy(TinyCCRoot + "/include/tccdefs.h", TinyCCBinRoot + "/tccdefs.h", true);
+            File.Copy(TinyCCBuildRoot + "/include/core_hlc_inc.h", TinyCCBinRoot + "/core_hlc_inc.h", true);
+
             // Copy crashlink
             CrashlinkSrcRoot.CopyToDirectory(CrashlinkDstRoot, ExistsPolicy.MergeAndOverwrite);
             HlrunSrcRoot.CopyToDirectory(CrashlinkDstRoot, ExistsPolicy.MergeAndOverwrite);

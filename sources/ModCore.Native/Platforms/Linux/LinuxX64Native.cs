@@ -23,25 +23,25 @@ namespace ModCore.Native
         //  Replace explicit NativeLibrary.GetExport + delegate* calls with
         //  source-generated P/Invoke thunks (.NET 7+).
 
-        [LibraryImport("libc.so.6")]
+        [LibraryImport("libc.so")]
         private static partial int mprotect(nint addr, nuint len, int prot);
 
-        [LibraryImport("libc.so.6")]
+        [LibraryImport("libc.so")]
         private static partial nint pthread_self();
 
-        [LibraryImport("libc.so.6")]
+        [LibraryImport("libc.so")]
         private static partial int pthread_key_create(int* key, nint destructor);
 
-        [LibraryImport("libc.so.6")]
+        [LibraryImport("libc.so")]
         private static partial int pthread_setspecific(int key, nint value);
 
-        [LibraryImport("libc.so.6")]
+        [LibraryImport("libc.so")]
         private static partial int pthread_getattr_np(nint* thread, nint* attr);
 
-        [LibraryImport("libc.so.6")]
+        [LibraryImport("libc.so")]
         private static partial int pthread_attr_getstack(nint attr, nint* stackaddr, nuint* stacksize);
 
-        [LibraryImport("libc.so.6")]
+        [LibraryImport("libc.so")]
         private static partial int pthread_attr_destroy(nint attr);
 
         // ── Statically-resolved native symbols ──────────────────────────
@@ -57,7 +57,7 @@ namespace ModCore.Native
 
         static LinuxX64Native()
         {
-            if (!NativeLibrary.TryLoad("libc.so.6", out nint libc))
+            if (!NativeLibrary.TryLoad("libc.so", out nint libc))
                 libc = NativeLibrary.Load("libc.so.6");
 
             _pthreadGetspecificPtr = (nint*)NativeMemory.Alloc((nuint)sizeof(nint));
@@ -257,7 +257,7 @@ namespace ModCore.Native
         /// <summary>
         /// Get the kernel TID for the calling thread.
         /// </summary>
-        private static int GetCurrentThreadId()
+        protected static int GetCurrentThreadId()
         {
             var syscall = (delegate* unmanaged<long, nint>)*_syscallPtr;
             return (int)syscall(SYS_gettid);
