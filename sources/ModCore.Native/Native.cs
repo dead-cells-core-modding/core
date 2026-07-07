@@ -811,7 +811,7 @@ namespace ModCore.Native
                 var hlc_types = new ReadOnlySpan<nint>(hlc_instance_types = (HL_type**)NativeLibrary.GetExport(libhlc, "hl_instance_types"), code->ntypes);
 
                 hlc_global_data = (void**) NativeLibrary.GetExport(libhlc, "hlc_global_data");
-                ctx->m->globals_data = (void*)NativeLibrary.GetExport(libhlc, "g_s_0"); // First
+                ctx->m->globals_data = hlc_global_data[0]; // First
 
                 hl_alloc_init(&mctx->alloc);
 

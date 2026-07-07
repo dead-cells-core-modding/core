@@ -200,7 +200,8 @@ class Build : NukeBuild
 
             // Copy dep
             File.Copy(TinyCCWin32Root + "/lib/libtcc1.a", TinyCCBinRoot + "/libtcc1.a", true);
-            
+            File.Copy(TinyCCWin32Root + "/lib/bt-dll.o", TinyCCBinRoot + "/bt-dll.o", true);
+            File.Copy(TinyCCWin32Root + "/lib/bcheck.o", TinyCCBinRoot + "/bbcheck.o", true);
         }
         else // Unix
         {
