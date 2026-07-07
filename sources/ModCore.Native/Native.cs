@@ -675,6 +675,10 @@ namespace ModCore.Native
 
             if (string.IsNullOrEmpty(libName))
             {
+                if (funcName == "fmod" || funcName == "fmodf")
+                {
+                    funcName = "hlc_" + funcName;
+                }
                 return GetLibhlSymbol(funcName);
             }
 

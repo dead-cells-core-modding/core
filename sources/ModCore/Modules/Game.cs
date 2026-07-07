@@ -17,6 +17,7 @@ using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Game.Hero;
 using ModCore.Events.Interfaces.Game.Save;
 using ModCore.Modules.Platforms;
+using ModCore.Native;
 using ModCore.Utilities;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
@@ -295,7 +296,12 @@ namespace ModCore.Modules
             TitleScreen self )
         {
             orig(self);
-            self.build.set_text($"DCCM(v{typeof(Core).Assembly.GetName().Version}) - {self.build.text}".AsHaxeString());
+            string dccmVer = $"DCCM(v{typeof(Core).Assembly.GetName().Version})";
+            if(Native.Native.Current.RunOnHLC)
+            {
+                dccmVer += "(HLC)";
+            }
+            self.build.set_text($"{dccmVer} - {self.build.text}".AsHaxeString());
         }
 
         private void Hook__Save_save( Hook__Save.orig_save orig, User u, bool onlyGameData )
