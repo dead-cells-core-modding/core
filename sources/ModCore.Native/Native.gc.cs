@@ -137,10 +137,6 @@ namespace ModCore.Native
                 hl_semaphore_acquire(*pmark_threads_done);
             }
 
-#if DEBUG
-            VerifyGCValidity(roots);
-#endif
-
             for (int i = 0; i < roots.Length; i++)
             {
                 var ptr = roots[i];
@@ -166,6 +162,11 @@ namespace ModCore.Native
                     GC_SET_ALIVE(page, bid);
                 }
             }
+
+#if DEBUG
+            VerifyGCValidity(roots);
+#endif
+
         }
 
     }
