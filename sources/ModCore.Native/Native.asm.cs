@@ -1,9 +1,8 @@
 
-extern alias iced;
-
 using Hashlink;
-
-using iced::Iced.Intel;
+using ModCore.Storage;
+using Serilog;
+using Serilog.Core;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -14,6 +13,8 @@ namespace ModCore.Native
     {
         public const int STACK_CHUCK_SUM = unchecked((int)0xcececece);
         private nint nativeCodePage;
+
+        private AsmAssembler? assembler;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct NativeAsmData
@@ -63,6 +64,12 @@ namespace ModCore.Native
 
         protected virtual void InitializeAsm()
         {
+            LoadLibrary(FolderInfo.CurrentNativeRoot.GetFilePath("libtcc"));
+
+            assembler = new();
+
+           
+
             nativeCodePage = (nint)HashlinkNative.hl_alloc_executable_memory(8192);
 
             *Data = new()
@@ -70,6 +77,8 @@ namespace ModCore.Native
                 tls_slot_index = AllocTls()
             };
             var st = GetType();
+
+            var dict = new Dictionary<string, FieldInfo>();
 
             using var stream = new UnmanagedMemoryStream((byte*)nativeCodePage, 8192, 8192, FileAccess.ReadWrite);
             foreach (var v in st.GetFields(BindingFlags.Instance | BindingFlags.Public))
@@ -83,25 +92,33 @@ namespace ModCore.Native
 
                 Debug.Assert(generator != null);
 
-                var start = stream.PositionPointer;
+                var symName = "SYM_" + v.Name;
+                assembler.DefineGlobalSymbol(symName);
 
-                var assembler = new Assembler(64);
+                dict.Add(symName, v);
+
                 generator.Invoke(this, [assembler]);
+            }
 
-                assembler.int3();
+            assembler.Compiler.OnError += Compiler_OnError;
+            assembler.Compile();
 
-                assembler.Assemble(new StreamCodeWriter(stream),
-                    (ulong)start);
-
-                v.SetValue(this, (nint)start);
+            foreach ((var sym, var f) in dict)
+            {
+                f.SetValue(this, assembler.GetSymbol(sym));
             }
         }
 
+        private void Compiler_OnError( string? obj )
+        {
+            Debug.WriteLine("[Assembler]" + obj);
+            Log.Error("[Assembler]{msg}", obj);
+        }
 
         public nint asm_empty_method;
-        protected virtual void Generate_asm_empty_method( Assembler c )
+        protected virtual void Generate_asm_empty_method( AsmAssembler c )
         {
-            c.ret();
+            c.AddLine("ret");
         }
         public nint asm_cs_hl_store_context;
         public nint asm_hl2cs_store_return_ptr;
@@ -109,7 +126,7 @@ namespace ModCore.Native
         public nint asm_hook_break_on_trap_Entry;
         public nint asm_custom_longjump;
 
-        protected void Assert( Assembler c )
+        protected void Assert( AsmAssembler c )
         {
             var suc = c.CreateLabel();
             c.je(suc);
@@ -121,11 +138,11 @@ namespace ModCore.Native
         public abstract void SetTlsValue( int index, nint val );
         public abstract nint GetTlsValue( int index );
         public abstract int AllocTls();
-        protected abstract void AsmGetTlsDataPtrRax<T>( Assembler c, ref T offset );
-        protected abstract void Generate_asm_hl2cs_throw_exception( Assembler c );
-        protected abstract void Generate_asm_hl2cs_store_return_ptr( Assembler c );
-        protected abstract void Generate_asm_hook_break_on_trap_Entry( Assembler c );
-        protected abstract void Generate_asm_cs_hl_store_context( Assembler c );
-        protected abstract void Generate_asm_custom_longjump( Assembler c );
+        protected abstract void AsmGetTlsDataPtrRax<T>( AsmAssembler c, ref T offset );
+        protected abstract void Generate_asm_hl2cs_throw_exception( AsmAssembler c );
+        protected abstract void Generate_asm_hl2cs_store_return_ptr( AsmAssembler c );
+        protected abstract void Generate_asm_hook_break_on_trap_Entry( AsmAssembler c );
+        protected abstract void Generate_asm_cs_hl_store_context( AsmAssembler c );
+        protected abstract void Generate_asm_custom_longjump( AsmAssembler c );
     }
 }

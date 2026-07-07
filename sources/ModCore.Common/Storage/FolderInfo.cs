@@ -9,8 +9,18 @@ namespace ModCore.Storage
     public class FolderInfo
     {
         private static readonly Dictionary<string, FolderInfo> folders = [];
-        private static readonly string platform_name = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "win" : "linux";
-        private static readonly string cpu_name = Environment.Is64BitProcess ? "x64" : "x86";
+        private static readonly string platform_name =
+            OperatingSystem.IsWindows() ? "win" :
+            OperatingSystem.IsAndroid() ? "android" :
+            OperatingSystem.IsLinux() ? "linux" :
+            throw new PlatformNotSupportedException();
+
+        private static readonly string cpu_name = RuntimeInformation.ProcessArchitecture switch
+        {
+            Architecture.X64 => "x64",
+            Architecture.Arm64 => "arm",
+            _ => throw new PlatformNotSupportedException()
+        };
 
         /// <summary>
         /// A value indicating the folder where the core file is located

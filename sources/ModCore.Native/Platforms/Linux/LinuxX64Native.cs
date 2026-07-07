@@ -1,16 +1,14 @@
-extern alias iced;
 using Hashlink;
-using iced::Iced.Intel;
 using ModCore.Storage;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using static iced::Iced.Intel.AssemblerRegisters;
+using R = ModCore.Native.AsmAssembler.R;
 
 namespace ModCore.Native
 {
     [SupportedOSPlatform("linux")]
-    internal unsafe partial class LinuxNative : Native
+    internal unsafe partial class LinuxX64Native : Native
     {
         // ── mprotect constants ──────────────────────────────────────────
         private const int PROT_READ  = 0x1;
@@ -57,7 +55,7 @@ namespace ModCore.Native
         private static readonly Lock _keyLock  = new();
         private static readonly Lock _mapsLock = new();
 
-        static LinuxNative()
+        static LinuxX64Native()
         {
             if (!NativeLibrary.TryLoad("libc.so.6", out nint libc))
                 libc = NativeLibrary.Load("libc.so.6");
@@ -371,10 +369,12 @@ namespace ModCore.Native
         //  field offset.
         //
         //  Callee-saved registers (rbx,rbp,r12-r15) are untouched.
-        //  We also preserve rcx for compatibility with call-site
-        //  expectations carried over from the Windows implementation.
+        //  r12 is used as a temporary rsp holder across the call and is
+        //  preserved (push/pop) for the caller.
+        //  rcx is preserved for compatibility with call-site expectations
+        //  carried over from the Windows implementation.
 
-        protected override void AsmGetTlsDataPtrRax<T>(Assembler c, ref T offset)
+        protected override void AsmGetTlsDataPtrRax<T>(AsmAssembler c, ref T offset)
         {
             var ofs = (nint)Unsafe.AsPointer(ref offset) - (nint)tls_template;
 
@@ -382,42 +382,52 @@ namespace ModCore.Native
             // may clobber (System V: rax,rcx,rdx,rsi,rdi,r8-r11).
             // r12 is callee-saved AND we use it as a temporary rsp holder,
             // so push/pop it too to preserve the caller's value.
-            c.push(r12);
-            c.push(rcx);
-            c.push(rdx);
-            c.push(rsi);
-            c.push(rdi);
+            // ── pushq %r12; pushq %rcx; pushq %rdx; pushq %rsi; pushq %rdi
+            c.push(R.r12);
+            c.push(R.rcx);
+            c.push(R.rdx);
+            c.push(R.rsi);
+            c.push(R.rdi);
 
             // Force 16-byte stack alignment regardless of entry rsp.
             // Save the pre-alignment rsp in r12 (CALLEE-SAVED — survives
             // the call to pthread_getspecific).  Do NOT use a caller-saved
             // register (r8–r11) here — they get clobbered by the call.
-            c.mov(r12, rsp);
-            c.and(rsp, -16);
+            // ── movq %rsp, %r12
+            c.mov_rr(R.r12, R.rsp);
+            // ── andq $-16, %rsp
+            c.and(R.rsp, -16);
 
             // edi  = pthread key (first integer arg in System V ABI)
-            c.mov(rax, (long)_pthreadKeyPtr);
-            c.mov(edi, __[rax]);
+            // ── movabsq $_pthreadKeyPtr, %rax
+            c.mov_imm(R.rax, (long)_pthreadKeyPtr);
+            // ── movl (%rax), %edi
+            c.AddLine("movl (%rax), %edi");
 
             // rax  = pthread_getspecific
-            c.mov(rax, (long)_pthreadGetspecificPtr);
-            c.mov(rax, __[rax]);
+            // ── movabsq $_pthreadGetspecificPtr, %rax; movq (%rax), %rax
+            c.mov_imm(R.rax, (long)_pthreadGetspecificPtr);
+            c.mov_mr(R.rax, R.rax);
 
             // rax  = pthread_getspecific(key)  →  TlsData base pointer
-            c.call(rax);
+            // ── callq *%rax
+            c.call_r(R.rax);
 
             // Restore original (possibly misaligned) rsp from callee-saved r12.
-            c.mov(rsp, r12);
+            // ── movq %r12, %rsp
+            c.mov_rr(R.rsp, R.r12);
 
             // rax  = &TlsData->field
-            c.lea(rax, __[rax + (int)ofs]);
+            // ── leaq ofs(%rax), %rax
+            c.lea(R.rax, R.rax, (int)ofs);
 
-            // Restore caller-saved registers.
-            c.pop(rdi);
-            c.pop(rsi);
-            c.pop(rdx);
-            c.pop(rcx);
-            c.pop(r12);
+            // Restore caller-saved registers in reverse order.
+            // ── popq %rdi; popq %rsi; popq %rdx; popq %rcx; popq %r12
+            c.pop(R.rdi);
+            c.pop(R.rsi);
+            c.pop(R.rdx);
+            c.pop(R.rcx);
+            c.pop(R.r12);
         }
 
         // ── ASM: cs → hl context store ──────────────────────────────────
@@ -426,39 +436,53 @@ namespace ModCore.Native
         //  register-store buffer and transfers control to Hashlink code.
         //  Same register save set as Windows (callee-saved on both ABIs).
 
-        protected override void Generate_asm_cs_hl_store_context(Assembler c)
+        protected override void Generate_asm_cs_hl_store_context(AsmAssembler c)
         {
-            c.pop(r11);               // Data table pointer (pushed by caller)
-            c.mov(r10, __[rsp]);      // Return IP
+            // pop r11   (Data table pointer pushed by caller)
+            c.pop(R.r11);
 
-            c.mov(rax, rsp);          // Original stack pointer
+            // mov r10, [rsp]   →   movq (%rsp), %r10   (Return IP)
+            c.mov_mr(R.r10, R.rsp);
 
-            c.mov(rsp, __[r11]);      // Switch to register store buffer
+            // mov rax, rsp   →   movq %rsp, %rax   (Original stack pointer)
+            c.mov_rr(R.rax, R.rsp);
 
-            c.push(r10);              // Save return IP
-            c.mov(r10, STACK_CHUCK_SUM);
-            c.push(r10);              // Checksum
+            // mov rsp, [r11]   →   movq (%r11), %rsp   (Switch to register store buffer)
+            c.mov_mr(R.rsp, R.r11);
 
-            c.push(rax);              // Save original RSP
+            // push r10   (Save return IP)
+            c.push(R.r10);
 
-            c.push(r10);              // Checksum
+            // mov r10, STACK_CHUCK_SUM; push r10   (Checksum)
+            c.mov_imm(R.r10, STACK_CHUCK_SUM);
+            c.push(R.r10);
 
-            c.push(rbx);
-            c.push(rbp);
-            c.push(rdi);
-            c.push(rsi);
-            c.push(r12);
-            c.push(r13);
-            c.push(r14);
-            c.push(r15);
+            // push rax   (Save original RSP)
+            c.push(R.rax);
 
-            c.push(r10);              // Checksum
+            // push r10   (Checksum)
+            c.push(R.r10);
 
-            c.mov(__[r11 + 16], rsp); // Save register store position
+            c.push(R.rbx);
+            c.push(R.rbp);
+            c.push(R.rdi);
+            c.push(R.rsi);
+            c.push(R.r12);
+            c.push(R.r13);
+            c.push(R.r14);
+            c.push(R.r15);
 
-            c.mov(rsp, rax);          // Restore original stack
+            // push r10   (Checksum)
+            c.push(R.r10);
 
-            c.jmp(__qword_ptr[r11 + 8]); // Jump to target
+            // mov [r11 + 16], rsp   →   movq %rsp, 16(%r11)   (Save register store position)
+            c.mov_rm(R.rsp, R.r11, 16);
+
+            // mov rsp, rax   →   movq %rax, %rsp   (Restore original stack)
+            c.mov_rr(R.rsp, R.rax);
+
+            // jmp qword ptr [r11 + 8]   →   jmpq *8(%r11)   (Jump to target)
+            c.jmp_m(R.r11, 8);
         }
 
         // ── ASM: hl → cs return-pointer store ───────────────────────────
@@ -466,48 +490,66 @@ namespace ModCore.Native
         //  Platform-independent except for AsmGetTlsDataPtrRax.
         //  Hijacks the return address so Hashlink returns into managed code.
 
-        protected override void Generate_asm_hl2cs_store_return_ptr(Assembler c)
+        protected override void Generate_asm_hl2cs_store_return_ptr(AsmAssembler c)
         {
             AsmGetTlsDataPtrRax(c, ref tls_template->hl2cs_return_pointers);
 
-            c.cmp(rax, 0x1000);       // Tls is null?
+            // cmp rax, 0x1000   →   cmpq $0x1000, %rax   (Tls is null?)
+            c.cmp_ri(R.rax, 0x1000);
             c.jl(c.F);
 
-            c.mov(r11, __[rax]);
-            c.cmp(r11, 0);            // buffer pointer is null?
+            // mov r11, [rax]   →   movq (%rax), %r11
+            c.mov_mr(R.r11, R.rax);
+
+            // cmp r11, 0   →   cmpq $0, %r11   (buffer pointer is null?)
+            c.cmp_ri(R.r11, 0);
             c.je(c.F);
 
-            c.mov(r10, __[r11]);      // full or overflow flag
-            c.cmp(r10, 1);
+            // mov r10, [r11]   →   movq (%r11), %r10   (full or overflow flag)
+            c.mov_mr(R.r10, R.r11);
+
+            // cmp r10, 1
+            c.cmp_ri(R.r10, 1);
             c.je(c.F);
 
-            c.lea(r10, __[rsp + 8]);
-            c.mov(__[r11], r10);      // store return address
+            // lea r10, [rsp + 8]   →   leaq 8(%rsp), %r10
+            c.lea(R.r10, R.rsp, 8);
 
-            c.add(r11, 8);
-            c.mov(__[rax], r11);      // advance buffer pointer
+            // mov [r11], r10   →   movq %r10, (%r11)   (store return address)
+            c.mov_rm(R.r10, R.r11);
+
+            // add r11, 8
+            c.add(R.r11, 8);
+
+            // mov [rax], r11   →   movq %r11, (%rax)   (advance buffer pointer)
+            c.mov_rm(R.r11, R.rax);
 
             c.AnonymousLabel();
 
-            c.pop(rax);
-            c.jmp(__qword_ptr[rax]);
+            // pop rax; jmp qword ptr [rax]
+            c.pop(R.rax);
+            c.jmp_m(R.rax);
         }
 
         // ── ASM: hl → cs exception throw ────────────────────────────────
         //
-        //  Platform-independent except for AsmGetTlsDataPtrRax.
+        //  Uses rdi for the first argument (System V ABI) instead of rcx
+        //  (MS x64 ABI).  Otherwise platform-independent.
 
-        protected override void Generate_asm_hl2cs_throw_exception(Assembler c)
+        protected override void Generate_asm_hl2cs_throw_exception(AsmAssembler c)
         {
             AsmGetTlsDataPtrRax(c, ref tls_template->prev_hl_error_ptr);
 
-            c.mov(rdi, __[rax]);
+            // mov rdi, [rax]   →   movq (%rax), %rdi   (first arg in System V ABI)
+            c.mov_mr(R.rdi, R.rax);
 
-            c.sub(rsp, 56);
+            // sub rsp, 56   (align stack before jump to throw handler)
+            c.sub(R.rsp, 56);
 
             AsmGetTlsDataPtrRax(c, ref tls_template->hl_throw_ptr);
 
-            c.jmp(__qword_ptr[rax]);
+            // jmp qword ptr [rax]   →   jmpq *(%rax)
+            c.jmp_m(R.rax);
         }
 
         // ── ASM: hook break_on_trap entry ───────────────────────────────
@@ -521,97 +563,120 @@ namespace ModCore.Native
         //  because the register-save format (cs_hl_store_context) uses the
         //  intersection of callee-saved registers on both ABIs.
 
-        protected override void Generate_asm_hook_break_on_trap_Entry(Assembler c)
+        protected override void Generate_asm_hook_break_on_trap_Entry(AsmAssembler c)
         {
             var fallback = c.CreateLabel();
 
-            // ── Save argument registers (System V AMD64 ABI) ────────
-            c.push(rdi);              // arg1: t
-            c.push(rsi);              // arg2: ctx
-            c.push(rdx);              // arg3: v
-            c.push(rcx);              // arg4
-            c.push(r8);               // arg5
-            c.push(r9);               // arg6
+            // ── Save argument registers (System V AMD64 ABI) ─────────
+            // pushq %rdi; pushq %rsi; pushq %rdx; pushq %rcx; pushq %r8; pushq %r9
+            c.push(R.rdi);              // arg1: t
+            c.push(R.rsi);              // arg2: ctx
+            c.push(R.rdx);              // arg3: v
+            c.push(R.rcx);              // arg4
+            c.push(R.r8);               // arg5
+            c.push(R.r9);               // arg6
 
             // Align stack to 16 bytes before call.
             // Entry rsp ≡ 8 (mod 16).  Six pushes = -48 → rsp ≡ 8 (mod 16).
             // sub 8 → rsp ≡ 0 (mod 16) for the call.
-            c.sub(rsp, 8);
+            c.sub(R.rsp, 8);
 
-            c.mov(rax, (long)&Data->orig_break_on_trap);
-            c.mov(r11, __[rax]);
-            c.call(r11);
+            // Call orig_break_on_trap
+            c.mov_imm(R.rax, (long)&Data->orig_break_on_trap);
+            c.mov_mr(R.r11, R.rax);
+            c.call_r(R.r11);
 
-            c.add(rsp, 8);
+            c.add(R.rsp, 8);
 
             // Restore argument registers in reverse order.
-            c.pop(r9);
-            c.pop(r8);
-            c.pop(rcx);
-            c.pop(rdx);
-            c.pop(rsi);
-            c.pop(rdi);
+            // popq %r9; popq %r8; popq %rcx; popq %rdx; popq %rsi; popq %rdi
+            c.pop(R.r9);
+            c.pop(R.r8);
+            c.pop(R.rcx);
+            c.pop(R.rdx);
+            c.pop(R.rsi);
+            c.pop(R.rdi);
 
-            c.sub(rsp, 8);
-
-            // Call trap_filter(t, ctx, v)
+            // Align + call trap_filter(t, ctx, v)
             // Arguments are already in rdi, rsi, rdx from the original call.
-            c.mov(rax, (long)&Data->trap_filter);
-            c.mov(r11, __[rax]);
-            c.call(r11);
+            c.sub(R.rsp, 8);
 
-            c.add(rsp, 8);
+            c.mov_imm(R.rax, (long)&Data->trap_filter);
+            c.mov_mr(R.r11, R.rax);
+            c.call_r(R.r11);
 
-            // ── Check result ────────────────────────────────────────
-            c.cmp(rax, 0xff);
+            c.add(R.rsp, 8);
+
+            // ── Check result ─────────────────────────────────────────
+            // cmp rax, 0xff
+            c.cmp_ri(R.rax, 0xff);
             c.jl(fallback);
 
-            // ── Restore execution context ───────────────────────────
+            // ── Restore execution context ────────────────────────────
             // This section is platform-independent — it restores from the
             // format written by Generate_asm_cs_hl_store_context.
 
-            c.mov(rsp, __[rax + 16]);
+            // mov rsp, [rax + 16]   →   movq 16(%rax), %rsp
+            c.mov_mr(R.rsp, R.rax, 16);
 
-            c.pop(r10);               // Checksum
-            c.cmp(r10, STACK_CHUCK_SUM);
+            // pop r10   (Checksum)
+            c.pop(R.r10);
+            c.cmp_ri(R.r10, STACK_CHUCK_SUM);
             Assert(c);
 
-            c.pop(r15);
-            c.pop(r14);
-            c.pop(r13);
-            c.pop(r12);
-            c.pop(rsi);
-            c.pop(rdi);
-            c.pop(rbp);
-            c.pop(rbx);
+            c.pop(R.r15);
+            c.pop(R.r14);
+            c.pop(R.r13);
+            c.pop(R.r12);
+            c.pop(R.rsi);
+            c.pop(R.rdi);
+            c.pop(R.rbp);
+            c.pop(R.rbx);
 
-            c.pop(r10);               // Checksum
-            c.cmp(r10, STACK_CHUCK_SUM);
+            // pop r10   (Checksum)
+            c.pop(R.r10);
+            c.cmp_ri(R.r10, STACK_CHUCK_SUM);
             Assert(c);
 
-            c.pop(rax);
+            c.pop(R.rax);
 
-            c.pop(r10);               // Checksum
-            c.cmp(r10, STACK_CHUCK_SUM);
+            // pop r10   (Checksum)
+            c.pop(R.r10);
+            c.cmp_ri(R.r10, STACK_CHUCK_SUM);
             Assert(c);
 
-            c.pop(r11);               // Saved return IP
+            // pop r11   (Saved return IP)
+            c.pop(R.r11);
 
-            c.mov(rsp, rax);
+            // mov rsp, rax   →   movq %rax, %rsp
+            c.mov_rr(R.rsp, R.rax);
 
-            c.mov(rax, (long)&Data->return_from_managed);
-            c.mov(__[rsp], r11);      // Fix return pointer
-            c.jmp(__qword_ptr[rax]);
+            // mov rax, &Data->return_from_managed
+            c.mov_imm(R.rax, (long)&Data->return_from_managed);
 
+            // mov [rsp], r11   →   movq %r11, (%rsp)   (Fix return pointer)
+            c.mov_rm(R.r11, R.rsp);
+
+            // jmp qword ptr [rax]   →   jmpq *(%rax)
+            c.jmp_m(R.rax);
+
+            // ── Fallback ─────────────────────────────────────────────
             c.Label(ref fallback);
-            c.mov(rax, 0);
+            c.mov_imm(R.rax, 0);
             c.ret();
 
+            // Unreachable tail — breakpoint guard
             c.AnonymousLabel();
             c.int3();
         }
 
-        protected override void Generate_asm_custom_longjump( Assembler c )
+        // ── ASM: custom longjmp ──────────────────────────────────────────
+        //
+        //  Stub on Linux — the HLC longjmp path is not currently used.
+        //  A real implementation would need to comply with System V AMD64 ABI
+        //  (first two args in rdi, rsi).
+
+        protected override void Generate_asm_custom_longjump(AsmAssembler c)
         {
             c.int3();
         }

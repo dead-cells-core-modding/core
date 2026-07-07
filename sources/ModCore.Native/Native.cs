@@ -3,6 +3,7 @@ using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Native.Events.Interfaces;
+using ModCore.Native.Platforms.Android;
 using ModCore.Storage;
 using MonoMod.Core;
 using Serilog;
@@ -43,10 +44,33 @@ namespace ModCore.Native
         public static Native Current
         {
             get;
-        } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new WindowsNative() :
-            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? new LinuxNative() :
-            throw new PlatformNotSupportedException();
+        } = CreateNative();
 
+        private static Native CreateNative()
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
+                {
+                    return new WindowsX64Native();
+                }
+            }
+            else if (OperatingSystem.IsLinux())
+            {
+                if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
+                {
+                    return new LinuxX64Native();
+                }
+            }
+            else if (OperatingSystem.IsAndroid())
+            {
+                if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
+                {
+                    return new AndroidX64Native();
+                }
+            }
+            throw new PlatformNotSupportedException();
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct VMContext
