@@ -130,7 +130,7 @@ jobs:
         DOTNET_DbgEnableMiniDump: 1
         COMPlus_DbgEnableMiniDump: 1
         DOTNET_DbgMiniDumpName: "/tmp/dccm_dump_crash_%d.dmp"
-        DCCM_USE_HLC: ${{ matrix.debug }}
+        DCCM_USE_HLC: ${{ matrix.useHLC }}
       run: |
         cd sources
         dotnet test
