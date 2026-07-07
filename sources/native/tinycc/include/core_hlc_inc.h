@@ -21,6 +21,8 @@
 #undef DOMAIN
 #undef __valid
 
+#define HL_64
+
 
 #define hl_invalid_comparison 0xAABBCCDD
 
