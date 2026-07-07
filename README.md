@@ -14,7 +14,6 @@ Download the latest build [here](https://nightly.link/dead-cells-core-modding/co
 ## Roadmap
 
 - [ ] More convenient BuildSystem
-- [ ] Linux platform support
 
 ## Requirement
 
