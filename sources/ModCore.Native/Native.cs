@@ -18,7 +18,7 @@ namespace ModCore.Native
 {
     internal unsafe abstract partial class Native
     {
-        
+
         private readonly static HL_type* TYPE_DYN = (HL_type*)NativeMemory.AllocZeroed((nuint)sizeof(HL_type));
         public nint phl_throw;
         public nint phl_rethrow;
@@ -40,7 +40,8 @@ namespace ModCore.Native
             ) : NativeLibrary.Load("libhl")
             ), name);
 
-        public static Native Current {
+        public static Native Current
+        {
             get;
         } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new WindowsNative() :
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? new LinuxNative() :
@@ -93,7 +94,7 @@ namespace ModCore.Native
 
                 }
             }
-            
+
             return ((delegate* unmanaged< nint, nint, int >)orig_hl_dyn_compare)((nint)a, (nint)b);
         }
 
@@ -108,7 +109,7 @@ namespace ModCore.Native
             {
                 return handle;
             }
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 return NativeLibrary.Load(path + ".so");
             }
@@ -127,7 +128,7 @@ namespace ModCore.Native
                 ra->t = TYPE_DYN;
                 rb->t = TYPE_DYN;
             }
-            ((delegate* unmanaged< nint, nint, nint, nint, int, void >)orig_jit_op_jump)(ctx, (nint) ra, (nint) rb, op, targetPos);
+            ((delegate* unmanaged< nint, nint, nint, nint, int, void >)orig_jit_op_jump)(ctx, (nint)ra, (nint)rb, op, targetPos);
             ra->t = oat;
             rb->t = obt;
         }
@@ -148,7 +149,7 @@ namespace ModCore.Native
         [UnmanagedCallersOnly]
         protected static void Hook_gc_mark()
         {
-            
+
 
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
                 new(IOnNativeEvent.EventId.HL_EV_GC_BEFORE_MARK, 0));
@@ -595,9 +596,9 @@ namespace ModCore.Native
         {
             var naddr = (nint)addr;
             var out_span = new Span<char>(out_str, *outSize);
-
-            var result = ((delegate* unmanaged< void*, char*, int*, char* >)orig_hlc_resolve_symbol)(addr, out_str, outSize);
-
+            out_span.Clear();
+            char* result;
+            result = ((delegate* unmanaged< void*, char*, int*, char* >)orig_hlc_resolve_symbol)(addr, out_str, outSize);
             string? orig_str = null;
             if (result != null)
             {
@@ -654,6 +655,8 @@ namespace ModCore.Native
 
             var str = sb.ToString();
 
+            *outSize = out_span.Length;
+
             if (str.Length < out_span.Length)
             {
                 *outSize = str.Length;
@@ -671,7 +674,7 @@ namespace ModCore.Native
             var libName = Marshal.PtrToStringUTF8((nint)lib);
             var funcName = Marshal.PtrToStringUTF8((nint)name);
             Debug.Assert(funcName != null);
-           
+
 
             if (string.IsNullOrEmpty(libName))
             {
@@ -705,15 +708,15 @@ namespace ModCore.Native
                     hlib = (nint)ev.result;
                     cachedHDLLs[libName] = hlib;
                 }
-               
+
                 var hlp = NativeLibrary.GetExport(hlib, "hlp_" + funcName);
                 nint _r = 0;
 
                 return ((delegate* unmanaged< nint*, nint >)hlp)(&_r);
             }
-            
 
-            return (nint) ev.result;
+
+            return (nint)ev.result;
         }
 
         protected virtual void InitializeNativeHooks()
@@ -814,7 +817,7 @@ namespace ModCore.Native
 
                 var hlc_types = new ReadOnlySpan<nint>(hlc_instance_types = (HL_type**)NativeLibrary.GetExport(libhlc, "hl_instance_types"), code->ntypes);
 
-                hlc_global_data = (void**) NativeLibrary.GetExport(libhlc, "hlc_global_data");
+                hlc_global_data = (void**)NativeLibrary.GetExport(libhlc, "hlc_global_data");
                 ctx->m->globals_data = hlc_global_data[0]; // First
 
                 hl_alloc_init(&mctx->alloc);
@@ -833,7 +836,7 @@ namespace ModCore.Native
 
                 ((delegate* unmanaged< nint, nint, nint, nint, nint, void >)NativeLibrary.GetExport(libmodcorenative, "hlc_setup_callback"))(
                     (nint)(delegate* unmanaged< void*, char*, int*, char* >)&ResolveHLCSymbolNative,
-                    (nint)(delegate* unmanaged< void**, int, int>)&Hook_module_capture_stack,
+                    (nint)(delegate* unmanaged< void**, int, int >)&Hook_module_capture_stack,
                     NativeLibrary.GetExport(libhlc, "hlc_static_call"),
                     NativeLibrary.GetExport(libhlc, "hlc_get_wrapper"),
                     RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? asm_custom_longjump : 0
@@ -890,7 +893,7 @@ namespace ModCore.Native
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
                     new(IOnNativeEvent.EventId.HL_EV_VM_READY, (nint)ctx));
 
-            
+
             ctx->c.fun = ctx->m->functions_ptrs[ctx->m->code->entrypoint];
             ctx->c.hasValue = 0;
 

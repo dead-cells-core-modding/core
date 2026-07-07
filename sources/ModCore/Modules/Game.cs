@@ -1,6 +1,10 @@
 using dc;
 using dc.en;
 using dc.h3d.pass;
+using dc.hl;
+using dc.hl.types;
+using dc.hxd.fs;
+using dc.hxd.res;
 using dc.hxsl;
 using dc.pr;
 using dc.tool;
@@ -8,6 +12,7 @@ using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
+using Hashlink.Virtuals;
 using HaxeProxy.Events;
 using HaxeProxy.Runtime;
 using HaxeProxy.Runtime.Internals.Inheritance;
@@ -100,12 +105,18 @@ namespace ModCore.Modules
 
             if (Core.Config.Value.SkipLogoSplash)
             {
+                Hook__LogoSplashscreen.__constructor__ += Hook_LogoSplashscreen_onConstructor;
                 Hook_LogoSplashscreen.onResize += Hook_LogoSplashscreen_onResize;
                 Hook_Main.onSecondFrame += Hook_Main_onSecondFrame;
             }
         }
-
-
+        private void Hook_LogoSplashscreen_onConstructor( Hook__LogoSplashscreen.orig___constructor__ orig,
+             LogoSplashscreen arg1, Ref<double> delay )
+        {
+            orig(arg1, delay);
+            arg1.logoMT.alpha = 0;
+            arg1.logoEvilEmpire.alpha = 0;
+        }
 
         private unsafe void Hook__ErrorHandler_init( Hook__ErrorHandler.orig_init orig )
         {

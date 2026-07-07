@@ -37,7 +37,8 @@ namespace Hashlink.Proxy
                     goto _RETRY;
                 }
 
-                t = (T)factory(this);
+                object result = factory(this);
+                t = (T)result;
                 extraData = t;
 
                 dataLock.ExitWriteLock();
