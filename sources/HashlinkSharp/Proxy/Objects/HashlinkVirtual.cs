@@ -23,15 +23,36 @@ namespace Hashlink.Proxy.Objects
             }
             return null;
         }
-
         public override object? GetFieldValue( int hashedName )
         {
-            return HashlinkMarshal.ConvertHashlinkObject(
-                hl_dyn_getp((HL_vdynamic*)TypedRef, hashedName, InternalTypes.hlt_dyn));
+            var ptr = hl_obj_lookup((HL_vdynamic*)HashlinkPointer, hashedName, out var ftype);
+            if (ptr == null)
+            {
+                ptr = hl_obj_lookup_extra((HL_vdynamic*)HashlinkPointer, hashedName);
+                return ptr != null
+                    ? HashlinkMarshal.ConvertHashlinkObject(ptr)
+                    : HashlinkMarshal.ConvertHashlinkObject(
+                        hl_dyn_getp((HL_vdynamic*)TypedRef, hashedName, InternalTypes.hlt_dyn));
+            }
+            return HashlinkMarshal.ReadData(ptr, HashlinkMarshal.GetHashlinkType(ftype));
         }
         public override void SetFieldValue( int hashedName, object? value )
         {
-            hl_dyn_setp((HL_vdynamic*)TypedRef, hashedName, InternalTypes.hlt_dyn, (void*) HashlinkMarshal.GetDyn(value));
+
+            var ptr = hl_obj_lookup((HL_vdynamic*)HashlinkPointer, hashedName, out var ftype);
+            if (ptr == null)
+            {
+                if (!hl_obj_has_field((HL_vdynamic*)HashlinkPointer, hashedName))
+                {
+                    hl_dyn_setp((HL_vdynamic*)TypedRef, hashedName, InternalTypes.hlt_dyn, (void*)HashlinkMarshal.GetDyn(value));
+                    return;
+                }
+                nint val = 0;
+                HashlinkMarshal.WriteDataDyn(&val, value);
+                hl_obj_set_field((HL_vdynamic*)HashlinkPointer, hashedName, (HL_vdynamic*)val);
+                return;
+            }
+            HashlinkMarshal.WriteData(ptr, value, HashlinkMarshal.GetHashlinkType(ftype));
         }
     }
 }

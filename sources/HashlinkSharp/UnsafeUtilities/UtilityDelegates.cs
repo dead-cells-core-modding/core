@@ -1,6 +1,7 @@
 using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -345,6 +346,9 @@ namespace Hashlink.UnsafeUtilities
         {
             var invoke = type.GetMethod("Invoke")!;
             var ps = invoke.GetParameters();
+
+            Debug.Assert(ps.Length > 0);
+
             Type[] ts = [.. ps.Skip(1).Select(x => x.ParameterType)];
 
             var dm = new DynamicMethod("bind_delegate", invoke.ReturnType,
