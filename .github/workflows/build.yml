@@ -1,4 +1,4 @@
-﻿
+
 name: Build And Test
 
 on: [push, pull_request]
@@ -18,12 +18,12 @@ jobs:
       with:
         submodules: true
     - name: Download artifacts win-x64
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with: 
         name: build-win-x64
         path: win-x64
     - name: Download artifacts linux-x64
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with: 
         name: build-linux-x64
         path: linux-x64
@@ -83,7 +83,7 @@ jobs:
       with:
         dotnet-version: 10
     - name: Download artifacts
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with: 
         name: build-${{ matrix.os_name }}-${{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}
         path: ctx/coremod
@@ -150,7 +150,7 @@ jobs:
       with:
         submodules: true
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 10
     - name: Download artifacts
@@ -192,7 +192,7 @@ jobs:
       with:
         submodules: recursive
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 10
     - name: Setup MSVC (Windows)
