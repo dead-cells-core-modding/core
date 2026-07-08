@@ -189,6 +189,7 @@ namespace ModCore.Native
 
         public AsmAssembler()
         {
+            compiler.AddOptions("-nostdlib");
             compiler.SetOutputType(TCCCompiler.OutputType.MEMORY);
 
             var incRoot = Path.GetFullPath(Path.Combine(FolderInfo.CurrentNativeRoot.FullPath, "tinycc"));
