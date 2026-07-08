@@ -36,6 +36,9 @@ namespace ModCore.Native
         } = false;
 
         public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(Current?.LoadLibrary("libhl") ?? (
+            OperatingSystem.IsAndroid() ? NativeLibrary.Load(
+                FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so")
+            ) :
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? NativeLibrary.Load(
                 FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so.1")
             ) : NativeLibrary.Load("libhl")
@@ -67,6 +70,15 @@ namespace ModCore.Native
                 if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
                 {
                     return new AndroidX64Native();
+                }
+                // Reserved dispatch point for future Android arm64 support.
+                // The arm64 platform backend (AArch64 assembly generators in a
+                // dedicated Native subclass) is not implemented yet.
+                if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+                {
+                    throw new PlatformNotSupportedException(
+                        "Android arm64 is reserved but not yet implemented. " +
+                        "An AArch64 Native backend must be provided.");
                 }
             }
             throw new PlatformNotSupportedException();
@@ -963,5 +975,26 @@ namespace ModCore.Native
         public abstract void RestorePageProtect( nint ptr, int val );
         public abstract ReadOnlySpan<byte> GetHlbootDataFromExe( string exePath );
         public abstract bool IsBadPtr( nint ptr );
+
+        /// <summary>
+        /// Resolve the load base address of a native library handle returned by
+        /// <see cref="LoadLibrary(string)"/>.
+        /// <para>
+        /// On Windows the handle (HMODULE) is already the module base.
+        /// On glibc Linux <c>dlopen</c> returns a <c>link_map*</c> whose first
+        /// field (<c>l_addr</c>) is the load base.
+        /// </para>
+        /// Platform backends (e.g. Android Bionic, where the handle is an opaque
+        /// <c>soinfo*</c>) override this to provide a correct value.
+        /// </summary>
+        public virtual nint GetModuleBaseAddress( nint libHandle )
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                return libHandle;
+            }
+            // glibc: first field of link_map is l_addr (the load base).
+            return Marshal.ReadIntPtr(libHandle);
+        }
     }
 }

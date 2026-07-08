@@ -31,15 +31,19 @@ target_compile_features(modcorenative PRIVATE cxx_std_20)
 
 
 # Find nethost
+# nethost is only needed on Windows where the native launcher (DeadCellsModding.exe)
+# hosts the .NET runtime. On Android/Linux, modcorenative is loaded by .NET itself
+# and does not need nethost. The NETHOST_PACK_NAME variables for non-Windows
+# platforms are reserved for future use.
 if(WIN32)
-set(NETHOST_PACK_NAME "microsoft.netcore.app.host.win-x64")
-set(NETHOST_PLATFORM "win-x64")
+set(NETHOST_PACK_NAME "microsoft.netcore.app.host.win-${ARCH_NAME}")
+set(NETHOST_PLATFORM "win-${ARCH_NAME}")
 elseif(ANDROID)
-set(NETHOST_PACK_NAME "microsoft.netcore.app.host.android-x64")
-set(NETHOST_PLATFORM "android-x64")
+set(NETHOST_PACK_NAME "microsoft.netcore.app.host.android-${ARCH_NAME}")
+set(NETHOST_PLATFORM "android-${ARCH_NAME}")
 else()
-set(NETHOST_PACK_NAME "microsoft.netcore.app.host.linux-x64")
-set(NETHOST_PLATFORM "linux-x64")
+set(NETHOST_PACK_NAME "microsoft.netcore.app.host.linux-${ARCH_NAME}")
+set(NETHOST_PLATFORM "linux-${ARCH_NAME}")
 endif()
 
 if(WIN32)

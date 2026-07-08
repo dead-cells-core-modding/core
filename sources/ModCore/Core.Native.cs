@@ -22,6 +22,11 @@ namespace ModCore
                 {
                     NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.dll"));
                 }
+                else if (OperatingSystem.IsAndroid())
+                {
+                    // Android Bionic does not use versioned SONAMEs (.so.1).
+                    NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so"));
+                }
                 else
                 {
                     NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so.1"));
@@ -65,12 +70,9 @@ namespace ModCore
                         loadedLibraries[member.ModuleName] = lib;
                     }
 
-                    // On Linux, dlopen (via NativeLibrary.Load) returns a link_map*
-                    // whose first field l_addr is the actual load base address.
-                    // On Windows, LoadLibrary returns HMODULE which is already the base.
-                    nint baseAddr = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                        ? Marshal.ReadIntPtr(lib)
-                        : lib;
+                    // Resolve the module load base in a platform-appropriate way
+                    // (glibc link_map, Windows HMODULE, Android soinfo, ...).
+                    nint baseAddr = NN.Current.GetModuleBaseAddress(lib);
 
                     return (nint)member.RVA + baseAddr;
                 }

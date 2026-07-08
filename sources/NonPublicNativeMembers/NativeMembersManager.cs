@@ -11,6 +11,22 @@ namespace NonPublicNativeMembers
     {
         public static NativeMembersManager Create()
         {
+            // Cross-compilation override: when scanning native libraries for a
+            // different target platform (e.g., Android .so files from a Windows
+            // build host), set DCCM_NATIVE_MEMBERS_PLATFORM to the TARGET
+            // platform's name. This bypasses host-platform dispatch and returns
+            // the correct manager for ELF (linux/android) vs PDB (windows).
+            var overridePlatform = Environment.GetEnvironmentVariable("DCCM_NATIVE_MEMBERS_PLATFORM");
+            if (string.Equals(overridePlatform, "linux", StringComparison.OrdinalIgnoreCase))
+                return new LinuxNativeMembersManager();
+
+            // Android is checked first because its runtime also reports
+            // IsOSPlatform(OSPlatform.Linux) == true, but we need the
+            // Android-specific activation path.
+            if (OperatingSystem.IsAndroid())
+            {
+                return new AndroidNativeMembersManager();
+            }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return new WindowsNativeMembersManager();
@@ -25,7 +41,7 @@ namespace NonPublicNativeMembers
         protected NativeMembersData data = new();
         private readonly Dictionary<string, NativeMembersData.ModuleInfo> activeModules = [];
 
-        private string GetModuleNameFromPath(string path)
+        protected string GetModuleNameFromPath(string path)
         {
             var fn = Path.GetFileNameWithoutExtension(path);
             if (fn.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) ||

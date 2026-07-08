@@ -51,8 +51,10 @@ class Build : NukeBuild
     readonly string CurrentArchPlatform = RuntimeInformation.ProcessArchitecture switch
     {
         Architecture.X64 => "x64",
-        Architecture.Arm => "arm",
-        Architecture.Arm64 => "arm",
+        // arm64 is reserved for future Android arm64 support. The native
+        // CMake presets and platform abstraction expose an "arm64" slot; the
+        // architecture-specific assembly generators are not implemented yet.
+        Architecture.Arm64 => "arm64",
         _ => throw new PlatformNotSupportedException()
     };
 
@@ -234,6 +236,13 @@ class Build : NukeBuild
             throw new PlatformNotSupportedException();
         }
 
+        // When cross-compiling Android/Linux .so files from a Windows host,
+        // the native member scanner needs an ELF-capable manager (not PDB).
+        // The env var instructs NativeMembersManager.Create() to return
+        // LinuxNativeMembersManager regardless of host platform.
+        if (CurrentOSPlatform != "win")
+            Environment.SetEnvironmentVariable("DCCM_NATIVE_MEMBERS_PLATFORM", "linux");
+
         DotNetTasks.DotNetRun(s =>
             s.SetProjectFile(DCCMToolSrcProject)
             .EnableNoLaunchProfile()
@@ -245,6 +254,8 @@ class Build : NukeBuild
                 ..scanLibraries.SelectMany<string, string>(x => ["-i", x]),
                 "-o", (NativeBinRoot + "/nativemembers.json")
                 ]));
+
+        Environment.SetEnvironmentVariable("DCCM_NATIVE_MEMBERS_PLATFORM", null);
     });
 
 

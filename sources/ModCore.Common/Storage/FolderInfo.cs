@@ -18,7 +18,9 @@ namespace ModCore.Storage
         private static readonly string cpu_name = RuntimeInformation.ProcessArchitecture switch
         {
             Architecture.X64 => "x64",
-            Architecture.Arm64 => "arm",
+            // arm64 is reserved for future Android arm64 support; keep the name
+            // consistent with the native output directory (e.g. android-arm64).
+            Architecture.Arm64 => "arm64",
             _ => throw new PlatformNotSupportedException()
         };
 

@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 namespace NonPublicNativeMembers.Platforms
 {
     [SupportedOSPlatform("linux")]
+    [SupportedOSPlatform("windows")]
     internal unsafe partial class LinuxNativeMembersManager : NativeMembersManager
     {
         /// <summary>
@@ -65,8 +66,83 @@ namespace NonPublicNativeMembers.Platforms
             }
         }
 
+        // ── Tool resolution ─────────────────────────────────────────
+        // On Windows, GNU readelf/objdump are not available.  The Android NDK
+        // ships LLVM equivalents (llvm-readelf, llvm-objdump) that produce
+        // compatible output.  We probe them first, falling back to the bare
+        // tool names (which work on Linux / Git Bash / MSYS2).
+
+        private static readonly string[] s_readelfProbes = ResolveElfToolProbes("readelf");
+        private static readonly string[] s_objdumpProbes  = ResolveElfToolProbes("objdump");
+
+        private static string[] ResolveElfToolProbes(string baseName)
+        {
+            var probes = new List<string>();
+
+            // NDK LLVM toolchain (shipped with Android NDK, works on all hosts)
+            var ndkHome = Environment.GetEnvironmentVariable("ANDROID_NDK_HOME");
+            if (!string.IsNullOrEmpty(ndkHome))
+            {
+                string hostTag = OperatingSystem.IsWindows() ? "windows-x86_64" :
+                                 OperatingSystem.IsMacOS()  ? "darwin-x86_64"  :
+                                                              "linux-x86_64";
+                var exeExt = OperatingSystem.IsWindows() ? ".exe" : "";
+                var llvmBin = Path.Combine(ndkHome, "toolchains", "llvm", "prebuilt", hostTag, "bin");
+                var ndkPath = Path.Combine(llvmBin, $"llvm-{baseName}{exeExt}");
+                if (File.Exists(ndkPath))
+                    probes.Add(ndkPath);
+            }
+
+            // llvm-* on PATH (installed via package manager)
+            probes.Add(OperatingSystem.IsWindows() ? $"llvm-{baseName}.exe" : $"llvm-{baseName}");
+
+            // Bare tool name — works on Linux, Git Bash, MSYS2, or if llvm
+            // tools are symlinked without the llvm- prefix.
+            probes.Add(baseName);
+
+            return [.. probes];
+        }
+
+        private static bool TryStartElfTool(string[] probes, string arguments,
+            out string output, out int exitCode)
+        {
+            foreach (var fileName in probes)
+            {
+                try
+                {
+                    using var proc = new Process()
+                    {
+                        StartInfo = new ProcessStartInfo()
+                        {
+                            FileName = fileName,
+                            Arguments = arguments,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            UseShellExecute = false,
+                        }
+                    };
+
+                    if (proc.Start())
+                    {
+                        output = proc.StandardOutput.ReadToEnd();
+                        proc.WaitForExit();
+                        exitCode = proc.ExitCode;
+                        return true;
+                    }
+                }
+                catch
+                {
+                    // Tool not found or not executable — try next probe.
+                }
+            }
+
+            output = "";
+            exitCode = -1;
+            return false;
+        }
+
         /// <summary>
-        /// Scan symbols using <c>readelf -s -W</c>.
+        /// Scan symbols using <c>readelf -s -W</c> (or <c>llvm-readelf</c>).
         /// Returns true on success, false if the tool is unavailable or fails.
         /// </summary>
         private static bool TryGetSymbolsViaReadelf(
@@ -76,25 +152,12 @@ namespace NonPublicNativeMembers.Platforms
         {
             try
             {
-                using var proc = new Process()
-                {
-                    StartInfo = new ProcessStartInfo()
-                    {
-                        FileName = "readelf",
-                        Arguments = $"-s -W \"{modulePath}\"",
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                    }
-                };
-
-                if (!proc.Start())
+                if (!TryStartElfTool(s_readelfProbes,
+                        $"-s -W \"{modulePath}\"",
+                        out var output, out var exitCode))
                     return false;
 
-                var output = proc.StandardOutput.ReadToEnd();
-                proc.WaitForExit();
-
-                if (proc.ExitCode != 0 || string.IsNullOrEmpty(output))
+                if (exitCode != 0 || string.IsNullOrEmpty(output))
                     return false;
 
                 foreach (var line in output.Split('\n'))
@@ -135,7 +198,7 @@ namespace NonPublicNativeMembers.Platforms
         }
 
         /// <summary>
-        /// Scan symbols using <c>objdump -t</c> (fallback tool).
+        /// Scan symbols using <c>objdump -t</c> (or <c>llvm-objdump</c>).
         /// Returns true on success, false if the tool is unavailable or fails.
         /// </summary>
         private static bool TryGetSymbolsViaObjdump(
@@ -145,25 +208,12 @@ namespace NonPublicNativeMembers.Platforms
         {
             try
             {
-                using var proc = new Process()
-                {
-                    StartInfo = new ProcessStartInfo()
-                    {
-                        FileName = "objdump",
-                        Arguments = $"-t \"{modulePath}\"",
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                    }
-                };
-
-                if (!proc.Start())
+                if (!TryStartElfTool(s_objdumpProbes,
+                        $"-t \"{modulePath}\"",
+                        out var output, out var exitCode))
                     return false;
 
-                var output = proc.StandardOutput.ReadToEnd();
-                proc.WaitForExit();
-
-                if (proc.ExitCode != 0 || string.IsNullOrEmpty(output))
+                if (exitCode != 0 || string.IsNullOrEmpty(output))
                     return false;
 
                 foreach (var line in output.Split('\n'))

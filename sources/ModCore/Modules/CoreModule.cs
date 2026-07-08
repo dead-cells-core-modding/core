@@ -19,7 +19,11 @@ namespace ModCore.Modules
         public enum SupportOSKind
         {
             Windows = 1,
-            Linux = 2,
+            Linux   = 2,
+            // Reserved for future Android arm64. Android currently resolves
+            // to Linux at runtime (via Core.cs platform dispatch), but modules
+            // that need Android-specific logic can gate with this flag.
+            Android = 4,
         }
         public enum CoreModuleKind
         {

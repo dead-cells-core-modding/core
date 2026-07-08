@@ -151,7 +151,7 @@ namespace ModCore.Native
         //  can put it back.  mprotect() itself does not return the old
         //  value, so we derive a reasonable default when the cache misses.
 
-        private static readonly Dictionary<nint, int> _pageProtCache = new();
+        private static readonly Dictionary<nint, int> _pageProtCache = [];
 
         public override void MakePageWritable(nint ptr, out int old)
         {
