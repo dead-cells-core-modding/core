@@ -4,7 +4,7 @@ description: 生成 commit message
 
 
 
-为当前未提交的文件生成 commit message，要求：
+为当前未提交的文件生成 commit 并提交，要求：
 
 1. 使用英文!!!
 2. 逐文件分析实际 diff 内容，按功能模块分组！！！
