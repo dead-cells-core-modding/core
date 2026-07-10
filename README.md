@@ -3,7 +3,7 @@
 
 ![GitHub License](https://img.shields.io/github/license/dead-cells-core-modding/core) 
 [![Build And Test](https://github.com/dead-cells-core-modding/core/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/dead-cells-core-modding/core/actions/workflows/build.yml)
-
+[![Discord](https://img.shields.io/discord/329403875117236225)](https://discord.gg/qH5gw7hwx7)
 
 A Dead Cells Modding API/loader. 
 
