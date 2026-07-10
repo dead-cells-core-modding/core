@@ -15,10 +15,12 @@ file(GLOB hl_srcs
     ${HL_SRC_ROOT}/debugger.c
     ${HL_SRC_ROOT}/profile.c)
 add_library(hljit SHARED  ${hl_srcs})
-set_target_properties(hljit PROPERTIES 
+set_target_properties(hljit PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
     LIBRARY_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
     PREFIX ""
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_RPATH "$ORIGIN;${LIBHL_OUTPUT_DIR}"
 )
 target_link_libraries(hljit libhl)
 
