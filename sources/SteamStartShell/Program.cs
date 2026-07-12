@@ -17,6 +17,10 @@ namespace SteamStartShell
         {
             try
             {
+                if(args.Length > 0 && args[0].EndsWith(".hl"))
+                {
+                    return 0;
+                }
                 // 处理 --update 命令：等待旧进程退出后替换 shell 可执行文件
                 if (args.Length > 0 && args[0] == "--update")
                 {
@@ -76,7 +80,9 @@ namespace SteamStartShell
                 gameRoot = Path.GetFullPath(gameRoot);
                 while (!string.IsNullOrEmpty(gameRoot))
                 {
-                    var modcore = Path.GetFullPath(Path.Combine(gameRoot, "deadcells_gl.exe"));
+                    var modcore = Path.GetFullPath(Path.Combine(gameRoot, 
+                        RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "deadcells_gl.exe" : "hlboot.dat"
+                        ));
 #if DEBUG
                     Console.WriteLine("Try find deadcells_gl in " + modcore);
 #endif

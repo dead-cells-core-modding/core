@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
 namespace SteamStartShell.Platform
@@ -15,8 +16,17 @@ namespace SteamStartShell.Platform
         /// Linux 平台暂不支持原生 Steam 库加载
         /// </summary>
         public override void CheckNativeLib()
-        {
-            
+        { 
+            var steamapiPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libsteam_api.so");
+            Logger.Information("Extracting libsteam_api.so");
+            using (var rs = typeof(Program).Assembly.GetManifestResourceStream("libsteam_api.so"))
+            {
+                using var fs = File.OpenWrite(steamapiPath);
+                rs!.CopyTo(fs);
+            }
+
+
+            NativeLibrary.Load(steamapiPath);
         }
 
         /// <summary>
@@ -30,7 +40,7 @@ namespace SteamStartShell.Platform
         /// <summary>
         /// 配置 Linux 下的游戏进程启动参数
         /// </summary>
-        public override ProcessStartInfo? ConfigureGameProcess(string deadCellsExePath)
+        public override ProcessStartInfo? ConfigureGameProcess( string deadCellsExePath )
         {
             return new ProcessStartInfo(deadCellsExePath)
             {

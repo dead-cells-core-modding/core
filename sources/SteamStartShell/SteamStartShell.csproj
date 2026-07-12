@@ -31,6 +31,9 @@
     <EmbeddedResource Include="steam_api64.dll">
       <LogicalName>steam_api64.dll</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="libsteam_api.so">
+      <LogicalName>libsteam_api.so</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
