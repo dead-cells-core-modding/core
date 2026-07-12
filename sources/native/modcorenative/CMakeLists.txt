@@ -30,6 +30,13 @@ target_link_libraries(modcorenative libhl hljit)
 target_include_directories(modcorenative PRIVATE "./include")
 
 target_compile_features(modcorenative PRIVATE cxx_std_20)
+set_target_properties(modcorenative PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
+    LIBRARY_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}
+    PREFIX ""
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_RPATH "$ORIGIN;${LIBHL_OUTPUT_DIR}"
+)
 
 
 # Find nethost
@@ -40,15 +47,7 @@ target_compile_features(modcorenative PRIVATE cxx_std_20)
 if(WIN32)
 set(NETHOST_PACK_NAME "microsoft.netcore.app.host.win-${ARCH_NAME}")
 set(NETHOST_PLATFORM "win-${ARCH_NAME}")
-elseif(ANDROID)
-set(NETHOST_PACK_NAME "microsoft.netcore.app.host.android-${ARCH_NAME}")
-set(NETHOST_PLATFORM "android-${ARCH_NAME}")
-else()
-set(NETHOST_PACK_NAME "microsoft.netcore.app.host.linux-${ARCH_NAME}")
-set(NETHOST_PLATFORM "linux-${ARCH_NAME}")
-endif()
 
-if(WIN32)
 execute_process(
     COMMAND dotnet --info
     OUTPUT_VARIABLE DOTNET_INFO
