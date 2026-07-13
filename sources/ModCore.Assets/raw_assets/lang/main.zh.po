@@ -1,17 +1,25 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-02-23 00:07+0800\n"
-"PO-Revision-Date: 2026-02-23 00:09+0800\n"
+"POT-Creation-Date: 2026-07-13 12:02+0800\n"
+"PO-Revision-Date: 2026-07-13 12:05+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: Poedit 3.9\n"
 "X-Poedit-Basepath: ../../../ModCore\n"
 "X-Poedit-SearchPath-0: .\n"
+
+#: Modules/Game.cs:338
+msgid "Dead Cells Core Modding enabled, achievements and rankings disabled."
+msgstr "Dead Cells Core Modding 已启用，成就和排行榜功能已禁用。"
+
+#: Modules/Game.cs:339
+msgid "This window will not reappear after closing."
+msgstr "关闭后，此窗口将不再显示。"
 
 #: Modules/Internals/HxbitModule.cs:248
 msgid "The save file has been corrupted, likely due to some mods not being found."
@@ -25,38 +33,38 @@ msgstr "你依然可以继续操作，但所有 Mods 的数据都将会丢失！
 msgid "Please check the log file for more information."
 msgstr "请检查日志文件以获取更多信息。"
 
-#: Modules/MenuModule.cs:77
+#: Modules/MenuModule.cs:101
 msgid "CORE MODDING"
 msgstr "CORE MODDING"
 
-#: Modules/MenuModule.cs:83
+#: Modules/MenuModule.cs:107
 msgid "About Core Modding"
 msgstr "关于 Core Modding"
 
-#: Modules/MenuModule.cs:91
+#: Modules/MenuModule.cs:117
 msgid "Get mods"
 msgstr "获取 Mods"
 
-#: Modules/MenuModule.cs:92
+#: Modules/MenuModule.cs:118
 msgid "Get mods from the Steam Workshop"
 msgstr "从Steam创意工坊获取 Mods"
 
-#: Modules/MenuModule.cs:138
+#: Modules/MenuModule.cs:169
 msgid "Loaded Mods"
 msgstr "已加载的 Mods"
 
-#: Modules/MenuModule.cs:200
+#: Modules/MenuModule.cs:224
 msgid "Join Discord"
 msgstr "加入 Discord"
 
-#: Modules/MenuModule.cs:205
+#: Modules/MenuModule.cs:229
 msgid "Buy Me a Coffee"
 msgstr "支持 DCCM"
 
-#: Modules/MenuModule.cs:205
+#: Modules/MenuModule.cs:229
 msgid "Your support helps us keep maintaining it.Thank you!"
 msgstr "您的支持帮助我们持续维护它。谢谢！"
 
-#: Modules/MenuModule.cs:273
+#: Modules/MenuModule.cs:406
 msgid "Core Modding"
 msgstr "Core Modding"

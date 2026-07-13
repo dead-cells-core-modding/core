@@ -5,8 +5,7 @@ namespace ModCore
 {
     internal class CoreConfig
     {
-        [JsonIgnore]
-        public bool NoConsole { get; set; } = false;
+        public bool DCCMWarningPopup { get; set; } = false;
         public bool GeneratePseudocodeAssembly { get; set; } = false;
         public bool AllowCloseConsole { get; set; } = false;
         public bool UseGameCDBManager { get; set; } = true;

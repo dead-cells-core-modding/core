@@ -8,6 +8,7 @@ using dc.hxd.res;
 using dc.hxsl;
 using dc.pr;
 using dc.tool;
+using dc.ui;
 using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Objects;
@@ -190,6 +191,8 @@ namespace ModCore.Modules
             Hook__Achievements.setAchievement += Hook__Achievements_setAchievement;
             Hook__Achievements.hasAchievement += Hook__Achievements_hasAchievement;
 
+            Hook_HUD.postUpdate += Hook_HUD_postUpdate;
+
             Hook__Save.delete += Hook__Save_delete;
             Hook__Save.copy += Hook__Save_copy;
             Hook__Save.tryLoad += Hook__Save_tryLoad;
@@ -207,6 +210,21 @@ namespace ModCore.Modules
             }
             catch (Exception)
             {
+            }
+        }
+
+        private void Hook_HUD_postUpdate( Hook_HUD.orig_postUpdate orig, HUD self )
+        {
+            orig(self);
+
+            var bmp = self.bmpMod;
+            if (bmp != null)
+            {
+                var gm = dc.pr.Game.Class.ME;
+                if (gm.user != null)
+                {
+                    bmp.set_visible(true);
+                }
             }
         }
 
@@ -313,6 +331,18 @@ namespace ModCore.Modules
                 dccmVer += "(HLC)";
             }
             self.build.set_text($"{dccmVer} - {self.build.text}".AsHaxeString());
+
+            if (!Core.Config.Value.DCCMWarningPopup)
+            {
+                var popup = new ModalPopUp(Ref<bool>.In(true), null);
+                popup.text(GetText.Instance.GetString("Dead Cells Core Modding enabled, achievements and rankings disabled.").AsHaxeString(), null, default);
+                popup.text(GetText.Instance.GetString("This window will not reappear after closing.").AsHaxeString(), null, default);
+                popup.onClose = () =>
+                {
+                    Core.Config.Value.DCCMWarningPopup = true;
+                    Core.Config.Save();
+                };
+            }
         }
 
         private void Hook__Save_save( Hook__Save.orig_save orig, User u, bool onlyGameData )

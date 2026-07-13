@@ -23,8 +23,7 @@ namespace TestRunner
                 AllowCloseConsole = false,
                 EnableGoldberg = true,
                 SkipLogoSplash = true,
-                GeneratePseudocodeAssembly = true,
-                NoConsole = !Debugger.IsAttached,
+                GeneratePseudocodeAssembly = true
             };
             ContextConfig.Config = ContextConfig.Default with
             {
