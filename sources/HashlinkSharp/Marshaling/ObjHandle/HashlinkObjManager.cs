@@ -137,7 +137,7 @@ namespace Hashlink.Marshaling.ObjHandle
                         ref var h = ref currentHandlePage[--currentIndex];
                         if ((h.strongRef ?? h.weakRef.Target) is HashlinkObjHandle hh)
                         {
-                            if (!hh.IsStateless)
+                            if (hh.IsStateful)
                             {
                                 h.strongRef = hh;
                             }
@@ -368,7 +368,7 @@ namespace Hashlink.Marshaling.ObjHandle
                     Debug.Assert(*((nint*)ptr) == (nint)handle.Target.NativeType);
                 }
 
-                if (!handle.IsStateless)
+                if (handle.IsStateful)
                 {
                     h.strongRef = handle;
                 }
@@ -383,7 +383,7 @@ namespace Hashlink.Marshaling.ObjHandle
                 Debug.Assert(h.hlPtr == 0);
                 handle = new(ptr, handleIdx);
                 h.Init(ptr, handle);
-                if (!handle.IsStateless)
+                if (handle.IsStateful)
                 {
                     h.strongRef = handle;
                 }

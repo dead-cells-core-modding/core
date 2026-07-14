@@ -121,13 +121,22 @@ namespace Hashlink.Marshaling
                 return true;
             }
 
+            HashlinkType? valType = null;
+
+            if (value is not null)
+            {
+                valType = HashlinkMarshal.GetHashlinkType(value.GetType(), this);
+            }
+
             if (type is null)
             {
-                if (value is not null)
-                {
-                    type = HashlinkMarshal.GetHashlinkType(value.GetType());
-                }
+                type = valType;
             }
+            else if (valType != null && type.TypeKind == TypeKind.HDYN && !valType.IsValueType)
+            {
+                type = valType;
+            }
+
             var typeKind = type?.TypeKind;
             if (typeKind is null || value is null)
             {
@@ -136,7 +145,9 @@ namespace Hashlink.Marshaling
 
             if (value is Delegate del && type is HashlinkFuncType ft)
             {
-                *(nint*)target = new HashlinkClosure(ft, del).HashlinkPointer;
+                var cl = new HashlinkClosure(ft, del);
+                * (nint*)target = cl.HashlinkPointer;
+                Debug.Assert(HashlinkMarshal.ConvertHashlinkObject(HashlinkObjPtr.Get(*(nint*)target)) == cl);
                 return true;
             }
             else if (value is string str && typeKind is not TypeKind.HBYTES)

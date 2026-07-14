@@ -4,6 +4,7 @@ using dc.hl.types;
 using dc.tool;
 using Hashlink;
 using Hashlink.Marshaling;
+using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
@@ -12,6 +13,7 @@ using Hashlink.Reflection.Types;
 using Hashlink.Virtuals;
 using HashlinkNET.Native.Impl;
 using HaxeProxy.Runtime;
+using HaxeProxy.Runtime.Internals;
 using ModCore.Utilities;
 
 namespace TestRunner
@@ -36,6 +38,39 @@ namespace TestRunner
 
 
         }
+
+        [Fact]
+        public void Interaction_Closure()
+        {
+
+            var d = new HaxeDynObj();
+            dynamic dd = d;
+
+            int val = 0;
+
+            dd.x = (object)(() =>
+            {
+                val = 1;
+            });
+
+            var clx = (HashlinkClosure)dd.x;
+
+            dd.x();
+
+            Assert.Equal(1, val);
+
+            dd.y = (object)((int v) =>
+            {
+                val = v;
+            });
+
+            dd.y(2);
+
+            Assert.Equal(2, val);
+
+
+        }
+
         [Fact]
         public unsafe void Interaction_Virtual()
         {
@@ -66,11 +101,13 @@ namespace TestRunner
 
             HashlinkClosure v2cl = v2.HashlinkObj.AsDynamic().cb;
 
-            v2.cb();
+            v2cl.DynamicInvoke();
 
             Assert.Equal(1, v2v);
 
-            
+            v2.cb();
+
+            Assert.Equal(2, v2v);
 
         }
         [Fact]

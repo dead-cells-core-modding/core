@@ -5,7 +5,7 @@ namespace Hashlink.Marshaling.ObjHandle
     public class HashlinkObjHandle
     {
         private HashlinkObj? obj;
-        private bool isStateless = true;
+        private bool isStateful = true;
 
         internal int handleIndex = 0;
         internal readonly nint nativeHLPtr;
@@ -16,16 +16,16 @@ namespace Hashlink.Marshaling.ObjHandle
             handleIndex = index;
         }
 
-        public bool IsStateless {
-            get => isStateless;
+        public bool IsStateful {
+            get => isStateful;
             set {
-                if (isStateless != value)
+                if (isStateful != value)
                 {
-                    if (!isStateless)
+                    if (isStateful)
                     {
                         throw new InvalidOperationException();
                     }
-                    isStateless = value;
+                    isStateful = value;
                     _ = HashlinkObjManager.GetHandle(nativeHLPtr);
                 }
             }
@@ -35,6 +35,10 @@ namespace Hashlink.Marshaling.ObjHandle
             set {
                 obj = value;
             }
+        }
+        public void SetGCTrap()
+        {
+            dontCollect = true;
         }
     }
 }

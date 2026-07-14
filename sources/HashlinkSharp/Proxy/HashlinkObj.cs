@@ -59,7 +59,7 @@ namespace Hashlink.Proxy
         public void MarkStateful()
         {
             ArgumentNullException.ThrowIfNull(Handle, nameof(Handle));
-            Handle.IsStateless = false;
+            Handle.IsStateful = true;
         }
 
 

@@ -179,10 +179,7 @@ namespace Hashlink.Marshaling
         public static void MarkStateful( IHashlinkPointer ptr )
         {
             var handle = HashlinkObjManager.GetHandle(ptr.HashlinkPointer);
-            if (handle != null)
-            {
-                handle.IsStateless = false;
-            }
+            handle?.IsStateful = true;
         }
 
 

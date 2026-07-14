@@ -14,6 +14,7 @@ description: 生成 commit message
 6. 请注意：HashlinkNET.* 项目的作用是为了生成"用于生成伪代码"的 dll !!!!!!!!!
 7. 生成 subject 和 body
 8. body 简要概括每个模块发生了什么变化
+9. topic 应简洁，概括性的描述更改
 
 commit message格式为:
 
