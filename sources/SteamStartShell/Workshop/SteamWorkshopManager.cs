@@ -7,7 +7,7 @@ using System.Diagnostics;
 namespace SteamStartShell.Workshop
 {
     /// <summary>
-    /// Steam Workshop 管理器——负责 Steam API 初始化、DCCM Workshop 下载/更新、Shell 自更新和 ModCore 版本检查
+    /// Steam Workshop manager — handles Steam API initialization, DCCM Workshop download/update, Shell self-update, and ModCore version check
     /// </summary>
     internal class SteamWorkshopManager
     {
@@ -17,15 +17,15 @@ namespace SteamStartShell.Workshop
         private static ILogger Logger => Log.Logger;
 
         /// <summary>
-        /// 表示 SteamWork 操作的结果
+        /// Represents the result of a SteamWork operation
         /// </summary>
         public enum SteamWorkResult
         {
-            /// <summary>正常完成</summary>
+            /// <summary>Completed successfully</summary>
             Success,
-            /// <summary>需要 Shell 自更新</summary>
+            /// <summary>Shell self-update required</summary>
             ShellUpdateRequired,
-            /// <summary>Steam API 验证被跳过</summary>
+            /// <summary>Steam API verification skipped</summary>
             NoVerifySkipped
         }
 
@@ -35,7 +35,7 @@ namespace SteamStartShell.Workshop
         }
 
         /// <summary>
-        /// 分类 Steam UGC 订阅为 mods 和 plugins，并设置对应的环境变量
+        /// Categorizes Steam UGC subscriptions into mods and plugins, and sets corresponding environment variables
         /// </summary>
         public async Task FindMods()
         {
@@ -78,7 +78,7 @@ namespace SteamStartShell.Workshop
         }
 
         /// <summary>
-        /// 初始化 Steam API——将 goto 重试循环重构为 while 循环
+        /// Initializes the Steam API — refactored goto retry loop into a while loop
         /// </summary>
         private async Task InitSteamAPI(bool noVerify)
         {
@@ -121,15 +121,15 @@ namespace SteamStartShell.Workshop
                     throw new InvalidOperationException(err);
                 }
 
-                // 初始化成功，退出循环
+                // Initialization succeeded, exit loop
                 break;
             }
         }
 
         /// <summary>
-        /// 执行 Steam Workshop 工作流程：下载/更新 DCCM、Shell 自更新检查、ModCore 版本检查
+        /// Executes the Steam Workshop workflow: download/update DCCM, Shell self-update check, ModCore version check
         /// </summary>
-        /// <returns>操作结果状态</returns>
+        /// <returns>Operation result status</returns>
         public async Task<SteamWorkResult> SteamWork(bool noVerify)
         {
             Environment.SetEnvironmentVariable("SteamAPPId", "588650");
@@ -200,7 +200,7 @@ namespace SteamStartShell.Workshop
 
                 Logger.Information("DCCM Workshop Version Path: {path}", mapiFolder);
 
-                // 检查 Shell 自更新
+                // Check Shell self-update
                 var shellPath = Path.Combine(mapiFolder, "content", "core", "host", "startup", "steam", "deadcells.exe");
                 if (File.Exists(shellPath))
                 {

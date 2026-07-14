@@ -7,7 +7,7 @@ using System.Text;
 namespace SteamStartShell.Launcher
 {
     /// <summary>
-    /// 游戏启动器——设置环境变量并启动 DeadCellsModding 子进程
+    /// Game launcher — sets environment variables and launches the DeadCellsModding child process
     /// </summary>
     internal class GameLauncher
     {
@@ -20,7 +20,7 @@ namespace SteamStartShell.Launcher
         }
 
         /// <summary>
-        /// 游戏启动结果
+        /// Game launch result
         /// </summary>
         public class LaunchResult
         {
@@ -32,12 +32,12 @@ namespace SteamStartShell.Launcher
         }
 
         /// <summary>
-        /// 启动 DeadCellsModding 进程
+        /// Launches the DeadCellsModding process
         /// </summary>
-        /// <param name="deadCellsExePath">DeadCellsModding 可执行文件路径</param>
-        /// <param name="parentPid">父进程 PID，用于子进程的退出监听</param>
-        /// <param name="diagnosticMode">是否启用诊断模式（捕获 stdout）</param>
-        /// <returns>启动结果</returns>
+        /// <param name="deadCellsExePath">Path to the DeadCellsModding executable</param>
+        /// <param name="parentPid">Parent process PID, used for child process exit monitoring</param>
+        /// <param name="diagnosticMode">Whether to enable diagnostic mode (captures stdout)</param>
+        /// <returns>Launch result</returns>
         public async Task<LaunchResult> LaunchGame(
             string deadCellsExePath,
             int parentPid,
@@ -62,7 +62,7 @@ namespace SteamStartShell.Launcher
                           RedirectStandardOutput = diagnosticMode,
                       };
 
-            // 覆盖平台默认值——确保错误输出始终被重定向
+            // Override platform defaults — ensure error output is always redirected
             psi.RedirectStandardError = true;
             psi.RedirectStandardOutput = diagnosticMode;
 

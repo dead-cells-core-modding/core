@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace SteamStartShell.Platform
 {
     /// <summary>
-    /// Windows 平台服务实现
+    /// Windows platform service implementation
     /// </summary>
     [SupportedOSPlatform("windows")]
     internal class WindowsPlatformServices : PlatformServices
@@ -16,7 +16,7 @@ namespace SteamStartShell.Platform
         public override string Name => "win-x64";
 
         /// <summary>
-        /// 从嵌入资源提取 steam_api64.dll 到临时目录并加载
+        /// Extract steam_api64.dll from embedded resources to a temporary directory and load it
         /// </summary>
         public override void CheckNativeLib()
         {
@@ -36,9 +36,9 @@ namespace SteamStartShell.Platform
         }
 
         /// <summary>
-        /// 通过 ntdll.dll 检查 wine_get_version 导出函数来检测 Wine/Proton 兼容层
+        /// Detect the Wine/Proton compatibility layer by checking the wine_get_version exported function via ntdll.dll
         /// </summary>
-        /// <returns>Wine 版本字符串，如果未检测到则返回 null</returns>
+        /// <returns>Wine version string, or null if not detected</returns>
         public override string? DetectCompatibilityLayer()
         {
             try
@@ -56,14 +56,14 @@ namespace SteamStartShell.Platform
             }
             catch
             {
-                // 无法检测 Wine，忽略错误
+                // Unable to detect Wine; ignore the error
             }
 
             return null;
         }
 
         /// <summary>
-        /// 配置 Windows 下的游戏进程启动参数
+        /// Configure game process launch parameters on Windows
         /// </summary>
         public override ProcessStartInfo? ConfigureGameProcess( string deadCellsExePath )
         {

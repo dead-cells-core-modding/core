@@ -6,7 +6,7 @@ using System.Text;
 namespace SteamStartShell.ErrorReporting
 {
     /// <summary>
-    /// 错误报告生成器——收集崩溃信息并生成 last_error.txt 报告文件
+    /// Error report generator——collects crash information and generates the last_error.txt report file
     /// </summary>
     internal class ErrorReportGenerator
     {
@@ -33,13 +33,13 @@ You can report or contact us via:
 """;
 
         /// <summary>
-        /// 生成错误报告并写入 last_error.txt
+        /// Generate an error report and write it to last_error.txt
         /// </summary>
-        /// <param name="exitCode">游戏进程退出码</param>
-        /// <param name="errorOutput">游戏进程的标准错误输出</param>
-        /// <param name="outputData">游戏进程的标准输出（诊断模式下）</param>
-        /// <param name="gameLogPath">游戏日志文件路径</param>
-        /// <param name="crashDumpPath">崩溃转储文件路径</param>
+        /// <param name="exitCode">Game process exit code</param>
+        /// <param name="errorOutput">Standard error output from the game process</param>
+        /// <param name="outputData">Standard output from the game process (in diagnostic mode)</param>
+        /// <param name="gameLogPath">Game log file path</param>
+        /// <param name="crashDumpPath">Crash dump file path</param>
         public void GenerateReport(
             int exitCode,
             string? errorOutput,
@@ -52,7 +52,7 @@ You can report or contact us via:
 
             var errText = new StringBuilder();
 
-            // 检测 Wine/Proton 兼容层
+            // Detect Wine/Proton compatibility layer
             {
                 var wineVer = PlatformServices.Current.DetectCompatibilityLayer();
                 if (!string.IsNullOrEmpty(wineVer))

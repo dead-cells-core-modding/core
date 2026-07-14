@@ -21,7 +21,7 @@ namespace SteamStartShell
                 {
                     return 0;
                 }
-                // 处理 --update 命令：等待旧进程退出后替换 shell 可执行文件
+                // Handle --update command: wait for old process to exit then replace shell executable
                 if (args.Length > 0 && args[0] == "--update")
                 {
                     var pid = int.Parse(args[1]);
@@ -34,7 +34,7 @@ namespace SteamStartShell
                     }
                     catch (Exception)
                     {
-                        // 忽略进程已退出等错误
+                        // Ignore errors such as process already exited
                     }
 
                     File.Copy(Environment.ProcessPath!, dst, true);
@@ -46,7 +46,7 @@ namespace SteamStartShell
 
                 LogInitializer.InitializeLog();
 
-                // 确定是否启用错误报告器
+                // Determine whether to enable error reporter
                 bool enableReporter = true;
 
                 if (Debugger.IsAttached)
@@ -70,7 +70,7 @@ namespace SteamStartShell
                     enableReporter = true;
                 }
 
-                // 定位游戏根目录
+                // Locate game root directory
                 string gameRoot = Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!;
                 if (string.IsNullOrEmpty(gameRoot))
                 {
@@ -104,7 +104,7 @@ namespace SteamStartShell
 
                 Directory.SetCurrentDirectory(gameRoot!);
 
-                // 是否跳过 Steam API 验证
+                // Whether to skip Steam API verification
                 bool noVerify = false;
                 if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "skip_verify_steam.txt")))
                 {
@@ -113,32 +113,32 @@ namespace SteamStartShell
                                    "This may cause issues if Steam is not running or the game is not launched via Steam.");
                 }
 
-                // 加载平台原生库
+                // Load platform native library
                 PlatformServices.Current.CheckNativeLib();
 
-                // 执行 Steam Workshop 工作流程
+                // Execute Steam Workshop workflow
                 var workshopManager = new SteamWorkshopManager(gameRoot);
                 var steamResult = await workshopManager.SteamWork(noVerify);
 
                 if (steamResult == SteamWorkshopManager.SteamWorkResult.ShellUpdateRequired)
                 {
-                    // Shell 自更新信号——已启动新进程，退出当前进程
+                    // Shell self-update signal — new process started, exit current process
                     Environment.Exit(0);
                 }
 
                 if (steamResult == SteamWorkshopManager.SteamWorkResult.NoVerifySkipped)
                 {
-                    // Steam API 不可用但跳过了验证——继续执行但禁用了 Workshop
+                    // Steam API unavailable but verification skipped — continue with Workshop disabled
                 }
 
-                // 检测诊断模式
+                // Detect diagnostic mode
                 bool diagnosticMode = false;
                 if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "diagnostic_mode.txt")))
                 {
                     diagnosticMode = true;
                 }
 
-                // 启动游戏
+                // Launch game
                 var launcher = new GameLauncher(gameRoot);
                 var deadCellsExePath = Path.Combine(gameRoot, "coremod", "core", "host", "startup", "DeadCellsModding");
 
@@ -159,7 +159,7 @@ namespace SteamStartShell
                     return result.ExitCode;
                 }
 
-                // 生成错误报告
+                // Generate error report
                 var reporter = new ErrorReportGenerator();
                 reporter.GenerateReport(
                     result.ExitCode,

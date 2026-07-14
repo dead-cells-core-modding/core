@@ -6,7 +6,7 @@ using Serilog;
 namespace SteamStartShell.Platform
 {
     /// <summary>
-    /// 平台服务抽象基类——提供平台相关的原生库加载、兼容层检测和进程配置
+    /// Abstract base class for platform services——provides platform-specific native library loading, compatibility layer detection, and process configuration
     /// </summary>
     internal abstract class PlatformServices
     {
@@ -15,7 +15,7 @@ namespace SteamStartShell.Platform
         public abstract string Name { get; }
 
         /// <summary>
-        /// 运行时平台实例——根据当前操作系统自动选择
+        /// Runtime platform instance——automatically selected based on the current operating system
         /// </summary>
         public static PlatformServices Current { get; } = CreateService();
 
@@ -36,24 +36,24 @@ namespace SteamStartShell.Platform
         }
 
         /// <summary>
-        /// 加载平台原生 Steam 库（Windows: steam_api64.dll, Linux: libsteam_api.so）
+        /// Load the platform-native Steam library (Windows: steam_api64.dll, Linux: libsteam_api.so)
         /// </summary>
         public abstract void CheckNativeLib();
 
         /// <summary>
-        /// 检测 Wine/Proton 兼容层版本
+        /// Detect the Wine/Proton compatibility layer version
         /// </summary>
-        /// <returns>Wine 版本字符串，如果未检测到则返回 null</returns>
+        /// <returns>Wine version string, or null if not detected</returns>
         public virtual string? DetectCompatibilityLayer()
         {
             return null;
         }
 
         /// <summary>
-        /// 配置游戏进程启动参数
+        /// Configure game process launch parameters
         /// </summary>
-        /// <param name="deadCellsExePath">DeadCells 可执行文件路径</param>
-        /// <returns>平台特定的 ProcessStartInfo 配置，null 表示使用默认配置</returns>
+        /// <param name="deadCellsExePath">DeadCells executable file path</param>
+        /// <returns>Platform-specific ProcessStartInfo configuration; null indicates using default configuration</returns>
         public virtual ProcessStartInfo? ConfigureGameProcess(string deadCellsExePath)
         {
             return null;

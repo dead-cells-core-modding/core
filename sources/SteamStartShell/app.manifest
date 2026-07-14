@@ -4,17 +4,17 @@
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
-        <!-- UAC 清单选项
-             如果想要更改 Windows 用户帐户控制级别，请使用
-             以下节点之一替换 requestedExecutionLevel 节点。
+        <!-- UAC manifest options
+             If you want to change the Windows User Account Control level, use
+             one of the following nodes to replace the requestedExecutionLevel node.
 
         <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
         <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
         <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
 
-            指定 requestedExecutionLevel 元素将禁用文件和注册表虚拟化。
-            如果你的应用程序需要此虚拟化来实现向后兼容性，则移除此
-            元素。
+            Specifying the requestedExecutionLevel element will disable file and registry virtualization.
+            If your application needs this virtualization for backward compatibility, remove this
+            element.
         -->
         <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
@@ -23,9 +23,9 @@
 
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
-      <!-- 设计此应用程序与其一起工作且已针对此应用程序进行测试的
-           Windows 版本的列表。取消评论适当的元素，
-           Windows 将自动选择最兼容的环境。 -->
+      <!-- A list of Windows versions that this application is designed to work with
+           and has been tested against. Uncomment the appropriate elements,
+           Windows will automatically select the most compatible environment. -->
 
       <!-- Windows Vista -->
       <!--<supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}" />-->
@@ -45,12 +45,13 @@
     </application>
   </compatibility>
 
-  <!-- 指示该应用程序可感知 DPI 且 Windows 在 DPI 较高时将不会对其进行
-       自动缩放。Windows Presentation Foundation (WPF)应用程序自动感知 DPI，无需
-       选择加入。选择加入此设置的 Windows 窗体应用程序(面向 .NET Framework 4.6)还应
-       在其 app.config 中将 "EnableWindowsFormsHighDpiAutoResizing" 设置设置为 "true"。
-       
-       将应用程序设为感知长路径。请参阅 https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation -->
+  <!-- Indicates that the application is DPI-aware and Windows will not
+       automatically scale it at higher DPI settings. Windows Presentation Foundation (WPF) applications are
+       automatically DPI-aware and do not need to opt in. Windows Forms applications targeting .NET Framework 4.6
+       that opt in to this setting should also set the "EnableWindowsFormsHighDpiAutoResizing" setting to "true"
+       in their app.config.
+      
+       Makes the application long path aware. See https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation -->
   
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
@@ -60,7 +61,7 @@
   </application>
  
 
-  <!-- 启用 Windows 公共控件和对话框的主题(Windows XP 和更高版本) -->
+  <!-- Enable themes for Windows common controls and dialogs (Windows XP and later) -->
   <!--
   <dependency>
     <dependentAssembly>
