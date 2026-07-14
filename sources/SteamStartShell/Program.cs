@@ -163,6 +163,7 @@ namespace SteamStartShell
                 var reporter = new ErrorReportGenerator();
                 reporter.GenerateReport(
                     result.ExitCode,
+                    true,
                     result.ErrorOutput,
                     result.OutputData,
                     result.GameLogPath,

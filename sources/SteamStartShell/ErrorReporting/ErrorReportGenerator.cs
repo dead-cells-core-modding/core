@@ -29,6 +29,7 @@ When reporting the issue, please include:
 You can report or contact us via:
 
 - Discord: https://discord.gg/qH5gw7hwx7
+- Github Issue: https://github.com/dead-cells-core-modding/core/issues/new/choose
 
 """;
 
@@ -42,6 +43,7 @@ You can report or contact us via:
         /// <param name="crashDumpPath">Crash dump file path</param>
         public void GenerateReport(
             int exitCode,
+            bool printEnv,
             string? errorOutput,
             string? outputData,
             string? gameLogPath,
@@ -71,23 +73,35 @@ You can report or contact us via:
             errText.Append(exitCode.ToString("X"));
             errText.AppendLine(")");
 
+            errText.AppendLine("\n:============ SYSTEM SPECIFICATIONS ============:\n");
+
+            try
+            {
+                errText.Append(PlatformServices.Current.GetSystemSpec());
+            }
+            catch (Exception ex)
+            {
+                errText.AppendLine("[ERROR] Failed to collect system specifications:");
+                errText.AppendLine(ex.Message);
+            }
+
             if (!string.IsNullOrEmpty(errorOutput))
             {
-                errText.AppendLine("\n:============ BELOW IS THE ERRORS ============:\n");
+                errText.AppendLine("\n:============ ERRORS ============:\n");
                 errText.AppendLine(errorOutput);
                 errText.AppendLine();
             }
 
             if (!string.IsNullOrEmpty(gameLogPath) && File.Exists(gameLogPath))
             {
-                errText.AppendLine("\n:============ BELOW IS THE GAME LOG ============:\n");
+                errText.AppendLine("\n:============ GAME LOG ============:\n");
                 errText.AppendLine(File.ReadAllText(gameLogPath));
                 errText.AppendLine();
             }
 
             if (!string.IsNullOrEmpty(outputData))
             {
-                errText.AppendLine("\n:============ BELOW IS FULL OUTPUT ============:\n");
+                errText.AppendLine("\n:============ FULL OUTPUT ============:\n");
                 errText.AppendLine(outputData);
                 errText.AppendLine();
             }
