@@ -360,7 +360,7 @@ class Build : NukeBuild
         ReleaseInfoEnglishPath.DeleteFile();
         ReleaseInfoChinesePath.DeleteFile();
 
-        ProcessTasks.StartProcess("opencode", " run -m deepseek/deepseek-v4-pro --dangerously-skip-permissions --format json --command release-info --log-level ERROR", 
+        ProcessTasks.StartProcess("opencode", " run --dangerously-skip-permissions --format json --command release-info --log-level ERROR", 
             RootDirectory)
             .AssertZeroExitCode();
 
@@ -370,13 +370,12 @@ class Build : NukeBuild
     });
 
     Target Release => _ => _
-        .DependsOn(GenerateReleaseInfo)
         .Executes(async () =>
         {
             var msg = await File.ReadAllTextAsync(ReleaseInfoPath);
             var ver = File.ReadAllText(BinRoot + "/ModCoreVersion.txt").Trim();
             File.Copy(ReleaseInfoPath, Path.Combine(RootDirectory, "latest-release.md"), true);
-            GitTasks.Git("add latest-release.md");
+            GitTasks.Git("add .");
             GitTasks.Git($"commit -m {("chore: update release info")}");
             GitTasks.Git($"tag v{ver}");
             GitTasks.Git("push origin");
