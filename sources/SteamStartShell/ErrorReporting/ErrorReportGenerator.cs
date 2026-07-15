@@ -28,7 +28,7 @@ When reporting the issue, please include:
 
 You can report or contact us via:
 
-- Discord: https://discord.gg/qH5gw7hwx7
+- Discord: https://discord.gg/9euFADqXEC
 - Github Issue: https://github.com/dead-cells-core-modding/core/issues/new/choose
 
 """;
