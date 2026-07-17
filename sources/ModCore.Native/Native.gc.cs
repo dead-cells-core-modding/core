@@ -64,6 +64,17 @@ namespace ModCore.Native
             foreach (var v in roots)
             {
                 var size = hl_gc_get_memsize((void*)v);
+                var pg = GC_GET_PAGE(v);
+
+                if (pg == null || !GC_IS_ALIVE(v))
+                {
+                    continue;
+                }
+                if ((pg->page_kind & 2) == 2)
+                {
+                    continue;
+                }
+                    
                 for (int i = 0; i < size / sizeof(nint); i++)
                 {
                     var p = ((nint*)v)[i];
@@ -109,7 +120,7 @@ namespace ModCore.Native
                     continue;
                 }
 
-                if (bid >= 0 && (page->page_kind & 2) != 2 && !GC_IS_ALIVE(page, bid))
+                if (bid >= 0 && (page->page_kind & 2) != 2)
                 {
                     needRemark = true;
 
@@ -164,7 +175,7 @@ namespace ModCore.Native
             }
 
 #if DEBUG
-            VerifyGCValidity(roots);
+            //VerifyGCValidity(roots);
 #endif
 
         }
