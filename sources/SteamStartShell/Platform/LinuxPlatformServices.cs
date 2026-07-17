@@ -17,15 +17,32 @@ namespace SteamStartShell.Platform
         /// Linux platform does not yet support native Steam library loading
         /// </summary>
         public override void CheckNativeLib()
-        { 
+        {
             var steamapiPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libsteam_api.so");
-            Logger.Information("Extracting libsteam_api.so");
-            using (var rs = typeof(Program).Assembly.GetManifestResourceStream("libsteam_api.so"))
+
+            using var rs = typeof(Program).Assembly.GetManifestResourceStream("libsteam_api.so")!;
+            var template = new byte[rs.Length];
+            rs.ReadExactly(template);
+
+            if (File.Exists(steamapiPath))
             {
-                using var fs = File.OpenWrite(steamapiPath);
-                rs!.CopyTo(fs);
+                var sapi = File.ReadAllBytes(steamapiPath);
+                if (sapi.SequenceEqual(template))
+                {
+                    NativeLibrary.Load(steamapiPath);
+                    return;
+                }
             }
 
+            Logger.Information("Extracting libsteam_api.so");
+            try
+            {
+                File.WriteAllBytes(steamapiPath, template);
+            }
+            catch (IOException)
+            {
+                Logger.Warning("Unable to extract libsteam_api.so");
+            }
 
             NativeLibrary.Load(steamapiPath);
         }

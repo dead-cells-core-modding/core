@@ -22,14 +22,28 @@ namespace SteamStartShell.Platform
         {
             var steamapiPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "steam_api64.dll");
 
-            if (!File.Exists(steamapiPath))
+            using var rs = typeof(Program).Assembly.GetManifestResourceStream("steam_api64.dll")!;
+            var template = new byte[rs.Length];
+            rs.ReadExactly(template);
+
+            if (File.Exists(steamapiPath))
             {
-                Logger.Information("Extracting steam_api64.dll");
-                using (var rs = typeof(Program).Assembly.GetManifestResourceStream("steam_api64.dll"))
+                var sapi = File.ReadAllBytes(steamapiPath);
+                if (sapi.SequenceEqual(template))
                 {
-                    using var fs = File.OpenWrite(steamapiPath);
-                    rs!.CopyTo(fs);
+                    NativeLibrary.Load(steamapiPath);
+                    return;
                 }
+            }
+
+            Logger.Information("Extracting steam_api64.dll");
+            try
+            {
+                File.WriteAllBytes(steamapiPath, template);
+            }
+            catch (IOException)
+            {
+                Logger.Warning("Unable to extract steam_api64.dll");
             }
 
             NativeLibrary.Load(steamapiPath);
