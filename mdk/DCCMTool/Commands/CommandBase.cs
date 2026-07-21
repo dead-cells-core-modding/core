@@ -19,7 +19,7 @@ namespace DCCMTool.Commands
         {
             throw new NotImplementedException();
         }
-        public override int Execute(CommandContext context, TArg settings, CancellationToken cancellationToken)
+        protected override int Execute(CommandContext context, TArg settings, CancellationToken cancellationToken)
         {
             Arguments = settings;
             var task = ExecuteAsync();
