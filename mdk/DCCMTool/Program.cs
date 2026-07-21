@@ -7,6 +7,7 @@ using DCCMTool.Commands.Docs;
 using DCCMTool.Commands.MSBuild;
 using DCCMTool.Commands.Pak;
 using DCCMTool.Commands.Steam;
+using DCCMTool.Commands.Tmx;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -87,6 +88,14 @@ namespace DCCMTool
                             .WithDescription("Pack files into a pak file.");
                     });
 
+                });
+
+                config.AddBranch("tmx", tmx =>
+                {
+                    tmx.AddCommand<CollapseTmxCommand>("collapse")
+                        .WithDescription("Convert back tmx xml files to binary files.");
+                    tmx.AddCommand<ExpandTmxCommand>("expand")
+                        .WithDescription("Expand binary files to tmx xml files.");
                 });
 
                 config.AddCommand<HaxeDebugInfoCommand>("resolve-line-to-il")

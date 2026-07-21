@@ -9,7 +9,7 @@
 
   <ItemGroup>
     
-    <PackageReference Include="MonoMod.Core" Version="1.3.4" />
+    <PackageReference Include="MonoMod.Core" Version="1.3.6" />
     
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
