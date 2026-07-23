@@ -84,7 +84,7 @@ namespace TestRunner
             Assert.Equal(1145, b1.xMin);
         }
 
-        //[Fact]
+        [Fact]
         public void Test_2()
         {
             var inst1 = Harmony.CreateAndPatchAll(typeof(Patch_3));
@@ -109,8 +109,8 @@ namespace TestRunner
             Assert.Equal(123, b1.yMax);
 
             Hook_Bounds.load -= Hook_Bounds_load;
-            inst1.UnpatchSelf();
-            inst2.UnpatchSelf();
+            //inst1.UnpatchSelf();
+            //inst2.UnpatchSelf();
         }
 
    
