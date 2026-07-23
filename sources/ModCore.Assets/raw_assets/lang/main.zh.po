@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-07-13 12:02+0800\n"
-"PO-Revision-Date: 2026-07-13 12:05+0800\n"
+"POT-Creation-Date: 2026-07-23 19:08+0800\n"
+"PO-Revision-Date: 2026-07-23 19:08+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -41,30 +41,34 @@ msgstr "CORE MODDING"
 msgid "About Core Modding"
 msgstr "关于 Core Modding"
 
-#: Modules/MenuModule.cs:117
+#: Modules/MenuModule.cs:115
+msgid "Generate Crash Log"
+msgstr "手动生成崩溃日志"
+
+#: Modules/MenuModule.cs:129
 msgid "Get mods"
 msgstr "获取 Mods"
 
-#: Modules/MenuModule.cs:118
+#: Modules/MenuModule.cs:130
 msgid "Get mods from the Steam Workshop"
 msgstr "从Steam创意工坊获取 Mods"
 
-#: Modules/MenuModule.cs:169
+#: Modules/MenuModule.cs:181
 msgid "Loaded Mods"
 msgstr "已加载的 Mods"
 
-#: Modules/MenuModule.cs:224
+#: Modules/MenuModule.cs:236
 msgid "Join Discord"
 msgstr "加入 Discord"
 
-#: Modules/MenuModule.cs:229
+#: Modules/MenuModule.cs:241
 msgid "Buy Me a Coffee"
 msgstr "支持 DCCM"
 
-#: Modules/MenuModule.cs:229
+#: Modules/MenuModule.cs:241
 msgid "Your support helps us keep maintaining it.Thank you!"
 msgstr "您的支持帮助我们持续维护它。谢谢！"
 
-#: Modules/MenuModule.cs:406
+#: Modules/MenuModule.cs:418
 msgid "Core Modding"
 msgstr "Core Modding"

@@ -10,6 +10,8 @@ namespace Hashlink.UnsafeUtilities
 {
     static class UtilityDelegates
     {
+        private record AnnoymousId( MethodInfo Info, bool HasTarget );
+
         private static readonly ModuleBuilder moduleBuilder = AssemblyBuilder.DefineDynamicAssembly(
             new("UtilityDelegates"), AssemblyBuilderAccess.Run).DefineDynamicModule("MainModule");
 
@@ -18,8 +20,8 @@ namespace Hashlink.UnsafeUtilities
         private static readonly MethodInfo MI_castObjectEx = typeof(UtilityDelegates).GetMethod(nameof(CastObjectEx), BindingFlags.Static | BindingFlags.NonPublic)!;
 
         private static readonly ConcurrentDictionary<int, Type> anonymousGenericDelegates = [];
-        private static readonly ConcurrentDictionary<MethodInfo, Type> anonymousGenericInstDelegates = [];
-        private static readonly ConcurrentDictionary<MethodInfo, Type> anonymousDelegateTypes = [];
+        private static readonly ConcurrentDictionary<AnnoymousId, Type> anonymousGenericInstDelegates = [];
+        private static readonly ConcurrentDictionary<AnnoymousId, Type> anonymousDelegateTypes = [];
         private static readonly ConcurrentDictionary<Type, MethodInfo> adaptDelegatesEx = [];
         private static readonly ConcurrentDictionary<(MethodInfo, Type?), MethodInfo> adaptDelegates = [];
         private static readonly ConcurrentDictionary<Type, MethodInfo> closureDelegates = [];
@@ -155,10 +157,11 @@ namespace Hashlink.UnsafeUtilities
 
             return typeBuilder.CreateType();
         }
-        private static Type CreateMethodDelegate( MethodInfo m )
+        private static Type CreateMethodDelegate( AnnoymousId id )
         {
+            var m = id.Info;
             var hasRet = m.ReturnType != typeof(void);
-            var pte = m is DynamicMethod dm ? dm.GetParameters().Skip(1).Select(x => x.ParameterType) :
+            var pte = (id.HasTarget && m is DynamicMethod dm) ? dm.GetParameters().Skip(1).Select(x => x.ParameterType) :
                  m.GetParameters().Select(x => x.ParameterType);
             Type[] ptypes = hasRet ? [.. pte, m.ReturnType] : [.. pte];
             var pcount = hasRet ? ptypes.Length - 1 : ptypes.Length;
@@ -171,17 +174,18 @@ namespace Hashlink.UnsafeUtilities
                 pcount << 1 | (hasRet ? 1 : 0), CreateGenericDelegate);
             return dtype.MakeGenericType(ptypes);
         }
-        private static Type CreateMethodDelegateNoGeneric( MethodInfo m )
+        private static Type CreateMethodDelegateNoGeneric( AnnoymousId id )
         {
+            var m = id.Info;
             return CreateDelegate("Delegate+" + m.Name, m.ReturnType,
                 [
-                    ..m.GetParameters().Skip(m is DynamicMethod ? 1 : 0).Select(x => x.ParameterType)
+                    ..m.GetParameters().Skip((id.HasTarget && m is DynamicMethod) ? 1 : 0).Select(x => x.ParameterType)
                 ]);
         }
         public static Delegate CreateAnonymousDelegate( this MethodInfo info, object? target,
             bool noGeneric = false )
         {
-
+            var id = new AnnoymousId(info, target != null);
             foreach (var v in info.GetParameters())
             {
                 if (v.ParameterType.IsByRefLike())
@@ -192,13 +196,13 @@ namespace Hashlink.UnsafeUtilities
             if (noGeneric)
             {
                 return info.CreateDelegate(anonymousDelegateTypes.GetOrAdd(
-                    info, CreateMethodDelegateNoGeneric
+                    id, CreateMethodDelegateNoGeneric
                     ), target);
             }
             else
             {
                 return info.CreateDelegate(anonymousGenericInstDelegates.GetOrAdd(
-                    info, CreateMethodDelegate
+                    id, CreateMethodDelegate
                     ), target);
             }
         }

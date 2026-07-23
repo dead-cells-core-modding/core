@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="HarmonyX" Version="2.16.1" />
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
     <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />

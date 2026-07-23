@@ -112,6 +112,18 @@ namespace ModCore.Modules
 
                 w.set_horizontalAlign(new FlowAlign.Right());
 
+                options.addSimpleWidget(GetString("Generate Crash Log"), "Crash!".AsHaxeString(),
+                    () =>
+                    {
+                        Logger.Fatal("crashing...(Manual Crash!)");
+
+                        unsafe
+                        {
+                            ((delegate*<void>)0x1145)();
+                        }
+
+                    }, Ref<int>.In(5), flow);
+
                 if (Environment.GetEnvironmentVariable("DCCM_STEAMWORKSHOP_ENABLED") == "true")
                 {
                     options.addSimpleWidget(GetString("Get mods"),

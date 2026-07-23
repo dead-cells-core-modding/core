@@ -15,7 +15,25 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(NoModCore) != true">
-    <Reference Include="ModCore;ModCore.Common;HaxeProxy;Serilog;HashlinkSharp;Newtonsoft.Json">
+    <Reference Include="ModCore;
+               ModCore.Common;
+               ModCore.Native;
+               HaxeProxy;
+               Serilog;
+               HashlinkSharp;
+               Newtonsoft.Json;
+               0Harmony;
+               GameRes.Core;
+               Mono.Cecil;
+               Mono.Cecil.Rocks;
+               MonoMod.Backports;
+               MonoMod.Core;
+               MonoMod.ILHelpers;
+               MonoMod.RuntimeDetour;
+               MonoMod.Utils;
+               StbImageWriteSharp;
+               StbImageSharp;
+               SDL3-CS">
       <Private>false</Private>
     </Reference>
     <Reference Include="GameProxy">

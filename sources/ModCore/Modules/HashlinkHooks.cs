@@ -50,7 +50,7 @@ namespace ModCore.Modules
                 Manager.RemoveHook(Hook);
             }
         }
-        private HashlinkHookManager GetManager( HashlinkFunction func )
+        internal HashlinkHookManager GetManager( HashlinkFunction func )
         {
             if (!managers.TryGetValue(func.EntryPointer, out var manager))
             {
