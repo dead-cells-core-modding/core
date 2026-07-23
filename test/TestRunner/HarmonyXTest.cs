@@ -35,6 +35,21 @@ namespace TestRunner
             }
         }
 
+        [HarmonyPatch(typeof(Bounds), nameof(Bounds.load))]
+        [HarmonyPriority(400)]
+        private static class Patch_3
+        {
+            static bool Prefix(Bounds b)
+            {
+                b.xMin = 114514;
+                b.yMax = 123;
+                return true;
+            }
+            static void Postfix(Bounds __instance)
+            {
+                __instance.xMax = 20071003;
+            }
+        }
         [Fact]
         public void Test_1()
         {
@@ -64,7 +79,7 @@ namespace TestRunner
         [Fact]
         public void Test_2()
         {
-            var inst1 = Harmony.CreateAndPatchAll(typeof(Patch_1));
+            var inst1 = Harmony.CreateAndPatchAll(typeof(Patch_3));
             var inst2 = Harmony.CreateAndPatchAll(typeof(Patch_2));
 
             var b1 = new Bounds();
