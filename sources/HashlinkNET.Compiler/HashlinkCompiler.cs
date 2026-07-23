@@ -129,6 +129,9 @@ namespace HashlinkNET.Compiler
                 {
                     AddStep<GenerateXmlDocsStep>();
                 }
+
+                AddStep<GenerateAltClosureDefStep>();
+                AddStep<GenerateAltFuncDef>();
             }
             #endregion
         }

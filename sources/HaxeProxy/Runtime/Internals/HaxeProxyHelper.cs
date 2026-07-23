@@ -283,5 +283,10 @@ namespace HaxeProxy.Runtime.Internals
         {
             return type.Assembly != HaxeProxyManager.proxyAssembly;
         }
+
+        public static Ref<T> GetRef<T>(ref T val) where T : unmanaged
+        {
+            return Ref<T>.From(ref val);
+        }
     }
 }

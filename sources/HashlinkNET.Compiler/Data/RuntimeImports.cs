@@ -33,6 +33,7 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference attrDynamic2;
         public MethodReference attrObsolete;
         public MethodReference attrIgnoreAccessCheck;
+        public MethodReference attrAlt;
         public MethodReference jsonIgnoreCtor;
 
         public MethodReference delegateDynInvokeMethod;
@@ -86,5 +87,6 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference hGetTypeIndexFromType;
         public MethodReference attrInitialValue;
         public MethodReference hGetNativeCall;
+        public MethodReference hGetRef;
     }
 }

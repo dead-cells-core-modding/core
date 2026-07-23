@@ -7,7 +7,8 @@ namespace HashlinkNET.Compiler.Data
         IConstructable,
         IInvokable,
         ITypeReferenceValue,
-        ITypeIndex
+        ITypeIndex,
+        IAltTypeReferenceValue
     {
         public required MethodReference Construct {
             get; set;
@@ -21,6 +22,11 @@ namespace HashlinkNET.Compiler.Data
         }
 
         public int TypeIndex {
+            get; set;
+        }
+
+        public TypeReference? AltTypeReference
+        {
             get; set;
         }
     }

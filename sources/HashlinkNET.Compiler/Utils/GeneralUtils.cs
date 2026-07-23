@@ -40,6 +40,14 @@ namespace HashlinkNET.Compiler.Utils
             }
             return data.TryGetData<ITypeReferenceValue>(type, out var trv) ? trv.TypeRef : data.GetData<TypeReference>(type);
         }
+        public static TypeReference? GetAltTypeRef( this IDataContainer data, HlType? type )
+        {
+            if (type == null)
+            {
+                return null;
+            }
+            return data.TryGetData<IAltTypeReferenceValue>(type, out var trv) ? trv.AltTypeReference : null;
+        }
         public static FieldDefinition? FindField( this TypeDefinition type, string name )
         {
             return type.Fields.FirstOrDefault(x => x.Name == name);

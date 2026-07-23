@@ -97,6 +97,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.hToVirtual = ImportHelperMethod(nameof(HaxeProxyHelper.ToVirtual));
             rdata.hToObject = ImportHelperMethod(nameof(HaxeProxyHelper.ToObject));
             rdata.hGetNativeCall = ImportHelperMethod(nameof(HaxeProxyHelper.GetNativeCall));
+            rdata.hGetRef = ImportHelperMethod(nameof(HaxeProxyHelper.GetRef));
 
             rdata.hAddHook = ImportHelperMethod(nameof(HaxeProxyHelper.AddHook));
             rdata.hRemoveHook = ImportHelperMethod(nameof(HaxeProxyHelper.RemoveHook));
@@ -134,6 +135,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.attrObsolete = ImportAttribute<ObsoleteAttribute>(1);
             rdata.attrIgnoreAccessCheck = ImportAttribute<IgnoresAccessChecksToAttribute>();
             rdata.attrInitialValue = ImportAttribute<HashlinkInitialvalueAttribute>();
+            rdata.attrAlt = ImportAttribute<HashlinkAltAttribute>();
             rdata.jsonIgnoreCtor = ImportAttribute<JsonIgnoreAttribute>();
 
             rdata.funcTypes = new TypeReference[FUNC_MAX_ARGS_COUNT];
