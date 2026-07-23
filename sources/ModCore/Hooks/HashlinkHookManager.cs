@@ -123,10 +123,6 @@ namespace ModCore.Hooks
         {
             ArgumentNullException.ThrowIfNull(hook);
             hooks.Remove(hook);
-            if (hooks.Count == 0)
-            {
-                callback.RedirectTarget = this.hook.Original;
-            }
         }
         [DebuggerDisableUserUnhandledExceptions]
         private object? HookEntry( object?[] args )

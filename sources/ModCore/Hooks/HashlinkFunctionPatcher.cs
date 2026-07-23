@@ -41,19 +41,23 @@ namespace ModCore.Hooks
             Debug.Assert(originalType != null);
             Debug.Assert(hookManager != null);
 
-            if (processor == null)
+            lock (this)
             {
-                processor = GenerateDMD().Generate();
 
-                hookManager.AddProcessor(
-                    processor.CreateDelegate(originalType).CreateAdaptDelegate()
-                    );
+                if (processor == null)
+                {
+                    processor = GenerateDMD().Generate();
+
+                    hookManager.AddProcessor(
+                        processor.CreateDelegate(originalType).CreateAdaptDelegate()
+                        );
+                }
+
+                var patchInfo = Original.GetPatchInfo();
+                detour?.Dispose();
+                detour = DetourFactory.Current.CreateDetour(processor, replacement, true);
             }
 
-            var patchInfo = Original.GetPatchInfo();
-            detour?.Dispose();
-            detour = DetourFactory.Current.CreateDetour(processor, replacement, true);
-            
             return replacement;
         }
         public override DynamicMethodDefinition? PrepareOriginal()

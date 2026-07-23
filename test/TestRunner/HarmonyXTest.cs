@@ -109,11 +109,9 @@ namespace TestRunner
             Assert.Equal(123, b1.yMax);
 
             Hook_Bounds.load -= Hook_Bounds_load;
-            //inst1.UnpatchSelf();
-            //inst2.UnpatchSelf();
+            inst1.UnpatchSelf();
+            inst2.UnpatchSelf();
         }
-
-   
 
         private void Hook_Bounds_load(Hook_Bounds.orig_load orig, Bounds self, Bounds b)
         {
