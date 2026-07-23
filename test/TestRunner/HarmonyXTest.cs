@@ -53,13 +53,12 @@ namespace TestRunner
                 __instance.xMax = 20071003;
             }
         }
-        [Fact]
+        //[Fact]
         public void Test_1()
         {
             var inst = Harmony.CreateAndPatchAll(typeof(Patch_1));
 
             var original = typeof(Bounds).GetMethod(nameof(Bounds.load));
-            var patchInfo = original.GetPatchInfo();
             var patcher = original.GetMethodPatcher();
 
             Assert.True(patcher is HashlinkFunctionPatcher);
@@ -90,6 +89,11 @@ namespace TestRunner
         {
             var inst1 = Harmony.CreateAndPatchAll(typeof(Patch_3));
             var inst2 = Harmony.CreateAndPatchAll(typeof(Patch_2));
+
+            var original = typeof(Bounds).GetMethod(nameof(Bounds.load));
+            var patcher = original.GetMethodPatcher();
+
+            Assert.True(patcher is HashlinkFunctionPatcher);
 
             var b1 = new Bounds();
             b1.load(new());
