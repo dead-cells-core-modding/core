@@ -1,7 +1,10 @@
 ﻿using dc.h2d.col;
 using HarmonyLib;
+using HarmonyLib.Public.Patching;
+using ModCore.Hooks;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace TestRunner
@@ -54,6 +57,12 @@ namespace TestRunner
         public void Test_1()
         {
             var inst = Harmony.CreateAndPatchAll(typeof(Patch_1));
+
+            var original = typeof(Bounds).GetMethod(nameof(Bounds.load));
+            var patchInfo = original.GetPatchInfo();
+            var patcher = original.GetMethodPatcher();
+
+            Assert.True(patcher is HashlinkFunctionPatcher);
 
             var b1 = new Bounds();
 
