@@ -44,6 +44,7 @@ namespace ModCore.Hooks
             if (processor == null)
             {
                 processor = GenerateDMD().Generate();
+
                 hookManager.AddProcessor(
                     processor.CreateDelegate(originalType).CreateAdaptDelegate()
                     );

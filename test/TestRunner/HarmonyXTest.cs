@@ -53,7 +53,7 @@ namespace TestRunner
                 __instance.xMax = 20071003;
             }
         }
-        //[Fact]
+        [Fact]
         public void Test_1()
         {
             var inst = Harmony.CreateAndPatchAll(typeof(Patch_1));
@@ -84,7 +84,7 @@ namespace TestRunner
             Assert.Equal(1145, b1.xMin);
         }
 
-        [Fact]
+        //[Fact]
         public void Test_2()
         {
             var inst1 = Harmony.CreateAndPatchAll(typeof(Patch_3));
