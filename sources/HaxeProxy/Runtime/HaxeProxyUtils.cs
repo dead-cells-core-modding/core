@@ -26,15 +26,10 @@ namespace HaxeProxy.Runtime
         {
             return (T)obj.AsHaxe();
         }
-        public static HashlinkObjectType GetHashlinkType( Type type )
+        public static HashlinkType GetHashlinkType( Type type )
         {
-            var ca = type.GetCustomAttribute<HashlinkTIndexAttribute>(false);
-            if (ca is not null)
-            {
-                return (HashlinkObjectType)HashlinkMarshal.Module.PreferTypes[ca.Index];
-            }
-            InheritanceManager.Check(type, null, out var cht);
-            return cht.Type;
+            return HashlinkMarshal.GetHashlinkType(type) ??
+                throw new InvalidOperationException();
         }
         public static Type GetProxyType( HashlinkType type )
         {
@@ -42,7 +37,7 @@ namespace HaxeProxy.Runtime
         }
         public static TClass GetClass<TClass>( Type type ) where TClass : HaxeProxyBase
         {
-            return GetHashlinkType(type).GlobalValue.AsHaxe<TClass>();
+            return ((HashlinkObjectType)GetHashlinkType(type)).GlobalValue.AsHaxe<TClass>();
         }
         public static TClass GetClass<TType, TClass>() where TClass : HaxeProxyBase
         {

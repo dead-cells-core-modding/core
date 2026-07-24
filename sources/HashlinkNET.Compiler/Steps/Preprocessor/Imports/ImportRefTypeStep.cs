@@ -21,7 +21,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             }
             else
             {
-                addedTypes.Add(new(et, AddTypeKind.AddToTypesList, type.TypeIndex));
+                addedTypes.Add(new(rdata.refType.MakeGenericInstanceType(et), AddTypeKind.AddToTypesList, type.TypeIndex));
                 container.AddData(type, rdata.refType.MakeGenericInstanceType(et));
             }
         }

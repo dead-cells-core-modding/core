@@ -1,3 +1,4 @@
+using Hashlink.Events.Interfaces;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
@@ -5,6 +6,7 @@ using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Types;
 using Hashlink.Reflection.Types.Special;
 using ModCore.Collections;
+using ModCore.Events;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -18,14 +20,14 @@ namespace Hashlink.Marshaling
         public static IHashlinkMarshaler IgnoreCustomMarshalerInstance { get; } = new DefaultHashlinkMarshaler(true);
 
         private readonly bool ignoreCustomMarshaler;
-        private readonly ConcurrentDictionary<Type, HashlinkFuncType> customDelegateFuncType = [];
 
+
+        private readonly ConcurrentDictionary<Type, HashlinkFuncType> customDelegateFuncType = [];
         private struct CustomFuncType
         {
             public HL_type type;
             public HL_type_func func;
         }
-
         private readonly PinnedArrayList<CustomFuncType> customDelegateFuncList = new();
 
         private HashlinkFuncType CreateCustomDelegateFuncType( Type delType )
@@ -57,7 +59,6 @@ namespace Hashlink.Marshaling
 
         private static void WriteDynamicValue( HL_vdynamic* dyn, object val, HashlinkType type )
         {
-            var size = type.SizeOf;
             var b = (byte*)&dyn->val;
             HashlinkMarshal.WriteData(b, val, type);
         }
@@ -300,6 +301,12 @@ namespace Hashlink.Marshaling
 
         public HashlinkType? GetHashlinkType( Type type )
         {
+            var result = EventSystem.BroadcastEvent<IOnResolveHashlinkType, Type, HashlinkType>(type);
+            if (result.HasValue)
+            {
+                return result.Value;
+            }
+
             var kt = HashlinkMarshal.Module.KnownTypes;
             if (type == typeof(int) || type == typeof(uint))
             {

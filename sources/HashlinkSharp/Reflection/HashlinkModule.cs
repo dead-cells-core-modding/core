@@ -1,3 +1,5 @@
+using Hashlink.Marshaling;
+using Hashlink.Proxy;
 using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Types;
 using HashlinkNET.Bytecode;
@@ -163,28 +165,9 @@ namespace Hashlink.Reflection
                 Functions[f->findex] = GetMemberFrom<HashlinkNativeFunction>(f);
             }
 
-            if (!CheckSize())
-            {
-                throw new PlatformNotSupportedException();
-            }
         }
 
-        private bool CheckSize()
-        {
-            if (KnownTypes.Bool.SizeOf != 1)
-            {
-                return false;
-            }
-            if (KnownTypes.I32.SizeOf != 4)
-            {
-                return false;
-            }
-            if (KnownTypes.Dynamic.SizeOf != nint.Size)
-            {
-                return false;
-            }
-            return true;
-        }
+       
 
         public IHashlinkFunc GetFunctionByFIndex( int findex )
         {

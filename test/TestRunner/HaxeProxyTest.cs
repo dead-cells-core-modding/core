@@ -136,6 +136,29 @@ namespace TestRunner
         }
 
         [Fact]
+        public void Test_Dyn2()
+        {
+            HashlinkMarshal.EnsureThreadRegistered();
+
+            dynamic d = new HaxeDynObj();
+            d.n = (object)((int? v) => (int?)v);
+
+            Assert.Equal(1145, (int)d.n(1145));
+            Assert.Null((int?)d.n(null));
+
+            var del = (Func<int?, int?>)d.n;
+
+            Assert.Equal(1145, del(1145));
+            Assert.Null(del(null));
+
+            var cl = (HashlinkClosure)d.n;
+
+            Assert.Equal(1145, (int?)((dynamic)cl)(1145));
+            Assert.Null((int?)((dynamic)cl)(null));
+
+        }
+
+        [Fact]
         public void Test_Dyn()
         {
             HashlinkMarshal.EnsureThreadRegistered();
@@ -230,12 +253,11 @@ namespace TestRunner
             Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount2;
             Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount3;
 
-            Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount2;
             Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount3;
 
-            Assert.Throws<NullReferenceException>(() => gm.getBiomeVisitCount("".AsHaxeString()));
+            val = gm.getBiomeVisitCount("".AsHaxeString());
+            Assert.Equal(0, val);
 
-            Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount2;
             Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount3;
         }
 
@@ -251,7 +273,7 @@ namespace TestRunner
 
         private int? Hook_Game_getBiomeVisitCount3(Hook_Game.orig_getBiomeVisitCount orig, Game self, dc.String id)
         {
-            return (orig(self, id) ?? throw null!) + 1;
+            return (orig(self, id) ?? -1) + 1;
         }
 
 

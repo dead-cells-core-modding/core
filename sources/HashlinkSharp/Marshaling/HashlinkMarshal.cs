@@ -21,6 +21,43 @@ namespace Hashlink.Marshaling
         {
             Module = new(module);
             Code = code;
+
+            if (!CheckPlatform())
+            {
+                throw new PlatformNotSupportedException();
+            }
+        }
+
+        private static bool CheckPlatform()
+        {
+            var knownTypes = Module.KnownTypes;
+            if (knownTypes.Bool.SizeOf != 1)
+            {
+                return false;
+            }
+            if (knownTypes.I32.SizeOf != 4)
+            {
+                return false;
+            }
+            if (knownTypes.Dynamic.SizeOf != nint.Size)
+            {
+                return false;
+            }
+            {
+                int v = 114514;
+                var obj = hl_make_dyn(&v, knownTypes.I32.NativeType);
+                if (obj->val.@int != v)
+                {
+                    return false;
+                }
+                var obj2 = ConvertHashlinkObject(HashlinkObjPtr.Get(obj));
+                if (v != (int)obj2!)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public static HashlinkFunction FindFunction( string typeName, string funcName )
