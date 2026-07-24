@@ -248,7 +248,7 @@ namespace HashlinkNET.Compiler.Utils
                 }
                 else if (ft.ReturnType.Value.Kind == HlTypeKind.Null)
                 {
-                    il.Emit(OpCodes.Unbox, cs.ReturnType);
+                    il.Emit(OpCodes.Unbox_Any, cs.ReturnType);
                     cs.ReturnType = rdata.objectType;
                 }
             }

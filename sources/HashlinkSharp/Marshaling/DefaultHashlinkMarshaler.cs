@@ -55,6 +55,13 @@ namespace Hashlink.Marshaling
             return HashlinkMarshal.Module.GetMemberFrom<HashlinkFuncType>(Unsafe.AsPointer(ref f.type));
         }
 
+        private static void WriteDynamicValue( HL_vdynamic* dyn, object val, HashlinkType type )
+        {
+            var size = type.SizeOf;
+            var b = (byte*)&dyn->val;
+            HashlinkMarshal.WriteData(b, val, type);
+        }
+
         protected DefaultHashlinkMarshaler( bool ignoreCustomMarshaler )
         {
             this.ignoreCustomMarshaler = ignoreCustomMarshaler;
@@ -209,7 +216,12 @@ namespace Hashlink.Marshaling
                 var dptr = hl_alloc_dynamic(
                     vt.NativeType
                     );
-                HashlinkMarshal.WriteData(&dptr->val, value, vt);
+
+                WriteDynamicValue(dptr, value, vt);
+                Debug.Assert(
+                   value.Equals(HashlinkMarshal.ReadData(&dptr, HashlinkMarshal.Module.KnownTypes.Dynamic, null))
+                   );
+
                 *(nint*)target = (nint)dptr;
             }
             else if (typeKind is TypeKind.HNULL)
@@ -218,7 +230,12 @@ namespace Hashlink.Marshaling
                 var dptr = hl_alloc_dynamic(
                     vt.NativeType
                     );
-                HashlinkMarshal.WriteData(&dptr->val, value, vt);
+               
+                WriteDynamicValue(dptr, value, vt);
+                Debug.Assert(
+                    value.Equals(HashlinkMarshal.ReadData(&dptr, HashlinkMarshal.Module.KnownTypes.Dynamic, null))
+                    );
+
                 *(nint*)target = (nint)dptr;
             }
             else if (typeKind is TypeKind.HABSTRACT or TypeKind.HTYPE)
@@ -254,7 +271,7 @@ namespace Hashlink.Marshaling
 
             var kind = ptr.TypeKind;
 
-            return kind switch
+            var result = kind switch
             {
                 <= TypeKind.HBYTES => HashlinkMarshal.ReadData(
                     &((HL_vdynamic*)target)->val, HashlinkMarshal.GetHashlinkType(ptr.Type)
@@ -273,6 +290,7 @@ namespace Hashlink.Marshaling
 
                 _ => throw new InvalidOperationException($"Unrecognized type {kind}")
             };
+            return result;
         }
 
         public HashlinkType GetHashlinkTypeNoNull( Type type )

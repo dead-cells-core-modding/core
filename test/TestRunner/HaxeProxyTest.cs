@@ -1,6 +1,7 @@
 ﻿using dc;
 using dc.h2d.col;
 using dc.hl.types;
+using dc.pr;
 using dc.tool;
 using Hashlink;
 using Hashlink.Marshaling;
@@ -197,6 +198,37 @@ namespace TestRunner
             Assert.Equal(0, p.y);
 
         }
+
+        [Fact]
+        public void Test_Hook2()
+        {
+            Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount;
+
+            var gm = HaxeProxyUtils.GetHashlinkType(typeof(Game)).CreateInstance().AsHaxe<Game>();
+
+            var val = gm.getBiomeVisitCount("".AsHaxeString());
+
+            Assert.Equal(11452007, val);
+            
+            Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount;
+            Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount2;
+
+            val = gm.getBiomeVisitCount("".AsHaxeString());
+            Assert.Null(val);
+
+            Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount;
+        }
+
+        private int? Hook_Game_getBiomeVisitCount(Hook_Game.orig_getBiomeVisitCount orig, Game self, dc.String id)
+        {
+            return 11452007;
+        }
+
+        private int? Hook_Game_getBiomeVisitCount2(Hook_Game.orig_getBiomeVisitCount orig, Game self, dc.String id)
+        {
+            return null;
+        }
+
 
         private void Hook_Point_normalize(Hook_Point.orig_normalize orig, Point self)
         {

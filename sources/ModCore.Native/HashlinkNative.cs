@@ -241,6 +241,7 @@ namespace Hashlink
         public static partial void hl_alloc_init( HL_alloc_block** ot );
         [LibraryImport(LIBHL)]
         public static partial void hl_module_init_indexes( HL_module* m );
+
         [LibraryImport(LIBHL)]
         [return: MarshalAs(UnmanagedType.I1)]
         public static partial bool hl_same_type( HL_type* a, HL_type* b );

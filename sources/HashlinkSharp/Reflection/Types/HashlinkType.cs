@@ -61,6 +61,7 @@ namespace Hashlink.Reflection.Types
         public virtual bool IsEnum => TypeKind == TypeKind.HENUM;
         public virtual bool IsRef => TypeKind == TypeKind.HREF;
         public virtual bool IsNull => TypeKind == TypeKind.HNULL;
+        public virtual int SizeOf => hl_type_size(NativeType);
 
         public int TypeIndex {
             get;
