@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 namespace ModCore
 {
     public struct ContextConfig
@@ -12,7 +14,7 @@ namespace ModCore
                 "hljit"
                 ],
             consoleOutput = true,
-            useHLC = "true".Equals(Environment.GetEnvironmentVariable("DCCM_USE_HLC"), StringComparison.OrdinalIgnoreCase)
+            useHLC = "true".Equals(Environment.GetEnvironmentVariable("DCCM_USE_HLC"), StringComparison.OrdinalIgnoreCase) || RuntimeInformation.ProcessArchitecture == Architecture.Arm64
         };
 
         private static ContextConfig current = Default;

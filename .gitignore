@@ -412,3 +412,6 @@ vcpkg_installed/
 /.playwright-mcp
 /_manifest
 /.omo/run-continuation
+/.omo
+/3rd/crashlink.b64
+/3rd/crashlink_vendor.tar.gz

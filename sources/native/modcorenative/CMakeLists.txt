@@ -14,6 +14,12 @@ file(GLOB hl_srcs
     ${HL_SRC_ROOT}/module.c
     ${HL_SRC_ROOT}/debugger.c
     ${HL_SRC_ROOT}/profile.c)
+
+if(DCCM_ARCH_ARM64)
+    list(REMOVE_ITEM hl_srcs "${HL_SRC_ROOT}/jit.c")
+    list(APPEND hl_srcs ./hljit_stubs_aarch64.c)
+endif()
+
 add_library(hljit SHARED  ${hl_srcs})
 set_target_properties(hljit PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${DCCM_OUTPUT_DIR}

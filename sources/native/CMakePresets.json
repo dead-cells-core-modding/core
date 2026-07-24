@@ -64,6 +64,21 @@
       "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     },
     {
+      "name": "linux-arm64-debug",
+      "displayName": "Linux ARM64 Debug",
+      "inherits": "linux-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "TARGET_ARCH": "arm64"
+      }
+    },
+    {
+      "name": "linux-arm64-release",
+      "displayName": "Linux ARM64 Release",
+      "inherits": "linux-arm64-debug",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    },
+    {
       "name": "android-base",
       "hidden": true,
       "generator": "Ninja",
