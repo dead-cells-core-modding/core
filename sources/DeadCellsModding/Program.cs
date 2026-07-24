@@ -24,7 +24,10 @@ namespace DeadCellsModding
 
         private static int LoadHost( string shellPath )
         {
-            var nethostPath = Path.Combine(Path.GetDirectoryName(shellPath)!, "..", "native", "win-x64", "nethost.dll");
+            var os = OperatingSystem.IsWindows() ? "win" : "linux";
+            var arch = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
+            var nethostLib = OperatingSystem.IsWindows() ? "nethost.dll" : "libnethost.so";
+            var nethostPath = Path.Combine(Path.GetDirectoryName(shellPath)!, "..", "native", $"{os}-{arch}", nethostLib);
             NativeLibrary.Load(nethostPath);
 
             Span<char> hostfxrPathBuf = stackalloc char[2048];
