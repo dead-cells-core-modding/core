@@ -20,6 +20,12 @@
     <DefineConstants>$(DefineConstants);DCCM_GLIBC_ARM64</DefineConstants>
   </PropertyGroup>
 
+  <!-- Exclude Windows-specific and Android-specific files on other platforms -->
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+    <Compile Remove="Platforms/Windows/**" />
+    <Compile Remove="Platforms/Android/**" />
+  </ItemGroup>
+
   <ItemGroup>
     <AdditionalFiles Include="NativeMethods.txt" />
   </ItemGroup>
