@@ -60,6 +60,10 @@ namespace ModCore.Native
             }
             else if (OperatingSystem.IsLinux())
             {
+                if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+                {
+                    return new LinuxArm64Native();
+                }
                 if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
                 {
                     return new LinuxX64Native();
