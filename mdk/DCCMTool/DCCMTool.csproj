@@ -12,6 +12,10 @@
     <PublishDir>../bin/tools</PublishDir>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-arm64'">
+    <DefineConstants>$(DefineConstants);ARM64</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.57.2" />
     <PackageReference Include="Spectre.Console.Cli" Version="0.55.0" />
@@ -34,5 +38,14 @@
     </None>
   </ItemGroup>
 
-  <Import Project="../../IncludeSteamworkNET.props" />
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-arm64'">
+    <DefineConstants>$(DefineConstants);ARM64</DefineConstants>
+  </PropertyGroup>
+
+  <Import Project="../../IncludeSteamworkNET.props" Condition="'$(RuntimeIdentifier)' == '' or !$(RuntimeIdentifier.Contains('arm64'))" />
+
+  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'linux-arm64'">
+    <Compile Remove="CallResultUtils.cs" />
+    <Compile Remove="Commands\Steam\*.cs" />
+  </ItemGroup>
 </Project>

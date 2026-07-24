@@ -41,6 +41,9 @@ namespace DCCMTool
                     inter.AddCommand<GenerateSubAssemblyCommand>("generate-sub-assembly");
                 });
 
+                if (RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
+                {
+#if !ARM64
                 config.AddBranch("steam", steam =>
                 {
                     steam.AddCommand<UploadModCommnand>("upload")
@@ -49,6 +52,8 @@ namespace DCCMTool
                     steam.AddCommand<SteamWorkshopMountCommand>("mount")
                         .WithDescription("Mount Steam Workshop mods into the local mods folder.");
                 });
+#endif
+                }
 
                 config.AddBranch("cdb", cdb =>
                 {
