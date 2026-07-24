@@ -20,6 +20,7 @@ namespace Hashlink.Proxy.Objects
                 {
                     return (HashlinkObj?)HashlinkMarshal.ConvertHashlinkObject(virt->value);
                 }
+                virt = virt->next;
             }
             return null;
         }
