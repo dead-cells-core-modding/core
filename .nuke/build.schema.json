@@ -34,6 +34,7 @@
         "GenerateGameProxy",
         "GenerateReleaseInfo",
         "PrepareHLC",
+        "PublishDiscordAnnouncement",
         "PublishMAPI",
         "Release"
       ]

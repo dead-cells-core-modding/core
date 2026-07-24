@@ -19,6 +19,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.PathConstruction;
 
@@ -396,7 +399,68 @@ class Build : NukeBuild
                    "internal", "upload-mapi",
                    "-i", WorkshopPublishRoot,
                    "-r", Path.Combine(RootDirectory, "latest-release.md")
-                   ));
+                    ));
     });
+
+    Target PublishDiscordAnnouncement => _ => _
+        .Executes(async () =>
+        {
+            var webhookUrl = Environment.GetEnvironmentVariable("DISCORD_WEBHOOK_URL");
+           
+            if (string.IsNullOrEmpty(webhookUrl))
+            {
+                Log.Warning("DISCORD_WEBHOOK_URL environment variable is not set. Skipping Discord announcement.");
+                return;
+            }
+
+            var latestReleasePath = Path.Combine(RootDirectory, "latest-release.md");
+            Assert.FileExists(latestReleasePath);
+
+            var content = await File.ReadAllTextAsync(latestReleasePath);
+
+            // Extract English section (between "# Release Notes" and "---")
+            var match = Regex.Match(content, @"^# Release Notes.*?\n\n(.*?)\n---",
+                RegexOptions.Singleline | RegexOptions.Multiline);
+            var description = match.Success
+                ? match.Groups[1].Value.Trim()
+                : "See changelog for details.";
+
+            // Discord embed description limit: 4096 chars
+            if (description.Length > 4000)
+                description = description[..3990] + "\n\n... (truncated)";
+
+            // Get version from env or from release notes title
+            var version = Environment.GetEnvironmentVariable("VERSION")
+                          ?? Regex.Match(content, @"# Release Notes - (.+)").Groups[1].Value.Trim();
+
+            // Get release URL from env or construct default
+            var releaseUrl = Environment.GetEnvironmentVariable("RELEASE_URL")
+                             ?? $"https://github.com/dead-cells-core-modding/core/releases/tag/v{version}";
+
+            // Build Discord webhook embed payload
+            var payload = new
+            {
+                embeds = new[]
+                {
+                    new
+                    {
+                        title = $"🚀 Dead Cells Core Modding {version} Released!",
+                        url = releaseUrl,
+                        description = description,
+                        color = 5814783,
+                        footer = new { text = "Dead Cells Core Modding" }
+                    }
+                }
+            };
+
+            // Send to Discord
+            using var httpClient = new HttpClient();
+            var json = JsonSerializer.Serialize(payload);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync(webhookUrl, httpContent);
+            response.EnsureSuccessStatusCode();
+
+            Log.Information("Discord announcement for version {Version} sent successfully.", version);
+        });
 
 }

@@ -55,7 +55,16 @@ jobs:
              win-x64.zip
              win-x64-no-mdk.zip
              win-x64/core/host/startup/steam/deadcells.exe
-             deadcells-gog.exe
+              deadcells-gog.exe
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+    - name: Publish Discord Announcement
+      env:
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        VERSION: ${{ github.ref_name }}
+        RELEASE_URL: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}
+      run: dotnet run --project build/_build.csproj -- PublishDiscordAnnouncement
 
   test:
     strategy:
