@@ -97,6 +97,11 @@ namespace Hashlink.Wrapper
                 0x48, 0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, //mov rax, 0xffffffffffffffff
                 0xFF, 0xD0 //call rax
              ];
+            public static readonly byte[] call_code_arm64 = [
+                0xFE, 0x7B, 0xBF, 0xA9,  // stp x30, xzr, [sp, #-16]!
+                0x90, 0x00, 0x00, 0x58,  // ldr x16, [pc, #16]
+                0x00, 0x02, 0x3F, 0xD6   // blr x16
+            ];
             public fixed byte shellcode[12];
             public void* buffer;
             public nint target;
@@ -210,8 +215,15 @@ namespace Hashlink.Wrapper
             if (prepare_exception_handle_data == null)
             {
                 prepare_exception_handle_data = &asmhelper_data_pool.Alloc()->value;
-                AsmHelperData.call_code_x64.CopyTo(new Span<byte>(prepare_exception_handle_data->shellcode, 12));
-                *(long*)&prepare_exception_handle_data->shellcode[2] = Native.Current.asm_cs_hl_store_context;
+                if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+                {
+                    AsmHelperData.call_code_arm64.CopyTo(new Span<byte>(prepare_exception_handle_data->shellcode, 12));
+                }
+                else
+                {
+                    AsmHelperData.call_code_x64.CopyTo(new Span<byte>(prepare_exception_handle_data->shellcode, 12));
+                    *(long*)&prepare_exception_handle_data->shellcode[2] = Native.Current.asm_cs_hl_store_context;
+                }
             }
 
             HashlinkMarshal.EnsureThreadRegistered();

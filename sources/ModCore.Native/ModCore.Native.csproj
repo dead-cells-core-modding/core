@@ -16,6 +16,10 @@
     <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-arm64'">
+    <DefineConstants>$(DefineConstants);DCCM_GLIBC_ARM64</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <AdditionalFiles Include="NativeMethods.txt" />
   </ItemGroup>

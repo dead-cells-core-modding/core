@@ -14,6 +14,11 @@ namespace Hashlink.Wrapper.Callbacks
                 0x48, 0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, //mov rax, 0xffffffffffffffff
                 0xFF, 0xD0 //call rax
              ];
+            public static readonly byte[] call_code_arm64 = [
+                0xFE, 0x7B, 0xBF, 0xA9,  // stp x30, xzr, [sp, #-16]!
+                0x90, 0x00, 0x00, 0x58,  // ldr x16, [pc, #16]
+                0x00, 0x02, 0x3F, 0xD6   // blr x16
+            ];
             public fixed byte shellcode[12];
             public nint realTarget;
         }
@@ -48,8 +53,16 @@ namespace Hashlink.Wrapper.Callbacks
                     callback = callbackMI.CreateAnonymousDelegate(info, true);
 
                     precode = memoryManager.Alloc();
-                    PreCode.call_code_x64.CopyTo(new Span<byte>(precode->value.shellcode, 12));
-                    *(long*)&precode->value.shellcode[2] = Native.Current.asm_hl2cs_store_return_ptr;
+                    if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+                    {
+                        PreCode.call_code_arm64.CopyTo(new Span<byte>(precode->value.shellcode, 12));
+                        *(long*)((byte*)precode->value.shellcode + 20) = Native.Current.asm_hl2cs_store_return_ptr;
+                    }
+                    else
+                    {
+                        PreCode.call_code_x64.CopyTo(new Span<byte>(precode->value.shellcode, 12));
+                        *(long*)&precode->value.shellcode[2] = Native.Current.asm_hl2cs_store_return_ptr;
+                    }
                     precode->value.realTarget = Marshal.GetFunctionPointerForDelegate(callback);
 
                     routerPtr = (nint)precode->value.shellcode;

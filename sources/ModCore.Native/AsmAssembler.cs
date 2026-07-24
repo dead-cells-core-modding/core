@@ -9,15 +9,15 @@ namespace ModCore.Native
     /// </summary>
     internal class AsmAssembler : IDisposable
     {
-        private readonly TCCCompiler compiler = new();
+        protected readonly TCCCompiler compiler = new();
 
         public TCCCompiler Compiler => compiler;
 
-        private readonly List<string> lines = [];
-        private bool compiled;
-        private int _labelCounter;
-        private string? _pendingForwardLabel;
-        private int _anonForwardCounter;
+        protected readonly List<string> lines = [];
+        protected bool compiled;
+        protected int _labelCounter;
+        protected string? _pendingForwardLabel;
+        protected int _anonForwardCounter;
 
         // ── Register name constants (AT&T syntax: %prefix) ──────────────
 
@@ -66,7 +66,7 @@ namespace ModCore.Native
         }
 
         /// <summary>Append a raw AT&T-syntax asm line (without trailing semicolon — added automatically).</summary>
-        public void AddLine(string line)
+        public virtual void AddLine(string line)
         {
             lines.Add(line + ";");
         }
@@ -103,111 +103,118 @@ namespace ModCore.Native
 
         // ── Conditional jumps ───────────────────────────────────────────
 
-        public void je(string label)  => AddLine($"je {label}");
-        public void jl(string label)  => AddLine($"jl {label}");
-        public void jne(string label) => AddLine($"jne {label}");
+        public virtual void je(string label)  => AddLine($"je {label}");
+        public virtual void jl(string label)  => AddLine($"jl {label}");
+        public virtual void jne(string label) => AddLine($"jne {label}");
 
         // ── Unconditional jump ──────────────────────────────────────────
 
-        public void jmp_label(string label) => AddLine($"jmp {label}");
+        public virtual void jmp_label(string label) => AddLine($"jmp {label}");
 
         /// <summary>jmp *off(%baseReg)</summary>
-        public void jmp_m(string baseReg, int off = 0) => AddLine($"jmp *{off}({baseReg})");
+        public virtual void jmp_m(string baseReg, int off = 0) => AddLine($"jmp *{off}({baseReg})");
 
         // ── Call / Return ───────────────────────────────────────────────
 
         /// <summary>call *%reg</summary>
-        public void call_r(string reg) => AddLine($"call *{reg}");
+        public virtual void call_r(string reg) => AddLine($"call *{reg}");
 
         /// <summary>call *off(%baseReg)</summary>
-        public void call_m(string baseReg, int off = 0) => AddLine($"call *{off}({baseReg})");
+        public virtual void call_m(string baseReg, int off = 0) => AddLine($"call *{off}({baseReg})");
 
-        public void ret() => AddLine("ret");
+        public virtual void ret() => AddLine("ret");
 
         // ── Data movement ───────────────────────────────────────────────
 
         /// <summary>movq %srcReg, %dstReg</summary>
-        public void mov_rr(string dstReg, string srcReg) => AddLine($"movq {srcReg}, {dstReg}");
+        public virtual void mov_rr(string dstReg, string srcReg) => AddLine($"movq {srcReg}, {dstReg}");
 
         /// <summary>movq off(%srcBase), %dstReg  (load from memory)</summary>
-        public void mov_mr(string dstReg, string srcBase, int off = 0) => AddLine($"movq {off}({srcBase}), {dstReg}");
+        public virtual void mov_mr(string dstReg, string srcBase, int off = 0) => AddLine($"movq {off}({srcBase}), {dstReg}");
 
         /// <summary>movq %srcReg, off(%dstBase)  (store to memory)</summary>
-        public void mov_rm(string srcReg, string dstBase, int off = 0) => AddLine($"movq {srcReg}, {off}({dstBase})");
+        public virtual void mov_rm(string srcReg, string dstBase, int off = 0) => AddLine($"movq {srcReg}, {off}({dstBase})");
 
         /// <summary>movq $imm64, %dstReg  (load 64-bit immediate)</summary>
-        public void mov_imm(string dstReg, long value) => AddLine($"movq ${value}, {dstReg}");
+        public virtual void mov_imm(string dstReg, long value) => AddLine($"movq ${value}, {dstReg}");
 
         /// <summary>movq %gs:off, %dstReg  (Windows TLS via GS segment)</summary>
-        public void mov_gs(string dstReg, int off) => AddLine($"movq %gs:{off}, {dstReg}");
+        public virtual void mov_gs(string dstReg, int off) => AddLine($"movq %gs:{off}, {dstReg}");
 
         /// <summary>movq %gs:off(%baseReg), %dstReg  (indirect GS)</summary>
-        public void mov_gs_r(string dstReg, string baseReg, int off) => AddLine($"movq %gs:{off}({baseReg}), {dstReg}");
+        public virtual void mov_gs_r(string dstReg, string baseReg, int off) => AddLine($"movq %gs:{off}({baseReg}), {dstReg}");
 
         // ── Stack ───────────────────────────────────────────────────────
 
-        public void push(string reg) => AddLine($"push {reg}");
-        public void pop(string reg)  => AddLine($"pop {reg}");
-        public void push_imm(int value) => AddLine($"push ${value}");
-        public void push_m(string baseReg, int off = 0) => AddLine($"push {off}({baseReg})");
+        public virtual void push(string reg) => AddLine($"push {reg}");
+        public virtual void pop(string reg)  => AddLine($"pop {reg}");
+        public virtual void push_imm(int value) => AddLine($"push ${value}");
+        public virtual void push_m(string baseReg, int off = 0) => AddLine($"push {off}({baseReg})");
 
         // ── Address computation ─────────────────────────────────────────
 
         /// <summary>lea off(%srcBase), %dstReg</summary>
-        public void lea(string dstReg, string srcBase, int off) => AddLine($"lea {off}({srcBase}), {dstReg}");
+        public virtual void lea(string dstReg, string srcBase, int off) => AddLine($"lea {off}({srcBase}), {dstReg}");
 
         // ── Arithmetic ──────────────────────────────────────────────────
 
-        public void add(string reg, int imm) => AddLine($"add ${imm}, {reg}");
-        public void sub(string reg, int imm) => AddLine($"sub ${imm}, {reg}");
-        public void and(string reg, int imm) => AddLine($"and ${imm}, {reg}");
+        public virtual void add(string reg, int imm) => AddLine($"add ${imm}, {reg}");
+        public virtual void sub(string reg, int imm) => AddLine($"sub ${imm}, {reg}");
+        public virtual void and(string reg, int imm) => AddLine($"and ${imm}, {reg}");
 
         // ── Comparison ──────────────────────────────────────────────────
 
         /// <summary>cmp $imm, %reg</summary>
-        public void cmp_ri(string reg, int imm) => AddLine($"cmp ${imm}, {reg}");
+        public virtual void cmp_ri(string reg, int imm) => AddLine($"cmp ${imm}, {reg}");
 
         /// <summary>cmp %reg2, %reg1</summary>
-        public void cmp_rr(string reg1, string reg2) => AddLine($"cmp {reg2}, {reg1}");
+        public virtual void cmp_rr(string reg1, string reg2) => AddLine($"cmp {reg2}, {reg1}");
 
         // ── Breakpoint ──────────────────────────────────────────────────
 
-        public void int3() => AddLine("int3");
+        public virtual void int3() => AddLine("int3");
 
         // ── FPU / SSE ───────────────────────────────────────────────────
 
         /// <summary>ldmxcsr off(%baseReg)</summary>
-        public void ldmxcsr(string baseReg, int off) => AddLine($"ldmxcsr {off}({baseReg})");
+        public virtual void ldmxcsr(string baseReg, int off) => AddLine($"ldmxcsr {off}({baseReg})");
 
         /// <summary>fldcw off(%baseReg)</summary>
-        public void fldcw(string baseReg, int off) => AddLine($"fldcw {off}({baseReg})");
+        public virtual void fldcw(string baseReg, int off) => AddLine($"fldcw {off}({baseReg})");
 
         /// <summary>movq off(%baseReg), %xmmReg  (64-bit load to low XMM, zero-extends — TCC-compatible replacement for movsd)</summary>
-        public void movsd_rm(string xmmReg, string baseReg, int off) => AddLine($"movsd {off}({baseReg}), {xmmReg}");
+        public virtual void movsd_rm(string xmmReg, string baseReg, int off) => AddLine($"movsd {off}({baseReg}), {xmmReg}");
 
         // ── Compilation ─────────────────────────────────────────────────
 
-        public AsmAssembler()
+        public AsmAssembler() : this(false)
         {
-            compiler.AddOptions("-nostdlib");
-            compiler.SetOutputType(TCCCompiler.OutputType.MEMORY);
+        }
 
-            var incRoot = Path.GetFullPath(Path.Combine(FolderInfo.CurrentNativeRoot.FullPath, "tinycc"));
-            compiler.AddIncludePath(incRoot, true);
-            compiler.AddLibraryPath(incRoot);
+        protected AsmAssembler(bool skipTccInit)
+        {
+            if (!skipTccInit)
+            {
+                compiler.AddOptions("-nostdlib");
+                compiler.SetOutputType(TCCCompiler.OutputType.MEMORY);
+
+                var incRoot = Path.GetFullPath(Path.Combine(FolderInfo.CurrentNativeRoot.FullPath, "tinycc"));
+                compiler.AddIncludePath(incRoot, true);
+                compiler.AddLibraryPath(incRoot);
+            }
         }
 
         public nint GetSymbol(string name)
         {
             if (!compiled)
-                throw new InvalidOperationException("AsmAssembler: must call Compile() before GetSymbol().");
+                throw new InvalidOperationException($"{GetType().Name}: must call Compile() before GetSymbol().");
             return Compiler.GetSymbol(name);
         }
 
         public void Compile()
         {
             if (compiled)
-                throw new InvalidOperationException("AsmAssembler: already compiled.");
+                throw new InvalidOperationException($"{GetType().Name}: already compiled.");
 
             compiled = true;
 
@@ -233,10 +240,10 @@ namespace ModCore.Native
             sb.AppendLine($"asm({ToLiteral(asm.ToString())});");
 
             if (compiler.AddString(sb.ToString()) == -1)
-                throw new InvalidOperationException("AsmAssembler: TCC failed to compile asm.");
+                throw new InvalidOperationException($"{GetType().Name}: TCC failed to compile asm.");
 
             if (compiler.Relocate() < 0)
-                throw new InvalidOperationException("AsmAssembler: TCC failed to relocate asm.");
+                throw new InvalidOperationException($"{GetType().Name}: TCC failed to relocate asm.");
         }
 
         public void Dispose()

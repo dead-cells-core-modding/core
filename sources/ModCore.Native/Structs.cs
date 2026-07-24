@@ -433,6 +433,9 @@ namespace Hashlink
     // Windows x64 JUMP_BUFFER ranges 240–272 bytes depending on CRT; 256
     // fits the common layouts where XMM registers are excluded.
     [StructLayout(LayoutKind.Explicit, Size = 256, Pack = 16)]
+#elif DCCM_GLIBC_ARM64
+    // glibc aarch64 jmp_buf = 312 bytes (verified via T0c).
+    [StructLayout(LayoutKind.Explicit, Size = 312, Pack = 16)]
 #else
     // glibc x86_64 jmp_buf = 200 bytes (__jmpbuf 64 + mask_was_saved 4 +
     // padding 4 + __saved_mask 128).  musl is similar.
