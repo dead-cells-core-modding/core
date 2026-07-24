@@ -6,18 +6,26 @@ remove_definitions(-DLIBHL_EXPORTS)
 
 # hljit
 set(HL_SRC_ROOT ../3rd/hashlink/src)
-file(GLOB hl_srcs 
-    ./hlc_extern.c
-    ${HL_SRC_ROOT}/code.c
-    ${HL_SRC_ROOT}/jit.c
-    ${HL_SRC_ROOT}/main.c
-    ${HL_SRC_ROOT}/module.c
-    ${HL_SRC_ROOT}/debugger.c
-    ${HL_SRC_ROOT}/profile.c)
 
 if(DCCM_ARCH_ARM64)
-    list(REMOVE_ITEM hl_srcs "${HL_SRC_ROOT}/jit.c")
-    list(APPEND hl_srcs ./hljit_stubs_aarch64.c)
+    # ARM64: exclude x86-only jit.c, use stub instead
+    file(GLOB hl_srcs 
+        ./hlc_extern.c
+        ${HL_SRC_ROOT}/code.c
+        ${HL_SRC_ROOT}/main.c
+        ${HL_SRC_ROOT}/module.c
+        ${HL_SRC_ROOT}/debugger.c
+        ${HL_SRC_ROOT}/profile.c
+        ./hljit_stubs_aarch64.c)
+else()
+    file(GLOB hl_srcs 
+        ./hlc_extern.c
+        ${HL_SRC_ROOT}/code.c
+        ${HL_SRC_ROOT}/jit.c
+        ${HL_SRC_ROOT}/main.c
+        ${HL_SRC_ROOT}/module.c
+        ${HL_SRC_ROOT}/debugger.c
+        ${HL_SRC_ROOT}/profile.c)
 endif()
 
 add_library(hljit SHARED  ${hl_srcs})
