@@ -440,6 +440,13 @@ class Build : NukeBuild
             // Build Discord webhook embed payload
             var payload = new
             {
+                content = "<@&1526877075082969128> <@&1526877378675085435>",
+                allowed_mentions = new
+                {
+                    roles = new[] {
+                        "1526877075082969128", "1526877378675085435"
+                    }
+                },
                 embeds = new[]
                 {
                     new
