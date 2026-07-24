@@ -5,6 +5,7 @@ using Hashlink.Marshaling;
 
 namespace HaxeProxy.Runtime
 {
+    [Obsolete]
     public unsafe class HaxeNullable<T> : IHashlinkPointer where T : struct
     {
         public T Value {

@@ -3,6 +3,8 @@ using Mono.Cecil;
 using System;
 using System.Linq;
 
+#nullable disable
+
 namespace Haxe2CSharp
 {
     internal class RuntimeHelperRef
@@ -47,10 +49,6 @@ namespace Haxe2CSharp
             phWriteMem = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.WriteMem));
             phSetGlobal = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.SetGlobal));
 
-            TypeReference ImportType<T>()
-            {
-                return module.ImportReference(typeof(T));
-            }
             MethodReference ImportAttribute<T>( int argsCount = -1 )
             {
                 return module.ImportReference(typeof(T).GetConstructors().First(x =>
@@ -62,10 +60,6 @@ namespace Haxe2CSharp
                 return module.ImportReference(type.GetMethod(name));
             }
 
-            MethodReference ImportHelperMethod( string name )
-            {
-                return module.ImportReference(typeof(HaxeProxyHelper).GetMethod(name));
-            }
 
             MethodReference ImportPseudocodeHelperMethod( string name )
             {

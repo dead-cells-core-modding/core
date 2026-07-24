@@ -48,6 +48,7 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference hSetValueFieldById;
         public MethodReference hGetGlobal;
         public MethodReference hGetProxy;
+        [Obsolete]
         public MethodReference hGetNullableProxy;
         public MethodReference hGetCallInfoById;
         public MethodReference hCreateEnumInstance;

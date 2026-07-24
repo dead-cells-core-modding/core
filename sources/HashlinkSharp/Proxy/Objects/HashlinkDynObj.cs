@@ -15,6 +15,15 @@ namespace Hashlink.Proxy.Objects
             Debug.Assert(Handle != null);
         }
 
+        public HashlinkDynObj Copy()
+        {
+            return HashlinkMarshal.ConvertHashlinkObject<HashlinkDynObj>(
+                HashlinkObjPtr.Get(
+                    hl_obj_copy(TypedRef)
+                )
+            )!;
+        }
+
         public override object? GetFieldValue( int hashedName )
         {
             return HashlinkMarshal.ConvertHashlinkObject(

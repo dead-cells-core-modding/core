@@ -14,20 +14,12 @@ namespace HaxeProxy.Runtime
         {
         }
 
-        private HaxeDynObj( HashlinkObj obj ) : base(HashlinkMarshal.ConvertHashlinkObject<HashlinkObj>
+        private HaxeDynObj( HashlinkObj obj ) : base(HashlinkMarshal.ConvertHashlinkObject<HashlinkDynObj>
             (HashlinkNative.hl_make_dyn(
             (void*)obj.HashlinkPointer, obj.NativeType))!)
         {
         }
-
-        public HaxeDynObj( HaxeObject obj ) : this(obj.HashlinkObj)
-        {
-        }
-
-        public HaxeDynObj( HaxeVirtual obj ) : this(obj.HashlinkObj)
-        {
-        }
-        public HaxeDynObj( HaxeDynObj obj ) : this(obj.HashlinkObj)
+        public HaxeDynObj( HaxeDynObj obj ) : this(((HashlinkDynObj)obj.HashlinkObj).Copy())
         {
         }
 

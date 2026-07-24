@@ -11,6 +11,16 @@ namespace Hashlink.Proxy.Objects
             Debug.Assert(Handle != null);
         }
 
+        public HashlinkVirtual Copy()
+        {
+            return HashlinkMarshal.ConvertHashlinkObject<HashlinkVirtual>(
+                HashlinkObjPtr.Get(
+                    hl_obj_copy((HL_vdynamic*)HashlinkPointer)
+                )
+            )!;
+            
+        }
+
         public HashlinkObj? GetValue()
         {
             var virt = TypedRef;

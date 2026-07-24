@@ -197,6 +197,7 @@ namespace HaxeProxy.Runtime.Internals
 
 
         [return: NotNullIfNotNull(nameof(val))]
+        [Obsolete]
         public static HaxeNullable<T>? GetNullableProxy<T>( object? val ) where T : struct
         {
             if (val == null)

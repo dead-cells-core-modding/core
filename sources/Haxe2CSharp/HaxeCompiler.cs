@@ -12,7 +12,7 @@ namespace Haxe2CSharp
     internal class HaxeCompiler(
         string moduleName,
         HashlinkModule module,
-        Assembly proxy,
+        //Assembly proxy,
         HlCode code)
     {
         private RuntimeHelperRef? runtimeHelperRef = null;

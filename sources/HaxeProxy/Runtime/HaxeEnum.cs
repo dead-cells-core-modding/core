@@ -1,3 +1,4 @@
+using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Values;
 using HaxeProxy.Runtime.Internals;
@@ -5,7 +6,7 @@ using System.Dynamic;
 
 namespace HaxeProxy.Runtime
 {
-    public abstract class HaxeEnum<TEnum, TIndex> : HaxeEnum where TIndex : struct, Enum
+    public abstract unsafe class HaxeEnum<TEnum, TIndex> : HaxeEnum where TIndex : struct, Enum
         where TEnum : HaxeEnum<TEnum, TIndex>
     {
 
@@ -38,18 +39,18 @@ namespace HaxeProxy.Runtime
             {
                 return true;
             }
-            if (obj is not TEnum tenum)
+            if (obj is not TEnum)
             {
                 return false;
             }
-            return Index.Equals(tenum);
+            return base.Equals(obj);
         }
         public override string ToString()
         {
             return Index.ToString() ?? "";
         }
     }
-    public abstract class HaxeEnum : HaxeProxyBase
+    public abstract unsafe class HaxeEnum : HaxeProxyBase
     {
         protected HaxeEnum() : base(null!)
         {
@@ -95,6 +96,14 @@ namespace HaxeProxy.Runtime
             if (ReferenceEquals(this, obj))
             {
                 return true;
+            }
+            if (obj is HaxeEnum e)
+            {
+                if (e.RawIndex != RawIndex)
+                {
+                    return false;
+                }
+                return HashlinkNative.hl_dyn_compare((HL_vdynamic*)e.HashlinkPointer, (HL_vdynamic*)HashlinkPointer) == 0;
             }
             return false;
         }
