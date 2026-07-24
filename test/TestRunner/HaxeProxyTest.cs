@@ -202,21 +202,41 @@ namespace TestRunner
         [Fact]
         public void Test_Hook2()
         {
-            Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount;
-
             var gm = HaxeProxyUtils.GetHashlinkType(typeof(Game)).CreateInstance().AsHaxe<Game>();
 
-            var val = gm.getBiomeVisitCount("".AsHaxeString());
 
+            Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount;
+            var val = gm.getBiomeVisitCount("".AsHaxeString());
             Assert.Equal(11452007, val);
             
             Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount;
+
             Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount2;
 
             val = gm.getBiomeVisitCount("".AsHaxeString());
             Assert.Null(val);
 
+            Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount;
+
+            val = gm.getBiomeVisitCount("".AsHaxeString());
+            Assert.Equal(11452007, val);
+
+            Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount3;
+
+            val = gm.getBiomeVisitCount("".AsHaxeString());
+            Assert.Equal(11452007 + 1, val);
+
             Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount;
+            Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount2;
+            Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount3;
+
+            Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount2;
+            Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount3;
+
+            Assert.Throws<NullReferenceException>(() => gm.getBiomeVisitCount("".AsHaxeString()));
+
+            Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount2;
+            Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount3;
         }
 
         private int? Hook_Game_getBiomeVisitCount(Hook_Game.orig_getBiomeVisitCount orig, Game self, dc.String id)
@@ -227,6 +247,11 @@ namespace TestRunner
         private int? Hook_Game_getBiomeVisitCount2(Hook_Game.orig_getBiomeVisitCount orig, Game self, dc.String id)
         {
             return null;
+        }
+
+        private int? Hook_Game_getBiomeVisitCount3(Hook_Game.orig_getBiomeVisitCount orig, Game self, dc.String id)
+        {
+            return (orig(self, id) ?? throw null!) + 1;
         }
 
 
