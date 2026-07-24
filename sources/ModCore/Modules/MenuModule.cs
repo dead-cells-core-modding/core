@@ -235,7 +235,7 @@ namespace ModCore.Modules
 
                 options.addSimpleWidget(GetString("Join Discord"), null, () =>
                 {
-                    OpenURL("https://discord.gg/qH5gw7hwx7");
+                    OpenURL("https://discord.gg/JKr5h79gyc");
                 }, Ref<int>.In(0), flow);
 
                 options.addSimpleWidget(GetString("Buy Me a Coffee"), GetString("Your support helps us keep maintaining it.Thank you!"), () =>
