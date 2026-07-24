@@ -12,7 +12,7 @@ namespace ModCore.Native
     internal unsafe partial class Native
     {
         public const int STACK_CHUCK_SUM = unchecked((int)0xcececece);
-        private nint nativeCodePage;
+        protected nint nativeCodePage;
 
         private AsmAssembler? assembler;
 
@@ -109,7 +109,7 @@ namespace ModCore.Native
             }
         }
 
-        private void Compiler_OnError( string? obj )
+        protected void Compiler_OnError( string? obj )
         {
             Debug.WriteLine("[Assembler]" + obj);
             Log.Error("[Assembler]{msg}", obj);
