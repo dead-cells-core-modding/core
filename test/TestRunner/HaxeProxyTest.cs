@@ -253,12 +253,14 @@ namespace TestRunner
             Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount2;
             Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount3;
 
+            Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount2;
             Hook_Game.getBiomeVisitCount += Hook_Game_getBiomeVisitCount3;
 
             val = gm.getBiomeVisitCount("".AsHaxeString());
             Assert.Equal(0, val);
 
             Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount3;
+            Hook_Game.getBiomeVisitCount -= Hook_Game_getBiomeVisitCount2;
         }
 
         private int? Hook_Game_getBiomeVisitCount(Hook_Game.orig_getBiomeVisitCount orig, Game self, dc.String id)
