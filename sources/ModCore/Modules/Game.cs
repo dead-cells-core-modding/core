@@ -6,6 +6,7 @@ using dc.hl.types;
 using dc.hxd.fs;
 using dc.hxd.res;
 using dc.hxsl;
+using dc.libs;
 using dc.pr;
 using dc.tool;
 using dc.ui;
@@ -343,6 +344,8 @@ namespace ModCore.Modules
                     Core.Config.Save();
                 };
             }
+
+            Logger.Information(self.build.text.ToString());
         }
 
         private void Hook__Save_save( Hook__Save.orig_save orig, User u, bool onlyGameData )
@@ -381,6 +384,11 @@ namespace ModCore.Modules
                 Logger.Warning("The target game version for DCCM is {A}, not the {B}", GameInfo.DCCMVersion.Major,
                     GameInfo.GameVersion);
             }
+
+            Logger.Information("Game version: v{ver} ({date}) - {hash}", 
+                GameInfo.GameVersion, 
+                GameInfo.BuildDate,
+                GitVersion.Class.HASH.ToString());
 
             if (GameInfo.Platform == GameInfo.PlatformKind.Steam)
             {

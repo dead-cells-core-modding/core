@@ -1,4 +1,5 @@
 using dc;
+using dc.libs;
 
 namespace ModCore
 {
@@ -31,6 +32,11 @@ namespace ModCore
         /// Gets the current version number of the game.
         /// </summary>
         public static int GameVersion => Main.Class.GAME_VERSION;
+
+        /// <summary>
+        /// Gets the build date of the game.
+        /// </summary>
+        public static string BuildDate => GitVersion.Class.BUILD_DT.ToString();
 
         /// <summary>
         /// Gets the version of the DCCM.
