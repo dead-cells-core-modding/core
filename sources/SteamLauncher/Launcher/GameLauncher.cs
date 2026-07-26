@@ -1,10 +1,10 @@
 using Serilog;
-using SteamStartShell.Platform;
+using SteamLauncher.Platform;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 
-namespace SteamStartShell.Launcher
+namespace SteamLauncher.Launcher
 {
     /// <summary>
     /// Game launcher — sets environment variables and launches the DeadCellsModding child process

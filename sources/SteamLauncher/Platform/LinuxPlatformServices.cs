@@ -1,9 +1,10 @@
+using SteamLauncher;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
 
-namespace SteamStartShell.Platform
+namespace SteamLauncher.Platform
 {
     /// <summary>
     /// Linux platform service implementation——currently a stub; features to be implemented in a future version

@@ -36,6 +36,9 @@
     </Project>
   </Folder>
   <Folder Name="/shell/steam/">
+    <Project Path="SteamLauncher/SteamLauncher.csproj" Id="952fa398-154f-497e-87ed-e55bc1a25598">
+      <Platform Project="x64" />
+    </Project>
     <Project Path="SteamStartShell/SteamStartShell.csproj" Id="0c142aa5-a130-463a-8c10-91c7e0be8184">
       <BuildDependency Project="DeadCellsModding/DeadCellsModding.csproj" />
     </Project>

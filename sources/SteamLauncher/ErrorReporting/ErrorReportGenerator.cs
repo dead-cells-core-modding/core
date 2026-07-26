@@ -1,9 +1,9 @@
 using Serilog;
-using SteamStartShell.Platform;
+using SteamLauncher.Platform;
 using System.Diagnostics;
 using System.Text;
 
-namespace SteamStartShell.ErrorReporting
+namespace SteamLauncher.ErrorReporting
 {
     /// <summary>
     /// Error report generator——collects crash information and generates the last_error.txt report file
@@ -47,7 +47,8 @@ You can report or contact us via:
             string? errorOutput,
             string? outputData,
             string? gameLogPath,
-            string? crashDumpPath )
+            string? crashDumpPath,
+            string? launcherLogPath)
         {
             Logger.Error(ERROR_REPORT_HEADER);
             Logger.Information("Please check the log file for more detailed information: {path}", ERROR_REPORT_PATH);
@@ -89,6 +90,13 @@ You can report or contact us via:
             {
                 errText.AppendLine("\n:============ ERRORS ============:\n");
                 errText.AppendLine(errorOutput);
+                errText.AppendLine();
+            }
+
+            if (!string.IsNullOrEmpty(launcherLogPath) && File.Exists(launcherLogPath))
+            {
+                errText.AppendLine("\n:============ LAUNCHER LOG ============:\n");
+                errText.AppendLine(File.ReadAllText(launcherLogPath));
                 errText.AppendLine();
             }
 

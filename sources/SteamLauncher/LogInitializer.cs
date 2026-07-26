@@ -1,20 +1,18 @@
-
 using Serilog;
 
-namespace ModCore
+namespace SteamLauncher
 {
     internal static class LogInitializer
     {
-        private const string OUTPUT_FORMAT_TEMPLATE = "[{Timestamp:HH:mm:ss} {Level:u3}][SteamShell] {Message:lj}{NewLine}{Exception}";
+        private const string OUTPUT_FORMAT_TEMPLATE = "[{Timestamp:HH:mm:ss} {Level:u3}][Launcher] {Message:lj}{NewLine}{Exception}";
+        public static readonly string LOG_PATH = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath!)!, "log_latest.log");
         internal static void InitializeLog()
         {
-
-            var latest = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath!)!, "log_latest.log");
-            if (File.Exists(latest))
+            if (File.Exists(LOG_PATH))
             {
                 try
                 {
-                    File.Delete(latest);
+                    File.Delete(LOG_PATH);
                 }
                 catch (Exception)
                 {
@@ -24,12 +22,15 @@ namespace ModCore
             var configuration = new LoggerConfiguration()
               .MinimumLevel.Debug()
               .WriteTo.File(
-                latest,
-                outputTemplate: OUTPUT_FORMAT_TEMPLATE
+                LOG_PATH,
+                outputTemplate: OUTPUT_FORMAT_TEMPLATE,
+                buffered: false,
+                shared: true
                 )
               .WriteTo.Console(
                 outputTemplate: OUTPUT_FORMAT_TEMPLATE
-                );
+                )
+              ;
             Log.Logger = configuration.CreateLogger();
         }
     }

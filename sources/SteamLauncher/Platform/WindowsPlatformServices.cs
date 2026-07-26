@@ -4,8 +4,9 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
 using Microsoft.Win32;
+using SteamLauncher;
 
-namespace SteamStartShell.Platform
+namespace SteamLauncher.Platform
 {
     /// <summary>
     /// Windows platform service implementation

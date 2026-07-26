@@ -3,8 +3,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Serilog;
+using SteamLauncher.Platform;
 
-namespace SteamStartShell.Platform
+namespace SteamLauncher.Platform
 {
     /// <summary>
     /// Abstract base class for platform services——provides platform-specific native library loading, compatibility layer detection, and process configuration

@@ -24,24 +24,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="steam_api64.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="steam_api64.dll">
-      <LogicalName>steam_api64.dll</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="libsteam_api.so">
-      <LogicalName>libsteam_api.so</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
 
-  <Import Project="../../IncludeSteamworkNET.props" />
 
+
+  <ItemGroup>
+    <ProjectReference Include="..\SteamLauncher\SteamLauncher.csproj" />
+  </ItemGroup>
 </Project>

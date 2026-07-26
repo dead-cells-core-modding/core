@@ -4,6 +4,18 @@
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <!-- UAC manifest options
+             If you want to change the Windows User Account Control level, use
+             one of the following nodes to replace the requestedExecutionLevel node.
+
+        <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
+        <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
+        <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
+
+            Specifying the requestedExecutionLevel element will disable file and registry virtualization.
+            If your application needs this virtualization for backward compatibility, remove this
+            element.
+        -->
         <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
     </security>
@@ -11,10 +23,35 @@
 
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
+      <!-- A list of Windows versions that this application is designed to work with
+           and has been tested against. Uncomment the appropriate elements,
+           Windows will automatically select the most compatible environment. -->
+
+      <!-- Windows Vista -->
+      <!--<supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}" />-->
+
+      <!-- Windows 7 -->
+      <!--<supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}" />-->
+
+      <!-- Windows 8 -->
+      <!--<supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}" />-->
+
+      <!-- Windows 8.1 -->
+      <!--<supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}" />-->
+
       <!-- Windows 10 -->
-      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
+      <!--<supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />-->
+
     </application>
   </compatibility>
+
+  <!-- Indicates that the application is DPI-aware and Windows will not
+       automatically scale it at higher DPI settings. Windows Presentation Foundation (WPF) applications are
+       automatically DPI-aware and do not need to opt in. Windows Forms applications targeting .NET Framework 4.6
+       that opt in to this setting should also set the "EnableWindowsFormsHighDpiAutoResizing" setting to "true"
+       in their app.config.
+      
+       Makes the application long path aware. See https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation -->
 
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
@@ -22,5 +59,22 @@
       <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
     </windowsSettings>
   </application>
+
+
+  <!-- Enable themes for Windows common controls and dialogs (Windows XP and later) -->
+  <!--
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity
+          type="win32"
+          name="Microsoft.Windows.Common-Controls"
+          version="6.0.0.0"
+          processorArchitecture="*"
+          publicKeyToken="6595b64144ccf1df"
+          language="*"
+        />
+    </dependentAssembly>
+  </dependency>
+  -->
 
 </assembly>

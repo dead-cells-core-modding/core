@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,12 +10,12 @@
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
 
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <PublishDir>../../bin/core/host/startup/gog</PublishDir>
     <AssemblyName>deadcells</AssemblyName>
 
     <PublishTrimmed>true</PublishTrimmed>
-
+    <ApplicationIcon>icon.ico</ApplicationIcon>
     <RootNamespace>GOGStartShell</RootNamespace>
   </PropertyGroup>
 
@@ -24,4 +24,8 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SteamLauncher\SteamLauncher.csproj" />
+  </ItemGroup>
+  <Import Project="../../IncludeSteamworkNET.props" />
 </Project>

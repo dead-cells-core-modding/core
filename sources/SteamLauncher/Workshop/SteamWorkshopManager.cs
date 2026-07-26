@@ -1,10 +1,10 @@
 using Newtonsoft.Json.Linq;
 using Serilog;
-using SteamStartShell.Platform;
+using SteamLauncher.Platform;
 using Steamworks;
 using System.Diagnostics;
 
-namespace SteamStartShell.Workshop
+namespace SteamLauncher.Workshop
 {
     /// <summary>
     /// Steam Workshop manager — handles Steam API initialization, DCCM Workshop download/update, Shell self-update, and ModCore version check
