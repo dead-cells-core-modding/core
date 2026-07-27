@@ -1,33 +1,30 @@
-# Release Notes - 35.12.7
+# Release Notes - 35.12.8
 
 ## Feature
 
-- Added Discord announcement build target for automated release notifications via webhook
-- Added IOnResolveHashlinkType event interface allowing modules to customize Hashlink type resolution
-- HashlinkMarshal constructor now performs platform compatibility validation with roundtrip conversion checks
-- HaxeProxyManager integrates with the type resolution event system and adds nint type mapping for proxy types
-- Enhanced hook tests to cover multiple simultaneous handler chains and dynamic delegate roundtrip scenarios
+- Shell: Extract shared launcher logic into a new SteamLauncher library, enabling code reuse between Steam and GOG shells
+- GOG Shell: Add linux-x64 runtime support and application icon
+- ModCore: Log game version, build date, and Git hash at startup for easier diagnostics
+- FolderInfo: Implement deferred path resolution with dependency-aware rebuild for more robust folder path management
 
 ## Fix
 
-- Generic type instances are now correctly wrapped during Hashlink bytecode pseudo-code import
-- Delegate calli emitter now uses the correct return type when generating Haxe-to-CLR marshaling stubs
-- Proxy type resolution properly delegates to the marshal system with proper fallback when no custom type is registered
+- HashlinkNET Compiler: Add missing Castclass IL instruction when generating pseudo-code for field-by-ID setting
+- Shell: Enable unbuffered shared file logging for launcher logs to ensure timely log output
 
 ---
 
-# 更新说明 - 35.12.7
+# 更新说明 - 35.12.8
 
 ## Feature
 
-- 新增 Discord 发布公告构建目标，支持通过 Webhook 自动发送版本更新通知
-- 新增 IOnResolveHashlinkType 事件接口，允许模块自定义 Hashlink 类型解析逻辑
-- HashlinkMarshal 构造函数现在会进行平台兼容性验证，包含往返转换检查
-- HaxeProxyManager 集成了类型解析事件系统，并新增了 nint 类型的代理映射
-- 增强了 Hook 测试，覆盖多处理器链式调用和动态委托往返转换场景
+- Shell: 将共享启动器逻辑提取到新的 SteamLauncher 库中，使 Steam 与 GOG 启动器可复用代码
+- GOG Shell: 新增 linux-x64 运行时支持及应用图标
+- ModCore: 在启动时记录游戏版本、构建日期和 Git 哈希，便于诊断问题
+- FolderInfo: 实现延迟路径解析与依赖感知重建机制，提升文件夹路径管理的健壮性
 
 ## Fix
 
-- 修复 Hashlink 字节码伪代码导入时泛型类型实例未正确包装的问题
-- 修复委托 calli 发射器在生成 Haxe-to-CLR 封送桩代码时使用了错误的返回类型
-- 修复代理类型解析在无自定义类型注册时未正确回退到封送系统的问题
+- HashlinkNET Compiler: 修复生成伪代码时按 ID 设置字段缺少 Castclass IL 指令的问题
+- Shell: 启用启动器日志的非缓冲共享文件记录，确保日志及时输出
+
