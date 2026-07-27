@@ -177,6 +177,7 @@ namespace HashlinkNET.Compiler.Utils
             }
             else
             {
+                il.Emit(OpCodes.Castclass, ft);
                 il.Emit(OpCodes.Ldstr, name);
                 il.Emit(OpCodes.Ldsflda, cache);
                 il.Emit(OpCodes.Call, rdata.hSetFieldById);

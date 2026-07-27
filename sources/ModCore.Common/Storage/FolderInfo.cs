@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -8,6 +9,7 @@ namespace ModCore.Storage
     /// </summary>
     public class FolderInfo
     {
+        public static event Action<string>? OnRebuildInfo;
         private static readonly Dictionary<string, FolderInfo> folders = [];
         private static readonly string platform_name =
             OperatingSystem.IsWindows() ? "win" :
@@ -93,7 +95,15 @@ namespace ModCore.Storage
         /// <summary>
         /// 
         /// </summary>
-        public DirectoryInfo Info => info;
+        public DirectoryInfo Info
+        {
+            get
+            {
+                Debug.Assert(info != null);
+                info.Create();
+                return info;
+            }
+        }
 
         /// <summary>
         /// The name of the folder
@@ -105,14 +115,20 @@ namespace ModCore.Storage
         /// <summary>
         /// The full path to the folder
         /// </summary>
-        public string FullPath {
-            get;
+        public string FullPath => Info.FullName;
+
+        private DirectoryInfo? info;
+        private readonly string pathTemplate;
+        private readonly HashSet<string> usedExternInfo = [];
+        private void BuildPath()
+        {
+            var path = Path.GetFullPath(ParsePath(pathTemplate));
+            info = new(path);
+            
+            OnRebuildInfo?.Invoke(Name);
         }
 
-        private readonly DirectoryInfo info;
-
-
-        private static string ParsePath( string path )
+        private string ParsePath( string path )
         {
             var parts = path.Split('{', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
@@ -135,8 +151,18 @@ namespace ModCore.Storage
                 }
                 else
                 {
-                    sb.Append(folders[name.ToUpper()].FullPath);
-                    sb.Append(Path.DirectorySeparatorChar);
+                    var id = name.ToUpperInvariant();
+                    usedExternInfo.Add(id);
+                    if (folders.TryGetValue(id, out var externInfo))
+                    {
+                        sb.Append(folders[name.ToUpperInvariant()].FullPath);
+                        sb.Append(Path.DirectorySeparatorChar);
+                    }
+                    else
+                    {
+                        sb.Append($"{{{id}}}");
+                        sb.Append(Path.DirectorySeparatorChar);
+                    }
                 }
 
                 if (idx < p.Length - 1)
@@ -171,12 +197,18 @@ namespace ModCore.Storage
             {
                 path = overridePath;
             }
-
+            pathTemplate = path;
             folders.Add(name, this);
-            FullPath = Path.GetFullPath(ParsePath(path));
-            info = new(FullPath);
-            info.Create();
+            OnRebuildInfo += FolderInfo_OnRebuildInfo;
+            BuildPath();
         }
 
+        private void FolderInfo_OnRebuildInfo( string obj )
+        {
+            if (usedExternInfo.Contains(obj))
+            {
+                BuildPath();
+            }
+        }
     }
 }
