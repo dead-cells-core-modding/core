@@ -253,6 +253,24 @@ This project uses the following open source libraries directly (bundled or linke
 | [System.IO.Hashing](https://github.com/dotnet/runtime) | MIT |
 | [CsWin32](https://github.com/microsoft/CsWin32) | MIT |
 
+## Code Signing Policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+
+### Team Roles
+
+- **Authors** (committers): [Members team](https://github.com/orgs/dead-cells-core-modding/teams/members)
+- **Reviewers**: [Members team](https://github.com/orgs/dead-cells-core-modding/teams/members) — each change proposed by non-members must be reviewed by a team member
+- **Approvers**: [Owners](https://github.com/orgs/dead-cells-core-modding/people?query=role%3Aowner) — each signing request must be approved by a team member trusted to decide if a release can be code signed
+
+### Privacy Policy
+
+This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it.
+
+### Artifact Configuration
+
+All signed binaries have product name set to 'Dead Cells Core Modding' and product version set to the release version.
+
 ## License
 
 Distributed under the MIT [license](https://github.com/DreamBoxSpy/DeadCellsCoreModding/blob/main/LICENSE).

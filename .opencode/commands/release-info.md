@@ -27,6 +27,8 @@ description: 生成 release notes
 19. 忽略 CI 相关的更改
 20. 一定忽略 所用 git 子模块的更改！！！
 21. 一定忽略 latest-release.md 的更改
+22. EN 版本末尾必须包含 SignPath 代码签名政策声明（参考 SignPath Foundation OSS 政策）
+23. ZH 版本末尾必须包含 SignPath 代码签名政策声明（中文翻译）
 
 ReleaseInfo.en.md 格式：
 ```
@@ -40,6 +42,9 @@ ReleaseInfo.en.md 格式：
 
 - ...
 
+---
+
+**Code signing policy**: Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
 ```
 
 ReleaseInfo.zh.md 格式:
@@ -47,8 +52,17 @@ ReleaseInfo.zh.md 格式:
 
 # 更新说明
 
-...
+## Feature
 
+- ...
+
+## Fix
+
+- ...
+
+---
+
+**代码签名政策**: 免费代码签名由 [SignPath.io](https://about.signpath.io) 提供，证书由 [SignPath Foundation](https://signpath.org) 颁发。
 ```
 
 完成以上操作后，拼接 bin/ReleaseInfo.[zh/en].md 输出到 bin/ReleaseInfo.md，要求：

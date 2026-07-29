@@ -567,6 +567,7 @@ Before committing:
 12. **Bilingual output** — generate both English and Chinese versions
 13. **Never use double quotes** — use single quotes instead
 14. **Check word order** — ensure natural phrasing in both languages
+15. **Must include SignPath code signing policy attribution** at the end of both EN and ZH release notes (see template below)
 
 ### Output Files
 
@@ -589,6 +590,10 @@ Before committing:
 ## Fix
 
 - ...
+
+---
+
+**Code signing policy**: Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
 ```
 
 ### ReleaseInfo.zh.md Format
@@ -603,6 +608,10 @@ Before committing:
 ## Fix
 
 - ...
+
+---
+
+**代码签名政策**: 免费代码签名由 [SignPath.io](https://about.signpath.io) 提供，证书由 [SignPath Foundation](https://signpath.org) 颁发。
 ```
 
 ### Merged ReleaseInfo.md
@@ -623,6 +632,7 @@ Before committing:
 - [ ] No double quotes anywhere
 - [ ] No duplicate entries across Feature/Fix
 - [ ] Bilingual output generated
+- [ ] SignPath code signing policy attribution included in both EN and ZH
 - [ ] `bin/ModCoreVersion.txt` written with version from `Directory.Build.props`
 
 ---
