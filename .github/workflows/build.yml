@@ -21,16 +21,11 @@ jobs:
       uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10
-    - name: submit signing request
-      uses: signpath/github-action-submit-signing-request@v2
-      with:
-        api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
-        organization-id: '6981be5b-1082-40a2-9e63-84a1da221894'
-        project-slug: 'core'
-        signing-policy-slug: 'test-signing'
-        github-artifact-id: 'build-win-x64'
-        wait-for-completion: true
-        output-artifact-directory: './win-x64'
+    - name: Download artifacts win-x64
+      uses: actions/download-artifact@v8
+      with: 
+        name: build-win-x64-signed
+        path: win-x64
     - name: Download artifacts linux-x64
       uses: actions/download-artifact@v8
       with: 
@@ -260,8 +255,28 @@ jobs:
       run: |
         ./build.ps1  BuildAssets --configuration ${{ matrix.debug == true && '-Debug' || 'Release' }}
 
-    - name: Upload
+    - name: upload
       uses: actions/upload-artifact@v7
       with:
         name: build-${{ matrix.os_name }}-${{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}
         path: ./bin/*
+    - name: submit signing request
+      if: runner.os == 'Windows'
+      uses: signpath/github-action-submit-signing-request@v2
+      with:
+        api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+        organization-id: '6981be5b-1082-40a2-9e63-84a1da221894'
+        project-slug: 'core'
+        signing-policy-slug: 'test-signing'
+        github-artifact-id: '${{ steps.upload.outputs.artifact-id }}'
+        wait-for-completion: true
+        output-artifact-directory: './bin/signed'
+    - name: upload signed
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v7
+      with:
+        name: build-${{ matrix.os_name }}-${{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}-signed
+        path: ./bin/signed/*
+
+
+
