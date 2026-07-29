@@ -255,7 +255,7 @@ jobs:
       run: |
         ./build.ps1  BuildAssets --configuration ${{ matrix.debug == true && '-Debug' || 'Release' }}
 
-    - name: upload
+    - name: upload unsigned artifact
       uses: actions/upload-artifact@v7
       with:
         name: build-${{ matrix.os_name }}-${{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}
@@ -268,7 +268,7 @@ jobs:
         organization-id: '6981be5b-1082-40a2-9e63-84a1da221894'
         project-slug: 'core'
         signing-policy-slug: 'test-signing'
-        github-artifact-id: '${{ steps.upload.outputs.artifact-id }}'
+        github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
         wait-for-completion: true
         output-artifact-directory: './bin/signed'
     - name: upload signed
