@@ -5,7 +5,7 @@ namespace Hashlink.Marshaling.ObjHandle
     public class HashlinkObjHandle
     {
         private HashlinkObj? obj;
-        private bool isStateful = true;
+        private bool isStateful = false;
 
         internal int handleIndex = 0;
         internal readonly nint nativeHLPtr;

@@ -21,11 +21,16 @@ jobs:
       uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10
-    - name: Download artifacts win-x64
-      uses: actions/download-artifact@v8
-      with: 
-        name: build-win-x64
-        path: win-x64
+    - name: submit signing request
+      uses: signpath/github-action-submit-signing-request@v2
+      with:
+        api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+        organization-id: '6981be5b-1082-40a2-9e63-84a1da221894'
+        project-slug: 'core'
+        signing-policy-slug: 'test-signing'
+        github-artifact-id: 'build-win-x64'
+        wait-for-completion: true
+        output-artifact-directory: './win-x64'
     - name: Download artifacts linux-x64
       uses: actions/download-artifact@v8
       with: 
@@ -44,7 +49,7 @@ jobs:
         zip -r ../win-x64-no-mdk.zip ./*
 
         cp ./core/host/startup/gog/deadcells.exe ../deadcells-gog.exe
-    - name: Pack win-x64
+    - name: Pack linux-x64
       run: |
          cd linux-x64
 
@@ -260,26 +265,3 @@ jobs:
       with:
         name: build-${{ matrix.os_name }}-${{ matrix.arch }}${{ matrix.debug == true && '-Debug' || '' }}
         path: ./bin/*
-    - name: Install SBOM tool
-      run: dotnet tool install --global Microsoft.Sbom.DotNetTool
-    - name: Generate SBOM
-      shell: pwsh
-      run: |
-        $ver = Get-Content ./bin/ModCoreVersion.txt
-        sbom-tool generate `
-          -b ./bin `
-          -bc ./sources `
-          -pn DeadCellsCoreModding `
-          -pv $ver `
-          -ps dead-cells-core-modding `
-          -nsb https://github.com/dead-cells-core-modding/core `
-          -m .
-    - name: Generate artifact attestation
-      uses: actions/attest@v4
-      with:
-        subject-path: ./bin/*
-        sbom-path: ./_manifest/spdx_2.2/manifest.spdx.json
-
-
-
-
