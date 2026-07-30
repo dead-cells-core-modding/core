@@ -206,9 +206,9 @@ jobs:
       uses: signpath/github-action-submit-signing-request@v2
       with:
         api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
-        organization-id: '6981be5b-1082-40a2-9e63-84a1da221894'
-        project-slug: 'core'
-        signing-policy-slug: 'test-signing'
+        organization-id: '${{ secrets.SIGNPATH_ORG_ID }}'
+        project-slug: '${{ secrets.SIGNPATH_PROJECT }}'
+        signing-policy-slug: '${{ secrets.SIGNPATH_SIGN_POLICY }}'
         github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
         wait-for-completion: true
         output-artifact-directory: './signed'
