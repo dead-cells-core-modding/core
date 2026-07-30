@@ -194,7 +194,7 @@ jobs:
     - name: Download artifacts win-x64
       uses: actions/download-artifact@v8
       with: 
-        name: build-win-x64-signed
+        name: build-win-x64
         path: win-x64
     - name: upload unsigned artifact
       id: upload-unsigned-artifact
