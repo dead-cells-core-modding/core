@@ -11,7 +11,7 @@ permissions:
 jobs:
   publish-release:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: github.event_name == 'push' && github.repository == 'dead-cells-core-modding/core' && startsWith(github.ref, 'refs/tags/')
     needs: [build, test, test-build-samples, sign-win]
     steps:
     - uses: actions/checkout@v7
