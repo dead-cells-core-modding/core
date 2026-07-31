@@ -156,6 +156,11 @@ namespace SteamLauncher
                     File.SetUnixFileMode(deadCellsExePath, File.GetUnixFileMode(deadCellsExePath) | UnixFileMode.UserExecute);
                 }
 
+                if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_SHELL_CHECK_ONLY"), out var checkOnly) && checkOnly)
+                {
+                    return 0;
+                }
+
                 var result = await launcher.LaunchGame(deadCellsExePath, Environment.ProcessId, diagnosticMode);
 
                 if (result.ExitCode == 0)
