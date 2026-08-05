@@ -43,6 +43,13 @@ namespace SteamLauncher.Launcher
             int parentPid,
             bool diagnosticMode)
         {
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_ROOT")))
+            {
+                Logger.Warning("DOTNET_ROOT is empty!");
+            }
+
+            Logger.Information("DOTNET_ROOT: {root}", Environment.GetEnvironmentVariable("DOTNET_ROOT"));
+
             Environment.SetEnvironmentVariable("DCCM_EXIT_WHEN_PROCESS_PID", parentPid.ToString());
             Environment.SetEnvironmentVariable("DEAD_CELLS_GAME_PATH", _gameRoot);
 

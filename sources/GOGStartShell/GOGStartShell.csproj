@@ -13,7 +13,7 @@
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <PublishDir>../../bin/core/host/startup/gog</PublishDir>
     <AssemblyName>deadcells</AssemblyName>
-
+    <DebugType>embedded</DebugType>
     <PublishTrimmed>true</PublishTrimmed>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <RootNamespace>GOGStartShell</RootNamespace>

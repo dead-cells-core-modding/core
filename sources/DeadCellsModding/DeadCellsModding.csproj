@@ -13,7 +13,7 @@
     <Platforms>x64</Platforms>
 
     <ApplicationIcon>icon.ico</ApplicationIcon>
-
+    <DebugType>embedded</DebugType>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
