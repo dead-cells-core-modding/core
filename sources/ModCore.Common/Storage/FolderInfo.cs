@@ -180,7 +180,7 @@ namespace ModCore.Storage
         /// <returns></returns>
         public static FolderInfo? GetFolder( string name )
         {
-            return folders.TryGetValue(name.ToUpper(), out var folder) ? folder : null;
+            return folders.TryGetValue(name.ToUpperInvariant(), out var folder) ? folder : null;
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace ModCore.Storage
         /// <param name="path">The full path of the folder</param>
         public FolderInfo( string name, string path )
         {
-            name = name.ToUpper();
+            name = name.ToUpperInvariant();
             Name = name;
             var overridePath = Environment.GetEnvironmentVariable("DCCM_OverridePath_" + name);
             if (!string.IsNullOrEmpty(overridePath))

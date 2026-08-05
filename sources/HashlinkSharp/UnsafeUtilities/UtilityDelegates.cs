@@ -258,7 +258,7 @@ namespace Hashlink.UnsafeUtilities
                         ps[i] = typeof(object);
                     }
                     else if (pt.IsByRefLike &&
-                        pt.FullName!.StartsWith("HaxeProxy.Runtime.Ref`1"))
+                        pt.FullName!.StartsWith("HaxeProxy.Runtime.Ref`1", StringComparison.Ordinal))
                     {
                         ps[i] = ts[i] = typeof(nint);
                     }

@@ -84,7 +84,7 @@ namespace ModCore.Native
             foreach (var v in st.GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
                 if (v.FieldType != typeof(nint) ||
-                    !v.Name.StartsWith("asm_"))
+                    !v.Name.StartsWith("asm_", StringComparison.Ordinal))
                 {
                     continue;
                 }

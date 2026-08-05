@@ -76,7 +76,7 @@ namespace ModCore.Modules
                 if (GameInfo.Platform == GameInfo.PlatformKind.Steam)
                 {
 
-                    bool shouldOverlay = url.StartsWith("https://steam");
+                    bool shouldOverlay = url.StartsWith("https://steam", StringComparison.Ordinal);
 
                     if (SteamUtils.IsSteamInBigPictureMode())
                     {
@@ -192,7 +192,7 @@ namespace ModCore.Modules
                         {
                             //Parse steam workshop
                             var p = mi.ModRoot.FullPath;
-                            var idx = p.LastIndexOf(STEAMWORKSHOP_PATH_STR);
+                            var idx = p.LastIndexOf(STEAMWORKSHOP_PATH_STR, StringComparison.Ordinal);
                             if (idx != -1)
                             {
                                 var startIdx = idx + STEAMWORKSHOP_PATH_STR.Length;

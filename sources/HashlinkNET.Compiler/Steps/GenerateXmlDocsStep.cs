@@ -42,9 +42,9 @@ namespace HashlinkNET.Compiler.Steps
             XElement GenerateSee( string type, string? simpleName )
             {
                 StringBuilder sb = new();
-                if (type.StartsWith("hxd") ||
-                    type.StartsWith("h2d") ||
-                    type.StartsWith("h3d"))
+                if (type.StartsWith("hxd", StringComparison.Ordinal) ||
+                    type.StartsWith("h2d", StringComparison.Ordinal) ||
+                    type.StartsWith("h3d", StringComparison.Ordinal))
                 {
                     sb.Append("https://heaps.io/api/");
                 }

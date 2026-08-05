@@ -191,7 +191,7 @@ class Build : NukeBuild
     {
         TinyCCBinRoot.CreateDirectory();
 
-        var cmakePreset = $"{CurrentOSPlatform}-{CurrentArchPlatform}-{Configuration.ToString().ToLower()}";
+        var cmakePreset = $"{CurrentOSPlatform}-{CurrentArchPlatform}-{Configuration.ToString().ToLowerInvariant()}";
         ProcessTasks.StartProcess("cmake",
             $". --preset={cmakePreset}",
             NativeSrcRoot).AssertZeroExitCode();

@@ -24,7 +24,7 @@ namespace ModCore.Modules
             EventSystem.BroadcastEvent<IOnRegisterModsType, IOnRegisterModsType.AddModType>(( type, info ) =>
             {
                 Logger.Information("Registered mod type: {type} -> {info}", type, info.FullName);
-                modsType.Add(type.ToLower(), info);
+                modsType.Add(type.ToLowerInvariant(), info);
             });
             Logger.Information("Collecting mods information");
 
@@ -72,7 +72,7 @@ namespace ModCore.Modules
                     }
                     Logger.Information("Collect mod info: {name} {version}", name, jinfo["version"]);
 
-                    var type = jinfo["type"]!.ToString().ToLower();
+                    var type = jinfo["type"]!.ToString().ToLowerInvariant();
                     if (!modsType.TryGetValue(type, out var infotype))
                     {
                         Logger.Error("Unknown mod type: {type}", type);

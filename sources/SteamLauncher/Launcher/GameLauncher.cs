@@ -101,12 +101,12 @@ namespace SteamLauncher.Launcher
             {
                 var data = ev.Data ?? "";
 
-                if (data.StartsWith("[DCCMLOGLATEST]"))
+                if (data.StartsWith("[DCCMLOGLATEST]", StringComparison.Ordinal))
                 {
                     gameLogLatest = data["[DCCMLOGLATEST]".Length..].Trim();
                     return;
                 }
-                else if (data.StartsWith("[DCCMDBG-CRASH]"))
+                else if (data.StartsWith("[DCCMDBG-CRASH]", StringComparison.Ordinal))
                 {
                     crashDumpPath = data["[DCCMDBG-CRASH]".Length..].Trim();
                     return;

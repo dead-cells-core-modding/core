@@ -18,7 +18,7 @@ namespace DCCMTool.Commands
                 EnvironmentVariableTarget.User);
 
             var p = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User) ?? "";
-            if(!p.Contains("%DCCM_MDK_BIN_ROOT%"))
+            if(!p.Contains("%DCCM_MDK_BIN_ROOT%", StringComparison.Ordinal))
             {
                 p += ";%DCCM_MDK_BIN_ROOT%";
                 Environment.SetEnvironmentVariable("Path", p, EnvironmentVariableTarget.User);

@@ -23,7 +23,7 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
             if (data.DirectParent != null)
             {
                 var l = new List<FuncData>(data.Methods);
-                l.Sort(( a, b ) => a.Definition.Name.CompareTo(b.Definition.Name));
+                l.Sort(( a, b ) => string.CompareOrdinal(a.Definition.Name, b.Definition.Name));
                 td.Name = data.DirectParent.Definition.Name + "Context_" + XXH32.DigestOf(
                     Encoding.UTF8.GetBytes(l[0].Definition.Name)
                     );

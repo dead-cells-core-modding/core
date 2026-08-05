@@ -16,7 +16,7 @@ namespace SteamLauncher
         {
             try
             {
-                if(args.Length > 0 && args[0].EndsWith(".hl"))
+                if(args.Length > 0 && args[0].EndsWith(".hl", StringComparison.Ordinal))
                 {
                     return 0;
                 }

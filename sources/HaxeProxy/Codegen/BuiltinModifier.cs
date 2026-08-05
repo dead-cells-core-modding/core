@@ -12,7 +12,7 @@ namespace HaxeProxy.Codegen
         public abstract void Modify( TypeDefinition type );
         public virtual bool CanModify( TypeDefinition type )
         {
-            return type.FullName.Equals(TargetName);
+            return string.Equals(type.FullName, TargetName, StringComparison.Ordinal);
         }
         public virtual MethodBase FindMethod( string name )
         {

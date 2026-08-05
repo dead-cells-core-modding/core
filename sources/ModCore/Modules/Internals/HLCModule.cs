@@ -29,7 +29,7 @@ namespace ModCore.Modules.Internals
         {
             if (!string.IsNullOrEmpty(obj))
             {
-                if (obj.Contains(": warning:"))
+                if (obj.Contains(": warning:", StringComparison.Ordinal))
                 {
                     return;
                 }

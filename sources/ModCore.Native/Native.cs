@@ -581,7 +581,7 @@ namespace ModCore.Native
                     }
                 }
 
-                if (lib.StartsWith("libc.so"))
+                if (lib.StartsWith("libc.so", StringComparison.Ordinal))
                 {
                     return hlibc;
                 }

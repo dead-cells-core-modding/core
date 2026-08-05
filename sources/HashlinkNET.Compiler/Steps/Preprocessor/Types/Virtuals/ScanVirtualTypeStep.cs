@@ -72,7 +72,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Types.Virtuals
             var virt = ((HlTypeWithVirtual)type).Virtual;
 
             var sortedFields = virt.Fields.ToList();
-            sortedFields.Sort(( a, b ) => a.Name.CompareTo(b.Name));
+            sortedFields.Sort(( a, b ) => string.CompareOrdinal(a.Name, b.Name));
 
             var sb = new StringBuilder();
             sb.Append("virtual_");

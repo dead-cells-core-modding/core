@@ -218,7 +218,7 @@ namespace ModCore.Native
 
             foreach (var v in lines)
             {
-                if (v.StartsWith("#$#"))
+                if (v.StartsWith("#$#", StringComparison.Ordinal))
                 {
                     var name = v[3..];
                     asm.AppendLine($"{name}:");

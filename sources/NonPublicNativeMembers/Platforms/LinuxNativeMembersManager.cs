@@ -170,7 +170,7 @@ namespace NonPublicNativeMembers.Platforms
                         var name = result.Groups[4].Value;
 
                         // Strip readelf's version index, e.g. "puts@GLIBC_2.2.5 (2)" -> "puts@GLIBC_2.2.5"
-                        var versionParen = name.LastIndexOf(" (");
+                        var versionParen = name.LastIndexOf(" (", StringComparison.Ordinal);
                         if (versionParen > 0 && name.EndsWith(')') &&
                             IsAllDigits(name.AsSpan(versionParen + 2, name.Length - versionParen - 3)))
                         {

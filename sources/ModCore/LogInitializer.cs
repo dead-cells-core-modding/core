@@ -35,7 +35,7 @@ namespace ModCore
                 var logs = Directory.GetFiles(FolderInfo.Logs.FullPath, "log_*.log")
                     .Where(x => Path.GetFileNameWithoutExtension(x) != "log_latest")
                     .ToList();
-                logs.Sort();
+                logs.Sort(StringComparer.Ordinal);
                 if (logs.Count > MAX_LOGS_COUNT)
                 {
                     //Remove the oldest
