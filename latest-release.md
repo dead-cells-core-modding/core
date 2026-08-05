@@ -1,30 +1,37 @@
-# Release Notes - 35.12.8
+# Release Notes - 35.12.10
 
 ## Feature
 
-- Shell: Extract shared launcher logic into a new SteamLauncher library, enabling code reuse between Steam and GOG shells
-- GOG Shell: Add linux-x64 runtime support and application icon
-- ModCore: Log game version, build date, and Git hash at startup for easier diagnostics
-- FolderInfo: Implement deferred path resolution with dependency-aware rebuild for more robust folder path management
+- Steam launcher: add a check-only mode via the DCCM_SHELL_CHECK_ONLY environment variable that validates the environment and exits without launching the game
+- Launchers and shells: embed debug symbols and report DOTNET_ROOT diagnostics to ease troubleshooting of startup failures
+- Tests: add coverage for .NET exception-to-string conversion across the Hashlink boundary
+- Docs: document the SignPath code signing policy applied to distributed binaries
 
 ## Fix
 
-- HashlinkNET Compiler: Add missing Castclass IL instruction when generating pseudo-code for field-by-ID setting
-- Shell: Enable unbuffered shared file logging for launcher logs to ensure timely log output
+- Framework and toolchain: make string operations culture-invariant to eliminate locale-dependent behavior
+- ModCore: update SDL3-CS package to 3.4.14
 
 ---
 
-# 更新说明 - 35.12.8
+**Code signing policy**: Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+
+---
+
+# 更新说明
 
 ## Feature
 
-- Shell: 将共享启动器逻辑提取到新的 SteamLauncher 库中，使 Steam 与 GOG 启动器可复用代码
-- GOG Shell: 新增 linux-x64 运行时支持及应用图标
-- ModCore: 在启动时记录游戏版本、构建日期和 Git 哈希，便于诊断问题
-- FolderInfo: 实现延迟路径解析与依赖感知重建机制，提升文件夹路径管理的健壮性
+- Steam 启动器：新增仅检查模式，通过 DCCM_SHELL_CHECK_ONLY 环境变量验证环境后直接退出，不启动游戏
+- 启动器与 Shell：嵌入调试符号并输出 DOTNET_ROOT 诊断信息，便于排查启动失败问题
+- 测试：新增 .NET 异常跨 Hashlink 边界字符串转换的覆盖测试
+- 文档：补充分发二进制所应用的 SignPath 代码签名政策说明
 
 ## Fix
 
-- HashlinkNET Compiler: 修复生成伪代码时按 ID 设置字段缺少 Castclass IL 指令的问题
-- Shell: 启用启动器日志的非缓冲共享文件记录，确保日志及时输出
+- 框架与工具链：将字符串操作改为区域性无关，消除因区域设置不同产生的行为差异
+- ModCore：更新 SDL3-CS 包至 3.4.14
 
+---
+
+**代码签名政策**: 免费代码签名由 [SignPath.io](https://about.signpath.io) 提供，证书由 [SignPath Foundation](https://signpath.org) 颁发。
