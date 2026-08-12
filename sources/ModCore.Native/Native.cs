@@ -158,8 +158,8 @@ namespace ModCore.Native
         {
             for (int i = 0; i < m->code->nfunctions; i++)
             {
-                var idx = m->functions_indexes[m->code->functions[i].findex];
-                ((byte**)m->functions_ptrs)[idx] -= 32;
+                //var idx = m->functions_indexes[];
+                ((byte**)m->functions_ptrs)[m->code->functions[i].findex] -= 32;
             }
             return ((delegate* unmanaged< nint, HL_module*, int*, nint, HL_module*, void* >)orig_jit_hl_jit_code)(ctx, m, codesize, debug, prev);
         }
