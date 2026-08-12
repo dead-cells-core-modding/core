@@ -255,7 +255,16 @@ This project uses the following open source libraries directly (bundled or linke
 
 ## Code Signing Policy
 
-Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+<table>
+  <tr>
+    <td>
+      <img alt="SignPath" src="https://signpath.org/assets/favicon-50x50.png" />
+    </td>
+    <td>
+    Free code signing on Windows provided by <a href="https://signpath.io">SignPath.io</a>, certificate by <a href="https://signpath.org/">SignPath Foundation</a><br/>
+    </td>
+  </tr>
+</table>
 
 ### Team Roles
 
