@@ -253,9 +253,9 @@ jobs:
         Expand-Archive -LiteralPath ./OpenAL.zip -DestinationPath . -Force
         Move-Item -Path ./openal-soft-1.25.2-bin -Destination ./openal -Force
         
-        Invoke-WebRequest -Uri https://github.com/libsdl-org/SDL/releases/download/release-3.4.12/SDL3-devel-3.4.12-VC.zip -OutFile ./SDL.zip
+        Invoke-WebRequest -Uri https://github.com/libsdl-org/SDL/releases/download/release-3.4.14/SDL3-devel-3.4.14-VC.zip -OutFile ./SDL.zip
         Expand-Archive -LiteralPath ./SDL.zip -DestinationPath . -Force
-        Move-Item -Path ./SDL3-3.4.12 -Destination ./sdl -Force
+        Move-Item -Path ./SDL3-3.4.14 -Destination ./sdl -Force
     - name: Download Dependencies (Linux)
       if: runner.os == 'Linux'
       run: |
