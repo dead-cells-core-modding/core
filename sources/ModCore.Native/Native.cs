@@ -40,7 +40,7 @@ namespace ModCore.Native
                 FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so")
             ) :
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? NativeLibrary.Load(
-                FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so.1")
+                FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so")
             ) : NativeLibrary.Load("libhl")
             ), name);
 
