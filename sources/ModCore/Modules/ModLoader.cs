@@ -70,7 +70,7 @@ namespace ModCore.Modules
                         Logger.Warning("Mod with name {name} already collected, skipping", name);
                         continue;
                     }
-                    Logger.Information("Collect mod info: {name} {version}", name, jinfo["version"]);
+                    Logger.Information("Collect mod info: {name} {version}", name, jinfo["version"]?.ToString());
 
                     var type = jinfo["type"]!.ToString().ToLowerInvariant();
                     if (!modsType.TryGetValue(type, out var infotype))

@@ -329,7 +329,7 @@ class Build : NukeBuild
         WorkshopTemp.CreateDirectory();
         Log.Information("Downloading...");
 
-        await HttpTasks.HttpDownloadFileAsync("https://nightly.link/dead-cells-core-modding/core/workflows/build/dev/build-win-x64.zip", WorkshopBinWin64Zip, 
+        await HttpTasks.HttpDownloadFileAsync("https://github.com/dead-cells-core-modding/core/releases/latest/download/win-x64.zip", WorkshopBinWin64Zip, 
             System.IO.FileMode.Create);
         WorkshopPublishWin64Content.CreateOrCleanDirectory();
 
@@ -349,7 +349,7 @@ class Build : NukeBuild
         WorkshopTemp.CreateDirectory();
         Log.Information("Downloading...");
 
-        await HttpTasks.HttpDownloadFileAsync("https://nightly.link/dead-cells-core-modding/core/workflows/build/dev/build-linux-x64.zip", WorkshopBinLinux64Zip,
+        await HttpTasks.HttpDownloadFileAsync("https://github.com/dead-cells-core-modding/core/releases/latest/download/linux-x64.zip", WorkshopBinLinux64Zip,
             System.IO.FileMode.Create);
         WorkshopPublishLinux64Content.CreateOrCleanDirectory();
 
