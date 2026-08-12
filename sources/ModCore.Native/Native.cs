@@ -46,7 +46,7 @@ namespace ModCore.Native
 
         public static Native Current
         {
-            get;
+            get; private set;
         } = CreateNative();
 
         private static Native CreateNative()
@@ -150,6 +150,30 @@ namespace ModCore.Native
                 return NativeLibrary.Load(path + ".so");
             }
             return NativeLibrary.Load(path);
+        }
+
+        private static nint orig_jit_hl_jit_code;
+
+        protected static void* Hook_jit_hl_jit_code( nint ctx, HL_module* m, int* codesize, nint debug, HL_module* prev )
+        {
+            for (int i = 0; i < m->code->nfunctions; i++)
+            {
+                var idx = m->functions_indexes[m->code->functions[i].findex];
+                ((byte**)m->functions_ptrs)[idx] -= 32;
+            }
+            return ((delegate* unmanaged< nint, HL_module*, int*, nint, HL_module*, void* >)orig_jit_hl_jit_code)(ctx, m, codesize, debug, prev);
+        }
+
+        private static nint orig_jit_align_function;
+
+        [UnmanagedCallersOnly]
+        protected static void Hook_jit_align_function( nint ctx )
+        {
+            ((delegate* unmanaged< nint, void >)orig_jit_align_function)(ctx);
+            emit_nop(ctx, 8);
+            emit_nop(ctx, 8);
+            emit_nop(ctx, 8);
+            emit_nop(ctx, 8);
         }
 
         private static nint orig_jit_emit_jump_dyn;
@@ -568,6 +592,8 @@ namespace ModCore.Native
 
         public Native()
         {
+            Current = this;
+
             NativeLibrary.SetDllImportResolver(typeof(Native).Assembly, ( lib, asm, _ ) =>
             {
                 if (hlibc == 0 && !OperatingSystem.IsWindows())
@@ -803,6 +829,8 @@ namespace ModCore.Native
             CreateNativeHookForHL("hl_dyn_compare", nameof(Hook_hl_dyn_compare), out orig_hl_dyn_compare);
 
             CreateNativeHookForHL("emit_jump_dyn", nameof(Hook_jit_emit_jump_dyn), out orig_jit_emit_jump_dyn);
+            CreateNativeHookForHL("align_function", nameof(Hook_jit_align_function), out orig_jit_align_function);
+            CreateNativeHookForHL("hl_jit_code", nameof(Hook_jit_hl_jit_code), out orig_jit_hl_jit_code);
 
             CreateNativeHookForHL("hl_fatal_error", nameof(Hook_hl_fatal_error), out orig_hl_fatal_error);
 

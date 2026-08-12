@@ -248,5 +248,8 @@ namespace Hashlink
         public static partial HL_vdynamic* hl_virtual_make_value( HL_vvirtual* v );
         [LibraryImport(LIBHL)]
         public static partial HL_vdynamic* hl_obj_copy( HL_vdynamic* v );
+        [LibraryImport(LIBHL)]
+        [SuppressGCTransition]
+        public static partial void emit_nop( nint ctx, int count );
     }
 }
