@@ -51,6 +51,10 @@ namespace ModCore.Modules
             {
                 FileSystem = self;
             }
+            if(file.ToString() == "res.pak")
+            {
+                file = FolderInfo.GameRoot.GetFilePath("res.pak").AsHaxeString();
+            }
             Logger.Information("Loading pak from {path}", file.ToString());
             orig(self, file);
         }
