@@ -150,6 +150,11 @@ namespace SteamLauncher.Workshop
                 throw;
             }
 
+            SteamUGC.SubscribeItem(new(MAPI_PFID));
+            SteamUGC.DownloadItem(new(MAPI_PFID), true);
+
+            await Task.Delay(100);
+
             while (true)
             {
                 await Task.Delay(100);
