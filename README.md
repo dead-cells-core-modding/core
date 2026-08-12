@@ -1,9 +1,15 @@
 ﻿
 # Dead Cells Core Modding
 
+![GitHub Release](https://img.shields.io/github/v/release/dead-cells-core-modding/core)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/dead-cells-core-modding/core/total)
+
+
 ![GitHub License](https://img.shields.io/github/license/dead-cells-core-modding/core) 
 [![Build And Test](https://github.com/dead-cells-core-modding/core/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/dead-cells-core-modding/core/actions/workflows/build.yml)
 [![Discord](https://img.shields.io/discord/1526779758312947792?label=Discord)](https://discord.gg/je38EURPqN)
+
+
 
 A Dead Cells Modding API/loader. 
 
