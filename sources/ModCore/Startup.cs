@@ -47,6 +47,7 @@ namespace ModCore
             var logger = Log.Logger.ForContext(typeof(Startup));
             //Load hlboot.dat
 
+            Environment.CurrentDirectory = FolderInfo.GameRoot.FullPath;
 
             var hlbootPath = Environment.GetEnvironmentVariable("DCCM_HLBOOT_PATH");
             if (string.IsNullOrEmpty(hlbootPath))
