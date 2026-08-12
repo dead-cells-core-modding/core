@@ -8,7 +8,7 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin/core/native/)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
-
+set(CMAKE_PLATFORM_NO_VERSIONED_SONAME TRUE)
 
 # ---- Target architecture selection ----
 # TARGET_ARCH is provided by the CMake presets (x64 today; arm64 reserved for

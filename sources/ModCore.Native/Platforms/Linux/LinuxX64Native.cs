@@ -76,7 +76,7 @@ namespace ModCore.Native
         {
             if("libhl".Equals(Path.GetFileName(path), StringComparison.OrdinalIgnoreCase))
             {
-                if (NativeLibrary.TryLoad(path + ".so.1", out handle))
+                if (NativeLibrary.TryLoad(path + ".so", out handle))
                     return true;
             }
             if (NativeLibrary.TryLoad(path, out handle))

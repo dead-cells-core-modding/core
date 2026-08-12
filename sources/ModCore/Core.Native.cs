@@ -29,7 +29,7 @@ namespace ModCore
                 }
                 else
                 {
-                    NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so.1"));
+                    NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so"));
                 }
             }
             catch { }
