@@ -154,3 +154,8 @@ HL_EXPORT void hlc_setup_callback(
 	hl_setup.throw_jump = throw_jump;
 }
 
+HL_EXPORT void hl_set_custom_longjmp(void* throw_jump)
+{
+	hl_setup.throw_jump = throw_jump;
+}
+

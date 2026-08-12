@@ -10,6 +10,10 @@ file(GLOB hl_srcs
     ./hlc_extern.c
     ${HL_SRC_ROOT}/code.c
     ${HL_SRC_ROOT}/jit.c
+    ${HL_SRC_ROOT}/jit_emit.c
+    ${HL_SRC_ROOT}/jit_regs.c
+    ${HL_SRC_ROOT}/jit_x86_64.c
+    ${HL_SRC_ROOT}/jit_dump.c
     ${HL_SRC_ROOT}/main.c
     ${HL_SRC_ROOT}/module.c
     ${HL_SRC_ROOT}/debugger.c

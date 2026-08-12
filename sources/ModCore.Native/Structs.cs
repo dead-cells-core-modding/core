@@ -318,7 +318,9 @@ namespace Hashlink
     public unsafe struct HL_debug_infos
     {
         public void* offsets;
+        public void* vars;
         public int start;
+        public int vars_size;
         public bool large;
     }
     [StructLayout(LayoutKind.Sequential)]
@@ -336,7 +338,8 @@ namespace Hashlink
         public HL_debug_infos* jit_debug;
 
         public HL_module_context ctx;
-
+        public byte debug;
+        public int unwind_table_size;
         public nint* unwind_table;
     }
     [StructLayout(LayoutKind.Sequential)]
@@ -355,10 +358,12 @@ namespace Hashlink
         public int nregs;
         public int nops;
         public int @ref;
+        public int nassigns;
         public HL_type* type;
         public HL_type** regs;
         public HL_opcode* ops;
         public int* debug;
+        public int* assigns;
         public HL_type_obj* obj;
 
         [StructLayout(LayoutKind.Explicit)]
@@ -510,7 +515,14 @@ namespace Hashlink
         {
             public nint ptr;
         }
+        [InlineArray(32)]
+        public struct EXC_BREAK_REGS
+        {
+            public nint ptr;
+        }
         public EXC_STACK_ARRAY exc_stack_trace; //As void* [0x100]
+        public void* break_rip;
+        public EXC_BREAK_REGS break_regs; //As void* [32]
         public EXC_STACK_EXTRA_ARRAY extra_stack_data; // As void* [64]
         public int extra_stack_size;
     }

@@ -61,10 +61,10 @@ namespace Hashlink.Reflection
             } = module.GetTypeByName("void");
             public HashlinkType I8 {
                 get;
-            } = module.GetTypeByName("i8");
+            } = module.GetTypeByName("ui8");
             public HashlinkType I16 {
                 get;
-            } = module.GetTypeByName("i16");
+            } = module.GetTypeByName("ui16");
             public HashlinkType I32 {
                 get;
             } = module.GetTypeByName("i32");

@@ -152,21 +152,18 @@ namespace ModCore.Native
             return NativeLibrary.Load(path);
         }
 
-        private static nint orig_jit_op_jump;
+        private static nint orig_jit_emit_jump_dyn;
 
         [UnmanagedCallersOnly]
-        protected static void Hook_jit_op_jump( nint ctx, HL_jit_vreg* ra, HL_jit_vreg* rb, nint op, int targetPos )
+        protected static void Hook_jit_emit_jump_dyn( nint ctx, int op, HL_type* at, int a, HL_type* bt, int b, int offset )
         {
-            var oat = ra->t;
-            var obt = rb->t;
-            if (ra->t->kind == TypeKind.HENUM && rb->t->kind == TypeKind.HENUM)
+            if (at->kind == TypeKind.HENUM && bt->kind == TypeKind.HENUM)
             {
-                ra->t = TYPE_DYN;
-                rb->t = TYPE_DYN;
+                at = TYPE_DYN;
+                bt = TYPE_DYN;
             }
-            ((delegate* unmanaged< nint, nint, nint, nint, int, void >)orig_jit_op_jump)(ctx, (nint)ra, (nint)rb, op, targetPos);
-            ra->t = oat;
-            rb->t = obt;
+            ((delegate* unmanaged< nint, int, HL_type*, int, HL_type*, int, int, void >)orig_jit_emit_jump_dyn)
+                (ctx, op, at, a, bt, b, offset);
         }
 
         [UnmanagedCallersOnly]
@@ -805,7 +802,7 @@ namespace ModCore.Native
 
             CreateNativeHookForHL("hl_dyn_compare", nameof(Hook_hl_dyn_compare), out orig_hl_dyn_compare);
 
-            CreateNativeHookForHL("op_jump", nameof(Hook_jit_op_jump), out orig_jit_op_jump);
+            CreateNativeHookForHL("emit_jump_dyn", nameof(Hook_jit_emit_jump_dyn), out orig_jit_emit_jump_dyn);
 
             CreateNativeHookForHL("hl_fatal_error", nameof(Hook_hl_fatal_error), out orig_hl_fatal_error);
 
@@ -856,11 +853,13 @@ namespace ModCore.Native
                 throw new InvalidProgramException("Failed to alloc module");
             }
 
+            var libmodcorenative = LoadLibrary("modcorenative");
+
             if (ContextConfig.Config.useHLC)
             {
                 RunOnHLC = true;
 
-                var libmodcorenative = LoadLibrary("modcorenative");
+                
                 var libhlc = EventSystem.BroadcastEvent<IOnGetCompiledHLC, ReadOnlySpan<byte>, nint>(hlboot).Value;
 
                 Debug.Assert(libhlc != 0);
@@ -892,7 +891,7 @@ namespace ModCore.Native
                     (nint)(delegate* unmanaged< void**, int, int >)&Hook_module_capture_stack,
                     NativeLibrary.GetExport(libhlc, "hlc_static_call"),
                     NativeLibrary.GetExport(libhlc, "hlc_get_wrapper"),
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? asm_custom_longjump : 0
+                    0
                     );
 
                 for (var i = 0; i < ctx->m->code->nfunctions; i++)
@@ -942,6 +941,9 @@ namespace ModCore.Native
                 ctx->c.type = ctx->code->functions[ctx->m->functions_indexes[ctx->m->code->entrypoint]].type;
             }
 
+            ((delegate* unmanaged< nint, void >)NativeLibrary.GetExport(libmodcorenative, "hl_set_custom_longjmp"))(
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? asm_custom_longjump : 0
+                    );
 
             EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(
                     new(IOnNativeEvent.EventId.HL_EV_VM_READY, (nint)ctx));
