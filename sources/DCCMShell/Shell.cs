@@ -1,5 +1,8 @@
+using DCCMShell.Reporting;
 using ModCore;
+using ModCore.Utilities;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using System.Text;
 
@@ -86,6 +89,40 @@ namespace DCCMShell
                 method.Invoke(null, null);
                 return;
             }
+
+            bool useErrorReporter = true;
+
+            if (Console.IsErrorRedirected || Console.IsOutputRedirected || Console.IsInputRedirected || Debugger.IsAttached)
+            {
+                useErrorReporter = false;
+            }
+
+            if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_DISABLE_REPORTER"), out var disableReporter) &&
+                    disableReporter)
+            {
+                useErrorReporter = false;
+            }
+
+            if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_ENABLE_REPORTER"), out var enableReporterEnv) &&
+                enableReporterEnv)
+            {
+                useErrorReporter = true;
+            }
+
+            if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_START_BY_LAUNCHER"), out var startByLauncher) && 
+                startByLauncher)
+            {
+                useErrorReporter = false;
+            }
+
+            if (useErrorReporter && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+#pragma warning disable CA1416
+                ErrorReporter.SetupErrorReporter();
+#pragma warning restore CA1416
+            }
+
+            
 
             Startup.StartGame();
         }

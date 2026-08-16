@@ -2,6 +2,7 @@ using Serilog;
 using SteamLauncher.Platform;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 
 namespace SteamLauncher.Launcher
@@ -25,6 +26,7 @@ namespace SteamLauncher.Launcher
         public class LaunchResult
         {
             public int ExitCode { get; init; }
+            public bool DisableErrorReporting { get; set; }
             public string? ErrorOutput { get; init; }
             public string? OutputData { get; init; }
             public string? GameLogPath { get; init; }
@@ -96,6 +98,7 @@ namespace SteamLauncher.Launcher
             StringBuilder outputBuilder = new();
             string? gameLogLatest = null;
             string? crashDumpPath = null;
+            bool disableErrorReporter = false;
 
             game.ErrorDataReceived += (sender, ev) =>
             {
@@ -109,6 +112,11 @@ namespace SteamLauncher.Launcher
                 else if (data.StartsWith("[DCCMDBG-CRASH]", StringComparison.Ordinal))
                 {
                     crashDumpPath = data["[DCCMDBG-CRASH]".Length..].Trim();
+                    return;
+                }
+                else if (data.StartsWith("[DCCMDBG-DISABLE-ERROR-REPORTER]", StringComparison.Ordinal))
+                {
+                    disableErrorReporter = true;
                     return;
                 }
 
@@ -136,6 +144,7 @@ namespace SteamLauncher.Launcher
                 OutputData = outputBuilder.Length > 0 ? outputBuilder.ToString() : null,
                 GameLogPath = gameLogLatest,
                 CrashDumpPath = crashDumpPath,
+                DisableErrorReporting = disableErrorReporter
             };
         }
     }

@@ -21,7 +21,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="NativeMethods.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ModCore\ModCore.csproj" />
+
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.298">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   
   <Target Name="WriteModCoreVersionFile" AfterTargets="Build">

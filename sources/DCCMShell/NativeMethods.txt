@@ -1,0 +1,4 @@
+
+GetExitCodeProcess
+OpenProcess
+SetStdHandle

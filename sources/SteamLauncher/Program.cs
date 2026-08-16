@@ -14,6 +14,7 @@ namespace SteamLauncher
 
         public static async Task<int> Main(string[] args)
         {
+            Environment.SetEnvironmentVariable("DCCM_START_BY_LAUNCHER", "true");
             try
             {
                 if(args.Length > 0 && args[0].EndsWith(".hl", StringComparison.Ordinal))
@@ -168,7 +169,7 @@ namespace SteamLauncher
                     return 0;
                 }
 
-                if (!enableReporter)
+                if (!enableReporter || result.DisableErrorReporting)
                 {
                     return result.ExitCode;
                 }

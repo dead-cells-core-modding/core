@@ -39,6 +39,7 @@ namespace ModCore
         public string[] hashlinkLibraries;
         public Memory<byte>? hlbcOverride;
         public bool consoleOutput;
+        public bool redirectError;
         public bool suppressFatalWindows;
         public bool useHLC;
         public bool hlcPDB;
