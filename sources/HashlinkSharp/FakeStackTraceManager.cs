@@ -63,13 +63,25 @@ namespace Hashlink
                         builder = v;
                     }
                 }
+                _RE_TRY:
                 if (builder == null)
                 {
                     var ab = AssemblyBuilder.DefineDynamicAssembly(new("Haxe_" + builders.Count), AssemblyBuilderAccess.Run);
                     builder = ab.DefineDynamicModule("Haxe_" + builders.Count);
                     builders.Add(builder);
                 }
-                var tb = builder.DefineType(className);
+                TypeBuilder tb;
+
+                try
+                {
+                    tb = builder.DefineType(className);
+                }
+                catch (ArgumentException)
+                {
+                    builder = null;
+                    goto _RE_TRY;
+                }
+
                 foreach (var name in funcList)
                 {
                     var fb = tb.DefineMethod(name, MethodAttributes.Public | MethodAttributes.Static);
@@ -84,7 +96,7 @@ namespace Hashlink
                     nint cip = 0;
                     try
                     {
-                        //method.CreateDelegate<Action>()();
+                        method.CreateDelegate<Action>()();
                     }
                     catch (NullReferenceException ex)
                     {
