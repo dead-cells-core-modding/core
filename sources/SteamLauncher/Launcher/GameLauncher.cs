@@ -26,11 +26,6 @@ namespace SteamLauncher.Launcher
         public class LaunchResult
         {
             public int ExitCode { get; init; }
-            public bool DisableErrorReporting { get; set; }
-            public string? ErrorOutput { get; init; }
-            public string? OutputData { get; init; }
-            public string? GameLogPath { get; init; }
-            public string? CrashDumpPath { get; init; }
         }
 
         /// <summary>
@@ -42,8 +37,7 @@ namespace SteamLauncher.Launcher
         /// <returns>Launch result</returns>
         public async Task<LaunchResult> LaunchGame(
             string deadCellsExePath,
-            int parentPid,
-            bool diagnosticMode)
+            int parentPid)
         {
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_ROOT")))
             {
@@ -55,25 +49,11 @@ namespace SteamLauncher.Launcher
             Environment.SetEnvironmentVariable("DCCM_EXIT_WHEN_PROCESS_PID", parentPid.ToString());
             Environment.SetEnvironmentVariable("DEAD_CELLS_GAME_PATH", _gameRoot);
 
-            if (diagnosticMode)
-            {
-                Environment.SetEnvironmentVariable("DCCM_DIAGNOSTIC_MODE", "true");
-                Logger.Warning("Diagnostic mode enabled.");
-            }
-
             Logger.Information("Starting game...");
 
             Process? game;
-            var psi = PlatformServices.Current.ConfigureGameProcess(deadCellsExePath)
-                      ?? new ProcessStartInfo(deadCellsExePath)
-                      {
-                          RedirectStandardError = true,
-                          RedirectStandardOutput = diagnosticMode,
-                      };
-
-            // Override platform defaults — ensure error output is always redirected
-            psi.RedirectStandardError = true;
-            psi.RedirectStandardOutput = diagnosticMode;
+            var psi = PlatformServices.Current.ConfigureGameProcess(deadCellsExePath) ??
+                new(deadCellsExePath);
 
             try
             {
@@ -94,57 +74,11 @@ namespace SteamLauncher.Launcher
 
             Debug.Assert(game != null);
 
-            StringBuilder errOutputBuilder = new();
-            StringBuilder outputBuilder = new();
-            string? gameLogLatest = null;
-            string? crashDumpPath = null;
-            bool disableErrorReporter = false;
-
-            game.ErrorDataReceived += (sender, ev) =>
-            {
-                var data = ev.Data ?? "";
-
-                if (data.StartsWith("[DCCMLOGLATEST]", StringComparison.Ordinal))
-                {
-                    gameLogLatest = data["[DCCMLOGLATEST]".Length..].Trim();
-                    return;
-                }
-                else if (data.StartsWith("[DCCMDBG-CRASH]", StringComparison.Ordinal))
-                {
-                    crashDumpPath = data["[DCCMDBG-CRASH]".Length..].Trim();
-                    return;
-                }
-                else if (data.StartsWith("[DCCMDBG-DISABLE-ERROR-REPORTER]", StringComparison.Ordinal))
-                {
-                    disableErrorReporter = true;
-                    return;
-                }
-
-                errOutputBuilder.AppendLine(ev.Data);
-            };
-
-            game.BeginErrorReadLine();
-
-            if (diagnosticMode)
-            {
-                game.OutputDataReceived += (sender, ev) =>
-                {
-                    outputBuilder.AppendLine(ev.Data);
-                    Console.WriteLine(ev.Data);
-                };
-                game.BeginOutputReadLine();
-            }
-
             await game.WaitForExitAsync();
 
             return new LaunchResult
             {
                 ExitCode = game.ExitCode,
-                ErrorOutput = errOutputBuilder.Length > 0 ? errOutputBuilder.ToString() : null,
-                OutputData = outputBuilder.Length > 0 ? outputBuilder.ToString() : null,
-                GameLogPath = gameLogLatest,
-                CrashDumpPath = crashDumpPath,
-                DisableErrorReporting = disableErrorReporter
             };
         }
     }

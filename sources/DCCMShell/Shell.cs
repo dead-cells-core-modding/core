@@ -109,17 +109,9 @@ namespace DCCMShell
                 useErrorReporter = true;
             }
 
-            if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_START_BY_LAUNCHER"), out var startByLauncher) && 
-                startByLauncher)
-            {
-                useErrorReporter = false;
-            }
-
             if (useErrorReporter && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-#pragma warning disable CA1416
                 ErrorReporter.SetupErrorReporter();
-#pragma warning restore CA1416
             }
 
             

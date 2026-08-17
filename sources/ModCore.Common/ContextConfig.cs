@@ -1,3 +1,5 @@
+using Serilog;
+
 namespace ModCore
 {
     public struct ContextConfig
@@ -34,6 +36,8 @@ namespace ModCore
                 current = value;
             }
         }
+
+        public Action<LoggerConfiguration>? configurateLogger;
 
         public bool disableWorkerProcessUtils;
         public string[] hashlinkLibraries;

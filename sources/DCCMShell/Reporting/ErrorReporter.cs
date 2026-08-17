@@ -1,6 +1,9 @@
 using ModCore;
+using ModCore.Modules;
 using ModCore.Storage;
 using ModCore.Utilities;
+using Serilog;
+using SteamLauncher.ErrorReporting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,21 +11,12 @@ using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
-using Windows.Win32.Foundation;
-using static Windows.Win32.PInvoke;
+
 
 namespace DCCMShell.Reporting
 {
-    [SupportedOSPlatform("windows5.2")]
     internal partial class ErrorReporter
     {
-        [LibraryImport("ucrtbase", SetLastError = true)]
-        private static partial int _open_osfhandle( nint osfhandle, int flags );
-        [LibraryImport("ucrtbase", SetLastError = true)]
-        private static partial int _dup2( int fd1, int fd2 );
-        [LibraryImport("ucrtbase")]
-        private static partial int _flushall();
-
         private static AnonymousPipeServerStream? pipeServer;
         private static AnonymousPipeClientStream? pipeClient;
         public static void SetupErrorReporter()
@@ -47,27 +41,29 @@ namespace DCCMShell.Reporting
 
             // Redirect
 
+            var writer = new StreamWriter(pipeServer, Encoding.UTF8)
+            {
+                AutoFlush = true,
+            };
 
             ContextConfig.Config = ContextConfig.Config with
             {
-                redirectError = true
+                redirectError = false,
+                configurateLogger = conf =>
+                {
+                    conf.WriteTo.TextWriter(writer, restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning,
+                        outputTemplate: LogInitializer.OUTPUT_FORMAT_TEMPLATE);
+                }
             };
 
-            Console.SetError(new StreamWriter(pipeServer, Encoding.Unicode)
-            {
-                AutoFlush = true,
-            });
+            Console.SetError(writer);
 
             var hPipe = pipeServer.SafePipeHandle.DangerousGetHandle();
 
-            SetStdHandle(Windows.Win32.System.Console.STD_HANDLE.STD_ERROR_HANDLE, new HANDLE(hPipe));
-
-            _flushall();
-            var fd = _open_osfhandle(hPipe, 0x8000);
-            _dup2(fd, 2);
+            Platform.PlatformServices.Current.RedirectStderr(hPipe);
 
         }
-        public static unsafe void ReporterMain()
+        public static void ReporterMain()
         {
             var parent = int.Parse(Environment.GetEnvironmentVariable("DCCM_ERROR_REPORTER_PARENT")!);
             var proc = Process.GetProcessById(parent);
@@ -79,9 +75,15 @@ namespace DCCMShell.Reporting
             StringBuilder err = new();
             byte[] buffer = new byte[8192];
 
-            while (!proc.HasExited)
+            while (true)
             {
                 var count = pipeClient.Read(buffer);
+
+                if (count == 0 && proc.HasExited)
+                {
+                    break;
+                }
+
                 var str = Encoding.UTF8.GetString(buffer[..count]);
                 err.Append(str);
 
@@ -90,15 +92,13 @@ namespace DCCMShell.Reporting
 
             proc.WaitForExit();
 
-            var hProc = OpenProcess(Windows.Win32.System.Threading.PROCESS_ACCESS_RIGHTS.PROCESS_SYNCHRONIZE |
-                Windows.Win32.System.Threading.PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_LIMITED_INFORMATION, true, (uint)parent);
+            var errText = err.ToString();
 
-            uint exitCode = 0;
-            GetExitCodeProcess(hProc, &exitCode);
+            var exitCode = Platform.PlatformServices.Current.GetExitCode(parent);
             if (exitCode != 0)
             {
-                new ErrorReportGenerator().GenerateReport((int)exitCode,
-                    false, err.ToString(),
+                new ErrorReportGenerator().GenerateReport(exitCode,
+                    false, errText,
                     null, Environment.GetEnvironmentVariable("DCCM_ERROR_LATEST_LOG"),
                     null, null
                     );

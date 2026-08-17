@@ -1,12 +1,13 @@
 using ModCore.Storage;
 using Serilog;
+using System.Text;
 
 namespace ModCore
 {
     internal static class LogInitializer
     {
-        private const string OUTPUT_FORMAT_TEMPLATE = "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}";
-        private const int MAX_LOGS_COUNT = 31;
+        internal const string OUTPUT_FORMAT_TEMPLATE = "[{Timestamp:HH:mm:ss} {Level:u3}][{SourceContext}] {Message:lj}{NewLine}{Exception}";
+        internal const int MAX_LOGS_COUNT = 31;
         internal static void InitializeLog()
         {
             var latest = Path.Combine(FolderInfo.Logs.FullPath, "log_latest.log");
@@ -66,7 +67,6 @@ namespace ModCore
                   Path.Combine(FolderInfo.Logs.FullPath, $"log_{date:yyyy-MM-dd-HH-mm-ss}.log"),
                   outputTemplate: OUTPUT_FORMAT_TEMPLATE,
                   rollingInterval: RollingInterval.Infinite,
-
                   buffered: false
               );
 
@@ -89,6 +89,9 @@ namespace ModCore
                     outputTemplate: OUTPUT_FORMAT_TEMPLATE
                     );
             }
+
+            ContextConfig.Config.configurateLogger?.Invoke(configuration);
+
             Log.Logger = configuration.CreateLogger();
         }
     }

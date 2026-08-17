@@ -2,3 +2,5 @@
 GetExitCodeProcess
 OpenProcess
 SetStdHandle
+
+GlobalMemoryStatusEx

@@ -48,6 +48,7 @@ namespace ModCore.Utilities
         /// <param name="methodName">The name of the static method to execute in the worker process. Cannot be null or empty.</param>
         /// <param name="startInfo">The process start information to use when launching the worker process. If null, a default configuration is
         /// used.</param>
+        /// <param name="closeOnParentExit">The worker process exit when parent exit</param>
         /// <param name="loadAssemblies">A list of assembly paths to be loaded by the worker process before invoking the specified method. Each entry
         /// should be a valid assembly path.</param>
         /// <returns>A Process instance representing the started worker process.</returns>

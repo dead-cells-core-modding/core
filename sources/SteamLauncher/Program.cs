@@ -1,7 +1,6 @@
 using Serilog;
 using SteamLauncher.Platform;
 using SteamLauncher.Workshop;
-using SteamLauncher.ErrorReporting;
 using SteamLauncher.Launcher;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -45,30 +44,6 @@ namespace SteamLauncher
                 }
 
                 LogInitializer.InitializeLog();
-
-                // Determine whether to enable error reporter
-                bool enableReporter = true;
-
-                if (Debugger.IsAttached)
-                {
-                    Logger.Warning("A debugger has been detected.");
-
-                    Environment.SetEnvironmentVariable("DCCM_SHOULD_WAIT_FOR_DEBUGGER", "true");
-
-                    enableReporter = false;
-                }
-
-                if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_DISABLE_REPORTER"), out var disableReporter) &&
-                    disableReporter)
-                {
-                    enableReporter = false;
-                }
-
-                if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_ENABLE_REPORTER"), out var enableReporterEnv) &&
-                    enableReporterEnv)
-                {
-                    enableReporter = true;
-                }
 
                 // Locate game root directory
                 string gameRoot = Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH")!;
@@ -141,13 +116,6 @@ namespace SteamLauncher
                     Logger.Information("Not Steam version.");
                 }
 
-                // Detect diagnostic mode
-                bool diagnosticMode = false;
-                if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "diagnostic_mode.txt")))
-                {
-                    diagnosticMode = true;
-                }
-
                 // Launch game
                 var launcher = new GameLauncher(gameRoot);
                 var deadCellsExePath = Path.Combine(gameRoot, "coremod", "core", "host", "startup", "DeadCellsModding");
@@ -162,28 +130,12 @@ namespace SteamLauncher
                     return 0;
                 }
 
-                var result = await launcher.LaunchGame(deadCellsExePath, Environment.ProcessId, diagnosticMode);
+                var result = await launcher.LaunchGame(deadCellsExePath, Environment.ProcessId);
 
-                if (result.ExitCode == 0)
+                if (result.ExitCode != 0)
                 {
-                    return 0;
+                    await Task.Delay(5000);
                 }
-
-                if (!enableReporter || result.DisableErrorReporting)
-                {
-                    return result.ExitCode;
-                }
-
-                // Generate error report
-                var reporter = new ErrorReportGenerator();
-                reporter.GenerateReport(
-                    result.ExitCode,
-                    true,
-                    result.ErrorOutput,
-                    result.OutputData,
-                    result.GameLogPath,
-                    result.CrashDumpPath,
-                    null);
 
                 return result.ExitCode;
             }
