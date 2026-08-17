@@ -276,10 +276,14 @@ class Build : NukeBuild
                 DotNetTasks.DotNetBuild(s => s.SetConfiguration(Configuration)
                     .SetProjectFile(SourceRoot + "/ModCore.ModLoader.Default"));
 
-                DotNetTasks.DotNetPublish(s => s.SetConfiguration(Configuration)
-                    .SetProject(SourceRoot + "/SteamStartShell"));
-                DotNetTasks.DotNetPublish(s => s.SetConfiguration(Configuration)
-                    .SetProject(SourceRoot + "/GOGStartShell"));
+                if (CurrentOSPlatform == "win")
+                {
+                    DotNetTasks.DotNetPublish(s => s.SetConfiguration(Configuration)
+                        .SetProject(SourceRoot + "/SteamStartShell"));
+                    DotNetTasks.DotNetPublish(s => s.SetConfiguration(Configuration)
+                        .SetProject(SourceRoot + "/GOGStartShell"));
+                }
+
                 DotNetTasks.DotNetPublish(s => s.SetConfiguration("Release")
                     .SetProject(SourceRoot + "/DeadCellsModding"));
             });
@@ -388,7 +392,7 @@ class Build : NukeBuild
 
     Target PublishMAPI => _ => _
         .DependsOn(DownloadWin64Bin)
-        .DependsOn(DownloadLinux64Bin)
+        //.DependsOn(DownloadLinux64Bin)
         .Executes(async () =>
     {
         DotNetTasks.DotNetRun(s =>
