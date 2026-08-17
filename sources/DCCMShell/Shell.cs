@@ -114,8 +114,6 @@ namespace DCCMShell
                 ErrorReporter.SetupErrorReporter();
             }
 
-            
-
             Startup.StartGame();
         }
 
