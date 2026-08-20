@@ -201,6 +201,8 @@ namespace ModCore.Storage
             folders.Add(name, this);
             OnRebuildInfo += FolderInfo_OnRebuildInfo;
             BuildPath();
+
+            Info.Create();
         }
 
         private void FolderInfo_OnRebuildInfo( string obj )

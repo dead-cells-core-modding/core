@@ -64,6 +64,7 @@ namespace SteamLauncher.Workshop
                     state.HasFlag(EItemState.k_EItemStateDownloadPending))
                 {
                     while (state.HasFlag(EItemState.k_EItemStateDownloading) ||
+
                            state.HasFlag(EItemState.k_EItemStateDownloadPending))
                     {
                         await Task.Delay(100);
@@ -120,6 +121,11 @@ namespace SteamLauncher.Workshop
                     throw new InvalidOperationException("Failed to init Steam API.");
                 }
 
+                if (firstAttempt)
+                {
+                    Logger.Information("First attempt to load steam api: {status} {err}", initResult, err);
+                }
+
                 if (initResult == ESteamAPIInitResult.k_ESteamAPIInitResult_NoSteamClient)
                 {
                     if (firstAttempt)
@@ -137,6 +143,14 @@ namespace SteamLauncher.Workshop
 
                 if (initResult == ESteamAPIInitResult.k_ESteamAPIInitResult_FailedGeneric)
                 {
+                    if (err.StartsWith("No ", StringComparison.OrdinalIgnoreCase) && firstAttempt)
+                    {
+                        //Wrong Steam installation
+                        //https://github.com/rlabrecque/Steamworks.NET/issues/775
+                        Logger.Warning("Wrong Steam installation. This usually means your Steam version is too old. Please try reinstalling Steam!");
+                        throw new InvalidOperationException("Wrong Steam installation. Please try reinstalling Steam!");
+                    }
+                    firstAttempt = false;
                     await Task.Delay(1000);
                     continue;
                 }

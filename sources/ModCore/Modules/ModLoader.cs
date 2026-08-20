@@ -95,6 +95,7 @@ namespace ModCore.Modules
                         }
                     }
                     info.ModRoot = new("ModRoot_" + name, dir);
+                    info.ModDataRoot = new("ModDataRoot_" + name, "{CORE_DATA}/" + name);
                     EventSystem.BroadcastEvent<IOnCollectedModInfo, ModInfo>(info);
                     modInfos.Add(name, info);
                 }

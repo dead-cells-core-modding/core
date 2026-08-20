@@ -35,5 +35,7 @@ namespace ModCore.Mods
 
         [JsonIgnore]
         public FolderInfo ModRoot { get; set; } = null!;
+        [JsonIgnore]
+        public FolderInfo ModDataRoot { get; set; } = null!;
     }
 }
