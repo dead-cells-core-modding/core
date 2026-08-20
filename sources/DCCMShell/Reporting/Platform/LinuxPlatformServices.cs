@@ -10,7 +10,7 @@ namespace DCCMShell.Reporting.Platform
     /// Linux platform service implementation——currently a stub; features to be implemented in a future version
     /// </summary>
     [SupportedOSPlatform("linux")]
-    internal class LinuxPlatformServices : PlatformServices
+    internal partial class LinuxPlatformServices : PlatformServices
     {
         public override string Name => "linux-x64";
 
@@ -186,9 +186,13 @@ namespace DCCMShell.Reporting.Platform
             return string.Empty;
         }
 
+        [LibraryImport("libc.6")] 
+        private static partial int dup2( int oldfd, int newfd );
+
+
         public override void RedirectStderr( nint target )
         {
-            throw new NotImplementedException();
+            dup2((int)target, 2);
         }
 
         public override int GetExitCode( int pid )
