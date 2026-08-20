@@ -47,6 +47,32 @@ namespace SteamLauncher.Workshop
 
             SteamUGC.GetSubscribedItems(items, count, false);
 
+            Logger.Information("Checking mods...");
+            foreach (var v in items)
+            {
+                SteamUGC.DownloadItem(v, true);
+            }
+
+            foreach (var v in items)
+            {
+                var state = (EItemState)SteamUGC.GetItemState(v);
+                if (!state.HasFlag(EItemState.k_EItemStateSubscribed))
+                {
+                    continue;
+                }
+                if (state.HasFlag(EItemState.k_EItemStateDownloading) ||
+                    state.HasFlag(EItemState.k_EItemStateDownloadPending))
+                {
+                    while (state.HasFlag(EItemState.k_EItemStateDownloading) ||
+                           state.HasFlag(EItemState.k_EItemStateDownloadPending))
+                    {
+                        await Task.Delay(100);
+                        state = (EItemState)SteamUGC.GetItemState(v);
+                    }
+                    continue;
+                }
+            }
+
             List<string> mods = [];
             List<string> plugins = [];
 
@@ -168,7 +194,7 @@ namespace SteamLauncher.Workshop
                     while (state.HasFlag(EItemState.k_EItemStateDownloading) ||
                            state.HasFlag(EItemState.k_EItemStateDownloadPending))
                     {
-                        await Task.Delay(3000);
+                        await Task.Delay(500);
                         state = (EItemState)SteamUGC.GetItemState(new(MAPI_PFID));
                     }
                     continue;

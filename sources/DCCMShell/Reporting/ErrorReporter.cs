@@ -95,7 +95,7 @@ namespace DCCMShell.Reporting
             var errText = err.ToString();
 
             var exitCode = Platform.PlatformServices.Current.GetExitCode(parent);
-            if (exitCode != 0)
+            if (exitCode != 0 || errText.Contains("[DCCM_FORCE_SHOW_ERROR_REPORT]"))
             {
                 new ErrorReportGenerator().GenerateReport(exitCode,
                     false, errText,

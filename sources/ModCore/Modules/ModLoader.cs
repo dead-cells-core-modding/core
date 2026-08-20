@@ -103,6 +103,18 @@ namespace ModCore.Modules
                     Logger.Error(ex, "Unable to collect information");
                 }
             }
+
+            foreach ((var name, var info) in modInfos)
+            {
+                foreach (var v in info.Dependencies)
+                {
+                    if (!modInfos.ContainsKey(v))
+                    {
+                        Logger.Warning("Missing dependency({mod}): {dep}", name, v);
+                    }
+                }
+            }
+
             Logger.Information("Mods information collection completed");
         }
     }

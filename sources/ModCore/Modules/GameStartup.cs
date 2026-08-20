@@ -31,6 +31,7 @@ namespace ModCore.Modules
                 catch (Exception ex)
                 {
                     Logger.Fatal(ex, "Fatal Error");
+                    Console.Error.WriteLine("[DCCM_FORCE_SHOW_ERROR_REPORT]");
                     Environment.Exit(-1);
                     throw;
                 }

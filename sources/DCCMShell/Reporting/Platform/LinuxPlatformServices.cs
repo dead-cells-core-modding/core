@@ -193,7 +193,7 @@ namespace DCCMShell.Reporting.Platform
 
         public override int GetExitCode( int pid )
         {
-            throw new NotImplementedException();
+            return 0;
         }
     }
 }

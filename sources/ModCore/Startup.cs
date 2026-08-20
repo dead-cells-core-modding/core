@@ -102,6 +102,7 @@ namespace ModCore
             {
                 logger.Fatal(ex, "Uncaught .NET Exception");
                 Debugger.BreakForUserUnhandledException(ex);
+                Console.Error.WriteLine("[DCCM_FORCE_SHOW_ERROR_REPORT]");
                 throw;
             }
         }
