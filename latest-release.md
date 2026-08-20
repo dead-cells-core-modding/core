@@ -1,15 +1,19 @@
-# Release Notes - 35.13.2
+# Release Notes - 35.13.3
 
 ## Feature
 
-- Move error reporting from the Steam launcher into DCCMShell
-- Add a Serilog configuration extension point and an error output redirection option to log initialization, so the error reporter can capture game logs
-- Add an overload to WorkerProcessUtils that configures whether the worker process exits with its parent, keeping the error reporting process alive
+- ModLoader: add a per-mod data directory (ModDataRoot) so each mod gets a dedicated storage folder under the core data directory
+- SteamLauncher: proactively download subscribed workshop items and wait for pending downloads before starting the game
+- DCCMShell: show the error report window even when the process exits with code 0 if a fatal error marker is present
 
 ## Fix
 
-- Fix HashlinkSharp pseudo-code generation failing when a type name collision causes DefineType to throw, by retrying with a new assembly
-- Fix the Steam launcher not proactively subscribing to and downloading the DCCM workshop item, which delayed MAPI updates
+- SteamLauncher: detect a broken Steam installation during API init and report a clear reinstall hint instead of failing silently
+- SteamLauncher: reduce the waiting interval while the required mod is downloading to speed up startup
+- DCCMShell: implement Linux stderr redirection via libc dup2 instead of throwing NotImplementedException
+- ModLoader: log a warning when a declared mod dependency is missing
+- Storage: automatically create folder directories when FolderInfo is constructed to prevent missing-directory crashes
+- ModCore: emit a fatal error marker on unhandled .NET exceptions and fatal startup errors so the error report is always triggered
 
 ---
 
@@ -21,14 +25,18 @@
 
 ## Feature
 
-- 错误报告功能从 Steam 启动器迁移至 DCCMShell 
-- 日志初始化新增 Serilog 配置扩展点与错误输出重定向选项，供错误报告器捕获游戏日志
-- WorkerProcessUtils 新增可配置子进程是否随父进程退出的重载，用于保持错误报告进程常驻
+- ModLoader：为每个 Mod 新增独立的 ModDataRoot 数据目录，用于在核心数据目录下存放各模组的专属存储文件夹
+- SteamLauncher：启动前主动下载已订阅的工坊物品，并等待待处理下载完成后才开始游戏
+- DCCMShell：当错误信息包含致命错误标记时，即使进程以退出码 0 结束也会显示错误报告窗口
 
 ## Fix
 
-- 修复 HashlinkSharp 伪代码生成时因类型名冲突导致 DefineType 抛出异常的问题，改为使用新程序集重试
-- 修复 Steam 启动器未主动订阅并下载 DCCM Workshop 条目导致 MAPI 更新不及时的问题
+- SteamLauncher：在 Steam API 初始化时检测损坏的 Steam 安装，并给出明确的重新安装提示，避免静默失败
+- SteamLauncher：缩短所需 Mod 下载时的等待间隔，加快启动速度
+- DCCMShell：通过 libc dup2 实现 Linux 平台 stderr 重定向，不再抛出 NotImplementedException
+- ModLoader：当声明的 Mod 依赖缺失时输出警告日志
+- Storage：FolderInfo 构造时自动创建对应文件夹，避免因目录不存在而崩溃
+- ModCore：未处理的 .NET 异常及启动致命错误会输出致命错误标记，确保错误报告始终被触发
 
 ---
 
