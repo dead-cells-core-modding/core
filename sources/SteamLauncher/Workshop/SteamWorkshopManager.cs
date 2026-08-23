@@ -197,6 +197,7 @@ namespace SteamLauncher.Workshop
 
             while (true)
             {
+                _WHILE_RE_TRY:
                 await Task.Delay(100);
 
                 var state = (EItemState)SteamUGC.GetItemState(new(MAPI_PFID));
@@ -235,13 +236,13 @@ namespace SteamLauncher.Workshop
                     continue;
                 }
 
-                if (!SteamUGC.GetItemInstallInfo(new(MAPI_PFID), out _, out var mapiFolder, 1024, out _))
+                if (!SteamUGC.GetItemInstallInfo(new(MAPI_PFID), out _, out var mapiRoot, 1024, out _))
                 {
                     Logger.Warning("DCCM is not installed.");
                     continue;
                 }
 
-                mapiFolder = Path.Combine(mapiFolder, PlatformServices.Current.Name);
+                var mapiFolder = Path.Combine(mapiRoot, PlatformServices.Current.Name);
 
                 Logger.Information("DCCM Workshop Version Path: {path}", mapiFolder);
 
@@ -267,12 +268,30 @@ namespace SteamLauncher.Workshop
                 }
 
                 var mccv_path = Path.Combine(mapiFolder, "content", "ModCoreVersion.txt");
+                var filelist_path = Path.Combine(mapiRoot, "FileList.txt");
 
-                if (!File.Exists(mccv_path))
+                if (!File.Exists(mccv_path) || !File.Exists(filelist_path))
                 {
                     Logger.Warning("DCCM is not installed.");
                     SteamUGC.DownloadItem(new(MAPI_PFID), true);
                     continue;
+                }
+
+                var files = File.ReadAllLines(filelist_path);
+
+                foreach (var v in files)
+                {
+                    if (string.IsNullOrWhiteSpace(v))
+                    {
+                        continue;
+                    }
+
+                    if (!File.Exists(Path.Combine(mapiRoot, v)))
+                    {
+                        Logger.Warning("DCCM is corrupted.");
+                        await Task.Delay(1000);
+                        goto _WHILE_RE_TRY;
+                    }
                 }
 
                 var mccv = System.Version.Parse(File.ReadAllText(mccv_path).Trim());

@@ -391,10 +391,20 @@ class Build : NukeBuild
         });
 
     Target PublishMAPI => _ => _
-        .DependsOn(DownloadWin64Bin)
+        //.DependsOn(DownloadWin64Bin)
         //.DependsOn(DownloadLinux64Bin)
         .Executes(async () =>
     {
+        List<string> files = [];
+
+        var root = Path.GetFullPath(WorkshopPublishRoot);
+        foreach(var v in Directory.GetFiles(WorkshopPublishRoot, "*", SearchOption.AllDirectories))
+        {
+            files.Add(v[(root.Length + 1)..].Replace('\\', '/'));
+        }
+
+        File.WriteAllLines(Path.Combine(WorkshopPublishRoot, "FileList.txt"), files);
+
         DotNetTasks.DotNetRun(s =>
                s.SetProjectFile(DCCMToolSrcProject)
                .EnableNoLaunchProfile()
