@@ -391,7 +391,7 @@ class Build : NukeBuild
         });
 
     Target PublishMAPI => _ => _
-        //.DependsOn(DownloadWin64Bin)
+        .DependsOn(DownloadWin64Bin)
         //.DependsOn(DownloadLinux64Bin)
         .Executes(async () =>
     {
