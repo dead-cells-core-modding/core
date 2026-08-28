@@ -13,6 +13,7 @@ namespace ModCore
         // Enabled by default when neither Steam nor GOG native libs are present
         public bool EnableGoldberg { get; set; } = !File.Exists(FolderInfo.GameRoot.GetFilePath("steam.hdll")) &&
                                                     !File.Exists(FolderInfo.GameRoot.GetFilePath("gog.hdll"));
+        public bool AutoRefreshFxAtlas { get; set; } = true;
         public bool SkipLogoSplash { get; set; } = true;
     }
 }
