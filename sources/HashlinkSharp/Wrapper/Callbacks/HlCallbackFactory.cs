@@ -26,6 +26,8 @@ namespace Hashlink.Wrapper.Callbacks
             .GetMethod(nameof(WrapperHelper.CallbackCleanup))!;
         private static readonly MethodInfo MI_hl_blocking = typeof(WrapperHelper)
             .GetMethod(nameof(WrapperHelper.SetBlocking))!;
+        private static readonly MethodInfo MI_CheckBool = typeof(WrapperHelper)
+            .GetMethod(nameof(WrapperHelper.CheckBool))!;
 
         private static Type GetNativeType( TypeKind kind )
         {
@@ -124,6 +126,11 @@ namespace Hashlink.Wrapper.Callbacks
                 {
                     ilg.Emit(OpCodes.Call, MI_WrapperHelper_GetObjectFromPtr);
                 }
+                else if (k == TypeKind.HBOOL)
+                {
+                    // Check valid
+                    ilg.Emit(OpCodes.Call, MI_CheckBool);
+                }
 
             }
 
@@ -180,6 +187,11 @@ namespace Hashlink.Wrapper.Callbacks
             ilg.Emit(OpCodes.Call, MI_hl_blocking);
 
             ilg.Emit(OpCodes.Call, MI_WrapperHelper_CallbackCleanup);
+
+            if (sign.ReturnType.TypeKind == TypeKind.HBOOL)
+            {
+                ilg.Emit(OpCodes.Call, MI_CheckBool);
+            }
 
             ilg.Emit(OpCodes.Ret);
 

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
@@ -59,5 +60,9 @@ namespace Hashlink.Wrapper
             hl_blocking(b ? 1 : 0);
         }
 
+        public static bool CheckBool( int b )
+        {
+            return b != 0;
+        }
     }
 }

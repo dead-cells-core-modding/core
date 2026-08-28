@@ -199,5 +199,10 @@ namespace DCCMShell.Reporting.Platform
         {
             return 0;
         }
+
+        public override void Setup()
+        {
+            
+        }
     }
 }

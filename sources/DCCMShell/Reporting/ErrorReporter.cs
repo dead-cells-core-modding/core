@@ -11,6 +11,7 @@ using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
+using Windows.Win32;
 
 
 namespace DCCMShell.Reporting
@@ -22,6 +23,8 @@ namespace DCCMShell.Reporting
         public static void SetupErrorReporter()
         {
             Console.WriteLine("Setup error reporting");
+
+            Platform.PlatformServices.Current.Setup();
 
             var latest = Path.Combine(FolderInfo.Logs.FullPath, "log_latest.log");
 

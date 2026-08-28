@@ -12,6 +12,8 @@ using Windows.Win32.System.SystemInformation;
 using Windows.Win32.System.Threading;
 using static Windows.Win32.PInvoke;
 
+#pragma warning disable CA1416
+
 namespace DCCMShell.Reporting.Platform
 {
     /// <summary>
@@ -282,15 +284,15 @@ namespace DCCMShell.Reporting.Platform
         {
             try
             {
-                var memStatus = new MEMORYSTATUSEX();
-                memStatus.dwLength = (uint)Marshal.SizeOf<MEMORYSTATUSEX>();
-#pragma warning disable CA1416 
+                var memStatus = new MEMORYSTATUSEX
+                {
+                    dwLength = (uint)Marshal.SizeOf<MEMORYSTATUSEX>()
+                };
                 if (GlobalMemoryStatusEx(ref memStatus))
                 {
                     var totalMB = memStatus.ullTotalPhys / (1024 * 1024);
                     return $"{totalMB} MB";
                 }
-#pragma warning restore CA1416
             }
             catch { }
             return string.Empty;
@@ -314,15 +316,20 @@ namespace DCCMShell.Reporting.Platform
 
         public override unsafe int GetExitCode( int pid )
         {
-#pragma warning disable CA1416
             var hProc = OpenProcess(PROCESS_ACCESS_RIGHTS.PROCESS_SYNCHRONIZE |
                 PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_LIMITED_INFORMATION, true, (uint)pid);
 
 
             uint exitCode = 0;
             GetExitCodeProcess(hProc, &exitCode);
-#pragma warning restore CA1416
             return (int)exitCode;
+        }
+
+        public override void Setup()
+        {
+            SetErrorMode(Windows.Win32.System.Diagnostics.Debug.THREAD_ERROR_MODE.SEM_ALL_ERRORS |
+                Windows.Win32.System.Diagnostics.Debug.THREAD_ERROR_MODE.SEM_NOGPFAULTERRORBOX |
+                Windows.Win32.System.Diagnostics.Debug.THREAD_ERROR_MODE.SEM_NOOPENFILEERRORBOX);
         }
     }
 }

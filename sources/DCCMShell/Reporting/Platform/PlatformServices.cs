@@ -116,5 +116,7 @@ namespace DCCMShell.Reporting.Platform
 
         public abstract void RedirectStderr( nint target );
         public abstract int GetExitCode( int pid );
+        public abstract void Setup();
+
     }
 }
