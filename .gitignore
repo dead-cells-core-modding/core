@@ -412,3 +412,4 @@ vcpkg_installed/
 /.playwright-mcp
 /_manifest
 /.omo/run-continuation
+/workshop-publish/FileList.txt
