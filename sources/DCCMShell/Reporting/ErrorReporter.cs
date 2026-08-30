@@ -42,6 +42,8 @@ namespace DCCMShell.Reporting
 
             pipeServer.DisposeLocalCopyOfClientHandle();
 
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
             // Redirect
 
             var writer = new StreamWriter(pipeServer, Encoding.UTF8)
@@ -66,6 +68,15 @@ namespace DCCMShell.Reporting
             Platform.PlatformServices.Current.RedirectStderr(hPipe);
 
         }
+
+        private static void CurrentDomain_UnhandledException( object sender, UnhandledExceptionEventArgs e )
+        {
+            if (e.IsTerminating)
+            {
+                Console.Error.WriteLine("[DCCM_FORCE_SHOW_ERROR_REPORT]");
+            }
+        }
+
         public static void ReporterMain()
         {
             var parent = int.Parse(Environment.GetEnvironmentVariable("DCCM_ERROR_REPORTER_PARENT")!);
