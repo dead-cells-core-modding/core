@@ -274,8 +274,8 @@ This project uses the following open source libraries directly (bundled or linke
 
 ### Team Roles
 
-- **Authors** (committers): [Members team](https://github.com/orgs/dead-cells-core-modding/teams/members)
-- **Reviewers**: [Members team](https://github.com/orgs/dead-cells-core-modding/teams/members) — each change proposed by non-members must be reviewed by a team member
+- **Authors** (committers): [Members team](https://github.com/orgs/dead-cells-core-modding/people)
+- **Reviewers**: [Members team](https://github.com/orgs/dead-cells-core-modding/people) — each change proposed by non-members must be reviewed by a team member
 - **Approvers**: [Owners](https://github.com/orgs/dead-cells-core-modding/people?query=role%3Aowner) — each signing request must be approved by a team member trusted to decide if a release can be code signed
 
 ### Privacy Policy
