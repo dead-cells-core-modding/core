@@ -1,4 +1,4 @@
-﻿
+
 # Dead Cells Core Modding
 
 ![GitHub Release](https://img.shields.io/github/v/release/dead-cells-core-modding/core)
@@ -21,15 +21,18 @@ Join the [Discord server](https://discord.gg/7vp38qsYc4) for more help.
 
 ## Requirement
 
-- .NET 10 runtime
-- Microsoft Visual C++ Redistributable package (2015-2022)
+- [.NET 10 Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [Microsoft Visual C++ Redistributable (2015-2022 x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe)
 
 ## Installation
 
+### Manual Installation
 1. Get the core file from [nightly link](https://nightly.link/dead-cells-core-modding/core/workflows/build/dev) or [releases](https://github.com/dead-cells-core-modding/core/releases)
 2. Unzip it to the game root directory
 
-The folder structure should be similar to the following
+> ⚠️ **Important:** The folder must be named strictly **`coremod`** (singular, lowercase). Naming it `coremods` will cause `DeadCellsModding.exe` to fail resolving `DCCMShell.dll` and exit immediately without an error message.
+
+The folder structure should be similar to the following:
 ```txt
 <DeadCellsGameRoot>
 |
@@ -66,6 +69,15 @@ The folder structure should be similar to the following
 |
 +- ...
 ```
+
+### Steam Workshop Setup
+
+When subscribing via Steam Workshop ([DCCM Core Modding API - Workshop ID: 3633185550](https://steamcommunity.com/sharedfiles/filedetails/?id=3633185550)):
+
+1. Steam downloads the files to `<Steam>/steamapps/workshop/content/588650/3633185550/`.
+2. Copy the contents of `win-x64/content/` (`core`, `plugins`, and `ModCoreVersion.txt`) directly into `<DeadCellsGameRoot>/coremod/`.
+3. Launch the game using `<DeadCellsGameRoot>/coremod/core/host/startup/DeadCellsModding.exe`.  
+   *(Optional: You can also replace the vanilla `deadcells.exe` in the root folder with the launcher stub in `core/host/startup/steam/deadcells.exe` for seamless Steam Library launching).*
 
 ## Mods Development
 
