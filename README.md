@@ -22,101 +22,17 @@ Join the [Discord server](https://discord.gg/7vp38qsYc4) for more help.
 ## Requirement
 
 - [.NET 10 Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [Microsoft Visual C++ Redistributable (2015-2022 x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe)
+- [Microsoft Visual C++ Redistributable (2015-2026 x64)](https://aka.ms/vc14/vc_redist.x64.exe)
 
 ## Installation
 
-### Manual Installation
-1. Get the core file from [nightly link](https://nightly.link/dead-cells-core-modding/core/workflows/build/dev) or [releases](https://github.com/dead-cells-core-modding/core/releases)
-2. Unzip it to the game root directory
-
-> ⚠️ **Important:** The folder must be named strictly **`coremod`** (singular, lowercase). Naming it `coremods` will cause `DeadCellsModding.exe` to fail resolving `DCCMShell.dll` and exit immediately without an error message.
-
-The folder structure should be similar to the following:
-```txt
-<DeadCellsGameRoot>
-|
-+- coremod
-|  |
-|  +- core
-|  |  |
-|  |  +- native
-|  |  |  |
-|  |  |  +- ...
-|  |  |
-|  |  +- mdk
-|  |  |	 |
-|  |  |  +- install.ps1
-|  |  |  |
-|  |  |  +- uninstall.ps1
-|  |  |  |
-|  |  |  +- ...
-|  |  |
-|  |  +- host
-|  |  |  |
-|  |  |  +- startup
-|  |  |  |  |
-|  |  |  |  +- DeadCellsModding.exe
-|  |  |  |  |
-|  |  |  |  +- ...
-|  |  |  +- ...
-|  |  +- ...
-|  +- ...
-|
-+- deadcells.exe
-|
-+- deadcells_gl.exe
-|
-+- ...
-```
-
-### Steam Workshop Setup
-
-When subscribing via Steam Workshop ([DCCM Core Modding API - Workshop ID: 3633185550](https://steamcommunity.com/sharedfiles/filedetails/?id=3633185550)):
-
-1. Steam downloads the files to `<Steam>/steamapps/workshop/content/588650/3633185550/`.
-2. Copy the contents of `win-x64/content/` (`core`, `plugins`, and `ModCoreVersion.txt`) directly into `<DeadCellsGameRoot>/coremod/`.
-3. Launch the game using `<DeadCellsGameRoot>/coremod/core/host/startup/DeadCellsModding.exe`.  
-   *(Optional: You can also replace the vanilla `deadcells.exe` in the root folder with the launcher stub in `core/host/startup/steam/deadcells.exe` for seamless Steam Library launching).*
+Follow [the guide](https://dead-cells-core-modding.github.io/docs/docs/tutorial/install-core/).
 
 ## Mods Development
 
 Here are some [examples](https://github.com/dead-cells-core-modding/core/tree/main/sample).
 
-### Preparation
-
-1. Install .NET SDK 10
-2. Install Dead Cells Core Modding as above
-3. Run `<DeadCellsGameRoot>/coremod/core/mdk/install.ps1` to configure the environment
-
-### Create a mod project
-
-1. Create a library project based on .NET 10
-2. Add package reference `DeadCellsCoreModding.MDK`
-3. Add the following to your csproj file
-```xml
-<PropertyGroup>
-	<!--Enter the mod name here-->
-	<ModName>$(AssemblyName)</ModName>
-
-	<!--
-	Enter mod type here
-
-	Available values:
-		mod: Normal mod
-		library: Library
-	-->
-	<ModType>mod</ModType>
-
-	<!--Enter the full name of the mod's main type here-->
-	<ModMain>ModNamespace.MainModClass</ModMain>
-</PropertyGroup>
-```
-
-### Build
-
-Build the mod using `dotnet build`.
-The default output directory is `$(OutputPath)/output/`
+Follow [the guide](https://dead-cells-core-modding.github.io/docs/docs/dev/tutorial/install-mdk/).
 
 ## Usage
 
@@ -126,22 +42,7 @@ Start the game from `<DeadCellsGameRoot>/coremod/core/host/startup/DeadCellsModd
 
 ### Mods Installation
 
-1. Create `<DeadCellsGameRoot>/coremod/mods` folder if it does not exist.
-2. Move the mods files into the `mods` folder. The folder structure should look like this:
-```txt
-mods
-|
-+- <ModName>
-|  |
-|  +- modinfo.json
-|  |
-|  +- ...
-|
-+- ...
-```
-
-> [!WARNING]
-> `<ModName>` must be exactly the same as the `name` property in `modinfo.json`, otherwise the mods loader will refuse to load the mods
+Follow [the guide](https://dead-cells-core-modding.github.io/docs/zh/docs/tutorial/install-mods/).
 
 ## Development
 
@@ -179,10 +80,10 @@ Move-Item -Path ./SDL3-3.4.10 -Destination ./sdl -Force
 .\build.ps1 --configuration Release
 
 # Individual targets
-.\build.ps1 BuildNative                  # Native runtime only
-.\build.ps1 BuildCore                    # Managed core only
-.\build.ps1 BuildMDK                     # MDK toolchain only
-.\build.ps1 BuildAssets                  # Assets project only
+.\build.ps1 BuildNative                  # Native runtime
+.\build.ps1 BuildCore                    # Managed core
+.\build.ps1 BuildMDK                     # MDK toolchain
+.\build.ps1 BuildAssets                  # Assets project
 
 # Combine multiple targets
 .\build.ps1 BuildCore BuildMDK BuildAssets --configuration Release
