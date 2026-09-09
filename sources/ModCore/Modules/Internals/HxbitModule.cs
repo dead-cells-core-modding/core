@@ -44,7 +44,7 @@ namespace ModCore.Modules.Internals
         void IOnAdvancedModuleInitializing.OnAdvancedModuleInitializing()
         {
             HashlinkHooks.Instance.CreateHook("$Type", "resolveClass", Hook_resolveClass);
-
+            
             oldSettingsFactory = JsonConvert.DefaultSettings;
             JsonConvert.DefaultSettings = SerializerSettingsFactory;
 

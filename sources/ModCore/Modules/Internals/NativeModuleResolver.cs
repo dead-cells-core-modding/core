@@ -144,6 +144,11 @@ namespace ModCore.Modules.Internals
                 TryLoadSteam();
             }
 
+            if (name == "gog")
+            {
+                GameInfo.Platform = GameInfo.PlatformKind.GOG;
+            }
+
             if (name == "directx")
             {
                 Logger.Fatal("DirectX is not supported on this platform");
