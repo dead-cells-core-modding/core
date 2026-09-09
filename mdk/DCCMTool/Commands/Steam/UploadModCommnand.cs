@@ -66,7 +66,7 @@ namespace DCCMTool.Commands.Steam
             else if (resultCount == 0)
             {
                 SteamUGC.ReleaseQueryUGCRequest(handle);
-                 AnsiConsole.WriteLine("Creating new item...");
+                AnsiConsole.WriteLine("Creating new item...");
                 var r = await SteamUGC.CreateItem(APPID, EWorkshopFileType.k_EWorkshopFileTypeCommunity).Wait<CreateItemResult_t>();
                 if (r.m_eResult != EResult.k_EResultOK)
                 {
@@ -89,7 +89,7 @@ namespace DCCMTool.Commands.Steam
 
                     if (!KnownTags.Contains(tag))
                     {
-                        AnsiConsole.MarkupLine($"[warning]Unknown Tag: {tag}[/warning]");
+                        AnsiConsole.MarkupLine($"[yellow]Unknown Tag: {tag}[/]");
                     }
 
                     utags.Add(tag);
