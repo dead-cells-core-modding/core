@@ -419,16 +419,16 @@ namespace ModCore.Native
 
         public static long totalAllocMemory = 0;
 
-        private static nint orig_gc_allocator_alloc;
+        private static nint orig_hl_gc_alloc_gen;
         [UnmanagedCallersOnly]
-        protected static nint Hook_gc_allocator_alloc( int* size, int page_kind )
+        protected static nint Hook_hl_gc_alloc_gen(HL_type* t, int size, int flags )
         {
-            *size += 8;
-            totalAllocMemory += *size;
-            var result = ((delegate* unmanaged< int*, int, nint >)orig_gc_allocator_alloc)(size, page_kind);
-            *((nint*)(result + *size - 8)) = 0;
+            size += 8;
+            totalAllocMemory += size;
+            var result = ((delegate* unmanaged< HL_type*, int, int, nint >)orig_hl_gc_alloc_gen)(t, size, flags);
+            size = hl_gc_get_memsize((void*)result);
+            *((nint*)(result + size - 8)) = 0;
             Debug.Assert(hl_gc_get_memsize((void*)result) >= 0);
-            //*size -= 8;
             return result;
         }
 
@@ -807,7 +807,7 @@ namespace ModCore.Native
             CreateNativeHookForHL("gc_major", nameof(Hook_gc_major), out orig_gc_major);
             CreateNativeHookForHL("resolve_library", nameof(Hook_resolve_library), out orig_resolve_library);
             CreateNativeHookForHL("hl_module_init_natives", nameof(Hook_hl_module_init_natives), out orig_hl_module_init_natives);
-            CreateNativeHookForHL("gc_allocator_alloc", nameof(Hook_gc_allocator_alloc), out orig_gc_allocator_alloc);
+            CreateNativeHookForHL("hl_gc_alloc_gen", nameof(Hook_hl_gc_alloc_gen), out orig_hl_gc_alloc_gen);
             CreateNativeHookForHL("gc_allocator_after_mark", nameof(Hook_gc_allocator_after_mark), out orig_gc_allocator_after_mark);
 
             CreateNativeHookForHL("hl_obj_set_field", nameof(Hook_hl_obj_set_field), out orig_hl_obj_set_field);

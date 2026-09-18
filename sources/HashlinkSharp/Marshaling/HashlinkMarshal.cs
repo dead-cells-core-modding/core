@@ -43,6 +43,8 @@ namespace Hashlink.Marshaling
             {
                 return false;
             }
+
+
             {
                 int v = 114514;
                 var obj = hl_make_dyn(&v, knownTypes.I32.NativeType);
@@ -50,6 +52,15 @@ namespace Hashlink.Marshaling
                 {
                     return false;
                 }
+
+                var obj_ptr = HashlinkObjPtr.Get(obj);
+                var obj_size = obj_ptr.GetMemSize();
+                var expect_size = sizeof(HL_vdynamic) + nint.Size;
+                if (obj_ptr.GetMemSize() != expect_size)
+                {
+                    return false;
+                }
+
                 var obj2 = ConvertHashlinkObject(HashlinkObjPtr.Get(obj));
                 if (v != (int)obj2!)
                 {
