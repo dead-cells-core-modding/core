@@ -195,6 +195,7 @@ namespace SteamLauncher.Workshop
 
             await Task.Delay(100);
 
+            bool disableUpdater = false;
             while (true)
             {
                 _WHILE_RE_TRY:
@@ -224,9 +225,15 @@ namespace SteamLauncher.Workshop
 
                 if (!state.HasFlag(EItemState.k_EItemStateInstalled))
                 {
-                    Logger.Warning("DCCM is not installed.");
                     SteamUGC.DownloadItem(new(MAPI_PFID), true);
-                    continue;
+
+                    if (!state.HasFlag(EItemState.k_EItemStateDisabledLocally))
+                    {
+                        Logger.Warning("DCCM is not installed.");
+                        continue;
+                    }
+                    Logger.Warning("Auto-updater is disabled.");
+                    disableUpdater = true;
                 }
 
                 if (state.HasFlag(EItemState.k_EItemStateNeedsUpdate))
@@ -301,13 +308,14 @@ namespace SteamLauncher.Workshop
 
                 Logger.Information("Workshop DCCM Version: {ver}", mccv);
 
+
                 if (File.Exists(cur_mccv_path))
                 {
                     var cur_mccv = System.Version.Parse(File.ReadAllText(cur_mccv_path).Trim());
 
                     Logger.Information("Current DCCM Version: {ver}", cur_mccv);
 
-                    if (mccv > cur_mccv)
+                    if (mccv > cur_mccv && !disableUpdater)
                     {
                         Logger.Information("Updating DCCM...");
                         needUpdateModCore = true;
@@ -318,6 +326,7 @@ namespace SteamLauncher.Workshop
                     Logger.Information("Installing DCCM...");
                     needUpdateModCore = true;
                 }
+                
 
                 if (needUpdateModCore)
                 {
