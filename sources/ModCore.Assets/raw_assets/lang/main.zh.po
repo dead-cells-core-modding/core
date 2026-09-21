@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-09-21 18:02+0800\n"
-"PO-Revision-Date: 2026-09-21 18:04+0800\n"
+"POT-Creation-Date: 2026-09-21 18:30+0800\n"
+"PO-Revision-Date: 2026-09-21 18:31+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -34,52 +34,60 @@ msgstr "你依然可以继续操作，但所有 Mods 的数据都将会丢失！
 msgid "Please check the log file for more information."
 msgstr "请检查日志文件以获取更多信息。"
 
-#: Modules/MenuModule.cs:102
+#: Modules/MenuModule.cs:103
 msgid "CORE MODDING"
 msgstr "CORE MODDING"
 
-#: Modules/MenuModule.cs:108
+#: Modules/MenuModule.cs:109
 msgid "About Core Modding"
 msgstr "关于 Core Modding"
 
-#: Modules/MenuModule.cs:118
+#: Modules/MenuModule.cs:119
 msgid "Generate Crash Log"
 msgstr "手动生成崩溃日志"
 
-#: Modules/MenuModule.cs:133
+#: Modules/MenuModule.cs:134
 msgid "Get mods"
 msgstr "获取 Mods"
 
-#: Modules/MenuModule.cs:134
+#: Modules/MenuModule.cs:135
 msgid "Get mods from the Steam Workshop"
 msgstr "从Steam创意工坊获取 Mods"
 
-#: Modules/MenuModule.cs:140
+#: Modules/MenuModule.cs:142
 msgid "Disable Automatic Updates for DCCM"
 msgstr "禁用 DCCM 的自动更新"
 
-#: Modules/MenuModule.cs:141
+#: Modules/MenuModule.cs:143
 msgid ""
 "Disable automatic updates for DCCM, but Steam will still download the latest "
 "version of DCCM"
 msgstr "禁用 DCCM 的自动更新，但是 Steam 仍然会自动下载最新版的 DCCM"
 
-#: Modules/MenuModule.cs:196
+#: Modules/MenuModule.cs:151
+msgid "Update DCCM now"
+msgstr "现在更新 DCCM"
+
+#: Modules/MenuModule.cs:152
+msgid "Update DCCM to the latest version without enabling automatic updates"
+msgstr "在不启用自动更新的情况下通过 Steam 创意工坊更新 DCCM"
+
+#: Modules/MenuModule.cs:217
 msgid "Loaded Mods"
 msgstr "已加载的 Mods"
 
-#: Modules/MenuModule.cs:251
+#: Modules/MenuModule.cs:272
 msgid "Join Discord"
 msgstr "加入 Discord"
 
-#: Modules/MenuModule.cs:256
+#: Modules/MenuModule.cs:277
 msgid "Buy Me a Coffee"
 msgstr "支持我们"
 
-#: Modules/MenuModule.cs:256
+#: Modules/MenuModule.cs:277
 msgid "Your support helps us keep maintaining it.Thank you!"
 msgstr "您的支持帮助我们持续维护它。谢谢！"
 
-#: Modules/MenuModule.cs:433
+#: Modules/MenuModule.cs:454
 msgid "Core Modding"
 msgstr "Core Modding"

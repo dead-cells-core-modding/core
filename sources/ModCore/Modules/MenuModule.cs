@@ -13,6 +13,7 @@ using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.Game.Menu;
 using ModCore.Menu;
 using ModCore.Mods;
+using ModCore.Storage;
 using ModCore.Utilities;
 using Steamworks;
 using System.Diagnostics;
@@ -137,6 +138,7 @@ namespace ModCore.Modules
                    }, Ref<int>.In(5), flow);
 
                     var disabledMAPI = ((EItemState)SteamUGC.GetItemState(new(MAPI_PFID))).HasFlag(EItemState.k_EItemStateDisabledLocally);
+
                     options.addToggleWidget(GetString("Disable Automatic Updates for DCCM"),
                         GetString("Disable automatic updates for DCCM, but Steam will still download the latest version of DCCM"), () =>
                         {
@@ -146,6 +148,27 @@ namespace ModCore.Modules
                         }, Ref<bool>.In(
                         disabledMAPI
                         ), flow);
+                    options.addSimpleWidget(GetString("Update DCCM now"),
+                        GetString("Update DCCM to the latest version without enabling automatic updates"),
+                        () =>
+                        {
+                            Logger.Information("Update DCCM now!");
+                            var path = FolderInfo.CoreRoot.GetFilePath("ModCoreVersion.txt");
+                            if (File.Exists(path))
+                            {
+                                File.Delete(path);
+                            }
+
+                            SteamAPI.Shutdown();
+
+                            System.Diagnostics.Process.Start(new ProcessStartInfo
+                            {
+                                FileName = "steam://rungameid/588650",
+                                UseShellExecute = true
+                            });
+                            Environment.Exit(0);
+
+                        }, Ref<int>.In(5), flow);
                 }
 
 
