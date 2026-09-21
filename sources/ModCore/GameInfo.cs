@@ -14,7 +14,7 @@ namespace ModCore
         public enum PlatformKind
         {
             /// <summary>
-            /// Represents an unknown or unspecified value.
+            /// Represents an unknown or unspecified value
             /// </summary>
             Unknown,
 
