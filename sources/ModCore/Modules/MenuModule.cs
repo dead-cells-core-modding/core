@@ -37,6 +37,7 @@ namespace ModCore.Modules
     public class MenuModule : CoreModule<MenuModule>,
         IOnGameInit
     {
+        private const uint MAPI_PFID = 3633185550;
         private static readonly Dictionary<IModMenu, CustomMenu> customMenus = [];
 
         private readonly MainMenu _mainMenu = new();
@@ -112,6 +113,8 @@ namespace ModCore.Modules
 
                 w.set_horizontalAlign(new FlowAlign.Right());
 
+               
+
                 options.addSimpleWidget(GetString("Generate Crash Log"), "Crash!".AsHaxeString(),
                     () =>
                     {
@@ -124,13 +127,25 @@ namespace ModCore.Modules
 
                     }, Ref<int>.In(5), flow);
 
-                if (Environment.GetEnvironmentVariable("DCCM_STEAMWORKSHOP_ENABLED") == "true")
+                if (Environment.GetEnvironmentVariable("DCCM_STEAMWORKSHOP_ENABLED") == "true" &&
+                    GameInfo.Platform == GameInfo.PlatformKind.Steam)
                 {
                     options.addSimpleWidget(GetString("Get mods"),
                     GetString("Get mods from the Steam Workshop"), () =>
                    {
                        OpenURL("https://steamcommunity.com/workshop/browse/?appid=588650&searchtext=%5BDCCM%5D");
                    }, Ref<int>.In(5), flow);
+
+                    var disabledMAPI = ((EItemState)SteamUGC.GetItemState(new(MAPI_PFID))).HasFlag(EItemState.k_EItemStateDisabledLocally);
+                    options.addToggleWidget(GetString("Disable Automatic Updates for DCCM"),
+                        GetString("Disable automatic updates for DCCM, but Steam will still download the latest version of DCCM"), () =>
+                        {
+                            var cur = ((EItemState)SteamUGC.GetItemState(new(MAPI_PFID))).HasFlag(EItemState.k_EItemStateDisabledLocally);
+                            SteamUGC.SetItemsDisabledLocally([new(MAPI_PFID)], 1, !cur);
+                            return !cur;
+                        }, Ref<bool>.In(
+                        disabledMAPI
+                        ), flow);
                 }
 
 
