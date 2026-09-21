@@ -121,6 +121,12 @@ namespace ModCore
             Log.Logger.Information("Core Config: {config}", JsonConvert.SerializeObject(Config.Value,
                 Config.SerializerOptions));
 
+            var newVersion = Environment.GetEnvironmentVariable("DCCM_STEAMWORKSHOP_REQUIRE_UPDATE");
+            if (!string.IsNullOrEmpty(newVersion))
+            {
+                Log.Logger.Warning("New DCCM is avaliable: v{ver}", newVersion);
+            }
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 var ntdll = NativeLibrary.Load("ntdll.dll");

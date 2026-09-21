@@ -6,6 +6,9 @@ namespace ModCore
     internal class CoreConfig
     {
         public bool DCCMWarningPopup { get; set; } = false;
+
+        public string? NewVersionPopup { get; set; }
+
         public bool GeneratePseudocodeAssembly { get; set; } = false;
         public bool AllowCloseConsole { get; set; } = false;
         public bool UseGameCDBManager { get; set; } = true;

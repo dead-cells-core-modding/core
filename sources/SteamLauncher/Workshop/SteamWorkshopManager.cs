@@ -315,10 +315,19 @@ namespace SteamLauncher.Workshop
 
                     Logger.Information("Current DCCM Version: {ver}", cur_mccv);
 
-                    if (mccv > cur_mccv && !disableUpdater)
+                    if (mccv > cur_mccv)
                     {
-                        Logger.Information("Updating DCCM...");
-                        needUpdateModCore = true;
+                        if (!disableUpdater)
+                        {
+                            Logger.Information("Updating DCCM...");
+                            needUpdateModCore = true;
+                        }
+                        else
+                        {
+                            Logger.Warning("Skip update");
+
+                            Environment.SetEnvironmentVariable("DCCM_STEAMWORKSHOP_REQUIRE_UPDATE", mccv.ToString());
+                        }
                     }
                 }
                 else

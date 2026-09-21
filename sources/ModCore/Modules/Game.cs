@@ -331,6 +331,8 @@ namespace ModCore.Modules
             {
                 dccmVer += "(HLC)";
             }
+
+            
             self.build.set_text($"{dccmVer} - {self.build.text}".AsHaxeString());
 
             if (!Core.Config.Value.DCCMWarningPopup)
@@ -343,6 +345,27 @@ namespace ModCore.Modules
                     Core.Config.Value.DCCMWarningPopup = true;
                     Core.Config.Save();
                 };
+            }
+
+            var newVersion = Environment.GetEnvironmentVariable("DCCM_STEAMWORKSHOP_REQUIRE_UPDATE");
+            if (!string.IsNullOrEmpty(newVersion))
+            {
+                if (string.IsNullOrEmpty(Core.Config.Value.NewVersionPopup))
+                {
+                    Core.Config.Value.NewVersionPopup = newVersion;
+                    Core.Config.Save();
+                }
+                if (Core.Config.Value.NewVersionPopup != newVersion)
+                {
+                    var popup = new ModalPopUp(Ref<bool>.In(true), null);
+                    popup.text(GetText.Instance.GetString(" New version of DCCM is now available for update").AsHaxeString(), null, default);
+                    popup.text($"v{newVersion}".AsHaxeString() , null, default);
+                    popup.onClose = () =>
+                    {
+                        Core.Config.Value.NewVersionPopup = newVersion;
+                        Core.Config.Save();
+                    };
+                }
             }
 
             Logger.Information(self.build.text.ToString());

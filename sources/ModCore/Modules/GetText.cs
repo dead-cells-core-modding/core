@@ -1,5 +1,6 @@
 using dc;
 using dc.haxe.io;
+using dc.hl.types;
 using dc.hxd;
 using dc.libs.data;
 using HaxeProxy.Runtime;
@@ -7,6 +8,7 @@ using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Utilities;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
@@ -52,6 +54,11 @@ namespace ModCore.Modules
             {
                 param[v.Key] = v.Value.AsHaxeString();
             }
+
+            var fields = (ArrayObj) Reflect.Class.fields(param);
+
+            Debug.Assert(fields.length == @params.Count);
+
             return Lang.Class.t.get(s, param).ToString()!;
         }
 
