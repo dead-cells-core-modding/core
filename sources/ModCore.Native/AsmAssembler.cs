@@ -221,6 +221,7 @@ namespace ModCore.Native
                 if (v.StartsWith("#$#", StringComparison.Ordinal))
                 {
                     var name = v[3..];
+                    asm.AppendLine($"int3;");
                     asm.AppendLine($"{name}:");
                     decl.AppendLine($"void {name}();");
                     continue;

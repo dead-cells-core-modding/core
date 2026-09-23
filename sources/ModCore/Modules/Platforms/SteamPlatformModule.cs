@@ -1,13 +1,15 @@
 using System.Runtime.InteropServices;
 using dc.achievements;
 using Hashlink.Proxy.Clousre;
+using ModCore.Events.Interfaces.Game;
 using ModCore.Storage;
 using MonoMod.RuntimeDetour;
 using Steamworks;
 
 namespace ModCore.Modules.Platforms
 {
-    internal class SteamPlatformModule : Module<SteamPlatformModule>
+    internal class SteamPlatformModule : Module<SteamPlatformModule>,
+        IOnGameExit
     {
         private readonly Hook steamAPIInitHook;
         private delegate ESteamAPIInitResult Orig_SteamAPI_InitEx( out string? err );
@@ -76,6 +78,17 @@ namespace ModCore.Modules.Platforms
             catch
             {
                 // ignore
+            }
+        }
+
+        void IOnGameExit.OnGameExit()
+        {
+            try
+            {
+                SteamAPI.Shutdown();
+            }
+            catch
+            {
             }
         }
     }
