@@ -16,7 +16,7 @@ namespace SteamLauncher
             Environment.SetEnvironmentVariable("DCCM_START_BY_LAUNCHER", "true");
             try
             {
-                if(args.Length > 0 && args[0].EndsWith(".hl", StringComparison.Ordinal))
+                if (args.Length > 0 && args[0].EndsWith(".hl", StringComparison.Ordinal))
                 {
                     return 0;
                 }
@@ -55,7 +55,7 @@ namespace SteamLauncher
                 gameRoot = Path.GetFullPath(gameRoot);
                 while (!string.IsNullOrEmpty(gameRoot))
                 {
-                    var modcore = Path.GetFullPath(Path.Combine(gameRoot, 
+                    var modcore = Path.GetFullPath(Path.Combine(gameRoot,
                         RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "deadcells_gl.exe" : "hlboot.dat"
                         ));
 #if DEBUG
@@ -138,6 +138,31 @@ namespace SteamLauncher
                 }
 
                 return result.ExitCode;
+            }
+            catch (Exception ex) when(ex is UnauthorizedAccessException or IOException)
+            {
+                if (Environment.GetEnvironmentVariable("DCCM_STARTUP_UAE") == "1" ||
+                    Environment.IsPrivilegedProcess)
+                {
+                    throw;
+                }
+                Environment.SetEnvironmentVariable("DCCM_STARTUP_UAE", "1");
+
+                Logger.Fatal(ex, "Fatal error.");
+                
+
+                var proc = Process.Start(new ProcessStartInfo()
+                {
+                    FileName = Environment.ProcessPath,
+                    Arguments = string.Join(' ', args.Select(x => "\"" + x + "\"")),
+                    UseShellExecute = true,
+                    Verb = "RunAs"
+                });
+
+                Debug.Assert(proc != null);
+
+                proc.WaitForExit();
+                return proc.ExitCode;
             }
             catch (Exception ex)
             {
