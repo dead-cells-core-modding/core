@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-09-21 18:30+0800\n"
-"PO-Revision-Date: 2026-09-21 18:31+0800\n"
+"POT-Creation-Date: 2026-09-26 20:31+0800\n"
+"PO-Revision-Date: 2026-09-26 20:32+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -13,13 +13,17 @@ msgstr ""
 "X-Poedit-Basepath: ../../../ModCore\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: Modules/Game.cs:339
+#: Modules/Game.cs:341
 msgid "Dead Cells Core Modding enabled, achievements and rankings disabled."
 msgstr "Dead Cells Core Modding 已启用，成就和排行榜功能已禁用。"
 
-#: Modules/Game.cs:340
+#: Modules/Game.cs:342
 msgid "This window will not reappear after closing."
 msgstr "关闭后，此窗口将不再显示。"
+
+#: Modules/Game.cs:361
+msgid " New version of DCCM is now available for update"
+msgstr "有新版本的 DCCM 可供升级"
 
 #: Modules/Internals/HxbitModule.cs:248
 msgid ""
@@ -72,22 +76,22 @@ msgstr "现在更新 DCCM"
 msgid "Update DCCM to the latest version without enabling automatic updates"
 msgstr "在不启用自动更新的情况下通过 Steam 创意工坊更新 DCCM"
 
-#: Modules/MenuModule.cs:217
+#: Modules/MenuModule.cs:219
 msgid "Loaded Mods"
 msgstr "已加载的 Mods"
 
-#: Modules/MenuModule.cs:272
+#: Modules/MenuModule.cs:274
 msgid "Join Discord"
 msgstr "加入 Discord"
 
-#: Modules/MenuModule.cs:277
+#: Modules/MenuModule.cs:279
 msgid "Buy Me a Coffee"
 msgstr "支持我们"
 
-#: Modules/MenuModule.cs:277
+#: Modules/MenuModule.cs:279
 msgid "Your support helps us keep maintaining it.Thank you!"
 msgstr "您的支持帮助我们持续维护它。谢谢！"
 
-#: Modules/MenuModule.cs:454
+#: Modules/MenuModule.cs:456
 msgid "Core Modding"
 msgstr "Core Modding"

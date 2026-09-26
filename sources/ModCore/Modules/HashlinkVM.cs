@@ -6,6 +6,7 @@ using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Modules.Internals;
 using Serilog;
+using Steamworks;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -75,6 +76,17 @@ namespace ModCore.Modules
             EventSystem.BroadcastEvent<IOnGameExit>();
 
             Logger.Information("Game is exiting");
+
+            if (GameInfo.Platform == GameInfo.PlatformKind.Steam)
+            {
+                try
+                {
+                    SteamAPI.Shutdown();
+                }
+                catch
+                {
+                }
+            }
 
             Environment.Exit(code);
         }
