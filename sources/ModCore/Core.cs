@@ -84,9 +84,17 @@ namespace ModCore
                 {
                     continue;
                 }
-                if (attr.Kind != kind)
+                if ((attr.Kind & kind) != kind)
                 {
                     continue;
+                }
+                if (ContextConfig.Config.noModsMode)
+                {
+                    if (!attr.Kind.HasFlag(CoreModuleAttribute.CoreModuleKind.Important))
+                    {
+                        Log.Logger.Warning("Skip core module: {type}", type.FullName);
+                        continue;
+                    }
                 }
                 if ((attr.SupportOS & os) == 0)
                 {
@@ -120,6 +128,12 @@ namespace ModCore
 
             Log.Logger.Information("Core Config: {config}", JsonConvert.SerializeObject(Config.Value,
                 Config.SerializerOptions));
+
+            Log.Logger.Information("Is No Mods Mode: {b}", ContextConfig.Config.noModsMode);
+            if (ContextConfig.Config.noModsMode)
+            {
+                Log.Logger.Warning("The game is currently in No Mods mode and will not load any mods!");
+            }
 
             var newVersion = Environment.GetEnvironmentVariable("DCCM_STEAMWORKSHOP_REQUIRE_UPDATE");
             if (!string.IsNullOrEmpty(newVersion))

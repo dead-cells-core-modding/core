@@ -13,7 +13,7 @@ using System.Security.Cryptography;
 
 namespace ModCore.Modules.Internals
 {
-    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload | CoreModuleAttribute.CoreModuleKind.Important)]
     internal class HaxeProxyGenerator : CoreModule<HaxeProxyGenerator>,
         IOnCodeLoading,
         IOnHashlinkVMReady

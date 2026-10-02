@@ -133,7 +133,7 @@ namespace GameRes.Core.Pak
                 }
                 else if(entry is FileEntry file)
                 {
-                    
+                    Debug.Assert(!file.Name.Contains('/') && !file.Name.Contains('\\'));
                     writer.Write((byte)0);
                     writer.Write(dataOffset);
                     writer.Write(file.Data.Data.Length);

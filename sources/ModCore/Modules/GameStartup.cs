@@ -4,7 +4,7 @@ using ModCore.Events.Interfaces;
 
 namespace ModCore.Modules
 {
-    [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal | CoreModuleAttribute.CoreModuleKind.Important)]
     internal unsafe class GameStartup : CoreModule<GameStartup>, IOnNativeEvent
     {
         private void StartGame()

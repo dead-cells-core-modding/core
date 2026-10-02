@@ -13,7 +13,7 @@ namespace DCCMTool.Commands.Tmx
             var pinfo = BuildTmx("Expand", Arguments.BinFolder, Arguments.XmlFolder);
             var proc = Process.Start(pinfo);
             await proc!.WaitForExitAsync();
-            return 0;
+            return proc.ExitCode;
         }
     }
 }

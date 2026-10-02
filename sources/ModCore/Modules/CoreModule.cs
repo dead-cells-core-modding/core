@@ -27,8 +27,9 @@ namespace ModCore.Modules
         }
         public enum CoreModuleKind
         {
-            Normal,
-            Preload
+            Normal = 1,
+            Preload = 2,
+            Important = 4
         }
 
     }

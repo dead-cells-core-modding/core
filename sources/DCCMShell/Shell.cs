@@ -114,7 +114,15 @@ namespace DCCMShell
                 ErrorReporter.SetupErrorReporter();
             }
 
-            
+            if ((bool.TryParse(Environment.GetEnvironmentVariable("DCCM_START_WITH_NO_MODS"), out var startWithNoMods) && startWithNoMods) ||
+                Environment.GetCommandLineArgs().Any(x => "--no-mods".Equals(x,StringComparison.OrdinalIgnoreCase))
+                )
+            {
+                ContextConfig.Config = ContextConfig.Config with
+                {
+                    noModsMode = true
+                };
+            }
 
             Startup.StartGame();
         }

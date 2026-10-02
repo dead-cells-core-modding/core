@@ -12,7 +12,7 @@ namespace DCCMTool.Commands.Tmx
         {
             var proc = Process.Start(BuildTmx("Collapse", Arguments.BinFolder, Arguments.XmlFolder));
             await proc!.WaitForExitAsync();
-            return 0;
+            return proc.ExitCode;
         }
     }
 }

@@ -10,7 +10,7 @@ using System.Runtime.Versioning;
 
 namespace ModCore.Modules.Internals
 {
-    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload | CoreModuleAttribute.CoreModuleKind.Important)]
     internal unsafe class NativeModuleResolver : CoreModule<NativeModuleResolver>,
         IOnCoreModuleInitializing,
         IOnResolveNativeFunction,
@@ -70,7 +70,7 @@ namespace ModCore.Modules.Internals
 
         EventResult<nint> IOnResolveNativeFunction.OnResolveNativeFunction( IOnResolveNativeFunction.NativeFunctionInfo info )
         {
-            if (info.libname == "steam")
+            if (info.libname == "steam" && !ContextConfig.Default.noModsMode)
             {
                 if (info.name == "is_user_logged_in")
                 {

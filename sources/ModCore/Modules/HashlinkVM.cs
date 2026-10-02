@@ -16,7 +16,7 @@ namespace ModCore.Modules
     /// <summary>
     /// 
     /// </summary>
-    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
+    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload | CoreModuleAttribute.CoreModuleKind.Important)]
     public unsafe class HashlinkVM : CoreModule<HashlinkVM>,
         IOnCoreModuleInitializing,
         IOnHashlinkVMReady,
