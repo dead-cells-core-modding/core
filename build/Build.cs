@@ -69,6 +69,7 @@ class Build : NukeBuild
     AbsolutePath MDKSrcRoot => RootDirectory + "/mdk";
     AbsolutePath DCCMToolSrcProject => MDKSrcRoot + "/DCCMTool" + "/DCCMTool.csproj";
 
+    AbsolutePath MesaD3D12Root => RootDirectory + "/3rd/Mesa-d3d12";
     AbsolutePath GoldbergRoot => RootDirectory + "/3rd/Goldberg" + $"/{CurrentOSPlatform}-{CurrentArchPlatform}";
 
     AbsolutePath TinyCCRoot => NativeSrcRoot + "/3rd/tinycc";
@@ -210,6 +211,18 @@ class Build : NukeBuild
                         (NativeBinRoot + "/goldberg").CreateDirectory(), ExistsPolicy.FileOverwrite
                     );
                     });
+        }
+
+        if(CurrentOSPlatform == "win")
+        {
+            Log.Information("Copying mesa d3d12");
+            MesaD3D12Root.GlobFiles("*").ForEach(
+                x => {
+                    Log.Information("Copying {file}", x);
+                    x.CopyToDirectory(
+                        (NativeBinRoot + "/mesa-d3d12").CreateDirectory(), ExistsPolicy.FileOverwrite
+                    );
+                });
         }
 
         Log.Information("Scanning private members");

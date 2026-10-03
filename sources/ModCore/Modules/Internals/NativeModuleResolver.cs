@@ -108,6 +108,13 @@ namespace ModCore.Modules.Internals
         [SupportedOSPlatform("windows")]
         private void TryLoadSDLWindows()
         {
+            if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_USE_MESA_D3D12"), out var useD3D12) && useD3D12)
+            {
+                Logger.Information("Use mesa d3d12");
+                NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("mesa-d3d12/opengl32.dll"));
+            }
+
+
             NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("SDL3.dll"));
         }
 

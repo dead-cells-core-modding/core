@@ -207,7 +207,6 @@ namespace ModCore.Modules
             Hook__Sys.getPath += Hook__Sys_getPath;
 
             Hook__Sdl.onGlContextError += Hook__Sdl_onGlContextError;
-            dc.sdl.Hook__Window.__constructor__ += Hook__Window___constructor__;
 
             try
             {
@@ -216,13 +215,6 @@ namespace ModCore.Modules
             catch (Exception)
             {
             }
-        }
-
-        private void Hook__Window___constructor__( dc.sdl.Hook__Window.orig___constructor__ orig, dc.sdl.Window arg1, 
-            dc.String title, int width, int height, Ref<int> x, Ref<int> y, Ref<int> sdlFlags )
-        {
-            Sdl.Class.onGlContextError();
-            orig(arg1, title, width, height, x, y, sdlFlags);
         }
 
         private void Hook__Sdl_onGlContextError( Hook__Sdl.orig_onGlContextError orig )
