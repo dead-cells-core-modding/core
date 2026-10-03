@@ -141,9 +141,11 @@ namespace SteamLauncher.Workshop
                     continue;
                 }
 
-                if (initResult == ESteamAPIInitResult.k_ESteamAPIInitResult_FailedGeneric)
+                if (initResult == ESteamAPIInitResult.k_ESteamAPIInitResult_FailedGeneric ||
+                    initResult == ESteamAPIInitResult.k_ESteamAPIInitResult_VersionMismatch)
                 {
-                    if (err.StartsWith("No ", StringComparison.OrdinalIgnoreCase) && firstAttempt)
+                    if ((err.StartsWith("No ", StringComparison.OrdinalIgnoreCase) && firstAttempt) ||
+                         initResult == ESteamAPIInitResult.k_ESteamAPIInitResult_VersionMismatch )
                     {
                         //Wrong Steam installation
                         //https://github.com/rlabrecque/Steamworks.NET/issues/775
