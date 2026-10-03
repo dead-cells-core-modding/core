@@ -1,6 +1,7 @@
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
+using System.Diagnostics;
 using System.Dynamic;
 
 namespace Hashlink.Proxy.Objects
@@ -90,12 +91,30 @@ namespace Hashlink.Proxy.Objects
         }
         public override bool TryGetIndex( GetIndexBinder binder, object[] indexes, out object? result )
         {
-            result = GetFieldValue(indexes[0].ToString()!);
+            var idStr = indexes[0].ToString()!;
+            if (int.TryParse(idStr, out var id))
+            {
+                var getDyn = (HashlinkClosure?) GetFieldValue("getDyn");
+                Debug.Assert(getDyn != null);
+
+                result = getDyn.CreateDelegate<Func<int, object>>()(id);
+                return true;
+            }
+            result = GetFieldValue(idStr);
             return true;
         }
         public override bool TrySetIndex( SetIndexBinder binder, object[] indexes, object? value )
         {
-            SetFieldValue(indexes[0].ToString()!, value);
+            var idStr = indexes[0].ToString()!;
+            if (int.TryParse(idStr, out var id))
+            {
+                var setDyn = (HashlinkClosure?)GetFieldValue("setDyn");
+                Debug.Assert(setDyn != null);
+
+                setDyn.CreateDelegate<Func<int, object?, object>>()(id, value);
+                return true;
+            }
+            SetFieldValue(idStr, value);
             return true;
         }
     }
