@@ -1,6 +1,7 @@
 using DCCMShell.Reporting.Platform;
 using Serilog;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 
 namespace SteamLauncher.ErrorReporting
@@ -12,6 +13,15 @@ namespace SteamLauncher.ErrorReporting
     {
         public static readonly string ERROR_REPORT_PATH =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "last_error.txt");
+
+        public static readonly string ERROR_REPORT_HEADER_ZH = $"""
+
+如果你看不懂，请将日志文件({ERROR_REPORT_PATH})交给 DeepSeek / 豆包 / 千问 / 元宝等 AI 工具或上传给 开发者/帮助者。
+
+如果你看不懂上面这句话，请在此处右键鼠标，点击全选，再次右键鼠标，点击复制，然后打开 DeepSeek / 豆包 / 千问 / 元宝等 AI 工具，单击输入框后鼠标右键，点击粘贴。
+
+注意：请不要截图，请发送文件！
+""";
 
         public static readonly string ERROR_REPORT_HEADER = $"""
 
@@ -120,6 +130,16 @@ You are an expert support assistant for Dead Cells Core Modding (DCCM) analyzing
             }
 
             var err = new StringBuilder();
+
+            if (CultureInfo.DefaultThreadCurrentUICulture?.TwoLetterISOLanguageName == "zh" ||
+               CultureInfo.DefaultThreadCurrentCulture?.TwoLetterISOLanguageName == "zh" ||
+               CultureInfo.CurrentCulture?.TwoLetterISOLanguageName == "zh" ||
+               CultureInfo.CurrentUICulture?.TwoLetterISOLanguageName == "zh" ||
+               CultureInfo.InstalledUICulture?.TwoLetterISOLanguageName == "zh")
+            {
+                err.AppendLine(ERROR_REPORT_HEADER_ZH);
+                err.AppendLine("\n\n\n\n######");
+            }
 
             err.AppendLine(ERROR_REPORT_HEADER);
 

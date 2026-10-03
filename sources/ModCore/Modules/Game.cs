@@ -8,6 +8,7 @@ using dc.hxd.res;
 using dc.hxsl;
 using dc.libs;
 using dc.pr;
+using dc.sdl;
 using dc.tool;
 using dc.ui;
 using Hashlink;
@@ -205,6 +206,9 @@ namespace ModCore.Modules
 
             Hook__Sys.getPath += Hook__Sys_getPath;
 
+            Hook__Sdl.onGlContextError += Hook__Sdl_onGlContextError;
+            dc.sdl.Hook__Window.__constructor__ += Hook__Window___constructor__;
+
             try
             {
                 HashlinkHooks.Instance.CreateHook("$Data", "loadJson", Hook__Data_loadJson, true);
@@ -212,6 +216,27 @@ namespace ModCore.Modules
             catch (Exception)
             {
             }
+        }
+
+        private void Hook__Window___constructor__( dc.sdl.Hook__Window.orig___constructor__ orig, dc.sdl.Window arg1, 
+            dc.String title, int width, int height, Ref<int> x, Ref<int> y, Ref<int> sdlFlags )
+        {
+            Sdl.Class.onGlContextError();
+            orig(arg1, title, width, height, x, y, sdlFlags);
+        }
+
+        private void Hook__Sdl_onGlContextError( Hook__Sdl.orig_onGlContextError orig )
+        {
+            Logger.Fatal("Failed to create opengl context!");
+
+            var devices = Sdl.Class.getDevices();
+
+            foreach (dc.String device in devices)
+            {
+                Logger.Warning("Graphics Device: {name}", device.ToString());
+            }
+
+            throw new InvalidOperationException("Failed to create opengl context");
         }
 
         private void Hook_HUD_postUpdate( Hook_HUD.orig_postUpdate orig, HUD self )
