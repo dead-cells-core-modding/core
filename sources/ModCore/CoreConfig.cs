@@ -18,5 +18,6 @@ namespace ModCore
                                                     !File.Exists(FolderInfo.GameRoot.GetFilePath("gog.hdll"));
         public bool AutoRefreshFxAtlas { get; set; } = true;
         public bool SkipLogoSplash { get; set; } = true;
+        public bool EnableMesaD3D12 { get; set; } = false;
     }
 }

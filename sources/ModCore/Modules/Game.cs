@@ -31,6 +31,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace ModCore.Modules
 {
@@ -226,6 +227,17 @@ namespace ModCore.Modules
             foreach (dc.String device in devices)
             {
                 Logger.Warning("Graphics Device: {name}", device.ToString());
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                if (!Core.Config.Value.EnableMesaD3D12)
+                {
+                    Core.Config.Value.EnableMesaD3D12 = true;
+                    Core.Config.Save();
+
+                    Logger.Warning("We are currently attempting to enable Mesa D3D12 (OpenGL over D3D12). Please restart the game to apply Mesa D3D12.");
+                }
             }
 
             throw new InvalidOperationException("Failed to create opengl context");
