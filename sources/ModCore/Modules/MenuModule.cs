@@ -128,6 +128,14 @@ namespace ModCore.Modules
 
                     }, Ref<int>.In(5), flow);
 
+                options.addToggleWidget(GetString("Enable Mesa D3D12"), 
+                    GetString("Use D3D12 as the rendering backend to avoid certain issues caused by OpenGL"), () =>
+                {
+                    Core.Config.Value.EnableMesaD3D12 = !Core.Config.Value.EnableMesaD3D12;
+                    Core.Config.Save();
+                    return Core.Config.Value.EnableMesaD3D12;
+                }, Ref<bool>.In(Core.Config.Value.EnableMesaD3D12), flow);
+
                 if (Environment.GetEnvironmentVariable("DCCM_STEAMWORKSHOP_ENABLED") == "true" &&
                     GameInfo.Platform == GameInfo.PlatformKind.Steam)
                 {

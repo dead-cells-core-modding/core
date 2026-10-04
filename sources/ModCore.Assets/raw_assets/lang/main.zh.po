@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-09-26 20:31+0800\n"
-"PO-Revision-Date: 2026-09-26 20:32+0800\n"
+"POT-Creation-Date: 2026-10-04 10:53+0800\n"
+"PO-Revision-Date: 2026-10-04 10:54+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -13,15 +13,15 @@ msgstr ""
 "X-Poedit-Basepath: ../../../ModCore\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: Modules/Game.cs:341
+#: Modules/Game.cs:370
 msgid "Dead Cells Core Modding enabled, achievements and rankings disabled."
 msgstr "Dead Cells Core Modding 已启用，成就和排行榜功能已禁用。"
 
-#: Modules/Game.cs:342
+#: Modules/Game.cs:371
 msgid "This window will not reappear after closing."
 msgstr "关闭后，此窗口将不再显示。"
 
-#: Modules/Game.cs:361
+#: Modules/Game.cs:390
 msgid " New version of DCCM is now available for update"
 msgstr "有新版本的 DCCM 可供升级"
 
@@ -50,48 +50,57 @@ msgstr "关于 Core Modding"
 msgid "Generate Crash Log"
 msgstr "手动生成崩溃日志"
 
-#: Modules/MenuModule.cs:134
+#: Modules/MenuModule.cs:131
+msgid "Enable Mesa D3D12"
+msgstr "启用D3D12"
+
+#: Modules/MenuModule.cs:132
+msgid ""
+"Use D3D12 as the rendering backend to avoid certain issues caused by OpenGL"
+msgstr "使用D3D12作为渲染后端以避免OpenGL造成的一些问题"
+
+#: Modules/MenuModule.cs:142
 msgid "Get mods"
 msgstr "获取 Mods"
 
-#: Modules/MenuModule.cs:135
+#: Modules/MenuModule.cs:143
 msgid "Get mods from the Steam Workshop"
 msgstr "从Steam创意工坊获取 Mods"
 
-#: Modules/MenuModule.cs:142
+#: Modules/MenuModule.cs:150
 msgid "Disable Automatic Updates for DCCM"
 msgstr "禁用 DCCM 的自动更新"
 
-#: Modules/MenuModule.cs:143
+#: Modules/MenuModule.cs:151
 msgid ""
 "Disable automatic updates for DCCM, but Steam will still download the latest "
 "version of DCCM"
 msgstr "禁用 DCCM 的自动更新，但是 Steam 仍然会自动下载最新版的 DCCM"
 
-#: Modules/MenuModule.cs:151
+#: Modules/MenuModule.cs:159
 msgid "Update DCCM now"
 msgstr "现在更新 DCCM"
 
-#: Modules/MenuModule.cs:152
+#: Modules/MenuModule.cs:160
 msgid "Update DCCM to the latest version without enabling automatic updates"
 msgstr "在不启用自动更新的情况下通过 Steam 创意工坊更新 DCCM"
 
-#: Modules/MenuModule.cs:219
+#: Modules/MenuModule.cs:227
 msgid "Loaded Mods"
 msgstr "已加载的 Mods"
 
-#: Modules/MenuModule.cs:274
+#: Modules/MenuModule.cs:282
 msgid "Join Discord"
 msgstr "加入 Discord"
 
-#: Modules/MenuModule.cs:279
+#: Modules/MenuModule.cs:287
 msgid "Buy Me a Coffee"
 msgstr "支持我们"
 
-#: Modules/MenuModule.cs:279
+#: Modules/MenuModule.cs:287
 msgid "Your support helps us keep maintaining it.Thank you!"
 msgstr "您的支持帮助我们持续维护它。谢谢！"
 
-#: Modules/MenuModule.cs:456
+#: Modules/MenuModule.cs:464
 msgid "Core Modding"
 msgstr "Core Modding"
