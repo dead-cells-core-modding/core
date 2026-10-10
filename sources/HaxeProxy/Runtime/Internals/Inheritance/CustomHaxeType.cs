@@ -300,8 +300,13 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
                 {
                     continue;
                 }
-                var proto = otype.FindProto(v) ??
-                    throw new MissingMethodException(otype.Name, v);
+                var proto = otype.FindProto(v);
+
+                if (proto is null)
+                {
+                    continue;
+                }
+
                 var po = new ProtoOverride(proto, nativeType, curType.GetMethods()
                     .FirstOrDefault(x => x.Name == v && x.GetCustomAttribute<HashlinkAltAttribute>() == null) ??
                     throw new MissingMethodException(curType.FullName, v));
