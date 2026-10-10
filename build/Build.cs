@@ -380,7 +380,7 @@ class Build : NukeBuild
         ReleaseInfoEnglishPath.DeleteFile();
         ReleaseInfoChinesePath.DeleteFile();
 
-        ProcessTasks.StartProcess("opencode", " run --dangerously-skip-permissions --format json --command release-info --log-level ERROR", 
+        ProcessTasks.StartProcess("opencode", " run --dangerously-skip-permissions -m deepseek/deepseek-flash --format json --command release-info --log-level ERROR", 
             RootDirectory)
             .AssertZeroExitCode();
 
