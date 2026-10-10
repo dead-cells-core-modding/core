@@ -20,7 +20,7 @@ namespace SteamLauncher.ErrorReporting
 
 如果你看不懂上面这句话，请在此处右键鼠标，点击全选，再次右键鼠标，点击复制，然后打开 DeepSeek / 豆包 / 千问 / 元宝等 AI 工具，单击输入框后鼠标右键，点击粘贴。
 
-注意：请不要截图，请发送文件！
+注意：如果要寻求帮助，请把日志文件发给对方，而不是发送这个窗口的照片或者截图。
 """;
 
         public static readonly string ERROR_REPORT_HEADER = $"""
