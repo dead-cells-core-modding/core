@@ -109,6 +109,7 @@ namespace Hashlink.Marshaling
 
         public virtual bool TryWriteData( void* target, object? value, HashlinkType? type )
         {
+            HashlinkMarshal.EnsureThreadRegistered();
 
             if (!ignoreCustomMarshaler && value is IHashlinkCustomMarshaler customMarshaler)
             {

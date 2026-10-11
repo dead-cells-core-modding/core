@@ -16,14 +16,14 @@ namespace Hashlink.Proxy.Clousre
         private object? cachedThis;
 
         public HashlinkClosure( HL_type* funcType, void* funcPtr, void* self ) :
-            this(HashlinkObjPtr.Get(hl_alloc_closure_ptr(funcType, funcPtr, self)))
+            this(HashlinkObjPtr.Get(hl_alloc_closure_ptr(EnsureThreadRegistered(funcType), funcPtr, self)))
         {
 
         }
         public HashlinkClosure( HashlinkFuncType funcType, nint funcPtr, nint self ) :
             this(HashlinkObjPtr.Get(self != 0 ?
-                hl_alloc_closure_ptr(funcType.BaseFunc.NativeType, (void*)funcPtr, (void*)self) :
-                hl_alloc_closure_void(funcType.NativeType, (void*)funcPtr)))
+                hl_alloc_closure_ptr(EnsureThreadRegistered(funcType.BaseFunc.NativeType), (void*)funcPtr, (void*)self) :
+                hl_alloc_closure_void(EnsureThreadRegistered(funcType.NativeType), (void*)funcPtr)))
         {
 
         }

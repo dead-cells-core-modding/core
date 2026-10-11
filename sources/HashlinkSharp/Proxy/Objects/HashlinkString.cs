@@ -39,7 +39,7 @@ namespace Hashlink.Proxy.Objects
             set {
                 ArgumentNullException.ThrowIfNull(value, nameof(value));
                 var str = (HL_vstring*)HashlinkPointer;
-                str->bytes = (char*)hl_gc_alloc_gen(InternalTypes.hlt_bytes, (value.Length * 2) + 2, HL_Alloc_Flags.MEM_KIND_NOPTR |
+                str->bytes = (char*)hl_gc_alloc_gen(EnsureThreadRegistered(InternalTypes.hlt_bytes), (value.Length * 2) + 2, HL_Alloc_Flags.MEM_KIND_NOPTR |
                     HL_Alloc_Flags.MEM_ZERO);
                 str->length = value.Length;
                 fixed (char* p = value)

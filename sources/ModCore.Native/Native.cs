@@ -407,14 +407,7 @@ namespace ModCore.Native
             Log.Fatal("Hashlink fatal error at {File}:{Line}: {Message}",
                 Marshal.PtrToStringAnsi((nint)file), line, Marshal.PtrToStringAnsi((nint)msg));
 
-            if (!ContextConfig.Config.suppressFatalWindows)
-            {
-                ((delegate* unmanaged< byte*, byte*, int, void >)orig_hl_fatal_error)(msg, file, line);
-            }
-            else
-            {
-                Environment.FailFast(null);
-            }
+            Environment.FailFast(null);
         }
 
         public static long totalAllocMemory = 0;

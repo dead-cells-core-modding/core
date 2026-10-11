@@ -12,6 +12,8 @@ namespace Hashlink.Marshaling
         [UnmanagedCallersOnly()]
         private static char* ExceptionToString( HL_vdynamic* vdy )
         {
+            HashlinkMarshal.EnsureThreadRegistered();
+
             var ex = HashlinkMarshal.ConvertHashlinkObject<HashlinkNETExceptionObj>(vdy);
             var str = ex!.ToString()!;
 
