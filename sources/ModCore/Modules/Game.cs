@@ -325,6 +325,7 @@ namespace ModCore.Modules
             {
                 try
                 {
+                    SynchronizationContext.SetSynchronizationContext(SynchronizationContext);
                     req.Item1(req.Item2);
                 }
                 catch (Exception ex)
@@ -334,6 +335,7 @@ namespace ModCore.Modules
                     throw;
                 }
             }
+            SynchronizationContext.SetSynchronizationContext(SynchronizationContext);
         }
 
         private void Hook_Boot_mainLoop( Hook_Boot.orig_mainLoop orig, Boot self )
