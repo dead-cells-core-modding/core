@@ -415,3 +415,4 @@ vcpkg_installed/
 /workshop-publish/FileList.txt
 /test/Benchmark/BENCHMARK*.md
 /test/Benchmark/results
+/test/Benchmark/*.md

@@ -299,21 +299,8 @@ namespace Hashlink.Marshaling
         {
             return GetHashlinkType(type) ?? throw new InvalidOperationException();
         }
-        public HashlinkType? GetHashlinkType( Type type )
-        {
-            type2hltypeCache ??= [];
-            if (!type2hltypeCache.TryGetValue(type, out var hltype))
-            {
-                hltype = GetHashlinkTypeNoCache(type);
-                if (hltype == null)
-                {
-                    return null;
-                }
-                type2hltypeCache.Add(type, hltype);
-            }
-            return hltype;
-        }
-        public HashlinkType? GetHashlinkTypeNoCache( Type type )
+
+        private HashlinkType? GetHashlinkTypePrim( Type type )
         {
             var kt = HashlinkMarshal.Module.KnownTypes;
             if (type == typeof(int) || type == typeof(uint))
@@ -351,6 +338,40 @@ namespace Hashlink.Marshaling
             else if (type == typeof(nint))
             {
                 return kt.Bytes;
+            }
+            return null;
+        }
+
+        public HashlinkType? GetHashlinkType( Type type )
+        {
+            var hltype = GetHashlinkTypePrim( type );
+
+            if (hltype != null)
+            {
+                return hltype;
+            }
+
+            type2hltypeCache ??= [];
+            if (!type2hltypeCache.TryGetValue(type, out hltype))
+            {
+                hltype = GetHashlinkTypeNoCache(type);
+                if (hltype == null)
+                {
+                    return null;
+                }
+                type2hltypeCache.Add(type, hltype);
+            }
+            return hltype;
+        }
+        public HashlinkType? GetHashlinkTypeNoCache( Type type )
+        {
+            var kt = HashlinkMarshal.Module.KnownTypes;
+
+            var hltype = GetHashlinkTypePrim(type);
+
+            if (hltype != null)
+            {
+                return hltype;
             }
 
             var result = EventSystem.BroadcastEvent<IOnResolveHashlinkType, Type, HashlinkType>(type);

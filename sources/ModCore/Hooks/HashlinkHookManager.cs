@@ -25,6 +25,7 @@ namespace ModCore.Hooks
 
         private static readonly ConcurrentDictionary<MethodInfo, DynamicMethod> adapts = [];
         private readonly List<Delegate> hooks = [];
+        private HashlinkClosure? cachedHookChain;
 
         private readonly static MethodInfo MI_HookEntry = typeof(HashlinkHookManager).GetMethod(
             nameof(HookEntry), BindingFlags.NonPublic | BindingFlags.Instance)!;
@@ -118,31 +119,39 @@ namespace ModCore.Hooks
                 hooks.Add(hook);
             }
             callback.RedirectTarget = 0;
+
+            cachedHookChain = null;
         }
         public void RemoveHook( Delegate hook )
         {
             ArgumentNullException.ThrowIfNull(hook);
             hooks.Remove(hook);
+
+            cachedHookChain = null;
         }
         [DebuggerDisableUserUnhandledExceptions]
         private object? HookEntry( object?[] args )
         {
             try
             {
-                HashlinkClosure prev = origClosure;
-                for (int i = 0; i < hooks.Count; i++)
+                if (cachedHookChain == null)
                 {
-                    object prevDel = prev;
-                    var h = hooks[i];
-                    var fpt = h.GetType().GetDelegateInvoke().GetParameters()[0].ParameterType;
-                    if (fpt != typeof(HashlinkClosure))
+                    HashlinkClosure prev = origClosure;
+                    for (int i = 0; i < hooks.Count; i++)
                     {
-                        prevDel = prev.CreateDelegate(fpt);
+                        object prevDel = prev;
+                        var h = hooks[i];
+                        var fpt = h.GetType().GetDelegateInvoke().GetParameters()[0].ParameterType;
+                        if (fpt != typeof(HashlinkClosure))
+                        {
+                            prevDel = prev.CreateDelegate(fpt);
+                        }
+                        prev = new HookOrigClosure(funcType,
+                            hooks[i].Bind(prevDel));
                     }
-                    prev = new HookOrigClosure(funcType,
-                        hooks[i].Bind(prevDel));
+                    cachedHookChain = prev;
                 }
-                return prev.DynamicInvoke(args);
+                return cachedHookChain.DynamicInvoke(args);
             }
             catch (TargetInvocationException ex)
             {

@@ -8,16 +8,35 @@ namespace DCCMBenchmark
 {
     internal static class BenchmarkConfig
     {
-        public static IConfig Create(string artifactsPath, bool quick = false)
+        public static IConfig Create(string artifactsPath, bool quick = false, bool fast = false)
         {
-            var job = quick
-                ? Job.Dry.WithToolchain(InProcessEmitToolchain.Instance)
-                : Job.Default.WithToolchain(InProcessEmitToolchain.Instance);
+            Job job;
+            string id;
+
+            if (quick)
+            {
+                job = Job.Dry.WithToolchain(InProcessEmitToolchain.Instance);
+                id = "InProcessQuick";
+            }
+            else if (fast)
+            {
+                job = Job.Default
+                    .WithToolchain(InProcessEmitToolchain.Instance)
+                    .WithWarmupCount(2)
+                    .WithIterationCount(5)
+                    .WithLaunchCount(1);
+                id = "InProcessFast";
+            }
+            else
+            {
+                job = Job.Default.WithToolchain(InProcessEmitToolchain.Instance);
+                id = "InProcess";
+            }
 
             return ManualConfig.CreateMinimumViable()
                 // The Hashlink VM can only be initialized once per process, so
                 // every benchmark has to share the process that booted the game.
-                .AddJob(job.WithId(quick ? "InProcessQuick" : "InProcess"))
+                .AddJob(job.WithId(id))
                 .AddDiagnoser(MemoryDiagnoser.Default)
                 .AddExporter(MarkdownExporter.GitHub)
                 .WithArtifactsPath(artifactsPath);
