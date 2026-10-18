@@ -18,10 +18,7 @@ namespace Hashlink.Marshaling
     {
         public static IHashlinkMarshaler Instance { get; } = new DefaultHashlinkMarshaler(false);
         public static IHashlinkMarshaler IgnoreCustomMarshalerInstance { get; } = new DefaultHashlinkMarshaler(true);
-
         private readonly bool ignoreCustomMarshaler;
-
-
         private readonly ConcurrentDictionary<Type, HashlinkFuncType> customDelegateFuncType = [];
         private struct CustomFuncType
         {
@@ -29,6 +26,9 @@ namespace Hashlink.Marshaling
             public HL_type_func func;
         }
         private readonly PinnedArrayList<CustomFuncType> customDelegateFuncList = new();
+
+        [ThreadStatic]
+        private static Dictionary<Type, HashlinkType>? type2hltypeCache;
 
         private HashlinkFuncType CreateCustomDelegateFuncType( Type delType )
         {
@@ -130,20 +130,20 @@ namespace Hashlink.Marshaling
                 return true;
             }
 
-            HashlinkType? valType = null;
+            if (type is null ||
+                type.TypeKind == TypeKind.HDYN)
+            {
+                HashlinkType? valType = null;
 
-            if (value is not null)
-            {
-                valType = HashlinkMarshal.GetHashlinkType(value.GetType(), this);
-            }
+                if (value is not null)
+                {
+                    valType = HashlinkMarshal.GetHashlinkType(value.GetType(), this);
+                }
 
-            if (type is null)
-            {
-                type = valType;
-            }
-            else if (valType != null && type.TypeKind == TypeKind.HDYN && !valType.IsValueType)
-            {
-                type = valType;
+                if (type?.TypeKind != TypeKind.HDYN || !(valType?.IsValueType ?? true))
+                {
+                    type = valType;
+                }
             }
 
             var typeKind = type?.TypeKind;
@@ -167,19 +167,19 @@ namespace Hashlink.Marshaling
 
             if (typeKind is TypeKind.HUI8)
             {
-                *(byte*)target = Utils.ForceUnbox<byte>(value);
+                *(byte*)target = (byte)value;
             }
             else if (typeKind is TypeKind.HUI16)
             {
-                *(ushort*)target = Utils.ForceUnbox<ushort>(value);
+                *(ushort*)target = (ushort)value;
             }
             else if (typeKind is TypeKind.HI32)
             {
-                *(int*)target = Utils.ForceUnbox<int>(value);
+                *(int*)target = (int)value;
             }
             else if (typeKind is TypeKind.HI64)
             {
-                *(long*)target = Utils.ForceUnbox<long>(value);
+                *(long*)target = (long)value;
             }
             else if (typeKind is TypeKind.HF32)
             {
@@ -205,7 +205,7 @@ namespace Hashlink.Marshaling
             }
             else if (typeKind is TypeKind.HBOOL)
             {
-                *(byte*)target = (byte)(Utils.ForceUnbox<bool>(value) ? 1 : 0);
+                *(byte*)target = (byte)((bool)value ? 1 : 0);
             }
             else if (typeKind is TypeKind.HREF)
             {
@@ -213,32 +213,32 @@ namespace Hashlink.Marshaling
             }
             else if (typeKind is TypeKind.HDYN)
             {
-                var vt = HashlinkMarshal.GetHashlinkType(value.GetType()) ??
-                    throw new InvalidOperationException();
-                var dptr = hl_alloc_dynamic(
-                    vt.NativeType
-                    );
+                if (
+                    (value is bool vb && HashlinkValueDynObjPoolInst.boolPool.TryGetValue(vb ? 1 : 0, out var ptr))
+                    || (value is int vi32 && HashlinkValueDynObjPoolInst.i32Pool.TryGetValue(vi32, out ptr))
+                    || (value is ushort vui16 && HashlinkValueDynObjPoolInst.ui16Pool.TryGetValue(vui16, out ptr))
+                    || (value is byte vui8 && HashlinkValueDynObjPoolInst.u8Pool.TryGetValue(vui8, out ptr))
+                    )
+                { // Fast Path
+                    Debug.Assert(ptr != 0);
+                    *(nint*)target = ptr;
+                }
+                else
+                { // Slow Path
+                    var vt = HashlinkMarshal.GetHashlinkType(value.GetType()) ??
+                        throw new InvalidOperationException();
+                    var dptr = hl_alloc_dynamic(
+                        vt.NativeType
+                        );
 
-                WriteDynamicValue(dptr, value, vt);
-                Debug.Assert(
-                   value.Equals(HashlinkMarshal.ReadData(&dptr, HashlinkMarshal.Module.KnownTypes.Dynamic, null))
-                   );
+                    WriteDynamicValue(dptr, value, vt);
 
-                *(nint*)target = (nint)dptr;
+                    *(nint*)target = (nint)dptr;
+                }
             }
             else if (typeKind is TypeKind.HNULL)
             {
-                var vt = ((HashlinkNullType)type!).ValueType;
-                var dptr = hl_alloc_dynamic(
-                    vt.NativeType
-                    );
-               
-                WriteDynamicValue(dptr, value, vt);
-                Debug.Assert(
-                    value.Equals(HashlinkMarshal.ReadData(&dptr, HashlinkMarshal.Module.KnownTypes.Dynamic, null))
-                    );
-
-                *(nint*)target = (nint)dptr;
+                *(nint*)target = HashlinkMarshal.GetDyn(value);
             }
             else if (typeKind is TypeKind.HABSTRACT or TypeKind.HTYPE)
             {
@@ -246,7 +246,7 @@ namespace Hashlink.Marshaling
             }
             else if (typeKind is TypeKind.HBYTES)
             {
-                *(nint*)target = Utils.ForceUnbox<nint>(value);
+                *(nint*)target = (nint)value;
             }
             else
             {
@@ -299,15 +299,22 @@ namespace Hashlink.Marshaling
         {
             return GetHashlinkType(type) ?? throw new InvalidOperationException();
         }
-
         public HashlinkType? GetHashlinkType( Type type )
         {
-            var result = EventSystem.BroadcastEvent<IOnResolveHashlinkType, Type, HashlinkType>(type);
-            if (result.HasValue)
+            type2hltypeCache ??= [];
+            if (!type2hltypeCache.TryGetValue(type, out var hltype))
             {
-                return result.Value;
+                hltype = GetHashlinkTypeNoCache(type);
+                if (hltype == null)
+                {
+                    return null;
+                }
+                type2hltypeCache.Add(type, hltype);
             }
-
+            return hltype;
+        }
+        public HashlinkType? GetHashlinkTypeNoCache( Type type )
+        {
             var kt = HashlinkMarshal.Module.KnownTypes;
             if (type == typeof(int) || type == typeof(uint))
             {
@@ -344,6 +351,12 @@ namespace Hashlink.Marshaling
             else if (type == typeof(nint))
             {
                 return kt.Bytes;
+            }
+
+            var result = EventSystem.BroadcastEvent<IOnResolveHashlinkType, Type, HashlinkType>(type);
+            if (result.HasValue)
+            {
+                return result.Value;
             }
             else if (type.IsAssignableTo(typeof(Delegate)))
             {

@@ -5,6 +5,7 @@ using ModCore.Storage;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("TestRunner")]
+[assembly: InternalsVisibleTo("DCCMBenchmark")]
 [assembly: InternalsVisibleTo("ModCore.Game")]
 [assembly: InternalsVisibleTo("DCCMShell")]
 

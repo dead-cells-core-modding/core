@@ -3,6 +3,7 @@ using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.DynamicAccess;
 using System.Diagnostics;
 using System.Dynamic;
+using System.Xml.Linq;
 
 namespace Hashlink.Proxy.Objects
 {
@@ -10,6 +11,23 @@ namespace Hashlink.Proxy.Objects
         IHashlinkFieldObject
         where T : unmanaged
     {
+        [ThreadStatic]
+        private static Dictionary<string, int>? strHashCache;
+
+        private static int GetNameHash( string str )
+        {
+            strHashCache ??= [];
+            if (!strHashCache.TryGetValue(str, out var hash))
+            {
+                fixed (char* pname = str)
+                {
+                    hash = hl_hash_gen(pname, false);
+                }
+                strHashCache.Add(str, hash);
+            }
+            return hash;
+        }
+
         public virtual bool HasField( int hashedName )
         {
             return hl_obj_has_field((HL_vdynamic*)HashlinkPointer, hashedName);
@@ -36,10 +54,7 @@ namespace Hashlink.Proxy.Objects
         }
         public virtual object? GetFieldValue( string name )
         {
-            fixed (char* pname = name)
-            {
-                return GetFieldValue(hl_hash_gen(pname, false));
-            }
+            return GetFieldValue(GetNameHash(name));
         }
 
         public virtual void SetFieldValue( int hashedName, object? value )
@@ -61,10 +76,7 @@ namespace Hashlink.Proxy.Objects
         }
         public virtual void SetFieldValue( string name, object? value )
         {
-            fixed (char* pname = name)
-            {
-                SetFieldValue(hl_hash_gen(pname, false), value);
-            }
+            SetFieldValue(GetNameHash(name), value);
         }
 
         public override bool TryGetMember( GetMemberBinder binder, out object? result )

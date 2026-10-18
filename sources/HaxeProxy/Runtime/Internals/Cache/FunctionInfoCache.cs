@@ -7,6 +7,5 @@ namespace HaxeProxy.Runtime.Internals.Cache
     {
         public HashlinkFunction? function;
         public DelegateInfo? directEntry;
-        public DelegateInfo? hookRealEntry;
     }
 }

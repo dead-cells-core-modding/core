@@ -10,6 +10,8 @@ namespace ModCore.Native.Fody
 {
     public class ModuleWeaver : BaseModuleWeaver
     {
+        private static TypeReference ModOpt( ModuleDefinition module, string name ) =>
+            new("System.Runtime.CompilerServices", name, module, module.TypeSystem.CoreLibrary);
         public override void Execute()
         {
             var nt = ModuleDefinition.GetType("ModCore.Native.Native");
@@ -44,15 +46,17 @@ namespace ModCore.Native.Fody
                     CallingConvention = MethodCallingConvention.Unmanaged,
                 };
 
-                //var suppressGCTransitionAttr = m.CustomAttributes.FirstOrDefault(x => x.AttributeType.FullName ==
-                //"System.Runtime.InteropServices.SuppressGCTransitionAttribute");
-                //
-                //if (suppressGCTransitionAttr != null)
-                //{
-                //    callInfo.ReturnType = callInfo.ReturnType.MakeOptionalModifierType(suppressGCTransitionAttr.AttributeType);
-                //}
+                var suppressGCTransitionAttr = m.CustomAttributes.FirstOrDefault(x => x.AttributeType.FullName ==
+                "System.Runtime.InteropServices.SuppressGCTransitionAttribute");
                 
-                
+                if (suppressGCTransitionAttr != null)
+                {
+                    callInfo.ReturnType = callInfo.ReturnType.MakeOptionalModifierType(
+                        ModOpt(ModuleDefinition, "CallConvSuppressGCTransition")
+                        );
+                }
+
+
 
                 var fpt = new FunctionPointerType()
                 {

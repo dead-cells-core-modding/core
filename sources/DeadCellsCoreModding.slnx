@@ -58,6 +58,7 @@
     <File Path=".editorconfig" />
   </Folder>
   <Folder Name="/test/">
+    <Project Path="../test/Benchmark/DCCMBenchmark.csproj" />
     <Project Path="../test/TestMod/TestMod.csproj" />
     <Project Path="../test/TestRunner/TestRunner.csproj" />
   </Folder>

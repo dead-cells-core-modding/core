@@ -413,3 +413,5 @@ vcpkg_installed/
 /_manifest
 /.omo/run-continuation
 /workshop-publish/FileList.txt
+/test/Benchmark/BENCHMARK*.md
+/test/Benchmark/results

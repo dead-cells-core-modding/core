@@ -11,6 +11,10 @@ namespace ModCore.Utilities
     /// used without instantiating the class.</remarks>
     public static class StringUtils
     {
+        [ThreadStatic]
+        private static Dictionary<string, dc.String>? stringsCache;
+
+
         /// <summary>
         /// Convert a string to a Haxe string
         /// </summary>
@@ -18,6 +22,18 @@ namespace ModCore.Utilities
         /// <returns></returns>
         public static dc.String AsHaxeString( this string str )
         {
+            if (string.IsInterned(str) != null)
+            {
+                stringsCache ??= [];
+
+                if (!stringsCache.TryGetValue(str, out var result))
+                {
+                    result = new HashlinkString(str).AsHaxe<dc.String>();
+                    stringsCache.Add(str, result);
+                }
+                return result;
+            }
+
             var s = new HashlinkString(str).AsHaxe<dc.String>();
             return s;
         }

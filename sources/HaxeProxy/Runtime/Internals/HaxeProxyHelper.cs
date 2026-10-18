@@ -27,9 +27,6 @@ namespace HaxeProxy.Runtime.Internals
             public T Value => value;
         }
 
-        [ThreadStatic]
-        private static bool nextCallOrig;
-
         private static void EnsureFieldInfo( HaxeProxyBase self, string name, ref ObjFieldInfoCache cache )
         {
             if (!cache.hasCache)
@@ -235,25 +232,12 @@ namespace HaxeProxy.Runtime.Internals
             {
                 cache.function = (HashlinkFunction)HashlinkMarshal.Module.GetFunctionByFIndex(findex);
             }
-            if (nextCallOrig)
+            if (cache.directEntry == null)
             {
-                nextCallOrig = false;
-                if (cache.hookRealEntry == null)
-                {
-                    cache.hookRealEntry = HashlinkWrapperFactory.GetWrapperInfo(cache.function.FuncType,
-                        cache.function.EntryPointer + HashlinkFunction.FS_OFFSET_REAL_ENTRY);
-                }
-                return cache.hookRealEntry;
+                cache.directEntry = HashlinkWrapperFactory.GetWrapperInfo(cache.function.FuncType,
+                    cache.function.EntryPointer);
             }
-            else
-            {
-                if (cache.directEntry == null)
-                {
-                    cache.directEntry = HashlinkWrapperFactory.GetWrapperInfo(cache.function.FuncType,
-                        cache.function.EntryPointer);
-                }
-                return cache.directEntry;
-            }
+            return cache.directEntry;
         }
 
         public static Delegate GetNativeCall<T>( int index, ref Delegate? cache ) where T : Delegate

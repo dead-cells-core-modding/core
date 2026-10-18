@@ -64,10 +64,6 @@ namespace Hashlink
             return false;
         }
 
-        public static ref T ForceUnbox<T>( object obj ) where T : struct
-        {
-            return ref Unsafe.Unbox<T>(obj);
-        }
         public static MethodInfo GetDelegateInvoke( this Type type )
         {
             return delegateInvokeCache.GetOrAdd(type, t => t.GetMethod("Invoke") ??
