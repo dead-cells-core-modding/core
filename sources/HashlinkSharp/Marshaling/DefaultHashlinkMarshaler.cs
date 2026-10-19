@@ -344,11 +344,17 @@ namespace Hashlink.Marshaling
 
         public HashlinkType? GetHashlinkType( Type type )
         {
-            var hltype = GetHashlinkTypePrim( type );
+            HashlinkType? hltype;
 
-            if (hltype != null)
+            if (type.IsValueType)
             {
-                return hltype;
+
+                hltype = GetHashlinkTypePrim(type);
+
+                if (hltype != null)
+                {
+                    return hltype;
+                }
             }
 
             type2hltypeCache ??= [];
@@ -367,11 +373,14 @@ namespace Hashlink.Marshaling
         {
             var kt = HashlinkMarshal.Module.KnownTypes;
 
-            var hltype = GetHashlinkTypePrim(type);
-
-            if (hltype != null)
+            if (type.IsValueType)
             {
-                return hltype;
+                var hltype = GetHashlinkTypePrim(type);
+
+                if (hltype != null)
+                {
+                    return hltype;
+                }
             }
 
             var result = EventSystem.BroadcastEvent<IOnResolveHashlinkType, Type, HashlinkType>(type);

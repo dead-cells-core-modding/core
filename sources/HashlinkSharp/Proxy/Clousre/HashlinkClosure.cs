@@ -106,7 +106,7 @@ namespace Hashlink.Proxy.Clousre
             if (callback != null)
             {
                 args ??= [];
-                return FastDynamicInvoke(callback.Target!, ref cachedCallbackInvoker, args);
+                return callback.Target!.DynamicInvoke(args);
             }
             CheckWrapper();
             args ??= [];
