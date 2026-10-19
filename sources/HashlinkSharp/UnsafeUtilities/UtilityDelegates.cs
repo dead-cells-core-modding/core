@@ -1,5 +1,6 @@
 using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
+using MonoMod.Utils;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;

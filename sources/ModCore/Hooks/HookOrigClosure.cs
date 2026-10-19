@@ -10,6 +10,7 @@ namespace ModCore.Hooks
 {
     internal unsafe class HookOrigClosure : HashlinkClosure
     {
+        [ThreadStatic]
         private static HL_vclosure value;
 
         private static HashlinkObjPtr GetLocalValuePtr( HashlinkFuncType funcType )

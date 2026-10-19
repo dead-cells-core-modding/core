@@ -1,4 +1,5 @@
 using ModCore.Events.Collections;
+using System.Diagnostics;
 
 namespace ModCore.Events
 {
@@ -20,6 +21,7 @@ namespace ModCore.Events
             if (obj is TEvent)
             {
                 receivers.Remove(obj);
+                cachedReceiver = null;
             }
         }
 
@@ -28,13 +30,23 @@ namespace ModCore.Events
             if (obj is TEvent)
             {
                 receivers.Add(obj);
+                cachedReceiver = null;
             }
         }
 
         public static IEnumerable<IEventReceiver> GetReceivers()
         {
-            return receivers;
+            if (cachedReceiver == null ||
+                cachedReceiver.Length != receivers.Count)
+            {
+                cachedReceiver = [.. receivers];
+            }
+
+            Debug.Assert(cachedReceiver.Length == receivers.Count);
+
+            return cachedReceiver;
         }
+        private static IEventReceiver[]? cachedReceiver;
         private static readonly EventReceiverList receivers = [];
     }
 }

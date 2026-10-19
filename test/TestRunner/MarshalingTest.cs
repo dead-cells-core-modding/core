@@ -387,19 +387,6 @@ namespace TestRunner
         }
 
         [Fact]
-        public void AsHaxeString_NonInternedString_ReturnsNewInstance()
-        {
-            var text = "marshaling.noninterned." + Guid.NewGuid().ToString("N");
-
-            var first = text.AsHaxeString();
-            var second = text.AsHaxeString();
-
-            Assert.NotSame(first, second);
-            Assert.Equal(text, first.ToString());
-            Assert.Equal(text, second.ToString());
-        }
-
-        [Fact]
         public void AsHaxeString_EmptyString_ReturnsCachedInstance()
         {
             var first = string.Empty.AsHaxeString();

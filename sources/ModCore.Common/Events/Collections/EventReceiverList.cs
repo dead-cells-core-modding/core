@@ -142,6 +142,10 @@ namespace ModCore.Events.Collections
             return newNode;
         }
 
+        private int count = 0;
+
+        public int Count => count;
+
         public IEnumerator<IEventReceiver> GetEnumerator()
         {
             var en = ForeachAllNode(root);
@@ -193,6 +197,7 @@ namespace ModCore.Events.Collections
                             Receiver = receiver,
                             Version = Version
                         };
+                        Interlocked.Increment(ref count);
                         return;
                     }
                 }
@@ -205,6 +210,7 @@ namespace ModCore.Events.Collections
                 Receiver = receiver,
                 Version = Version
             };
+            Interlocked.Increment(ref count);
         }
         public void Remove( IEventReceiver receiver )
         {
@@ -221,6 +227,7 @@ namespace ModCore.Events.Collections
                     if (rec != null && rec.Receiver == receiver)
                     {
                         rec = null;
+                        Interlocked.Decrement(ref count);
                     }
                 }
                 curBlock = curBlock.NextBlock;

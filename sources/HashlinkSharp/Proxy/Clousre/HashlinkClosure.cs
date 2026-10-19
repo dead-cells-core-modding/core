@@ -4,8 +4,12 @@ using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper;
 using Hashlink.Wrapper.Callbacks;
+using MonoMod.Cil;
+using MonoMod.Utils;
 using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Hashlink.Proxy.Clousre
 {
@@ -14,6 +18,15 @@ namespace Hashlink.Proxy.Clousre
         protected HlCallback? callback;
         private Delegate? cachedWrapper;
         private object? cachedThis;
+
+        private class FastInvokerCache
+        {
+            public required FastReflectionHelper.FastInvoker invoker;
+            public required int paramCount;
+        }
+
+        private FastInvokerCache? cachedCallbackInvoker;
+        private FastInvokerCache? cachedWrapperInvoker;
 
         public HashlinkClosure( HL_type* funcType, void* funcPtr, void* self ) :
             this(HashlinkObjPtr.Get(hl_alloc_closure_ptr(EnsureThreadRegistered(funcType), funcPtr, self)))
@@ -66,18 +79,38 @@ namespace Hashlink.Proxy.Clousre
                         FunctionPtr);
         }
 
+        private object? FastDynamicInvoke( Delegate del, ref FastInvokerCache? cache, params object?[] args )
+        {
+            var method = del.Method;
+
+            if (cache == null)
+            {
+                cache = new()
+                {
+                    invoker = FastReflectionHelper.GetFastInvoker(del.Method),
+                    paramCount = method.GetParameters().Length
+                };
+            }
+
+            if (method.CallingConvention.Has(CallingConventions.ExplicitThis) ||
+                args.Length == cache.paramCount - 1)
+            {
+                return cache.invoker(null, [del.Target, .. args]);
+            }
+
+            return cache.invoker(null, args);
+        }
+
         public object? DynamicInvoke( params object?[]? args )
         {
-
             if (callback != null)
             {
                 args ??= [];
-
-                return callback.Target!.DynamicInvoke(args);
+                return FastDynamicInvoke(callback.Target!, ref cachedCallbackInvoker, args);
             }
             CheckWrapper();
             args ??= [];
-            return cachedWrapper.DynamicInvoke(
+            return FastDynamicInvoke(cachedWrapper, ref cachedWrapperInvoker,
                 BindingThis != null ?
                 [
                     BindingThis,

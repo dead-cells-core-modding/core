@@ -42,9 +42,9 @@ namespace TestRunner
                 }));
                 Assert.Fail();
             }
-            catch (TargetInvocationException ex)
+            catch (Exception ex)
             {
-                Assert.Equal("Test Exception", ex.InnerException?.Message);
+                Assert.Equal("Test Exception", ex.Message);
             }
 
         }

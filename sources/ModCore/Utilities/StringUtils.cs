@@ -1,5 +1,6 @@
 using Hashlink.Proxy.Objects;
 using HaxeProxy.Runtime;
+using System.Runtime.CompilerServices;
 
 namespace ModCore.Utilities
 {
@@ -12,7 +13,14 @@ namespace ModCore.Utilities
     public static class StringUtils
     {
         [ThreadStatic]
-        private static Dictionary<string, dc.String>? stringsCache;
+        private static Entry[]? cache;
+
+        private struct Entry
+        {
+            public string? Key;
+            public dc.String? Value;
+        }
+
 
 
         /// <summary>
@@ -22,20 +30,24 @@ namespace ModCore.Utilities
         /// <returns></returns>
         public static dc.String AsHaxeString( this string str )
         {
-            if (string.IsInterned(str) != null)
+            if (str.Length > 1024)
             {
-                stringsCache ??= [];
-
-                if (!stringsCache.TryGetValue(str, out var result))
-                {
-                    result = new HashlinkString(str).AsHaxe<dc.String>();
-                    stringsCache.Add(str, result);
-                }
-                return result;
+                return new HashlinkString(str).AsHaxe<dc.String>();
             }
 
-            var s = new HashlinkString(str).AsHaxe<dc.String>();
-            return s;
+            cache ??= new Entry[1024];
+            var i = RuntimeHelpers.GetHashCode(str) & 1023;
+            ref var e = ref cache[i];
+
+            if (ReferenceEquals(e.Key, str))
+            {
+                return e.Value!;
+            }
+
+            var v = new HashlinkString(str).AsHaxe<dc.String>();
+            e.Key = str;
+            e.Value = v;
+            return v;
         }
 
         extension( dc.String )
