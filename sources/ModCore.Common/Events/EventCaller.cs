@@ -69,8 +69,7 @@ namespace ModCore.Events
             return type
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
                 | BindingFlags.DeclaredOnly)
-                .Where(x => x.GetParameters().Length < 2)
-                .First();
+                .First(x => x.GetParameters().Length < 2);
         }
 
         static EventCaller()

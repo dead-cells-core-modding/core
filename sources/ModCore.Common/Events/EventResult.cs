@@ -2,11 +2,9 @@ using System.Runtime.InteropServices;
 
 namespace ModCore.Events
 {
-    [StructLayout(LayoutKind.Sequential)]
-    public readonly unsafe struct EventResult<T>
+    public readonly struct EventResult<T>
     {
         private readonly bool hasValue = true;
-        private readonly int size;
         private readonly T value;
         public readonly bool HasValue => hasValue;
         public readonly T Value => value;
@@ -17,9 +15,6 @@ namespace ModCore.Events
 
         public EventResult( T value )
         {
-#pragma warning disable CS8500
-            size = sizeof(T);
-#pragma warning restore CS8500
             this.value = value;
         }
 

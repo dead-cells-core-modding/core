@@ -527,48 +527,6 @@ namespace TestRunner
             }
         }
 
-        [Fact]
-        public void OnBeforeAfterBroadcast_EventsFirePerReceiver()
-        {
-            var before = 0;
-            var after = 0;
-
-            void OnBefore(Type type, nint arg)
-            {
-                if (type == typeof(ITestVoidEvent))
-                {
-                    before++;
-                }
-            }
-
-            void OnAfter(Type type, nint arg, nint result)
-            {
-                if (type == typeof(ITestVoidEvent))
-                {
-                    after++;
-                }
-            }
-
-            EventSystem.OnBeforeBroadcastEvent += OnBefore;
-            EventSystem.OnAfterBroadcastEvent += OnAfter;
-
-            var first = new VoidReceiver();
-            var second = new VoidReceiver { Priority = 10 };
-            Add(first, second);
-            try
-            {
-                EventSystem.BroadcastEvent<ITestVoidEvent>();
-
-                Assert.Equal(1, before);
-                Assert.Equal(2, after);
-            }
-            finally
-            {
-                EventSystem.OnBeforeBroadcastEvent -= OnBefore;
-                EventSystem.OnAfterBroadcastEvent -= OnAfter;
-                Remove(first, second);
-            }
-        }
     }
 }
 

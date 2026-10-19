@@ -1,4 +1,5 @@
 using ModCore.Events.Collections;
+using MonoMod.Utils;
 using Serilog;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -22,8 +23,6 @@ namespace ModCore.Events
         /// </summary>
         public static event Action<IEventReceiver>? OnRemoveReceiver;
 
-        public static event Action<Type, nint>? OnBeforeBroadcastEvent;
-        public static event Action<Type, nint, nint>? OnAfterBroadcastEvent;
         private static ILogger Logger { get; } = Log.Logger.ForContext("SourceContext", "EventSystem");
         [Flags]
         public enum ExceptionHandingFlags
@@ -99,10 +98,10 @@ namespace ModCore.Events
             return BroadcastEvent<TEvent, TArg, TResult>(ref arg, flags);
         }
 
-        public static unsafe EventResult<TResult> BroadcastEvent<TEvent, TArg, TResult>( ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
+        public static EventResult<TResult> BroadcastEvent<TEvent, TArg, TResult>( ref TArg arg, ExceptionHandingFlags flags = ExceptionHandingFlags.Default )
                         where TArg : allows ref struct
         {
-            if (EventCaller<TEvent>.Kind.HasFlag(EventAttribute.EventKind.ShowInLog))
+            if (EventCaller<TEvent>.Kind.Has(EventAttribute.EventKind.ShowInLog))
             {
                 Logger.Debug("Broadcast Global Event: {Name}", typeof(TEvent).Name);
             }
@@ -112,11 +111,6 @@ namespace ModCore.Events
                 {
                     throw new InvalidOperationException("An event that should only be called once was called multiple times");
                 }
-            }
-
-            fixed (void* parg = &arg)
-            {
-                OnBeforeBroadcastEvent?.Invoke(typeof(TEvent), (nint)parg);
             }
 
             List<Exception>? exceptions = null;
@@ -129,10 +123,6 @@ namespace ModCore.Events
                     {
                         EventCaller<TEvent>.Invoke(ev, ref arg, out EventResult<TResult> result);
 
-                        fixed (void* parg = &arg)
-                        {
-                            OnAfterBroadcastEvent?.Invoke(typeof(TEvent), (nint)parg, (nint)Unsafe.AsPointer(ref result));
-                        }
                         if (result.HasValue)
                         {
                             return result;
