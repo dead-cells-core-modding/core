@@ -136,8 +136,10 @@ jobs:
         ./ctx/coremod/core/mdk/install.ps1
     - name: Run benchmark
       shell: pwsh
+      env:
+        DCCM_USE_HLC: ${{ matrix.useHLC }}
       run: |
-        dotnet run --project test/Benchmark/DCCMBenchmark.csproj -c Release -- --filter "*..." --fast
+        dotnet run --project test/Benchmark/DCCMBenchmark.csproj -c Release -- --filter "*" --fast
     - name:  Publish benchmark summary
       shell: pwsh
       if: always()
