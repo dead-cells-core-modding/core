@@ -132,32 +132,24 @@ namespace ModCore.Hooks
         [DebuggerDisableUserUnhandledExceptions]
         private object? HookEntry( object?[] args )
         {
-            try
+            if (cachedHookChain == null)
             {
-                if (cachedHookChain == null)
+                HashlinkClosure prev = origClosure;
+                for (int i = 0; i < hooks.Count; i++)
                 {
-                    HashlinkClosure prev = origClosure;
-                    for (int i = 0; i < hooks.Count; i++)
+                    object prevDel = prev;
+                    var h = hooks[i];
+                    var fpt = h.GetType().GetDelegateInvoke().GetParameters()[0].ParameterType;
+                    if (fpt != typeof(HashlinkClosure))
                     {
-                        object prevDel = prev;
-                        var h = hooks[i];
-                        var fpt = h.GetType().GetDelegateInvoke().GetParameters()[0].ParameterType;
-                        if (fpt != typeof(HashlinkClosure))
-                        {
-                            prevDel = prev.CreateDelegate(fpt);
-                        }
-                        prev = new HookOrigClosure(funcType,
-                            hooks[i].Bind(prevDel));
+                        prevDel = prev.CreateDelegate(fpt);
                     }
-                    cachedHookChain = prev;
+                    prev = new HookOrigClosure(funcType,
+                        hooks[i].Bind(prevDel));
                 }
-                return cachedHookChain.DynamicInvoke(args);
+                cachedHookChain = prev;
             }
-            catch (TargetInvocationException ex)
-            {
-                ExceptionDispatchInfo.Capture(ex.InnerException!).Throw();
-                throw;
-            }
+            return cachedHookChain.DynamicInvoke(args);
         }
     }
 }
