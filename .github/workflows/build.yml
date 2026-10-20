@@ -74,7 +74,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-26.04, windows-latest]
-        useHLC: [ true, false ]
         include:
           - os: windows-latest
             os_name: win
@@ -135,8 +134,6 @@ jobs:
         ./ctx/coremod/core/mdk/install.ps1
     - name: Run benchmark
       shell: pwsh
-      env:
-        DCCM_USE_HLC: ${{ matrix.useHLC }}
       run: |
         dotnet run --project test/Benchmark/DCCMBenchmark.csproj -c Release -- --filter "*"
     - name:  Publish benchmark summary
