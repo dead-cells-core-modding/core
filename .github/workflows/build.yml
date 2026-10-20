@@ -70,6 +70,102 @@ jobs:
         RELEASE_URL: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}
       run: dotnet run --project build/_build.csproj -- PublishDiscordAnnouncement
 
+  benchmark:
+    strategy:
+      matrix:
+        os: [ubuntu-26.04, windows-latest]
+        useHLC: [ true, false ]
+        platform: [ steam, gog ]
+        include:
+          - os: windows-latest
+            os_name: win
+            arch: x64
+          - os: ubuntu-26.04
+            os_name: linux
+            arch: x64
+    runs-on: ${{ matrix.os }}
+    needs: build
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10
+    - name: Download artifacts
+      uses: actions/download-artifact@v8
+      with: 
+        name: build-${{ matrix.os_name }}-${{ matrix.arch }}
+        path: ctx/coremod
+    - name: Copy hlboot
+      shell: pwsh
+      run: |
+        echo "DEAD_CELLS_GAME_PATH=$env:GITHUB_WORKSPACE/ctx" >> $env:GITHUB_ENV    
+        Copy-Item -Path ./hlboots/hlboot-opengl-${{ matrix.platform }}.dat -Destination "./ctx/hlboot.dat" -Recurse -Force
+    - name: Install MDK
+      uses: dead-cells-core-modding/setup-mdk@main
+      with:
+        modcoreroot: ./ctx/coremod
+    - name: Install MDK
+      if: runner.os == 'Linux'
+      run: |
+        chmod +x ./ctx/coremod/core/mdk/install-linux.sh
+        ./ctx/coremod/core/mdk/install-linux.sh
+    - name: Download Dependencies (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        # Require fixing for SDL3 SDL2-compact
+        sudo apt-get update
+        sudo apt-get install -y build-essential \
+          cmake \
+          libpng-dev \
+          libturbojpeg-dev \
+          libvorbis-dev \
+          libopenal-dev \
+          libsdl3-dev \
+          libglu1-mesa-dev \
+          libmbedtls-dev \
+          libuv1-dev \
+          libsqlite3-dev \
+          libjpeg-dev 
+    - name: Build ModCore
+      shell: pwsh
+      run: |
+        ./build.ps1 BuildMDK
+        ./ctx/coremod/core/mdk/install.ps1
+    - name: Run benchmark
+      shell: pwsh
+      run: |
+        dotnet run --project test/Benchmark/DCCMBenchmark.csproj -c Release -- --filter "*..." --fast
+    - name:  Publish benchmark summary
+      shell: pwsh
+      if: always()
+      run: |
+          $summary = $env:GITHUB_STEP_SUMMARY
+          $reportDir = "test/Benchmark/bin/Release/net10.0/BenchmarkDotNet.Artifacts/results"
+
+          $reports = Get-ChildItem -Path $reportDir -Filter "*-report-github.md" -ErrorAction SilentlyContinue
+
+          if (-not $reports) {
+            "No benchmark reports found." | Add-Content -Path $summary -Encoding utf8
+            exit 0
+          }
+
+          "## Benchmark Results" | Add-Content -Path $summary -Encoding utf8
+
+          foreach ($report in $reports) {
+            "### $($report.BaseName)" | Add-Content -Path $summary -Encoding utf8
+            Get-Content -Path $report.FullName | Add-Content -Path $summary -Encoding utf8
+            "" | Add-Content -Path $summary -Encoding utf8
+          }
+    - name: Upload benchmark artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results
+        path: test/Benchmark/bin/Release/net10.0/BenchmarkDotNet.Artifacts
+
   test:
     strategy:
       matrix:
