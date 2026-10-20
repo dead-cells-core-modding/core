@@ -15,7 +15,14 @@ namespace DCCMBenchmark
 
             if (quick)
             {
-                job = Job.Dry.WithToolchain(InProcessEmitToolchain.Instance);
+                // Let BDN run its pilot so the benchmark methods reach tier-1
+                // code; the default fixed invocation count would keep them in
+                // tier-0 and report 10x+ inflated numbers.
+                job = Job.Default
+                    .WithToolchain(InProcessEmitToolchain.Instance)
+                    .WithWarmupCount(1)
+                    .WithIterationCount(1)
+                    .WithLaunchCount(1);
                 id = "InProcessQuick";
             }
             else if (fast)

@@ -30,9 +30,11 @@ namespace DCCMBenchmark
                       --filter *MarshalBenchmarks*          only marshaling benchmarks
                       --filter *InvocationBenchmarks*       only raw invocation benchmarks
                       --filter *HaxeProxyBenchmarks*        only HaxeProxy comparison benchmarks
+                      --filter *MarshalingPathBenchmarks*   HL <-> CoreCLR marshaling cost points
                       --filter *ManagedObjectBenchmarks*    only the pure .NET control group
                       --fast                                short job (2 warmup + 5 iterations)
-                      --quick                               single quick iteration (noisy)
+                      --quick                               smoke check (1 warmup + 1 iteration)
+                      --quick --anyCategories Smoke         14 key marshaling checks (~2 min)
 
                     Do not use --job with this project: every job would need an
                     in-process toolchain to reuse the booted Hashlink VM.

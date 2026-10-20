@@ -7,7 +7,7 @@ namespace ModCore.Native
 {
     internal unsafe class ExecutableMemoryManager<T> where T : unmanaged
     {
-        private static readonly int PAGE_SIZE = Environment.SystemPageSize;
+        private static readonly int PAGE_SIZE = Environment.SystemPageSize * 4;
         public struct Cell
         {
             internal volatile int ownerThread;
@@ -40,6 +40,9 @@ namespace ModCore.Native
         private void AllocNewPage()
         {
             var pg = (Page*)HashlinkNative.hl_alloc_executable_memory(PAGE_SIZE);
+
+            var spage = sizeof(Page);
+            var sgroup = sizeof(Page.Group);
 
             pg->pageIndex = pages.Length;
             pg->groupsCount = (PAGE_SIZE - sizeof(Page)) / sizeof(Page.Group);

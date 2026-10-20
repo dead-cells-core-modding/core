@@ -9,8 +9,6 @@ namespace ModCore.Modules
     {
         private void StartGame()
         {
-            
-
             HashlinkMarshal.EnsureThreadRegistered();
             var entry = (HashlinkClosure)HashlinkMarshal.ConvertHashlinkObject(
                     &HashlinkVM.Instance.Context->c

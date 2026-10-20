@@ -2,6 +2,7 @@ using Hashlink.Marshaling;
 using Hashlink.Marshaling.ObjHandle;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Members;
+using ModCore.Collections;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Native;
@@ -81,12 +82,15 @@ namespace Hashlink.Wrapper
         }
 
         private static readonly ConditionalWeakTable<Exception, HashlinkObjHandle> caughtException = [];
-        private static readonly ExecutableMemoryManager<AsmHelperData> asmhelper_data_pool = new();
+        private static readonly ExecutableMemoryManager<AsmHelperData> asmhelper_shellcode_pool = new();
+        private static readonly PinnedArrayList<AsmHelperData> asmhelper_data_pool = new();
         [ThreadStatic]
         private static Dictionary<nint, HashlinkError>? hlerrorCache;
 
         [ThreadStatic]
         private static AsmHelperData* prepare_exception_handle_data;
+        [ThreadStatic]
+        private static nint prepare_exception_handle_data_shellcode;
         [ThreadStatic]
         internal static Exception? last_exception;
 
@@ -95,9 +99,11 @@ namespace Hashlink.Wrapper
         {
             public static readonly byte[] call_code_x64 = [
                 0x48, 0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, //mov rax, 0xffffffffffffffff
-                0xFF, 0xD0 //call rax
+                0x50, //push rax
+                0x48, 0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, //mov rax, 0xffffffffffffffff
+                0xFF, 0xE0 //call rax
              ];
-            public fixed byte shellcode[12];
+            public fixed byte shellcode[23];
             public void* buffer;
             public nint target;
             public void* stack_area;
@@ -209,9 +215,15 @@ namespace Hashlink.Wrapper
         {
             if (prepare_exception_handle_data == null)
             {
-                prepare_exception_handle_data = &asmhelper_data_pool.Alloc()->value;
-                AsmHelperData.call_code_x64.CopyTo(new Span<byte>(prepare_exception_handle_data->shellcode, 12));
-                *(long*)&prepare_exception_handle_data->shellcode[2] = Native.Current.asm_cs_hl_store_context;
+                var shellcode = asmhelper_shellcode_pool.Alloc()->value.shellcode;
+                prepare_exception_handle_data = (AsmHelperData*)Unsafe.AsPointer(ref asmhelper_data_pool.Add(new()));
+
+                AsmHelperData.call_code_x64.CopyTo(new Span<byte>(shellcode, 23));
+
+                *(long*)&shellcode[2] = (long)&prepare_exception_handle_data->buffer;
+                *(long*)&shellcode[13] = Native.Current.asm_cs_hl_store_context;
+
+                prepare_exception_handle_data_shellcode = (nint) shellcode;
             }
 
             HashlinkMarshal.EnsureThreadRegistered();
@@ -236,9 +248,9 @@ namespace Hashlink.Wrapper
 
             last_exception = null;
 
-            return (nint)prepare_exception_handle_data->shellcode;
+            return prepare_exception_handle_data_shellcode;
         }
-        //[StackTraceHidden]
+        [StackTraceHidden]
         private static void FixExceptionTrace( Exception ex, nint stackTop )
         {
             static ref sbyte[] GetStackTraceData( ref object stackTrace )

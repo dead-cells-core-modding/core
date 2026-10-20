@@ -1,4 +1,5 @@
 using BenchmarkDotNet.Attributes;
+using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Clousre;
@@ -80,6 +81,32 @@ namespace DCCMBenchmark
         public void Native_LibMathSqrt()
         {
             _ = Lib_std.math_sqrt(16);
+        }
+
+        [Benchmark]
+        public nint Native_HlGetThread()
+        {
+            return (nint)HashlinkNative.hl_get_thread();
+        }
+
+        // Leaves gc_blocking at 1. This pair only increments and decrements
+        // the counter, so it measures the P/Invoke pair without a GC
+        // transition.
+        [Benchmark]
+        public void Blocking_NoTransition()
+        {
+            HashlinkNative.hl_blocking(1);
+            HashlinkNative.hl_blocking(0);
+        }
+
+        // Leaves gc_blocking at 1. This is the pattern used by the
+        // cs_to_hl wrapper: unblock (1 -> 0), then block (0 -> 1), which
+        // executes gc_save_context on the way back.
+        [Benchmark]
+        public void Blocking_Transition()
+        {
+            HashlinkNative.hl_blocking(0);
+            HashlinkNative.hl_blocking(1);
         }
 
         // ---------------------------------------------------------------------
