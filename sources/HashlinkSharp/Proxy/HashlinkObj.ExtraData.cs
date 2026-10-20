@@ -1,80 +1,90 @@
 using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Hashlink.Proxy
 {
     public partial class HashlinkObj : IExtraData
     {
         private object? extraData;
-        private readonly ReaderWriterLockSlim dataLock = new();
+        private Lock? dataWriteLock;
 
         private void ClearExtraData()
         {
             extraData = null;
         }
 
-        T IExtraData.GetOrCreateData<T>( Func<HashlinkObj, object> factory )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private T? TryGetExtraData<T>() where T : class
         {
-
             if (this is T)
             {
                 return (T)(object)this;
             }
-            _RETRY:
-            dataLock.EnterReadLock();
-            if (extraData is T t)
+
+            var current = Volatile.Read(ref extraData);
+
+            if (current is T t)
             {
-                dataLock.ExitReadLock();
                 return t;
             }
-            if (extraData == null)
-            {
-                dataLock.ExitReadLock();
-                dataLock.EnterWriteLock();
 
-                if (extraData != null)
+            if (current is ImmutableList<object> l)
+            {
+                foreach (var v in l)
                 {
-                    dataLock.ExitWriteLock();
-                    goto _RETRY;
+                    if (v is T tv)
+                    {
+                        return tv;
+                    }
                 }
-
-                object result = factory(this);
-                t = (T)result;
-                extraData = t;
-
-                dataLock.ExitWriteLock();
-                return t;
             }
-            var list = extraData as ImmutableList<object>;
+            return null;
+        }
 
-            if (list == null)
+        T IExtraData.GetOrCreateData<T>( Func<HashlinkObj, object> factory )
+        {
+            var result = TryGetExtraData<T>();
+
+            if (result != null)
             {
-                list = [extraData];
-                extraData = list;
+                return result;
             }
-            var lc = list.Count;
-            for (int i = 0; i < lc; i++)
+
+            if (dataWriteLock is null)
             {
-                if (list[i] is T result)
+                Interlocked.CompareExchange(ref dataWriteLock, new(), null);
+
+                Debug.Assert(dataWriteLock != null);
+            }
+
+            Interlocked.MemoryBarrier();
+
+            lock (dataWriteLock)
+            {
+                result = TryGetExtraData<T>();
+                if (result != null)
                 {
-                    dataLock.ExitReadLock();
                     return result;
                 }
+
+                result = (T)factory(this);
+
+                if (extraData is null)
+                {
+                    extraData = result;
+                    return result;
+                }
+
+                if (extraData is ImmutableList<object> ls)
+                {
+                    extraData = ls.Add(result);
+                    return result;
+                }
+
+                extraData = ImmutableList.Create(extraData, result);
+                return result;
             }
-            dataLock.ExitReadLock();
-            dataLock.EnterWriteLock();
-
-            if (lc != list.Count)
-            {
-                dataLock.ExitWriteLock();
-                goto _RETRY;
-            }
-
-            t = (T)factory(this);
-            extraData = list.Add(t);
-
-            dataLock.ExitWriteLock();
-
-            return t;
         }
     }
 }
