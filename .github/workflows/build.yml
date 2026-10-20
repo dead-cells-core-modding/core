@@ -138,7 +138,7 @@ jobs:
       env:
         DCCM_USE_HLC: ${{ matrix.useHLC }}
       run: |
-        dotnet run --project test/Benchmark/DCCMBenchmark.csproj -c Release -- --filter "*" --fast
+        dotnet run --project test/Benchmark/DCCMBenchmark.csproj -c Release -- --filter "*"
     - name:  Publish benchmark summary
       shell: pwsh
       if: always()
