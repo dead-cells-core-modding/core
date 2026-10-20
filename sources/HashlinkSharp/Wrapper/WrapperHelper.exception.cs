@@ -103,7 +103,7 @@ namespace Hashlink.Wrapper
                 0x48, 0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, //mov rax, 0xffffffffffffffff
                 0xFF, 0xE0 //jmp rax
              ];
-            public fixed byte shellcode[23];
+            public fixed byte shellcode[24];
             public void* buffer;
             public nint target;
             public void* stack_area;
