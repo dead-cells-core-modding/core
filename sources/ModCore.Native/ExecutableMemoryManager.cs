@@ -11,10 +11,11 @@ namespace ModCore.Native
         public struct Cell
         {
             internal volatile int ownerThread;
+            internal Page* page;
             public T value;
         }
 
-        private struct Page
+        internal struct Page
         {
             public fixed int usedBits[64];
             public int pageIndex;
@@ -41,9 +42,6 @@ namespace ModCore.Native
         {
             var pg = (Page*)HashlinkNative.hl_alloc_executable_memory(PAGE_SIZE);
 
-            var spage = sizeof(Page);
-            var sgroup = sizeof(Page.Group);
-
             pg->pageIndex = pages.Length;
             pg->groupsCount = (PAGE_SIZE - sizeof(Page)) / sizeof(Page.Group);
 
@@ -60,7 +58,7 @@ namespace ModCore.Native
         private void FreeCell( Cell* cell )
         {
             cell->ownerThread = -1;
-            Page* page = (Page*)((nint)cell & ~(PAGE_SIZE - 1));
+            Page* page = cell->page;
             int cellIndex = (int)(((nint)cell - (nint)(&page->groups[0])) / sizeof(Cell));
             Interlocked.And(ref page->usedBits[cellIndex / 32], ~(1 << (cellIndex & 31)));
         }
@@ -94,6 +92,7 @@ namespace ModCore.Native
                         == -1)
                     {
                         Interlocked.Or(ref pg->usedBits[i], (1 << j));
+                        group[j].page = pg;
                         return (Cell*)Unsafe.AsPointer(ref group[j]);
                     }
                 }

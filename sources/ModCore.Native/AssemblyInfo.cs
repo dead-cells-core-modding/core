@@ -7,3 +7,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("HaxeProxy")]
 [assembly: InternalsVisibleTo("Haxe2CSharp")]
 [assembly: InternalsVisibleTo("DCCMBenchmark")]
+[assembly: InternalsVisibleTo("TestRunner")]
