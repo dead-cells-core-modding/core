@@ -62,7 +62,8 @@ namespace DCCMBenchmark
             _ = new HashlinkString(text);
         }
 
-        [Benchmark]
+        // OutOfMemory
+        //[Benchmark]
         public void Dyn_IntToHashlink()
         {
             _ = HashlinkMarshal.GetDyn(IntValue);
