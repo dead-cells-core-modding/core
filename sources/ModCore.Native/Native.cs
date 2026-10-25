@@ -981,7 +981,7 @@ namespace ModCore.Native
             hl_setup = (HL_setup_t*)GetLibhlSymbol("hl_setup");
             phl_gc_page_map = (HL_gc_pheader***)GetLibhlSymbol("hl_gc_page_map");
             pglobal_mark_stack = (HL_gc_mstack*)GetLibhlSymbol("global_mark_stack");
-            pmark_threads_active = (byte*)GetLibhlSymbol("mark_threads_active");
+            pmark_threads_active = (int*)GetLibhlSymbol("mark_threads_active");
             pmark_threads_done = (void**)GetLibhlSymbol("mark_threads_done");
 
             phl_throw = GetLibhlSymbol("hl_throw");

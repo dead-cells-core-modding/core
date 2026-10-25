@@ -10,7 +10,7 @@ namespace ModCore.Native
 
         private HL_gc_pheader*** phl_gc_page_map;
         private HL_gc_mstack* pglobal_mark_stack;
-        private volatile byte* pmark_threads_active;
+        private volatile int* pmark_threads_active;
         private volatile void** pmark_threads_done;
 
 
