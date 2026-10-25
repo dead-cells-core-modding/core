@@ -4,6 +4,7 @@ using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Members.Object;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 
 namespace Hashlink.Reflection.Types
 {
@@ -31,43 +32,52 @@ namespace Hashlink.Reflection.Types
 
         public HashlinkObjectProto[] Protos {
             get {
-                if (cachedProtos == null)
+                var protos = cachedProtos;
+                if (protos == null)
                 {
-                    cachedProtos = new HashlinkObjectProto[TypeData->nproto];
+                    protos = new HashlinkObjectProto[TypeData->nproto];
                     for (int i = 0; i < TypeData->nproto; i++)
                     {
-                        cachedProtos[i] = GetMemberFrom<HashlinkObjectProto>(TypeData->proto + i);
+                        protos[i] = GetMemberFrom<HashlinkObjectProto>(TypeData->proto + i);
                     }
+
+                    protos = Interlocked.CompareExchange(ref cachedProtos, protos, null) ?? protos;
                 }
-                return cachedProtos;
+                return protos;
             }
         }
         public HashlinkObjectBinding[] Bindings {
             get {
-                if (cachedBindings == null)
+                var bindings = cachedBindings;
+                if (bindings == null)
                 {
-                    cachedBindings = new HashlinkObjectBinding[TypeData->nbindings];
+                    bindings = new HashlinkObjectBinding[TypeData->nbindings];
                     for (int i = 0; i < TypeData->nbindings; i++)
                     {
-                        cachedBindings[i] = new(Module, TypeData->bindings + i * 2, this);
+                        bindings[i] = new(Module, TypeData->bindings + i * 2, this);
                     }
+
+                    bindings = Interlocked.CompareExchange(ref cachedBindings, bindings, null) ?? bindings;
                 }
-                return cachedBindings;
+                return bindings;
             }
         }
         public int TotalFieldsCount => cachedFieldsCount ??= (Super?.TotalFieldsCount ?? 0) + TypeData->nfields;
         public HashlinkObjectField[] Fields {
             get {
-                if (cachedFields == null)
+                var fields = cachedFields;
+                if (fields == null)
                 {
-                    cachedFields = new HashlinkObjectField[TypeData->nfields];
+                    fields = new HashlinkObjectField[TypeData->nfields];
                     for (int i = 0; i < TypeData->nfields; i++)
                     {
-                        cachedFields[i] = GetMemberFrom<HashlinkObjectField>(TypeData->fields + i);
-                        cachedFields[i].Index = (Super?.TotalFieldsCount ?? 0) + i;
+                        fields[i] = GetMemberFrom<HashlinkObjectField>(TypeData->fields + i);
+                        fields[i].Index = (Super?.TotalFieldsCount ?? 0) + i;
                     }
+
+                    fields = Interlocked.CompareExchange(ref cachedFields, fields, null) ?? fields;
                 }
-                return cachedFields;
+                return fields;
             }
         }
 

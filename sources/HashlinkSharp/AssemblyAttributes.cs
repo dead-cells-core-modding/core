@@ -13,3 +13,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("TestMod")]
 [assembly: InternalsVisibleTo("Haxe2CSharp")]
 [assembly: InternalsVisibleTo("DCCMBenchmark")]
+[assembly: InternalsVisibleTo("TestRunner")]

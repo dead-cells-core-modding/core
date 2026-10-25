@@ -75,7 +75,7 @@ namespace Hashlink.Marshaling
                 case null:
                     return null;
                 case TypeKind.HBOOL:
-                    return (object?)(*(byte*)target == 1);
+                    return (object?)(*(byte*)target != 0);
                 case TypeKind.HUI8:
                     return (object?)*(byte*)target;
                 case TypeKind.HUI16:

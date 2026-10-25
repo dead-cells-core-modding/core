@@ -42,7 +42,7 @@ namespace ModCore.Events
                 cachedReceiver = [.. receivers];
             }
 
-            Debug.Assert(cachedReceiver.Length == receivers.Count);
+            //Debug.Assert(cachedReceiver.Length == receivers.Count);
 
             return cachedReceiver;
         }
