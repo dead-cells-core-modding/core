@@ -12,17 +12,16 @@ namespace TestRunner
 {
     /// <summary>
     /// GC tests for Hashlink wrappers. These tests allow a small amount of
-    /// retention because the HL GC and the CLR finalizer/weak-reference
-    /// machinery are not guaranteed to collect every object synchronously.
+    /// retention because HL GC and CLR finalization are not synchronous.
     /// </summary>
     public unsafe class GcStressTest
     {
+        private const int ObjectCount = 2_000;
+
         public GcStressTest()
         {
             HashlinkMarshal.EnsureThreadRegistered();
         }
-
-        private const int ObjectCount = 2_000;
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static WeakReference[] CreateUnrootedStrings()
@@ -65,15 +64,11 @@ namespace TestRunner
             child.SetFieldValue("child", grandChild);
             parent.SetFieldValue("child", child);
 
-            // child and grandChild wrappers leave scope here. Only the parent
-            // is rooted, so the child objects must survive through indirect
-            // native references.
             return (parent, childPtr, grandChildPtr);
         }
 
-
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static HashlinkDynObj CreateIndirectValueRoot()
+        private static (HashlinkDynObj Parent, HashlinkDynObj Child) CreateIndirectValueRoot()
         {
             var parent = new HashlinkDynObj();
             var child = new HashlinkDynObj();
@@ -81,8 +76,56 @@ namespace TestRunner
             child.SetFieldValue("value", new HashlinkString("indirect-rw-initial"));
             parent.SetFieldValue("child", child);
 
-            return parent;
+            return (parent, child);
         }
+
+        private static void Run(
+            List<Thread> threads,
+            CountdownEvent completed,
+            ConcurrentQueue<Exception> errors,
+            ManualResetEventSlim start,
+            Action action)
+        {
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    HashlinkMarshal.EnsureThreadRegistered();
+                    start.Wait();
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    errors.Enqueue(ex);
+                }
+                finally
+                {
+                    completed.Signal();
+                }
+            })
+            {
+                IsBackground = true,
+            };
+
+            threads.Add(thread);
+            thread.Start();
+        }
+
+        private static void JoinAll(
+            List<Thread> threads,
+            CountdownEvent completed,
+            string timeoutMessage)
+        {
+            Assert.True(
+                completed.Wait(TimeSpan.FromSeconds(30), TestContext.Current.CancellationToken),
+                timeoutMessage);
+
+            foreach (var thread in threads)
+            {
+                Assert.True(thread.Join(TimeSpan.FromSeconds(30)), "A worker thread did not stop.");
+            }
+        }
+
         [Fact]
         public void UnrootedWrappers_AreMostlyCollected()
         {
@@ -91,7 +134,7 @@ namespace TestRunner
             ForceCollection();
 
             var alive = refs.Count(reference => reference.IsAlive);
-            var allowed = ObjectCount / 20; // tolerate up to 5% delayed collection
+            var allowed = ObjectCount / 20;
 
             Assert.True(
                 alive <= allowed,
@@ -157,7 +200,7 @@ namespace TestRunner
         }
 
         [Fact]
-        public void ConcurrentRootedReads_WhileHashlinkGcRuns_StayValid()
+        public void ConcurrentRootedReads_WhileClrGcRuns_StayValid()
         {
             const int objectCount = 64;
             const int readerCount = 4;
@@ -174,36 +217,9 @@ namespace TestRunner
             var errors = new ConcurrentQueue<Exception>();
             var threads = new List<Thread>();
 
-            void Run(Action action)
-            {
-                var thread = new Thread(() =>
-                {
-                    try
-                    {
-                        HashlinkMarshal.EnsureThreadRegistered();
-                        start.Wait();
-                        action();
-                    }
-                    catch (Exception ex)
-                    {
-                        errors.Enqueue(ex);
-                    }
-                    finally
-                    {
-                        completed.Signal();
-                    }
-                })
-                {
-                    IsBackground = true,
-                };
-
-                threads.Add(thread);
-                thread.Start();
-            }
-
             for (var reader = 0; reader < readerCount; reader++)
             {
-                Run(() =>
+                Run(threads, completed, errors, start, () =>
                 {
                     for (var round = 0; round < readRounds; round++)
                     {
@@ -221,23 +237,21 @@ namespace TestRunner
                 });
             }
 
-            Run(() =>
+            Run(threads, completed, errors, start, () =>
             {
                 for (var i = 0; i < 50; i++)
                 {
-                    hl_gc_major();
+                    GC.Collect(
+                        GC.MaxGeneration,
+                        GCCollectionMode.Forced,
+                        blocking: true,
+                        compacting: false);
                     Thread.Sleep(1);
                 }
             });
 
             start.Set();
-            Assert.True(completed.Wait(TimeSpan.FromSeconds(30), TestContext.Current.CancellationToken), "Concurrent readers timed out.");
-
-            foreach (var thread in threads)
-            {
-                Assert.True(thread.Join(TimeSpan.FromSeconds(30)), "A worker thread did not stop.");
-            }
-
+            JoinAll(threads, completed, "Concurrent readers timed out.");
             Assert.Empty(errors);
 
             for (var i = 0; i < values.Length; i++)
@@ -250,7 +264,7 @@ namespace TestRunner
         }
 
         [Fact]
-        public void ConcurrentAllocation_WhileHashlinkGcRuns_DoesNotCrash()
+        public void ConcurrentAllocation_WhileClrGcRuns_DoesNotCrash()
         {
             const int workerCount = 4;
             const int objectsPerWorker = 500;
@@ -260,37 +274,10 @@ namespace TestRunner
             var errors = new ConcurrentQueue<Exception>();
             var threads = new List<Thread>();
 
-            void Run(Action action)
-            {
-                var thread = new Thread(() =>
-                {
-                    try
-                    {
-                        HashlinkMarshal.EnsureThreadRegistered();
-                        start.Wait();
-                        action();
-                    }
-                    catch (Exception ex)
-                    {
-                        errors.Enqueue(ex);
-                    }
-                    finally
-                    {
-                        completed.Signal();
-                    }
-                })
-                {
-                    IsBackground = true,
-                };
-
-                threads.Add(thread);
-                thread.Start();
-            }
-
             for (var worker = 0; worker < workerCount; worker++)
             {
                 var workerIndex = worker;
-                Run(() =>
+                Run(threads, completed, errors, start, () =>
                 {
                     for (var i = 0; i < objectsPerWorker; i++)
                     {
@@ -310,28 +297,26 @@ namespace TestRunner
                 });
             }
 
-            Run(() =>
+            Run(threads, completed, errors, start, () =>
             {
                 for (var i = 0; i < 50; i++)
                 {
-                    hl_gc_major();
+                    GC.Collect(
+                        GC.MaxGeneration,
+                        GCCollectionMode.Forced,
+                        blocking: true,
+                        compacting: false);
                     Thread.Sleep(1);
                 }
             });
 
             start.Set();
-            Assert.True(completed.Wait(TimeSpan.FromSeconds(30), TestContext.Current.CancellationToken), "Concurrent allocation timed out.");
-
-            foreach (var thread in threads)
-            {
-                Assert.True(thread.Join(TimeSpan.FromSeconds(30)), "A worker thread did not stop.");
-            }
-
+            JoinAll(threads, completed, "Concurrent allocation timed out.");
             Assert.Empty(errors);
         }
 
         [Fact]
-        public void ConcurrentIndirectReferences_WhileHashlinkGcRuns_StayValid()
+        public void ConcurrentIndirectReferences_StayValid()
         {
             const int readerCount = 4;
             const int readRounds = 200;
@@ -339,40 +324,13 @@ namespace TestRunner
             var (parent, _, _) = CreateIndirectChain();
 
             using var start = new ManualResetEventSlim(false);
-            using var completed = new CountdownEvent(readerCount + 1);
+            using var completed = new CountdownEvent(readerCount);
             var errors = new ConcurrentQueue<Exception>();
             var threads = new List<Thread>();
 
-            void Run(Action action)
-            {
-                var thread = new Thread(() =>
-                {
-                    try
-                    {
-                        HashlinkMarshal.EnsureThreadRegistered();
-                        start.Wait();
-                        action();
-                    }
-                    catch (Exception ex)
-                    {
-                        errors.Enqueue(ex);
-                    }
-                    finally
-                    {
-                        completed.Signal();
-                    }
-                })
-                {
-                    IsBackground = true,
-                };
-
-                threads.Add(thread);
-                thread.Start();
-            }
-
             for (var reader = 0; reader < readerCount; reader++)
             {
-                Run(() =>
+                Run(threads, completed, errors, start, () =>
                 {
                     for (var round = 0; round < readRounds; round++)
                     {
@@ -380,20 +338,20 @@ namespace TestRunner
                         if (child is null || !child.IsValid)
                         {
                             throw new InvalidOperationException(
-                                "Indirect child became invalid during concurrent GC.");
+                                "Indirect child became invalid during concurrent access.");
                         }
 
                         var grandChild = child.GetFieldValue("child") as HashlinkString;
                         if (grandChild is null || !grandChild.IsValid)
                         {
                             throw new InvalidOperationException(
-                                "Indirect grandchild became invalid during concurrent GC.");
+                                "Indirect grandchild became invalid during concurrent access.");
                         }
 
                         if (grandChild.ToString() != "gc-indirect-grandchild")
                         {
                             throw new InvalidOperationException(
-                                "Indirect grandchild content was corrupted during concurrent GC.");
+                                "Indirect grandchild content was corrupted during concurrent access.");
                         }
 
                         Thread.Yield();
@@ -401,28 +359,13 @@ namespace TestRunner
                 });
             }
 
-            Run(() =>
-            {
-                for (var i = 0; i < 50; i++)
-                {
-                    hl_gc_major();
-                    Thread.Sleep(1);
-                }
-            });
-
             start.Set();
-            Assert.True(
-                completed.Wait(TimeSpan.FromSeconds(30), TestContext.Current.CancellationToken),
-                "Concurrent indirect-reference readers timed out.");
-
-            foreach (var thread in threads)
-            {
-                Assert.True(thread.Join(TimeSpan.FromSeconds(30)), "A worker thread did not stop.");
-            }
-
+            JoinAll(threads, completed, "Concurrent indirect-reference readers timed out.");
             Assert.Empty(errors);
-            Assert.True(parent.IsValid);
 
+            ForceCollection();
+
+            Assert.True(parent.IsValid);
             var finalChild = parent.GetFieldValue("child") as HashlinkDynObj;
             Assert.NotNull(finalChild);
             Assert.True(finalChild.IsValid);
@@ -436,7 +379,7 @@ namespace TestRunner
         }
 
         [Fact]
-        public void ConcurrentReadWrite_WhileHashlinkGcRuns_DoesNotCorruptValues()
+        public void ConcurrentReadWrite_WhileClrGcRuns_DoesNotCorruptValues()
         {
             const int readerCount = 4;
             const int readRounds = 300;
@@ -450,36 +393,9 @@ namespace TestRunner
             var errors = new ConcurrentQueue<Exception>();
             var threads = new List<Thread>();
 
-            void Run(Action action)
-            {
-                var thread = new Thread(() =>
-                {
-                    try
-                    {
-                        HashlinkMarshal.EnsureThreadRegistered();
-                        start.Wait();
-                        action();
-                    }
-                    catch (Exception ex)
-                    {
-                        errors.Enqueue(ex);
-                    }
-                    finally
-                    {
-                        completed.Signal();
-                    }
-                })
-                {
-                    IsBackground = true,
-                };
-
-                threads.Add(thread);
-                thread.Start();
-            }
-
             for (var reader = 0; reader < readerCount; reader++)
             {
-                Run(() =>
+                Run(threads, completed, errors, start, () =>
                 {
                     for (var round = 0; round < readRounds; round++)
                     {
@@ -501,7 +417,7 @@ namespace TestRunner
                 });
             }
 
-            Run(() =>
+            Run(threads, completed, errors, start, () =>
             {
                 for (var i = 0; i < writeCount; i++)
                 {
@@ -510,25 +426,21 @@ namespace TestRunner
                 }
             });
 
-            Run(() =>
+            Run(threads, completed, errors, start, () =>
             {
                 for (var i = 0; i < 50; i++)
                 {
-                    hl_gc_major();
+                    GC.Collect(
+                        GC.MaxGeneration,
+                        GCCollectionMode.Forced,
+                        blocking: true,
+                        compacting: false);
                     Thread.Sleep(1);
                 }
             });
 
             start.Set();
-            Assert.True(
-                completed.Wait(TimeSpan.FromSeconds(30), TestContext.Current.CancellationToken),
-                "Concurrent read/write readers timed out.");
-
-            foreach (var thread in threads)
-            {
-                Assert.True(thread.Join(TimeSpan.FromSeconds(30)), "A worker thread did not stop.");
-            }
-
+            JoinAll(threads, completed, "Concurrent read/write readers timed out.");
             Assert.Empty(errors);
             Assert.True(parent.IsValid);
 
@@ -541,60 +453,33 @@ namespace TestRunner
         }
 
         [Fact]
-        public void ConcurrentIndirectReadWrite_WhileHashlinkGcRuns_DoesNotCorruptValues()
+        public void ConcurrentIndirectReadWrite_DoesNotCorruptValues()
         {
             const int readerCount = 4;
             const int readRounds = 300;
             const int writeCount = 300;
 
-            var parent = CreateIndirectValueRoot();
+            var (parent, child) = CreateIndirectValueRoot();
 
             using var start = new ManualResetEventSlim(false);
-            using var completed = new CountdownEvent(readerCount + 2);
+            using var completed = new CountdownEvent(readerCount + 1);
             var errors = new ConcurrentQueue<Exception>();
             var threads = new List<Thread>();
 
-            void Run(Action action)
-            {
-                var thread = new Thread(() =>
-                {
-                    try
-                    {
-                        HashlinkMarshal.EnsureThreadRegistered();
-                        start.Wait();
-                        action();
-                    }
-                    catch (Exception ex)
-                    {
-                        errors.Enqueue(ex);
-                    }
-                    finally
-                    {
-                        completed.Signal();
-                    }
-                })
-                {
-                    IsBackground = true,
-                };
-
-                threads.Add(thread);
-                thread.Start();
-            }
-
             for (var reader = 0; reader < readerCount; reader++)
             {
-                Run(() =>
+                Run(threads, completed, errors, start, () =>
                 {
                     for (var round = 0; round < readRounds; round++)
                     {
-                        var child = parent.GetFieldValue("child") as HashlinkDynObj;
-                        if (child is null || !child.IsValid)
+                        var resolvedChild = parent.GetFieldValue("child") as HashlinkDynObj;
+                        if (resolvedChild is null || !resolvedChild.IsValid)
                         {
                             throw new InvalidOperationException(
                                 "Indirect child became invalid during indirect read/write race.");
                         }
 
-                        var value = child.GetFieldValue("value") as HashlinkString;
+                        var value = resolvedChild.GetFieldValue("value") as HashlinkString;
                         if (value is null || !value.IsValid)
                         {
                             throw new InvalidOperationException(
@@ -612,43 +497,30 @@ namespace TestRunner
                 });
             }
 
-            Run(() =>
+            Run(threads, completed, errors, start, () =>
             {
                 for (var i = 0; i < writeCount; i++)
                 {
-                    var child = parent.GetFieldValue("child") as HashlinkDynObj;
-                    if (child is null || !child.IsValid)
+                    var resolvedChild = parent.GetFieldValue("child") as HashlinkDynObj;
+                    if (resolvedChild is null || !resolvedChild.IsValid)
                     {
                         throw new InvalidOperationException(
                             "Writer could not resolve indirect child.");
                     }
 
-                    child.SetFieldValue("value", new HashlinkString($"indirect-rw-{i}"));
+                    resolvedChild.SetFieldValue("value", new HashlinkString($"indirect-rw-{i}"));
                     Thread.Yield();
                 }
             });
 
-            Run(() =>
-            {
-                for (var i = 0; i < 50; i++)
-                {
-                    hl_gc_major();
-                    Thread.Sleep(1);
-                }
-            });
-
             start.Set();
-            Assert.True(
-                completed.Wait(TimeSpan.FromSeconds(30), TestContext.Current.CancellationToken),
-                "Concurrent indirect read/write workers timed out.");
-
-            foreach (var thread in threads)
-            {
-                Assert.True(thread.Join(TimeSpan.FromSeconds(30)), "A worker thread did not stop.");
-            }
-
+            JoinAll(threads, completed, "Concurrent indirect read/write workers timed out.");
             Assert.Empty(errors);
+
+            ForceCollection();
+
             Assert.True(parent.IsValid);
+            Assert.True(child.IsValid);
 
             var finalChild = parent.GetFieldValue("child") as HashlinkDynObj;
             Assert.NotNull(finalChild);
@@ -660,14 +532,7 @@ namespace TestRunner
             Assert.StartsWith("indirect-rw-", finalValue.ToString());
 
             GC.KeepAlive(parent);
+            GC.KeepAlive(child);
         }
     }
 }
-
-
-
-
-
-
-
-
