@@ -19,6 +19,10 @@ namespace Hashlink
 
             public void OnNativeEvent( IOnNativeEvent.Event ev )
             {
+                if (thread.NativeInfo == null)
+                {
+                    return;
+                }
                 if (!thread.Thread.IsAlive)
                 {
                     thread.NativeInfo->stack_cur = thread.NativeInfo->stack_top = Unsafe.AsPointer(ref temp_die_stack);
@@ -46,7 +50,7 @@ namespace Hashlink
             get;
         } = Thread.CurrentThread;
         public HL_thread_info* NativeInfo {
-            get;
+            get; private set;
         } = hl_get_thread();
         internal ref Native.NativeThreadLocal NativeData => ref native_tls_data[0];
 
@@ -86,6 +90,8 @@ namespace Hashlink
         internal void Unregister()
         {
             Native.modcorenative_unregister_hl_thread(NativeInfo);
+
+            NativeInfo = null;
         }
 
         public static void RegisterThread( nint stacktop = 0 )
