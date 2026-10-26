@@ -175,7 +175,7 @@ namespace ModCore.Native
             }
 
 #if DEBUG
-            //VerifyGCValidity(roots);
+            VerifyGCValidity(roots);
 #endif
 
         }
