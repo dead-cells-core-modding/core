@@ -337,43 +337,57 @@ namespace Hashlink.Marshaling.ObjHandle
             {
                 return null;
             }
-            var wp = GetObjWrapperPtr((void*)ptr);
-            if (wp == null)
+
+            nint* wp;
+            while (true)
             {
-                Debug.Assert(!hl_is_gc_ptr((void*)ptr));
-                return null;
-            }
-            HashlinkObjHandle? handle;
-            if (*wp != 0)
-            {
-                var gch = GCHandle.FromIntPtr(*wp);
-                handle = gch.Target as HashlinkObjHandle;
-                if (handle == null)
+                gcLock.EnterReadLock();
+                try
                 {
-                    *wp = 0;
-                    return GetHandle(ptr);
+                    wp = GetObjWrapperPtr((void*)ptr);
+                    if (wp == null)
+                    {
+                        Debug.Assert(!hl_is_gc_ptr((void*)ptr));
+                        return null;
+                    }
+                    if (*wp != 0)
+                    {
+                        var gch = GCHandle.FromIntPtr(*wp);
+                        var handle = gch.Target as HashlinkObjHandle;
+                        if (handle == null)
+                        {
+                            *wp = 0;
+                            continue;
+                        }
+
+                        Debug.Assert(handle.nativeHLPtr == ptr);
+
+
+                        ref var h = ref GetObjHandle(handle.handleIndex);
+
+                        Debug.Assert(h.valid);
+                        Debug.Assert(h.hlPtr == ptr);
+                        Debug.Assert(h.weakRef.Target == handle);
+
+                        if (handle.Target != null)
+                        {
+                            Debug.Assert(*((nint*)ptr) == (nint)handle.Target.NativeType);
+                        }
+
+                        if (handle.IsStateful)
+                        {
+                            h.strongRef = handle;
+                        }
+
+                        return handle;
+                    }
+                }
+                finally
+                {
+                    gcLock.ExitReadLock();
                 }
 
-                Debug.Assert(handle.nativeHLPtr == ptr);
-
-
-                ref var h = ref GetObjHandle(handle.handleIndex);
-
-                Debug.Assert(h.valid);
-                Debug.Assert(h.hlPtr == ptr);
-                Debug.Assert(h.weakRef.Target == handle);
-
-                if (handle.Target != null)
-                {
-                    Debug.Assert(*((nint*)ptr) == (nint)handle.Target.NativeType);
-                }
-
-                if (handle.IsStateful)
-                {
-                    h.strongRef = handle;
-                }
-
-                return handle;
+                break;
             }
 
             //Alloc New Handle
@@ -381,7 +395,7 @@ namespace Hashlink.Marshaling.ObjHandle
                 ref var h = ref AllocObjHandle(out var handleIdx);
                 Debug.Assert(!h.valid);
                 Debug.Assert(h.hlPtr == 0);
-                handle = new(ptr, handleIdx);
+                var handle = new HashlinkObjHandle(ptr, handleIdx);
                 h.Init(ptr, handle);
                 if (handle.IsStateful)
                 {
@@ -392,8 +406,8 @@ namespace Hashlink.Marshaling.ObjHandle
                 {
                     h.Free();
                 }
+                return handle;
             }
-            return handle;
         }
     }
 }
