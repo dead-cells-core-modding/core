@@ -251,5 +251,7 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         [SuppressGCTransition]
         public static partial void emit_nop( nint ctx, int count );
+        [LibraryImport(LIBHL)]
+        public static partial void hl_unregister_thread();
     }
 }

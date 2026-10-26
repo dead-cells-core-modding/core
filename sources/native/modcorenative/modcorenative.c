@@ -6,6 +6,24 @@
 
 EXPORT void* ptr_setjmp = setjmp;
 
+EXPORT void modcorenative_unregister_hl_thread(hl_thread_info* t) {
+	hl_remove_root(&t->exc_value);
+	hl_remove_root(&t->exc_handler);
+
+	hl_threads_info* gc_threads = hl_gc_threads_info();
+
+	hl_mutex_acquire(gc_threads->global_lock);
+	for (int i = 0; i < gc_threads->count; i++)
+		if (gc_threads->threads[i] == t) {
+			memmove(gc_threads->threads + i, gc_threads->threads + i + 1, sizeof(void*) * (gc_threads->count - i - 1));
+			gc_threads->count--;
+			break;
+		}
+	free(t);
+	// don't use gc_global_lock(false)
+	hl_mutex_release(gc_threads->global_lock);
+}
+
 #ifdef WIN32
 
 static LPWSTR createdumpCommand;

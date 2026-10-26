@@ -49,6 +49,9 @@ namespace ModCore.Native
             get; private set;
         } = CreateNative();
 
+        [LibraryImport("modcorenative")]
+        public static partial void modcorenative_unregister_hl_thread( HL_thread_info* t );
+
         private static Native CreateNative()
         {
             if (OperatingSystem.IsWindows())

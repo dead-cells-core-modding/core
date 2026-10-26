@@ -193,7 +193,7 @@ namespace ModCore.Native
                 throw new PlatformNotSupportedException();
 
             // Current thread: simple self-reference.
-            int myTid = (int)GetCurrentThreadId();
+            int myTid = GetCurrentThreadId();
             if (t->thread_id == myTid)
             {
                 t->stack_cur = &t;

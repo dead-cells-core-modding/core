@@ -10,23 +10,32 @@ namespace Hashlink
     {
         [ThreadStatic]
         private static HashlinkThread? current;
+        private static ulong temp_die_stack = 0;
 
-        private class EventListener( WeakReference<HashlinkThread> thread ) : IEventReceiver,
+        private class EventListener( HashlinkThread thread ) : IEventReceiver,
             IOnNativeEvent
         {
             public int Priority => 0;
 
             public void OnNativeEvent( IOnNativeEvent.Event ev )
             {
-                if (!thread.TryGetTarget(out var t) ||
-                    !t.Thread.IsAlive)
+                if (!thread.Thread.IsAlive)
                 {
+                    thread.NativeInfo->stack_cur = thread.NativeInfo->stack_top = Unsafe.AsPointer(ref temp_die_stack);
+
+                    thread.Unregister();
+
                     EventSystem.RemoveReceiver(this);
                     return;
                 }
                 if (ev.EventId == IOnNativeEvent.EventId.HL_EV_GC_BEFORE_MARK)
                 {
-                    Native.Current.FixThreadCurrentStackFrame(t.NativeInfo);
+                    Native.Current.FixThreadCurrentStackFrame(thread.NativeInfo);
+
+                    if (thread.NativeInfo->stack_cur == null)
+                    {
+                        thread.NativeInfo->stack_cur = thread.NativeInfo->stack_top = Unsafe.AsPointer(ref temp_die_stack);
+                    }
                 }
             }
         }
@@ -46,7 +55,7 @@ namespace Hashlink
 
         private HashlinkThread()
         {
-            EventSystem.AddReceiver(new EventListener(new(this)));
+            EventSystem.AddReceiver(new EventListener(this));
 
             Native.Current.SetTlsValue(Native.Current.Data->tls_slot_index, (nint)Unsafe.AsPointer(ref NativeData));
 
@@ -74,6 +83,10 @@ namespace Hashlink
             }
         }
 
+        internal void Unregister()
+        {
+            Native.modcorenative_unregister_hl_thread(NativeInfo);
+        }
 
         public static void RegisterThread( nint stacktop = 0 )
         {
