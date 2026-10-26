@@ -135,7 +135,7 @@ jobs:
     - name: Run benchmark
       shell: pwsh
       run: |
-        dotnet run --project test/Benchmark/DCCMBenchmark.csproj -c Release -- --filter "*"
+        dotnet run --project test/Benchmark/DCCMBenchmark.csproj -c Release -- --filter "*" --fast
     - name:  Publish benchmark summary
       shell: pwsh
       if: always()
