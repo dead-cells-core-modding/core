@@ -18,17 +18,20 @@ namespace Hashlink.Marshaling.ObjHandle
             public GCHandle weakRef;
             public HashlinkObjHandle? strongRef;
 
-            public void Free()
+            public void Free( bool clearWrapper = true )
             {
                 Debug.Assert(valid);
                 Debug.Assert(hlPtr != 0);
 
                 strongRef = null;
                 valid = false;
-                var wrapperPtr = GetObjWrapperPtr((void*)hlPtr);
-                if (wrapperPtr != null)
+                if (clearWrapper)
                 {
-                    *wrapperPtr = 0;
+                    var wrapperPtr = GetObjWrapperPtr((void*)hlPtr);
+                    if (wrapperPtr != null)
+                    {
+                        *wrapperPtr = 0;
+                    }
                 }
                 hlPtr = 0;
             }
@@ -120,6 +123,7 @@ namespace Hashlink.Marshaling.ObjHandle
                         continue;
                     }
 
+                    Debug.Assert(curHandle.strongRef == null);
                     Debug.Assert(curHandle.weakRef.Target == null);
 
                     freeCount++;
@@ -353,8 +357,7 @@ namespace Hashlink.Marshaling.ObjHandle
                     if (*wp != 0)
                     {
                         var gch = GCHandle.FromIntPtr(*wp);
-                        var handle = gch.Target as HashlinkObjHandle;
-                        if (handle == null)
+                        if (gch.Target is not HashlinkObjHandle handle)
                         {
                             *wp = 0;
                             continue;
@@ -391,22 +394,47 @@ namespace Hashlink.Marshaling.ObjHandle
             }
 
             //Alloc New Handle
+            while (true)
             {
                 ref var h = ref AllocObjHandle(out var handleIdx);
-                Debug.Assert(!h.valid);
-                Debug.Assert(h.hlPtr == 0);
-                var handle = new HashlinkObjHandle(ptr, handleIdx);
-                h.Init(ptr, handle);
-                if (handle.IsStateful)
+
+                var retry = false;
+                gcLock.EnterReadLock();
+                try
                 {
-                    h.strongRef = handle;
+                    if (h.valid)
+                    {
+                        continue;
+                    }
+
+                    Debug.Assert(!h.valid);
+                    Debug.Assert(h.hlPtr == 0);
+                    var handle = new HashlinkObjHandle(ptr, handleIdx);
+                    h.Init(ptr, handle);
+                    if (handle.IsStateful)
+                    {
+                        h.strongRef = handle;
+                    }
+
+                    if (Interlocked.CompareExchange(ref *wp, (nint)h.weakRef, 0) != 0)
+                    {
+                        h.Free(false);
+                        retry = true;
+                    }
+                    else
+                    {
+                        return handle;
+                    }
+                }
+                finally
+                {
+                    gcLock.ExitReadLock();
                 }
 
-                if (Interlocked.CompareExchange(ref *wp, (nint)h.weakRef, 0) != 0)
+                if (retry)
                 {
-                    h.Free();
+                    return GetHandle(ptr);
                 }
-                return handle;
             }
         }
     }
