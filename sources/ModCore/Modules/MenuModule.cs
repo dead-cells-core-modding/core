@@ -136,6 +136,14 @@ namespace ModCore.Modules
                     return Core.Config.Value.EnableMesaD3D12;
                 }, Ref<bool>.In(Core.Config.Value.EnableMesaD3D12), flow);
 
+                options.addToggleWidget(GetString("Using legacy game audio effects"),
+                    GetString("Takes effect after restarting the game"), () =>
+                    {
+                        Core.Config.Value.UseOldSFX = !Core.Config.Value.UseOldSFX;
+                        Core.Config.Save();
+                        return Core.Config.Value.UseOldSFX;
+                    }, Ref<bool>.In(Core.Config.Value.UseOldSFX), flow);
+
                 if (Environment.GetEnvironmentVariable("DCCM_STEAMWORKSHOP_ENABLED") == "true" &&
                     GameInfo.Platform == GameInfo.PlatformKind.Steam)
                 {

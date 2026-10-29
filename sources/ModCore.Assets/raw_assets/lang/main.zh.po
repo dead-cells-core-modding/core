@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-10-04 10:53+0800\n"
-"PO-Revision-Date: 2026-10-04 11:27+0800\n"
+"POT-Creation-Date: 2026-10-29 21:34+0800\n"
+"PO-Revision-Date: 2026-10-29 21:35+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -13,15 +13,15 @@ msgstr ""
 "X-Poedit-Basepath: ../../../ModCore\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: Modules/Game.cs:370
+#: Modules/Game.cs:372
 msgid "Dead Cells Core Modding enabled, achievements and rankings disabled."
 msgstr "Dead Cells Core Modding 已启用，成就和排行榜功能已禁用。"
 
-#: Modules/Game.cs:371
+#: Modules/Game.cs:373
 msgid "This window will not reappear after closing."
 msgstr "关闭后，此窗口将不再显示。"
 
-#: Modules/Game.cs:390
+#: Modules/Game.cs:392
 msgid " New version of DCCM is now available for update"
 msgstr "有新版本的 DCCM 可供升级"
 
@@ -59,48 +59,56 @@ msgid ""
 "Use D3D12 as the rendering backend to avoid certain issues caused by OpenGL"
 msgstr "使用 D3D12 作为渲染后端以避免 OpenGL 造成的一些问题"
 
-#: Modules/MenuModule.cs:142
+#: Modules/MenuModule.cs:139
+msgid "Using legacy game audio effects"
+msgstr "使用旧版游戏音频效果"
+
+#: Modules/MenuModule.cs:140
+msgid "Takes effect after restarting the game"
+msgstr "重启游戏后生效"
+
+#: Modules/MenuModule.cs:150
 msgid "Get mods"
 msgstr "获取 Mods"
 
-#: Modules/MenuModule.cs:143
+#: Modules/MenuModule.cs:151
 msgid "Get mods from the Steam Workshop"
 msgstr "从Steam创意工坊获取 Mods"
 
-#: Modules/MenuModule.cs:150
+#: Modules/MenuModule.cs:158
 msgid "Disable Automatic Updates for DCCM"
 msgstr "禁用 DCCM 的自动更新"
 
-#: Modules/MenuModule.cs:151
+#: Modules/MenuModule.cs:159
 msgid ""
 "Disable automatic updates for DCCM, but Steam will still download the latest "
 "version of DCCM"
 msgstr "禁用 DCCM 的自动更新，但是 Steam 仍然会自动下载最新版的 DCCM"
 
-#: Modules/MenuModule.cs:159
+#: Modules/MenuModule.cs:167
 msgid "Update DCCM now"
 msgstr "现在更新 DCCM"
 
-#: Modules/MenuModule.cs:160
+#: Modules/MenuModule.cs:168
 msgid "Update DCCM to the latest version without enabling automatic updates"
 msgstr "在不启用自动更新的情况下通过 Steam 创意工坊更新 DCCM"
 
-#: Modules/MenuModule.cs:227
+#: Modules/MenuModule.cs:235
 msgid "Loaded Mods"
 msgstr "已加载的 Mods"
 
-#: Modules/MenuModule.cs:282
+#: Modules/MenuModule.cs:290
 msgid "Join Discord"
 msgstr "加入 Discord"
 
-#: Modules/MenuModule.cs:287
+#: Modules/MenuModule.cs:295
 msgid "Buy Me a Coffee"
 msgstr "支持我们"
 
-#: Modules/MenuModule.cs:287
+#: Modules/MenuModule.cs:295
 msgid "Your support helps us keep maintaining it.Thank you!"
 msgstr "您的支持帮助我们持续维护它。谢谢！"
 
-#: Modules/MenuModule.cs:464
+#: Modules/MenuModule.cs:472
 msgid "Core Modding"
 msgstr "Core Modding"
