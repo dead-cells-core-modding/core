@@ -73,13 +73,10 @@ jobs:
   benchmark:
     strategy:
       matrix:
-        os: [ubuntu-26.04, windows-latest]
+        os: [windows-latest]
         include:
           - os: windows-latest
             os_name: win
-            arch: x64
-          - os: ubuntu-26.04
-            os_name: linux
             arch: x64
     runs-on: ${{ matrix.os }}
     needs: build
