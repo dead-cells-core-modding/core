@@ -321,6 +321,17 @@ namespace Hashlink.Marshaling.ObjHandle
 
         public static HashlinkObjHandle? TryGetHandle( nint ptr )
         {
+            if (ptr == 0)
+            {
+                return null;
+            }
+
+            var p = HashlinkObjPtr.Get(ptr);
+            if (p.TypeKind < TypeKind.HBYTES)
+            {
+                return null;
+            }
+
             var wp = GetObjWrapperPtr((void*)ptr);
             if (wp == null)
             {

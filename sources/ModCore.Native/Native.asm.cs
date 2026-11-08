@@ -12,7 +12,9 @@ namespace ModCore.Native
     internal unsafe partial class Native
     {
         public const int STACK_CHUCK_SUM = unchecked((int)0xcececece);
-        private nint nativeCodePage;
+
+        public nint ASM_low;
+        public nint ASM_high;
 
         private AsmAssembler? assembler;
 
@@ -68,10 +70,6 @@ namespace ModCore.Native
 
             assembler = new();
 
-           
-
-            nativeCodePage = (nint)HashlinkNative.hl_alloc_executable_memory(8192);
-
             *Data = new()
             {
                 tls_slot_index = AllocTls()
@@ -80,7 +78,8 @@ namespace ModCore.Native
 
             var dict = new Dictionary<string, FieldInfo>();
 
-            using var stream = new UnmanagedMemoryStream((byte*)nativeCodePage, 8192, 8192, FileAccess.ReadWrite);
+            assembler.DefineGlobalSymbol("ASM_SYM_Begin");
+
             foreach (var v in st.GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
                 if (v.FieldType != typeof(nint) ||
@@ -99,14 +98,19 @@ namespace ModCore.Native
 
                 generator.Invoke(this, [assembler]);
             }
+            assembler.DefineGlobalSymbol("ASM_SYM_End");
 
             assembler.Compiler.OnError += Compiler_OnError;
             assembler.Compile();
+
+            ASM_high = assembler.GetSymbol("ASM_SYM_End");
+            ASM_low = assembler.GetSymbol("ASM_SYM_Begin");
 
             foreach ((var sym, var f) in dict)
             {
                 f.SetValue(this, assembler.GetSymbol(sym));
             }
+
         }
 
         private void Compiler_OnError( string? obj )

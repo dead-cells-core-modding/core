@@ -252,8 +252,14 @@ namespace ModCore.Native
         [UnmanagedCallersOnly]
         protected static void Hook_gc_mark_stack( nint start, nint end )
         {
-            if (start == 0 || end == 0 || Current.IsBadPtr(start))
+            if (start == 0 || end == 0 || start >= end ||
+                Current.IsBadReadPtr(start))
             {
+                return;
+            }
+            if (Current.IsBadReadPtr(start) || Current.IsBadReadPtr(end - 8) || Current.IsBadReadPtr((start + end) / 2))
+            {
+                Log.Error("BAD READ PTR(GC STACK MARK): {start:x} {end:x}", start, end);
                 return;
             }
             ((delegate* unmanaged< nint, nint, void >)orig_gc_mark_stack)(start, end);
@@ -1001,6 +1007,7 @@ namespace ModCore.Native
         public abstract void RestorePageProtect( nint ptr, int val );
         public abstract ReadOnlySpan<byte> GetHlbootDataFromExe( string exePath );
         public abstract bool IsBadPtr( nint ptr );
+        public abstract bool IsBadReadPtr( nint ptr );
 
         /// <summary>
         /// Resolve the load base address of a native library handle returned by

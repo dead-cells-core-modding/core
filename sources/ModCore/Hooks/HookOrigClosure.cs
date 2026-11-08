@@ -11,12 +11,13 @@ namespace ModCore.Hooks
     internal unsafe class HookOrigClosure : HashlinkClosure
     {
         [ThreadStatic]
-        private static HL_vclosure value;
+        private static HL_vclosure[]? local_value_ptr;
 
         private static HashlinkObjPtr GetLocalValuePtr( HashlinkFuncType funcType )
         {
-            value.type = funcType.NativeType;
-            return HashlinkObjPtr.Get(Unsafe.AsPointer(ref value));
+            local_value_ptr ??= GC.AllocateArray<HL_vclosure>(1, true);
+            local_value_ptr[0].type = funcType.NativeType;
+            return HashlinkObjPtr.Get(Unsafe.AsPointer(ref local_value_ptr[0]));
         }
         public HookOrigClosure( HashlinkFuncType funcType, Delegate target ) :
             base(GetLocalValuePtr(funcType))

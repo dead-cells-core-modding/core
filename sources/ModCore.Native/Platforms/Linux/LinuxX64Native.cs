@@ -269,6 +269,10 @@ namespace ModCore.Native
         private static (nint start, nint end)[]? _cachedMaps;
         private static int _mapsCachedOnThread = -1;
 
+        public override bool IsBadReadPtr( nint ptr )
+        {
+            return IsBadPtr( ptr );
+        }
         public override bool IsBadPtr(nint ptr)
         {
             if (ptr == 0) return true;

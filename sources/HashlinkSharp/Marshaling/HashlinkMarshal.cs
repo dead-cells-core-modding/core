@@ -159,7 +159,7 @@ namespace Hashlink.Marshaling
         {
             ArgumentNullException.ThrowIfNull(target, nameof(target));
 
-            marshaler ??= DefaultHashlinkMarshaler.Instance;
+            marshaler ??= DefaultMarshaler;
 
             if (!marshaler.TryWriteData(target, val, type))
             {
@@ -175,7 +175,7 @@ namespace Hashlink.Marshaling
         {
             ArgumentNullException.ThrowIfNull(target, nameof(target));
 
-            marshaler ??= DefaultHashlinkMarshaler.Instance;
+            marshaler ??= DefaultMarshaler;
 
             return marshaler.TryReadData(target, type);
         }
@@ -200,7 +200,7 @@ namespace Hashlink.Marshaling
             }
             EnsureThreadRegistered();
 
-            marshaler ??= DefaultHashlinkMarshaler.Instance;
+            marshaler ??= DefaultMarshaler;
             var handle = HashlinkObjManager.GetHandle((nint)target);
             return (handle != null && handle.Target != null)
                 ? handle.Target

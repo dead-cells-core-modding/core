@@ -38,7 +38,6 @@ namespace Hashlink.Proxy
 
         private HashlinkObjPtr( nint ptr )
         {
-            HashlinkMarshal.EnsureThreadRegistered();
             Pointer = ptr;
         }
     }

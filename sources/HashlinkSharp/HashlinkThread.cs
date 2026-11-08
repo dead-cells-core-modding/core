@@ -10,6 +10,8 @@ namespace Hashlink
     {
         [ThreadStatic]
         private static HashlinkThread? current;
+
+        [FixedAddressValueType]
         private static ulong temp_die_stack = 0;
 
         private class EventListener( HashlinkThread thread ) : IEventReceiver,

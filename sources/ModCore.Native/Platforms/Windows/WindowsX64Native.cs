@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.System.Diagnostics.Debug;
@@ -372,18 +373,34 @@ namespace ModCore.Native
                 t->stack_cur = &t;
                 return;
             }
+
+
             using var th = OpenThread_SafeHandle(Windows.Win32.System.Threading.THREAD_ACCESS_RIGHTS.THREAD_GET_CONTEXT
                 | Windows.Win32.System.Threading.THREAD_ACCESS_RIGHTS.THREAD_SUSPEND_RESUME, false, (uint)t->thread_id);
 
-            SuspendThread(th);
+            if (th.IsInvalid) // Thread exited
+            {
+                t->stack_cur = null;
+                t->stack_top = null;
+                return;
+            }
 
             CONTEXT* context = stackalloc CONTEXT[1];
+            RETRY:
+            SuspendThread(th);
+
+            *context = new();
 
             context->ContextFlags = CONTEXT_FLAGS.CONTEXT_CONTROL_AMD64;
 
             var err = GetThreadContext(th, ref context[0]);
 
-            Debug.Assert(err != 0);
+            if (err == 0)
+            {
+                t->stack_cur = null;
+                t->stack_top = null;
+                return;
+            }
 
             var rsp = context->Rsp;
 
@@ -392,6 +409,12 @@ namespace ModCore.Native
             t->stack_cur = (void*)rsp;
 
             ResumeThread(th);
+
+            if (context->Rip >= (ulong)ASM_low && context->Rip <= (ulong)ASM_high)
+            {
+                Thread.Sleep(1);
+                goto RETRY;
+            }
         }
 
         public override void SetTlsValue( int index, nint val )
@@ -439,7 +462,12 @@ namespace ModCore.Native
 
         public override bool IsBadPtr( nint ptr )
         {
-            return IsBadReadPtr((void*)ptr, 8) && IsBadWritePtr((void*)ptr, 8) && IsBadCodePtr((FARPROC)ptr);
+            return PInvoke.IsBadReadPtr((void*)ptr, 8) && IsBadWritePtr((void*)ptr, 8) && IsBadCodePtr((FARPROC)ptr);
+        }
+
+        public override bool IsBadReadPtr( nint ptr )
+        {
+            return PInvoke.IsBadReadPtr((void*)ptr, 8);
         }
 
         /// <summary>
