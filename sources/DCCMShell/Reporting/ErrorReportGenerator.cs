@@ -39,6 +39,8 @@ You can report or contact us via:
 - Discord: https://discord.gg/9euFADqXEC
 - Github Issue: https://github.com/dead-cells-core-modding/core/issues/new/choose
 
+Note: If you need help, please send the complete log file (the current file) to the other party instead of sending photos or screenshots of this window or of this file, whether in whole or in part.
+
 """;
 
         public static readonly string ERROR_REPORT_AI = $"""

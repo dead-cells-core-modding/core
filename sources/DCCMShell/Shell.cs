@@ -19,23 +19,6 @@ namespace DCCMShell
                 AssemblyLoadContext.Default.LoadFromAssemblyPath(asmPath);
             }
 
-            Environment.SetEnvironmentVariable("SteamAPPId", "588650");
-
-            var err = Startup.CheckEnv(out var errMsg);
-            if (err != Startup.CheckEnvResult.Success)
-            {
-                if (err == Startup.CheckEnvResult.DotnetVersionTooLow)
-                {
-                    Console.Error.WriteLine($"DCCM requires .NET 10 or higher.If you see this prompt repeatedly, try updating {Path.GetFileName(Environment.ProcessPath)}.");
-                }
-                else
-                {
-                    Console.Error.WriteLine(err + ":" + errMsg);
-                }
-                Thread.Sleep(TimeSpan.FromSeconds(5));
-                Environment.Exit(-1);
-            }
-
             if (bool.TryParse(Environment.GetEnvironmentVariable("DCCM_SHOULD_WAIT_FOR_DEBUGGER"), out var shouldWaitForDebugger) &&
                 shouldWaitForDebugger)
             {

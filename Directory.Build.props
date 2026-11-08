@@ -1,19 +1,22 @@
 ﻿<Project>
   <PropertyGroup>
     <Version>35.14.2</Version>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <RepositoryUrl>https://github.com/dead-cells-core-modding/core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Company>Dead Cells Core Modding</Company>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CopyDocumentationFilesFromPackages>true</CopyDocumentationFilesFromPackages>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <MonoMod_CheckTargetRuntime>false</MonoMod_CheckTargetRuntime>
+    <MonoMod_ReallySkipCheckTargetRuntime>true</MonoMod_ReallySkipCheckTargetRuntime>
     <!-- arm64 is reserved for future Android arm64 support. -->
     <!-- Add it to the Platforms list (AnyCPU;x64;arm64) once the AArch64 -->
     <!-- Native subclass and assembly generators are implemented. -->
     <Platforms>AnyCPU;x64</Platforms>
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
     <CETCompat>false</CETCompat>
+    <Features>runtime-async=on</Features>
   </PropertyGroup>
 
 </Project>

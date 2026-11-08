@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -35,7 +36,7 @@ namespace DeadCellsModding
 
             if (!NativeLibrary.TryLoad(hostfxrPath, out _) || string.IsNullOrEmpty(hostfxrPath))
             {
-                Console.Error.WriteLine("You must install or update .NET 10 to run this application.");
+                Console.Error.WriteLine("You must install or update .NET 11 to run this application.");
                 return -1;
             }
 
@@ -77,7 +78,8 @@ namespace DeadCellsModding
             if (RuntimeFeature.IsDynamicCodeCompiled)
             {
                 var core = Assembly.LoadFrom(modcore);
-                var startup = core.GetType("DCCMShell.Shell");
+                var startup = core.GetType("DCCMShell.Shell", true);
+
                 startup!.GetMethod("StartFromShell")!.CreateDelegate<Action<nint, int>>()(0, 0);
                 return 0;
             }

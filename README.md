@@ -21,7 +21,7 @@ Join the [Discord server](https://discord.gg/7vp38qsYc4) for more help.
 
 ## Requirement
 
-- [.NET 10 Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [.NET 11 Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/11.0)
 - [Microsoft Visual C++ Redistributable (2015-2026 x64)](https://aka.ms/vc14/vc_redist.x64.exe)
 
 ## Installation

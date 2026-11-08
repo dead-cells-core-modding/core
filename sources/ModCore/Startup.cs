@@ -12,31 +12,8 @@ namespace ModCore
 {
     internal static unsafe class Startup
     {
-        public enum CheckEnvResult
-        {
-            Success = 0,
-            DotnetVersionTooLow = 1,
-        }
-        public static CheckEnvResult CheckEnv( [NotNullWhen(false)] out string? err )
-        {
-            err = null;
-
-            if (Environment.Version.Major < 10)
-            {
-                err = "DCCM requires .NET 10 or higher.";
-                return CheckEnvResult.DotnetVersionTooLow;
-            }
-
-            return CheckEnvResult.Success;
-        }
-
         public static int StartGame()
         {
-            if (CheckEnv(out _) != CheckEnvResult.Success)
-            {
-                return -1;
-            }
-
             ContextConfig.SetReadonly();
 
             LogInitializer.InitializeLog();
