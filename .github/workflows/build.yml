@@ -138,7 +138,7 @@ jobs:
       if: always()
       run: |
           $summary = $env:GITHUB_STEP_SUMMARY
-          $reportDir = "test/Benchmark/bin/Release/net10.0/BenchmarkDotNet.Artifacts/results"
+          $reportDir = "test/Benchmark/bin/Release/net11.0/BenchmarkDotNet.Artifacts/results"
 
           $reports = Get-ChildItem -Path $reportDir -Filter "*-report-github.md" -ErrorAction SilentlyContinue
 
@@ -159,7 +159,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: benchmark-results
-        path: test/Benchmark/bin/Release/net10.0/BenchmarkDotNet.Artifacts
+        path: test/Benchmark/bin/Release/net11.0/BenchmarkDotNet.Artifacts
 
 
 # FIXME: linux works on local but fail on ci
@@ -244,7 +244,7 @@ jobs:
       env:
         DOTNET_DbgEnableMiniDump: 1
         COMPlus_DbgEnableMiniDump: 1
-        DOTNET_DbgMiniDumpName: "/tmp/dccm_dump_crash_%d.dmp"
+        DOTNET_DbgMiniDumpName: "${{ runner.temp }}/dccm_crash_%p.dmp"
         DCCM_USE_HLC: ${{ matrix.useHLC }}
       run: |
         cd sources
@@ -254,7 +254,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with: 
         name: dumps-${{ matrix.os }}
-        path: /tmp/dccm_dump_crash_*.dmp
+        path: ${{ runner.temp }}/dccm_crash_%p.dmp
         retention-days: 7
 
   test-build-samples:
