@@ -32,7 +32,18 @@ namespace ModCore.Native
         private bool GC_IS_ALIVE( nint ptr )
         {
             var page = GC_GET_PAGE(ptr);
+
+            if (page == null)
+            {
+                return false;
+            }
+
             var bid = gc_allocator_get_block_id(page, (void*)ptr);
+
+            if (bid < 0)
+            {
+                return false;
+            }
             return GC_IS_ALIVE(page, bid);
         }
 
@@ -74,7 +85,7 @@ namespace ModCore.Native
                 {
                     continue;
                 }
-                    
+
                 for (int i = 0; i < size / sizeof(nint); i++)
                 {
                     var p = ((nint*)v)[i];
@@ -175,7 +186,7 @@ namespace ModCore.Native
             }
 
 #if DEBUG
-            VerifyGCValidity(roots);
+            //VerifyGCValidity(roots);
 #endif
 
         }

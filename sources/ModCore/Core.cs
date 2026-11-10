@@ -1,4 +1,5 @@
 
+using Hashlink.Virtuals;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Modules;

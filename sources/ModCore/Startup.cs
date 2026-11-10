@@ -18,6 +18,8 @@ namespace ModCore
 
             LogInitializer.InitializeLog();
 
+            Environment.SetEnvironmentVariable("SteamAPPId", "588650");
+
             Console.Title = "Dead Cells with Core Modding";
             Core.Initialize();
 

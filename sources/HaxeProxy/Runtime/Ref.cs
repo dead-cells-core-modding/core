@@ -12,7 +12,8 @@ namespace HaxeProxy.Runtime
     [StructLayout(LayoutKind.Sequential)]
     public unsafe ref struct Ref<T>( ref T value )
     {
-        private static T? defaultTarget = default;
+        [ThreadStatic]
+        private static T? defaultTarget;
 
         /// <summary>
         /// Get a null reference
