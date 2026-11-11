@@ -16,6 +16,31 @@ namespace DeadCellsModding
             return Path.Combine(root, "coremod", "core", "host", "DCCMShell.dll");
         }
 
+        private static void LoadHostFail(uint result)
+        {
+            Console.WriteLine($"Failed to load coreclr. Error Code: 0x{result:x}");
+            
+            if (result == 0x80008096)
+            {
+                if (!Console.IsOutputRedirected && !Console.IsInputRedirected)
+                {
+                    // Open web
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo()
+                        {
+                            FileName = "https://aka.ms/dotnet-core-applaunch?framework=Microsoft.WindowsDesktop.App&framework_version=11.0.0",
+                            UseShellExecute = true,
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
+                }
+            }
+        }
+
         [LibraryImport("nethost")]
         private static partial int get_hostfxr_path( Span<char> buffer, in nint buffer_size, nint __param );
         [LibraryImport("hostfxr", StringMarshalling = StringMarshalling.Utf16)]
@@ -36,11 +61,17 @@ namespace DeadCellsModding
 
             if (!NativeLibrary.TryLoad(hostfxrPath, out _) || string.IsNullOrEmpty(hostfxrPath))
             {
-                Console.Error.WriteLine("You must install or update .NET 11 to run this application.");
+                LoadHostFail(0x80008083);
                 return -1;
             }
 
-            hostfxr_initialize_for_dotnet_command_line(1, [shellPath], 0, out var ctx);
+            var result = hostfxr_initialize_for_dotnet_command_line(1, [shellPath], 0, out var ctx);
+
+            if (result < 0)
+            {
+                LoadHostFail((uint)result);
+            }
+
             return hostfxr_run_app(ctx);
         }
         private static int StartGame()
