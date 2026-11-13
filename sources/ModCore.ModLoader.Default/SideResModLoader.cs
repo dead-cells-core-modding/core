@@ -16,27 +16,26 @@ namespace ModCore.ModLoader.Default
         IOnBeforeGameInit
     {
         private readonly List<string> resPaks = [];
-        private HlAction oldInitRes = null!;
+
         protected override void Initialize()
         {
 
         }
 
-        private void Hook_InitRes()
+        void IOnBeforeGameInit.OnBeforeGameInit()
         {
-            oldInitRes();
+            Hook__Boot.initRes += Hook__Boot_initRes;
+        }
+
+        private void Hook__Boot_initRes( Hook__Boot.orig_initRes orig )
+        {
+            orig();
             foreach (var v in resPaks)
             {
                 Logger.Information("Loading mod res pak: {pak}", v);
                 FsPak.Instance.FileSystem.loadPak(v.AsHaxeString());
             }
             CDBManager.Instance.LoadJsonData(CDBManager.Instance.GetAlteredCDB());
-        }
-
-        void IOnBeforeGameInit.OnBeforeGameInit()
-        {
-            oldInitRes = dc.Boot.Class.initRes;
-            dc.Boot.Class.initRes = Hook_InitRes;
         }
 
         void IOnCollectedModInfo.OnCollectedModInfo( ModInfo info )
@@ -49,6 +48,7 @@ namespace ModCore.ModLoader.Default
             {
                 resPaks.Add(v);
             }
+            _  = new SideResMod(info);
         }
 
         void IOnRegisterModsType.OnRegisterModsType( IOnRegisterModsType.AddModType add )

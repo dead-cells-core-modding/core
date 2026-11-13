@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using static dc.hxd.PixelFormat;
+using static dc.hxsl.Prec;
 using Hook_Options = dc.ui.Hook_Options;
 using Options = dc.ui.Options;
 
@@ -314,11 +315,46 @@ namespace ModCore.Modules
         {
             Hook_Options.isOnAModSection += Hook_Options_isOnAModSection;
             Hook_Options.buildCurSection += Hook_Options_buildCurSection;
+            Hook_Options.showMain += Hook_Options_showMain;
             Hook_OptionsBase.setSection += Hook_OptionsBase_setSection;
             Hook__DefaultPause.__constructor__ += Hook_DefaultPause__constructor__;
             Hook__RichterPause.__constructor__ += Hook__RichterPause__constructor__;
+
+            if (GameInfo.Platform == GameInfo.PlatformKind.Steam)
+            {
+                HashlinkHooks.Instance.CreateHook("ui.Options", "showMods", Hook_Options_showMods, true);
+            }
         }
 
+        private void Hook_Options_showMods( Hook_Options.orig_showMain orig, Options self )
+        {
+            bool hasSep = false;
+
+            orig(self);
+
+            foreach (var mod in EventSystem.FindReceivers<ModBase>())
+            {
+                if (!hasSep)
+                {
+                    hasSep = true;
+                    self.addSeparator("".AsHaxeString(), self.scrollerFlow);
+                }
+
+                self.addToggleWidget(mod.GetDisplayName().AsHaxeString(), "".AsHaxeString(), () => true, Ref<bool>.In(true), 
+                    self.scrollerFlow);
+            }
+            
+        }
+        private void Hook_Options_showMain( Hook_Options.orig_showMain orig, Options self )
+        {
+            self.addSimpleWidget(GetString("Core Modding"), null, () =>
+            {
+                Logger.Information("Enter core modding menu");
+
+                SetSection(_mainMenu);
+            }, Ref<int>.In(5), null);
+            orig(self);
+        }
 
         private void Hook__RichterPause__constructor__( Hook__RichterPause.orig___constructor__ orig, RichterPause arg1 )
         {
@@ -467,21 +503,7 @@ namespace ModCore.Modules
                 return;
             }
 
-            if (self.curSection is OptionsSection.S_Main)
-            {
-                self.addSimpleWidget(GetString("Core Modding"), null, () =>
-                {
-                    Logger.Information("Enter core modding menu");
-
-                    SetSection(_mainMenu);
-                }, Ref<int>.In(5), null);
-
-                orig(self);
-            }
-            else
-            {
-                orig(self);
-            }
+            orig(self);
         }
 
         /// <summary>
