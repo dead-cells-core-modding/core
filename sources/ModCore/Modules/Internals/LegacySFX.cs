@@ -22,8 +22,8 @@ namespace ModCore.Modules.Internals
         {
             private const double MonoTrim = 0.846; // -1.45 dB
 
-            private static readonly Dictionary<int, int> bufferChannels = new();
-            private static readonly Dictionary<int, int> sourceChannels = new();
+            private static readonly Dictionary<int, int> bufferChannels = [];
+            private static readonly Dictionary<int, int> sourceChannels = [];
             internal static void Init()
             {
                 Hook_Driver.setBufferData += Hook_setBufferData;

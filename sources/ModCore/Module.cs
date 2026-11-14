@@ -43,7 +43,6 @@ namespace ModCore
     /// </summary>
     public abstract class Module : IEventReceiver
     {
-        private static readonly List<Module> modules = [];
 
         /// <inheritdoc/>
         public virtual int Priority => 0;
@@ -61,19 +60,7 @@ namespace ModCore
         public Module()
         {
             Logger = Log.ForContext("SourceContext", GetType().Name);
-            AddModule(this);
-        }
-
-        internal static void RemoveModule( Module module )
-        {
-            EventSystem.RemoveReceiver(module);
-            modules.Remove(module);
-        }
-
-        internal static void AddModule( Module module )
-        {
-            EventSystem.AddReceiver(module);
-            modules.Add(module);
+            EventSystem.AddReceiver(this);
         }
     }
 }

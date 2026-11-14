@@ -17,7 +17,7 @@ namespace ModCore
         public bool EnableGoldberg { get; set; } = !File.Exists(FolderInfo.GameRoot.GetFilePath("steam.hdll")) &&
                                                     !File.Exists(FolderInfo.GameRoot.GetFilePath("gog.hdll"));
         public bool AutoRefreshFxAtlas { get; set; } = true;
-        public bool SkipLogoSplash { get; set; } = true;
+        public bool SkipLogoSplash { get; set; } = false;
         public bool EnableMesaD3D12 { get; set; } = false;
         public bool UseOldSFX { get; set; } = true;
     }

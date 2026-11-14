@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace ModCore
 {
@@ -19,11 +20,6 @@ namespace ModCore
         public static readonly List<string> dllSearchPath = [
             Path.GetDirectoryName(typeof(Core).Assembly.Location)!,
             FolderInfo.Plugins.FullPath,
-            FolderInfo.Mods.FullPath,
-            ];
-        public static readonly List<string> nativeSearchPath = [
-            FolderInfo.CurrentNativeRoot.FullPath,
-             FolderInfo.GameRoot.FullPath
             ];
         public static Config<CoreConfig> Config { get; } = new("modcore");
         public static string Version {
@@ -40,15 +36,6 @@ namespace ModCore
         }
 
         public static bool InMainThread => Thread.CurrentThread == MainThread;
-
-        private static void AddPath()
-        {
-            var envName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Path" : "LD_LIBRARY_PATH";
-            var val = Environment.GetEnvironmentVariable(envName);
-            val = string.Join(';', nativeSearchPath) + ";" + val;
-            Environment.SetEnvironmentVariable(envName, val);
-        }
-
         private static readonly ConcurrentDictionary<string, Assembly?> name2typeLookup = [];
 
         public static void LoadCoreModules(
@@ -116,7 +103,8 @@ namespace ModCore
             }
             init = true;
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-            AppDomain.CurrentDomain.TypeResolve += CurrentDomain_TypeResolve;
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             Environment.SetEnvironmentVariable("DCCM_CoreLoaded", "true");
 
@@ -168,23 +156,6 @@ namespace ModCore
             Log.Logger.Information("Loaded modding core");
         }
 
-        private static Assembly? CurrentDomain_TypeResolve( object? sender, ResolveEventArgs args )
-        {
-            var parts = args.Name.Split(',');
-            var type = parts[0];
-            return name2typeLookup.GetOrAdd(type, name =>
-            {
-                foreach (var v in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (v.GetType(name) != null)
-                    {
-                        return v;
-                    }
-                }
-                return null;
-            });
-
-        }
 
         private static Assembly? CurrentDomain_AssemblyResolve( object? sender, ResolveEventArgs args )
         {

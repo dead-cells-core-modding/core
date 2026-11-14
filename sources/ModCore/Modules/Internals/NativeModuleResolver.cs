@@ -85,6 +85,16 @@ namespace ModCore.Modules.Internals
                     return (nint)ptr_NativeReturnTrue;
                 }
             }
+            if (info.libname == "ui")
+            {
+                if (info.name == "ui_close_console")
+                {
+                    if (!Core.Config.Value.AllowCloseConsole)
+                    {
+                        return (nint)ptr_NativeReturnTrue;
+                    }
+                }
+            }
             if (info.libname == "sdl")
             {
                 if (info.name == "set_relative_mouse_mode")

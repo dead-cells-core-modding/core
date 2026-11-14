@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-10-29 21:34+0800\n"
-"PO-Revision-Date: 2026-10-29 21:35+0800\n"
+"POT-Creation-Date: 2026-11-14 20:14+0800\n"
+"PO-Revision-Date: 2026-11-14 20:15+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -38,77 +38,81 @@ msgstr "你依然可以继续操作，但所有 Mods 的数据都将会丢失！
 msgid "Please check the log file for more information."
 msgstr "请检查日志文件以获取更多信息。"
 
-#: Modules/MenuModule.cs:103
+#: Modules/MenuModule.cs:104
 msgid "CORE MODDING"
 msgstr "CORE MODDING"
 
-#: Modules/MenuModule.cs:109
+#: Modules/MenuModule.cs:110
 msgid "About Core Modding"
 msgstr "关于 Core Modding"
 
-#: Modules/MenuModule.cs:119
+#: Modules/MenuModule.cs:120
 msgid "Generate Crash Log"
 msgstr "手动生成崩溃日志"
 
-#: Modules/MenuModule.cs:131
+#: Modules/MenuModule.cs:132
 msgid "Enable Mesa D3D12"
 msgstr "启用 D3D12"
 
-#: Modules/MenuModule.cs:132
+#: Modules/MenuModule.cs:133
 msgid ""
 "Use D3D12 as the rendering backend to avoid certain issues caused by OpenGL"
 msgstr "使用 D3D12 作为渲染后端以避免 OpenGL 造成的一些问题"
 
-#: Modules/MenuModule.cs:139
+#: Modules/MenuModule.cs:140
 msgid "Using legacy game audio effects"
 msgstr "使用旧版游戏音频效果"
 
-#: Modules/MenuModule.cs:140
+#: Modules/MenuModule.cs:141
 msgid "Takes effect after restarting the game"
 msgstr "重启游戏后生效"
 
-#: Modules/MenuModule.cs:150
+#: Modules/MenuModule.cs:148
+msgid "Skip the splash logo"
+msgstr "跳过启动画面中的徽标"
+
+#: Modules/MenuModule.cs:159
 msgid "Get mods"
 msgstr "获取 Mods"
 
-#: Modules/MenuModule.cs:151
+#: Modules/MenuModule.cs:160
 msgid "Get mods from the Steam Workshop"
 msgstr "从Steam创意工坊获取 Mods"
 
-#: Modules/MenuModule.cs:158
+#: Modules/MenuModule.cs:167
 msgid "Disable Automatic Updates for DCCM"
 msgstr "禁用 DCCM 的自动更新"
 
-#: Modules/MenuModule.cs:159
+#: Modules/MenuModule.cs:168
 msgid ""
 "Disable automatic updates for DCCM, but Steam will still download the latest "
 "version of DCCM"
 msgstr "禁用 DCCM 的自动更新，但是 Steam 仍然会自动下载最新版的 DCCM"
 
-#: Modules/MenuModule.cs:167
+#: Modules/MenuModule.cs:176
 msgid "Update DCCM now"
 msgstr "现在更新 DCCM"
 
-#: Modules/MenuModule.cs:168
+#: Modules/MenuModule.cs:177
 msgid "Update DCCM to the latest version without enabling automatic updates"
 msgstr "在不启用自动更新的情况下通过 Steam 创意工坊更新 DCCM"
 
-#: Modules/MenuModule.cs:235
+#: Modules/MenuModule.cs:244
 msgid "Loaded Mods"
 msgstr "已加载的 Mods"
 
-#: Modules/MenuModule.cs:290
+#: Modules/MenuModule.cs:299
 msgid "Join Discord"
 msgstr "加入 Discord"
 
-#: Modules/MenuModule.cs:295
+#: Modules/MenuModule.cs:304
 msgid "Buy Me a Coffee"
 msgstr "支持我们"
 
-#: Modules/MenuModule.cs:295
+#: Modules/MenuModule.cs:304
 msgid "Your support helps us keep maintaining it.Thank you!"
 msgstr "您的支持帮助我们持续维护它。谢谢！"
 
-#: Modules/MenuModule.cs:472
+#: Modules/MenuModule.cs:358
 msgid "Core Modding"
 msgstr "Core Modding"

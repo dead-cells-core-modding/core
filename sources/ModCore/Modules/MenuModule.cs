@@ -145,6 +145,14 @@ namespace ModCore.Modules
                         return Core.Config.Value.UseOldSFX;
                     }, Ref<bool>.In(Core.Config.Value.UseOldSFX), flow);
 
+                options.addToggleWidget(GetString("Skip the splash logo"),
+                    GetString(""), () =>
+                    {
+                        Core.Config.Value.SkipLogoSplash = !Core.Config.Value.SkipLogoSplash;
+                        Core.Config.Save();
+                        return Core.Config.Value.SkipLogoSplash;
+                    }, Ref<bool>.In(Core.Config.Value.SkipLogoSplash), flow);
+
                 if (Environment.GetEnvironmentVariable("DCCM_STEAMWORKSHOP_ENABLED") == "true" &&
                     GameInfo.Platform == GameInfo.PlatformKind.Steam)
                 {
