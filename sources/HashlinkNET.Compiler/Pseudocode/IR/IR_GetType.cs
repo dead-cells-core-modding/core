@@ -11,7 +11,14 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         public TypeReference type = type;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
-            il.Emit(OpCodes.Call, ctx.RuntimeImports.phGetTypePointer.MakeInstance(type));
+            if (type.FullName == "System.Void")
+            {
+                il.Emit(OpCodes.Call, ctx.RuntimeImports.phGetVoidTypePointer);
+            }
+            else
+            {
+                il.Emit(OpCodes.Call, ctx.RuntimeImports.phGetTypePointer.MakeInstance(type));
+            }
             return ctx.RuntimeImports.bytesType;
         }
     }

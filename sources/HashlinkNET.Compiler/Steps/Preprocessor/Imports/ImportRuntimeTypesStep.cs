@@ -76,6 +76,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.phWrapException = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.WrapException));
             rdata.phUnwrapException = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.UnwrapException));
             rdata.phGetTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetTypePointer));
+            rdata.phGetVoidTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetVoidTypePointer));
             rdata.phGetRuntimeTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetRuntimeTypePointer));
             rdata.phGetTypeId = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetTypeId));
             rdata.phGetRefPointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetRefPointer));

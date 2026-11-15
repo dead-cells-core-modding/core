@@ -94,6 +94,7 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference phWrapException;
         public MethodReference phUnwrapException;
         public MethodReference phGetTypePointer;
+        public MethodReference phGetVoidTypePointer;
         public MethodReference phGetRuntimeTypePointer;
         public MethodReference phGetTypeId;
         public MethodReference phGetRefPointer;
