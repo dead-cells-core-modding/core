@@ -88,6 +88,26 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                     var changed = false;
                     for (var i = 0; i < instructions.Count; i++)
                     {
+                        var ins = instructions[i];
+                        if (ins.Operand is Instruction tgt0 &&
+                            Index(tgt0) >= tryStart && Index(tgt0) < tryEnd &&
+                            (i >= tryEnd || (handlerStart >= 0 && i >= handlerStart && i < (eh.HandlerEnd == null ? instructions.Count : Index(eh.HandlerEnd)))))
+                        {
+                            // A branch from after the handler back into the try
+                            // cannot be represented in a single protected
+                            // region. Drop the region; the remaining body is
+                            // still valid straight-line IL.
+                            body.ExceptionHandlers.Clear();
+                            foreach (var x in instructions)
+                            {
+                                if (x.OpCode.Code is Code.Leave or Code.Leave_S)
+                                {
+                                    x.OpCode = OpCodes.Br;
+                                }
+                            }
+                            return;
+                        }
+
                         if (instructions[i].Operand is not Instruction tgt)
                         {
                             continue;
