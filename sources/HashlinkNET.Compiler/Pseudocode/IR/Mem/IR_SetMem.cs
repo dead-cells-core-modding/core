@@ -29,6 +29,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Mem
             il.Emit(OpCodes.Add);
 
             var vt = val.Emit(ctx, true)!;
+            vt = il.EmitNullableUnwrap(container, vt)!;
             var target = storeType ?? vt;
             if (storeType != null)
             {

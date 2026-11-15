@@ -179,7 +179,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             }
         }
 
-        private static void DropExceptionRegions( MethodBody body )
+        internal static void DropExceptionRegions( MethodBody body )
         {
             var instructions = body.Instructions;
             foreach (var eh in body.ExceptionHandlers)

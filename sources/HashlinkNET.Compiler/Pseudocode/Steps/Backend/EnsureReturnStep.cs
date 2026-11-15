@@ -23,6 +23,28 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             }
 
             var last = list[^1];
+            if (last.OpCode.Code == Code.Ret &&
+                body.ExceptionHandlers.Count == 0 &&
+                gdata.Definition.ReturnType.MetadataType != MetadataType.Void)
+            {
+                // The emitter appends a bare ret as a fallback.  When the last
+                // real block falls through into it, it is reached with an empty
+                // stack even though the method returns a value.
+                var prev = last.Previous;
+                var reachable = prev != null && prev.OpCode.Code is not (
+                    Code.Ret or Code.Throw or Code.Rethrow or
+                    Code.Br or Code.Br_S or Code.Leave or Code.Leave_S or
+                    Code.Jmp or Code.Switch);
+                if (reachable)
+                {
+                    list.Remove(last);
+                    if (list.Count == 0)
+                    {
+                        return;
+                    }
+                    last = list[^1];
+                }
+            }
             if (last.OpCode.Code is Code.Ret or Code.Throw or Code.Rethrow or
                 Code.Br or Code.Br_S or Code.Leave or Code.Leave_S or Code.Jmp)
             {
@@ -74,7 +96,10 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             {
                 Code.Ldc_I4 or Code.Ldc_I4_S or Code.Ldc_I8 or Code.Ldc_R4 or Code.Ldc_R8 or
                 Code.Ldnull or Code.Ldstr or Code.Ldloc or Code.Ldloc_S or Code.Ldarg or
-                Code.Ldarg_S or Code.Ldsfld or Code.Ldsflda or Code.Ldftn => 1,
+                Code.Ldarg_S or Code.Ldsfld or Code.Ldsflda or Code.Ldftn or
+                Code.Ldloc_0 or Code.Ldloc_1 or Code.Ldloc_2 or Code.Ldloc_3 or
+                Code.Ldarg_0 or Code.Ldarg_1 or Code.Ldarg_2 or Code.Ldarg_3 or
+                Code.Ldloca or Code.Ldloca_S or Code.Ldfld or Code.Ldflda => 1,
                 Code.Stloc or Code.Stloc_S or Code.Starg or Code.Starg_S or Code.Stsfld or Code.Pop => -1,
                 Code.Add or Code.Sub or Code.Mul or Code.Div or Code.And or Code.Or or Code.Xor => -1,
                 Code.Brtrue or Code.Brfalse => -1,

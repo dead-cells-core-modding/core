@@ -53,6 +53,20 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
                 {
                     expected = dgi.GenericArguments[gp.Position];
                 }
+                else if (expected is GenericParameter mgp &&
+                    mgp.Type == GenericParameterType.Method &&
+                    method is GenericInstanceMethod gim &&
+                    mgp.Position < gim.GenericArguments.Count)
+                {
+                    expected = gim.GenericArguments[mgp.Position];
+                }
+
+                if (expected != null && expected.IsValueType &&
+                    !(expected is GenericInstanceType expectedNullable &&
+                      expectedNullable.ElementType.FullName == "System.Nullable`1"))
+                {
+                    actual = il.EmitNullableUnwrap(container, actual);
+                }
 
                 if (expected is GenericInstanceType pgi &&
                     pgi.ElementType.FullName == ctx.RuntimeImports.refType.FullName &&

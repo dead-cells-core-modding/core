@@ -78,6 +78,17 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                 Instruction handlerStart = handlerBB.startInst;
                 Instruction handlerEnd = handlerEndBB?.endInst ?? handlerBB.endInst;
 
+                // A trap region that cannot be expressed as a CLR protected
+                // region is dropped before any handler/branch rewriting takes
+                // place.  Cloning instructions to make illegal entry edges
+                // legal corrupts partially-evaluated expressions and leaves
+                // unbalanced stack states behind, so unsupported regions are
+                // simply left as ordinary control flow instead.
+                if (!CanRepresentRegion(md, tryStart, tryEnd, handlerStart, handlerEnd))
+                {
+                    continue;
+                }
+
                 // --- Store caught exception into the trap's destination register ---
                 // .NET pushes the exception onto the stack when entering a catch handler.
                 // The HL VM places it in the trap's dst register automatically;
@@ -211,118 +222,97 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                         // Exit from try must use Leave.
                         inst.OpCode = OpCodes.Leave;
                     }
-                    else if (!srcInTry && tgtInTry)
-                    {
-                        // Branch into a try from outside is illegal in .NET SEH.
-                        // Clone the target block so the back-edge lands outside.
-                        CloneTargetOutsideTry(md, eh, inst, target);
-                    }
                 }
             }
         }
 
         /// <summary>
-        /// Clone a short sequence of instructions starting at
-        /// <paramref name="origTarget"/> (which is inside a protected region)
-        /// and place the copy just before <c>TryStart</c> so that a back-edge
-        /// from outside the try can target the clone instead.
+        /// Checks whether a trap region can be represented as a CLR protected
+        /// region without cloning instructions.  Branches from before the try
+        /// (or between the try and its handler) into the try are allowed
+        /// because <see cref="NormalizeExceptionRegionsStep"/> extends the
+        /// region to cover them.  Any other illegal entry edge means the
+        /// region must be left untranslated.
         /// </summary>
-        /// 
-
-        private static void CloneTargetOutsideTry(
+        private static bool CanRepresentRegion(
             MethodDefinition md,
-            ExceptionHandler eh,
-            Instruction branchInst,
-            Instruction origTarget )
+            Instruction tryStart,
+            Instruction tryEnd,
+            Instruction handlerStart,
+            Instruction handlerEnd )
         {
-            // Collect a short run of non-branch instructions ending at the
-            // first branch, ret, or throw.
-            var run = new List<Instruction>();
-            var it = origTarget;
-            const int maxRun = 8;
-            while (it != null && run.Count < maxRun)
+            var instructions = md.Body.Instructions;
+            var tryStartIdx = instructions.IndexOf(tryStart);
+            var tryEndIdx = instructions.IndexOf(tryEnd);
+            var handlerStartIdx = instructions.IndexOf(handlerStart);
+            var handlerEndIdx = instructions.IndexOf(handlerEnd);
+            if (tryStartIdx < 0 || tryEndIdx < 0 || handlerStartIdx < 0 ||
+                tryEndIdx <= tryStartIdx ||
+                (handlerEndIdx >= 0 && handlerEndIdx <= handlerStartIdx))
             {
-                run.Add(it);
-                var op = it.OpCode;
-                if (op == OpCodes.Br || op == OpCodes.Br_S
-                    || op == OpCodes.Leave || op == OpCodes.Leave_S
-                    || op == OpCodes.Ret || op == OpCodes.Throw
-                    || op == OpCodes.Switch
-                    || op == OpCodes.Brtrue || op == OpCodes.Brtrue_S
-                    || op == OpCodes.Brfalse || op == OpCodes.Brfalse_S
-                    || op == OpCodes.Blt || op == OpCodes.Blt_S
-                    || op == OpCodes.Bgt || op == OpCodes.Bgt_S
-                    || op == OpCodes.Ble || op == OpCodes.Ble_S
-                    || op == OpCodes.Bge || op == OpCodes.Bge_S
-                    || op == OpCodes.Beq || op == OpCodes.Beq_S
-                    || op == OpCodes.Bne_Un || op == OpCodes.Bne_Un_S
-                    || op == OpCodes.Blt_Un || op == OpCodes.Blt_Un_S
-                    || op == OpCodes.Bgt_Un || op == OpCodes.Bgt_Un_S
-                    || op == OpCodes.Ble_Un || op == OpCodes.Ble_Un_S
-                    || op == OpCodes.Bge_Un || op == OpCodes.Bge_Un_S)
-                    break;
-                it = it.Next;
-            }
-            if (run.Count == 0) return;
-
-            // --- build clone ---
-            var cloneFirst = Instruction.Create(OpCodes.Nop);
-            var cloneLast = cloneFirst;
-            var labelMap = new Dictionary<Instruction, Instruction>();
-            foreach (var src in run)
-            {
-                var c = Instruction.Create(OpCodes.Nop);
-                c.OpCode = src.OpCode;
-                c.Operand = src.Operand;
-                labelMap[src] = c;
-                cloneLast.Next = c;
-                c.Previous = cloneLast;
-                cloneLast = c;
-            }
-            // Drop the leading Nop we used as anchor
-            var firstReal = cloneFirst.Next!;
-            if (firstReal != null)
-                firstReal.Previous = null;
-
-            // Remap intra-clone branch targets
-            foreach (var src in run)
-            {
-                var c = labelMap[src];
-                if (c.Operand is Instruction t && labelMap.TryGetValue(t, out var r))
-                    c.Operand = r;
+                return false;
             }
 
-            // --- insert clone before TryStart ---
-            var insertBefore = eh.TryStart;
-            if (firstReal != null)
+            bool InRange( int index, int start, int end ) =>
+                index >= start && (end < 0 ? index < instructions.Count : index < end);
+
+            for (var i = 0; i < instructions.Count; i++)
             {
-                var prev = insertBefore.Previous;
-                if (prev != null) prev.Next = firstReal;
-                firstReal.Previous = prev;
-                cloneLast.Next = insertBefore;
-                insertBefore.Previous = cloneLast;
-
-                // Insert into instruction collection
-                var idx = md.Body.Instructions.IndexOf(insertBefore);
-                foreach (var src in run)
-                    md.Body.Instructions.Insert(idx++, labelMap[src]);
-            }
-
-            // --- redirect the original branch to the clone ---
-            branchInst.Operand = firstReal ?? insertBefore;
-
-            // --- recursively fix any branch in the clone that still
-            //     targets inside the try (e.g. the loop-exit condition) ---
-            foreach (var src in run)
-            {
-                var c = labelMap[src];
-                if (c.Operand is Instruction t
-                    && IsBetween(t, eh.TryStart, eh.TryEnd))
+                var ins = instructions[i];
+                if (ins.Operand is Instruction target)
                 {
-                    // The clone's branch still points inside the try.
-                    // Recursively clone that target too.
-                    CloneTargetOutsideTry(md, eh, c, t);
+                    if (!IsRepresentableEdge(i, instructions.IndexOf(target)))
+                    {
+                        return false;
+                    }
                 }
+                else if (ins.Operand is Instruction[] targets)
+                {
+                    foreach (var t in targets)
+                    {
+                        if (!IsRepresentableEdge(i, instructions.IndexOf(t)))
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+
+            bool IsRepresentableEdge( int srcIdx, int tgtIdx )
+            {
+                if (tgtIdx < 0)
+                {
+                    return true;
+                }
+
+                var srcTry = InRange(srcIdx, tryStartIdx, tryEndIdx);
+                var tgtTry = InRange(tgtIdx, tryStartIdx, tryEndIdx);
+                var srcHandler = InRange(srcIdx, handlerStartIdx, handlerEndIdx);
+                var tgtHandler = InRange(tgtIdx, handlerStartIdx, handlerEndIdx);
+
+                if (tgtHandler && !srcHandler)
+                {
+                    // Handlers are entered by the runtime only.
+                    return false;
+                }
+                if (srcTry && tgtHandler)
+                {
+                    return false;
+                }
+                if (srcHandler && tgtTry)
+                {
+                    return false;
+                }
+                if (!srcTry && tgtTry)
+                {
+                    // Entering a try from outside is only representable when
+                    // the source can be folded into the region.
+                    return srcIdx < tryStartIdx ||
+                        (srcIdx >= tryEndIdx && srcIdx < handlerStartIdx);
+                }
+                return true;
             }
         }
 
@@ -331,24 +321,38 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
         /// target falls inside an exception handler so that they point to the
         /// instruction just after the handler instead.
         /// </summary>
-        private static void FixLeaveTargets( MethodDefinition md )
+        internal static void FixLeaveTargets( MethodDefinition md )
         {
-            foreach (var eh in md.Body.ExceptionHandlers)
+            var instructions = md.Body.Instructions;
+            for (var pass = 0; pass < 8; pass++)
             {
-                if (eh.HandlerEnd == null) continue;
-
-                foreach (var inst in md.Body.Instructions)
+                var changed = false;
+                foreach (var inst in instructions)
                 {
-                    if (inst.OpCode != OpCodes.Leave
-                        && inst.OpCode != OpCodes.Leave_S) continue;
+                    if (inst.OpCode != OpCodes.Leave &&
+                        inst.OpCode != OpCodes.Leave_S)
+                    {
+                        continue;
+                    }
 
                     var target = (Instruction)inst.Operand;
-                    // Does the Leave target fall inside a handler?
-                    if (IsBetween(target, eh.HandlerStart, eh.HandlerEnd))
+                    foreach (var eh in md.Body.ExceptionHandlers)
                     {
-                        inst.Operand = eh.HandlerEnd;
-                        inst.OpCode = OpCodes.Leave;
+                        if (eh.HandlerEnd == null)
+                        {
+                            continue;
+                        }
+                        if (IsBetween(target, eh.HandlerStart, eh.HandlerEnd))
+                        {
+                            inst.Operand = eh.HandlerEnd;
+                            changed = true;
+                            break;
+                        }
                     }
+                }
+                if (!changed)
+                {
+                    break;
                 }
             }
         }

@@ -24,6 +24,14 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                 return null;
             }
 
+            var dstIsNullable = dst.RegisterType is GenericInstanceType dstNullable &&
+                dstNullable.ElementType.FullName == "System.Nullable`1";
+            if (!dstIsNullable &&
+                (dst.RegisterType.IsValueType || dst.RegisterType.IsGenericParameter))
+            {
+                srcType = il.EmitNullableUnwrap(container, srcType);
+            }
+
             il.EmitNullableConversion(container, dst.RegisterType, srcType);
 
             if (dst.Kind == HlFuncRegisterData.RegisterKind.Parameter)

@@ -1,5 +1,6 @@
 using HashlinkNET.Compiler.Pseudocode.Data;
 using HashlinkNET.Compiler.Steps;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
@@ -15,7 +16,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
         public override void Execute( IDataContainer container )
         {
             var gdata = container.GetGlobalData<FuncEmitGlobalData>();
-            var body = gdata.Definition.Body;
+            var md = gdata.Definition;
+            var body = md.Body;
             if (body.ExceptionHandlers.Count == 0 || body.Instructions.Count == 0)
             {
                 return;
@@ -194,8 +196,11 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 
             // A ret instruction is not allowed inside a protected region.
             // Redirect such returns through a leave to a shared ret stub that
-            // is appended after all handlers.
+            // is appended after all handlers.  For non-void methods the value
+            // must be staged in a local first because leave clears the
+            // evaluation stack.
             Instruction? retStub = null;
+            VariableDefinition? retLocal = null;
             foreach (var ins in instructions.ToArray())
             {
                 if (ins.OpCode.Code != Code.Ret)
@@ -232,12 +237,32 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 
                 if (retStub == null)
                 {
-                    retStub = Instruction.Create(OpCodes.Ret);
-                    instructions.Add(retStub);
+                    if (md.ReturnType.MetadataType == MetadataType.Void)
+                    {
+                        retStub = Instruction.Create(OpCodes.Ret);
+                        instructions.Add(retStub);
+                    }
+                    else
+                    {
+                        retLocal = new VariableDefinition(md.ReturnType);
+                        body.Variables.Add(retLocal);
+                        body.InitLocals = true;
+                        retStub = Instruction.Create(OpCodes.Ldloc, retLocal);
+                        instructions.Add(retStub);
+                        instructions.Add(Instruction.Create(OpCodes.Ret));
+                    }
+                }
+
+                if (retLocal != null)
+                {
+                    instructions.Insert(instructions.IndexOf(ins),
+                        Instruction.Create(OpCodes.Stloc, retLocal));
                 }
                 ins.OpCode = OpCodes.Leave;
                 ins.Operand = retStub;
             }
+
+            SetupExceptionHandlersStep.FixLeaveTargets(md);
         }
     }
 }
