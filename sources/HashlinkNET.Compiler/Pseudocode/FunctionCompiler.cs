@@ -45,6 +45,7 @@ namespace HashlinkNET.Compiler.Pseudocode
             }
             AddStep<OptimizeILStep>();
             AddStep<RemoveUnreachableILStep>();
+            AddStep<EnsureReturnStep>();
         }
 
         protected override void BeforeRun()
