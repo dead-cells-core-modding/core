@@ -17,7 +17,11 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.DynObj
         {
             src.Emit(ctx, true);
             il.Emit(OpCodes.Ldstr, name);
-            val.Emit(ctx, true);
+            var vt = val.Emit(ctx, true);
+            if (vt != null && vt.IsValueType && !vt.IsGenericParameter)
+            {
+                il.Emit(OpCodes.Box, vt);
+            }
             il.Emit(OpCodes.Call, ctx.RuntimeImports.phDynSetMethod);
             return null;
         }
