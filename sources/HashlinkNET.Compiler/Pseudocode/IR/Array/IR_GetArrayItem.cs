@@ -17,7 +17,16 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Array
             src.Emit(ctx, true);
             index.Emit(ctx, true);
 
-            il.Emit(OpCodes.Ldelem_Any, itemType);
+            // HashlinkArray indexer getter returns object.
+            il.Emit(OpCodes.Callvirt, ctx.RuntimeImports.arrayGetItem);
+            if (itemType.IsValueType)
+            {
+                il.Emit(OpCodes.Unbox_Any, itemType);
+            }
+            else if (itemType.FullName != "System.Object")
+            {
+                il.Emit(OpCodes.Castclass, itemType);
+            }
             return itemType;
         }
     }

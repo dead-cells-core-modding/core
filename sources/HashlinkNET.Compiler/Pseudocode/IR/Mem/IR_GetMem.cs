@@ -16,11 +16,17 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Mem
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container,
             ILProcessor il )
         {
-            ptr.Emit(ctx, true);
+            var pt = ptr.Emit(ctx, true)!;
+            if (pt.IsByReference || pt.IsPointer)
+            {
+                il.Emit(OpCodes.Conv_U);
+            }
 
             index.Emit(ctx, true);
+            il.Emit(OpCodes.Conv_I);
+            il.Emit(OpCodes.Add);
 
-            il.Emit(OpCodes.Call, ctx.RuntimeImports.phReadMem.MakeInstance(type));
+            il.Emit(OpCodes.Call, ctx.RuntimeImports.unsafeRead.MakeInstance(type));
             return type;
         }
     }

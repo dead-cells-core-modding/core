@@ -15,15 +15,11 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
         {
             var tt = (HlTypeWithType)type;
             var et = container.GetTypeRef(tt.Type.Value);
-            if (gdata.Config.GeneratePseudocode)
-            {
-                container.AddData(type, et.MakeByReferenceType());
-            }
-            else
-            {
-                addedTypes.Add(new(rdata.refType.MakeGenericInstanceType(et), AddTypeKind.AddToTypesList, type.TypeIndex));
-                container.AddData(type, rdata.refType.MakeGenericInstanceType(et));
-            }
+
+            // Main method signatures/locals use 'ref T' (a managed pointer).
+            // Function type generic arguments still use Ref<T>; see
+            // FixFuncTypeRefStep.
+            container.AddData(type, et.MakeByReferenceType());
         }
     }
 }

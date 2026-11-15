@@ -83,11 +83,34 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference phSetGlobal;
         public TypeReference objectBaseType;
         public MethodReference hGetEnumIndex;
-        public MethodReference phReadMem;
-        public MethodReference phWriteMem;
+        public MethodReference hEnumEquality;
+        public MethodReference hEnumInequality;
         public MethodReference hGetTypeIndexFromType;
         public MethodReference attrInitialValue;
         public MethodReference hGetNativeCall;
         public MethodReference hGetRef;
+
+        public MethodReference phWrapException;
+        public MethodReference phUnwrapException;
+        public MethodReference phGetTypePointer;
+        public MethodReference phGetRuntimeTypePointer;
+        public MethodReference phGetTypeId;
+        public MethodReference phGetRefPointer;
+        public MethodReference phAsRef;
+        public MethodReference phUnref;
+        public MethodReference phMakeRef;
+
+        public MethodReference arrayGetItem;
+        public MethodReference arraySetItem;
+        public MethodReference arrayGetCount;
+
+        public MethodReference refFrom;
+        public MethodReference refValueGetter;
+        public MethodReference refValueSetter;
+        public MethodReference refReferenceGetter;
+
+        public MethodReference unsafeRead;
+        public MethodReference unsafeWrite;
+        public MethodReference unsafeAsRef;
     }
 }

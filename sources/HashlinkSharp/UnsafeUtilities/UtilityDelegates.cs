@@ -180,7 +180,8 @@ namespace Hashlink.UnsafeUtilities
             var m = id.Info;
             return CreateDelegate("Delegate+" + m.Name, m.ReturnType,
                 [
-                    ..m.GetParameters().Skip((id.HasTarget && m is DynamicMethod) ? 1 : 0).Select(x => x.ParameterType)
+                    ..m.GetParameters().Skip((id.HasTarget && m is DynamicMethod) ? 1 : 0)
+                        .Select(x => x.ParameterType)
                 ]);
         }
         public static Delegate CreateAnonymousDelegate( this MethodInfo info, object? target,
@@ -189,7 +190,8 @@ namespace Hashlink.UnsafeUtilities
             var id = new AnnoymousId(info, target != null);
             foreach (var v in info.GetParameters())
             {
-                if (v.ParameterType.IsByRefLike())
+                if (v.ParameterType.IsByRef ||
+                    v.ParameterType.IsByRefLike)
                 {
                     noGeneric = true;
                 }
@@ -258,8 +260,7 @@ namespace Hashlink.UnsafeUtilities
                     {
                         ps[i] = typeof(object);
                     }
-                    else if (pt.IsByRefLike &&
-                        pt.FullName!.StartsWith("HaxeProxy.Runtime.Ref`1", StringComparison.Ordinal))
+                    else if (pt.IsByRefLike || pt.IsByRef)
                     {
                         ps[i] = ts[i] = typeof(nint);
                     }
@@ -295,7 +296,7 @@ namespace Hashlink.UnsafeUtilities
                         ilg.Emit(OpCodes.Box, pt);
                     }
                 }
-                if (!t.IsValueType)
+                if (!t.IsValueType && !t.IsByRef)
                 {
                     ilg.Emit(OpCodes.Call, ts[i].IsAssignableTo(typeof(IExtraDataItem)) ?
                         MI_castObjectEx.MakeGenericMethod(ts[i]) :
@@ -306,7 +307,7 @@ namespace Hashlink.UnsafeUtilities
 
             ilg.Emit(OpCodes.Ldarg_0);
             ilg.Emit(OpCodes.Ldfld, DelegateInfo.FI_invokePtr);
-            ilg.EmitCalli(OpCodes.Calli, CallingConventions.HasThis, m.ReturnType, ts, null);
+            ilg.EmitCalli(OpCodes.Calli, CallingConventions.HasThis, m.ReturnType, ps, null);
             if (!m.ReturnType.IsValueType)
             {
                 ilg.Emit(OpCodes.Call, invoke.ReturnType.IsAssignableTo(typeof(IExtraDataItem)) ?

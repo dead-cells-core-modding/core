@@ -9,7 +9,8 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
         IRBasicBlockData target,
         IR_JmpConditional2.ConditionKind kind,
         IRResult a,
-        IRResult b
+        IRResult b,
+        bool useEqualityOperator = false
         ) : IRBase(a, b), IIR_JmpConditional
     {
         public void ReserveCondition()
@@ -24,6 +25,8 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                 ConditionKind.NotLess => ConditionKind.Less,
                 ConditionKind.SGreate => ConditionKind.NotGreate,
                 ConditionKind.SLess => ConditionKind.NotLess,
+                ConditionKind.UGreate => ConditionKind.UNotGreate,
+                ConditionKind.UNotGreate => ConditionKind.UGreate,
                 _ => throw new NotImplementedException()
             };
         }
@@ -40,16 +43,31 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
             SLess,
             NotGreate,
             NotLess,
-            NotEq
+            NotEq,
+            UGreate,
+            UNotGreate,
         }
         public IRBasicBlockData target = target;
         public ConditionKind kind = kind;
         public readonly IRResult a = a;
         public readonly IRResult b = b;
+        public readonly bool useEqualityOperator = useEqualityOperator;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             var at = a.Emit(ctx, true);
             b.Emit(ctx, true);
+
+            if (useEqualityOperator && kind is ConditionKind.Eq or ConditionKind.NotEq)
+            {
+                // Haxe proxy types may overload == / != (for example HaxeEnum
+                // compares structurally), so use the operator instead of a
+                // raw reference comparison.
+                il.Emit(OpCodes.Call, kind == ConditionKind.Eq
+                    ? ctx.RuntimeImports.hEnumEquality
+                    : ctx.RuntimeImports.hEnumInequality);
+                il.Emit(OpCodes.Brtrue, target.startInst);
+                return null;
+            }
 
             if (container.TryGetData<IObjComparable>(at, out var compare) && compare.Compare is not null)
             {
@@ -67,6 +85,8 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                 ConditionKind.NotLess => OpCodes.Bge,
                 ConditionKind.SGreate => OpCodes.Bgt_Un,
                 ConditionKind.SLess => OpCodes.Blt_Un,
+                ConditionKind.UGreate => OpCodes.Bge_Un,
+                ConditionKind.UNotGreate => OpCodes.Blt_Un,
                 _ => throw new NotSupportedException()
             }, target.startInst);
 

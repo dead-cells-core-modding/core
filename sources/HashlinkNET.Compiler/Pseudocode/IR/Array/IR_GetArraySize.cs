@@ -11,7 +11,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Array
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             src.Emit(ctx, true);
-            il.Emit(OpCodes.Ldlen);
+            il.Emit(OpCodes.Callvirt, ctx.RuntimeImports.arrayGetCount);
             return ctx.TypeSystem.Int32;
         }
     }

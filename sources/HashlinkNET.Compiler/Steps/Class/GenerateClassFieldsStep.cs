@@ -28,9 +28,13 @@ namespace HashlinkNET.Compiler.Steps.Class
                 if (string.IsNullOrEmpty(f.Name))
                 {
                     fd.Name = "unnamedField" + fid++;
+                    td.EmitFieldGetterSetter(fd, container, $"#{f.Index}");
                 }
-
-                td.EmitFieldGetterSetter(fd, container, f.Name);
+                else
+                {
+                    td.EmitFieldGetterSetter(fd, container, f.Name);
+                }
+                
 
                 //fd.CustomAttributes.Add(new(rdata.jsonIgnoreCtor));
                 td.Properties.Add(fd);

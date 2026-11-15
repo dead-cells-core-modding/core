@@ -43,6 +43,11 @@ namespace Hashlink.Reflection.Members
                 return cachedLocalRegs;
             }
         }
+
+        public bool IsDotnetCompiled
+        {
+            get; internal set;
+        }
         public int FunctionIndex => func->findex;
         public nint EntryPointer => (nint)Module.NativeModule->functions_ptrs[
              FunctionIndex

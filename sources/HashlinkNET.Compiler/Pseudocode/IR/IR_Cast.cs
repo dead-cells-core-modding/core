@@ -10,49 +10,107 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         public readonly IRResult src = src;
         public TypeReference type = type;
 
+        private static void EmitNumericConvert( ILProcessor il, TypeReference from, TypeReference to )
+        {
+            if (from.FullName == to.FullName)
+            {
+                return;
+            }
+            switch (to.Name)
+            {
+                case nameof(Byte):
+                    il.Emit(OpCodes.Conv_U1);
+                    break;
+                case nameof(SByte):
+                    il.Emit(OpCodes.Conv_I1);
+                    break;
+                case nameof(Int16):
+                    il.Emit(OpCodes.Conv_I2);
+                    break;
+                case nameof(UInt16):
+                    il.Emit(OpCodes.Conv_U2);
+                    break;
+                case nameof(Int32):
+                    il.Emit(OpCodes.Conv_I4);
+                    break;
+                case nameof(UInt32):
+                    il.Emit(OpCodes.Conv_U4);
+                    break;
+                case nameof(Int64):
+                    il.Emit(OpCodes.Conv_I8);
+                    break;
+                case nameof(UInt64):
+                    il.Emit(OpCodes.Conv_U8);
+                    break;
+                case nameof(Single):
+                    il.Emit(OpCodes.Conv_R4);
+                    break;
+                case nameof(Double):
+                    il.Emit(OpCodes.Conv_R8);
+                    break;
+                case nameof(IntPtr):
+                    il.Emit(OpCodes.Conv_I);
+                    break;
+                case nameof(UIntPtr):
+                    il.Emit(OpCodes.Conv_U);
+                    break;
+                case nameof(Boolean):
+                    il.Emit(OpCodes.Conv_I4);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unsupported cast to {to.FullName}");
+            }
+        }
+
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             var st = src.Emit(ctx, true)!;
+            if (type.IsByReference || st.IsByReference)
+            {
+                if (!st.IsByReference)
+                {
+                    il.Emit(OpCodes.Conv_U);
+                }
+                return type;
+            }
             if (!type.IsValueType)
             {
                 if (st.IsValueType)
                 {
-                    il.Emit(OpCodes.Unbox_Any, type);
+                    il.Emit(OpCodes.Box, st);
                 }
-                else
+                else if (type.FullName != "System.Object")
                 {
                     il.Emit(OpCodes.Castclass, type);
                 }
             }
+            else if (!st.IsValueType)
+            {
+                il.Emit(OpCodes.Unbox_Any, type);
+            }
+            else if (st.FullName == type.FullName)
+            {
+                // Same type: nothing to do.
+            }
+            else if (type is GenericInstanceType nullable &&
+                nullable.ElementType.FullName == "System.Nullable`1" &&
+                nullable.GenericArguments.Count == 1)
+            {
+                // T -> Nullable<T>
+                var underlying = nullable.GenericArguments[0];
+                var ctor = new MethodReference(".ctor", ctx.TypeSystem.Void, nullable)
+                {
+                    HasThis = true,
+                    Parameters =
+                    {
+                        new(underlying)
+                    }
+                };
+                il.Emit(OpCodes.Newobj, ctor);
+            }
             else
             {
-                if (type.Namespace == "System")
-                {
-                    if (type.Name == typeof(int).Name)
-                    {
-                        il.Emit(OpCodes.Conv_I4);
-                    }
-                    else if (type.Name == typeof(long).Name)
-                    {
-                        il.Emit(OpCodes.Conv_I8);
-                    }
-                    else if (type.Name == typeof(float).Name)
-                    {
-                        il.Emit(OpCodes.Conv_R4);
-                    }
-                    else if (type.Name == typeof(double).Name)
-                    {
-                        il.Emit(OpCodes.Conv_R8);
-                    }
-                }
-                else if (type.IsByReference)
-                {
-                    il.Emit(OpCodes.Conv_U);
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
+                EmitNumericConvert(il, st, type);
             }
             return type;
         }

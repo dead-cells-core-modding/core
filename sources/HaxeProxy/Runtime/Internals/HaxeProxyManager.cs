@@ -45,6 +45,7 @@ namespace HaxeProxy.Runtime.Internals
         public static ImmutableHashSet<Type> knownProxyTypes = [];
         public static readonly Dictionary<Type, int> type2typeId = [];
         public static Type[] bindingTypes = [];
+        public static byte[] dotnetCompiledFunctions = [];
         public static Assembly? proxyAssembly;
         private static ImmutableDictionary<int, Type> subTypes = ImmutableDictionary<int, Type>.Empty;
 

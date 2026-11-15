@@ -1,4 +1,5 @@
 using HashlinkNET.Compiler.Data;
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -18,9 +19,21 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
             src.Emit(ctx, true);
             if (invokeMethod != null)
             {
-                foreach (var v in args)
+                for (var i = 0; i < args.Length; i++)
                 {
-                    v.Emit(ctx, true);
+                    var argType = args[i].Emit(ctx, true)!;
+                    var paramType = i < invokeMethod.Parameters.Count
+                        ? invokeMethod.Parameters[i].ParameterType
+                        : null;
+
+                    // Delegates (notably native ones) still take Ref<T> even
+                    // though translated methods use 'ref T'.
+                    if (paramType is GenericInstanceType pgi &&
+                        pgi.ElementType.FullName == ctx.RuntimeImports.refType.FullName &&
+                        argType.IsByReference)
+                    {
+                        il.Emit(OpCodes.Call, ctx.RuntimeImports.phMakeRef.MakeInstance(pgi.GenericArguments[0]));
+                    }
                 }
                 il.Emit(OpCodes.Callvirt, invokeMethod);
                 return invokeMethod.ReturnType;
@@ -36,8 +49,21 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
                 {
                     il.Emit(OpCodes.Dup);
                     il.Emit(OpCodes.Ldc_I4, i);
-                    var argType = args[i].Emit(ctx, true);
-                    il.Emit(OpCodes.Stelem_Any, argType);
+                    var argType = args[i].Emit(ctx, true)!;
+                    if (argType.IsByReference)
+                    {
+                        var element = ((ByReferenceType)argType).ElementType;
+                        il.Emit(OpCodes.Ldobj, element);
+                        if (element.IsValueType && !element.IsGenericParameter)
+                        {
+                            il.Emit(OpCodes.Box, element);
+                        }
+                    }
+                    else if (argType.IsValueType && !argType.IsGenericParameter)
+                    {
+                        il.Emit(OpCodes.Box, argType);
+                    }
+                    il.Emit(OpCodes.Stelem_Any, ctx.TypeSystem.Object);
                 }
                 il.Emit(OpCodes.Callvirt, im);
                 return ctx.TypeSystem.Object;

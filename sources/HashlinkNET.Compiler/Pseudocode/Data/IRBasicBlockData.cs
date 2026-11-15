@@ -15,6 +15,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
         public IRBasicBlockData? defaultTransition;
         public readonly List<IRResult> ir = [];
         public int startInHlbc;
+        public int endInHlbc;
         public int index;
 
         public RegisterAccessData? registerAccessData;
@@ -52,6 +53,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
             var result = new IRBasicBlockData()
             {
                 startInHlbc = startInHlbc,
+                endInHlbc = endInHlbc,
                 index = index,
                 defaultTransition = defaultTransition,
                 registerAccessData = registerAccessData,

@@ -1,6 +1,7 @@
 using HashlinkNET.Compiler.Data;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 
 namespace HashlinkNET.Compiler.Utils
 {
@@ -12,6 +13,15 @@ namespace HashlinkNET.Compiler.Utils
             TypeSystem typeSystem,
             RuntimeImports rdata )
         {
+            // Translated methods use 'ref T', but hook delegates keep the
+            // HaxeProxy convention of Ref<T>.
+            TypeReference MapParameterType( TypeReference type )
+            {
+                return type is ByReferenceType byRef
+                    ? rdata.refType.MakeGenericInstanceType(byRef.ElementType)
+                    : type;
+            }
+
             var del = new TypeDefinition(
                 null, null,
                 TypeAttributes.NestedPublic | TypeAttributes.Sealed | TypeAttributes.Class,
@@ -35,7 +45,7 @@ namespace HashlinkNET.Compiler.Utils
             var invoke = new MethodDefinition(
                 "Invoke",
                 MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
-                method.ReturnType
+                MapParameterType(method.ReturnType)
             )
             {
                 ImplAttributes = MethodImplAttributes.Runtime | MethodImplAttributes.Managed,
@@ -50,7 +60,7 @@ namespace HashlinkNET.Compiler.Utils
                 invoke.Parameters.Add(new ParameterDefinition(
                     param.Name,
                     param.Attributes & ~ParameterAttributes.Optional & ~ParameterAttributes.HasDefault,
-                    param.ParameterType
+                    MapParameterType(param.ParameterType)
                 ));
             invoke.Body = new MethodBody(invoke);
             del.Methods.Add(invoke);

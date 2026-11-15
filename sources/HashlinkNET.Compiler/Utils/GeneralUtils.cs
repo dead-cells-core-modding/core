@@ -186,72 +186,85 @@ namespace HashlinkNET.Compiler.Utils
 
         public static void EmitCallHlFunc( this TypeDefinition type, ILProcessor il,
             IDataContainer container,
-            HlFunction func, Action<ILProcessor, int> emitArg )
+            HlFunction func, Action<ILProcessor, int> emitArg)
         {
-            var rdata = container.GetGlobalData<RuntimeImports>();
-            var ft = ((HlTypeWithFun)func.Type.Value).FunctionDescription;
-            var cache = type.FindField("cachedFuncInfo_" + func.FunctionIndex);
-            if (cache == null)
+            lock (type)
             {
-                cache = new("cachedFuncInfo_" + func.FunctionIndex, FieldAttributes.Private | FieldAttributes.Static,
-                    rdata.functionInfoCache);
-                type.Fields.Add(cache);
-            }
-            var di = il.Body.Variables.FirstOrDefault(x => x.VariableType == rdata.delegateInfoType);
-            if (di == null)
-            {
-                di = new(rdata.delegateInfoType);
-                il.Body.Variables.Add(di);
-            }
 
-            il.Emit(OpCodes.Ldc_I4, func.FunctionIndex);
-            il.Emit(OpCodes.Ldsflda, cache);
-            il.Emit(OpCodes.Call, rdata.hGetCallInfoById);
-            il.Emit(OpCodes.Stloc, di);
-
-            il.Emit(OpCodes.Ldloc, di);
-            il.Emit(OpCodes.Ldfld, rdata.delegateInfoSelfField);
-
-            var cs = new CallSite(container.GetTypeRef(ft.ReturnType.Value))
-            {
-                HasThis = true
-            };
-
-            for (var i = 0; i < ft.Arguments.Length; i++)
-            {
-                var at = ft.Arguments[i].Value;
-                var pt = container.GetTypeRef(at);
-
-
-                emitArg(il, i);
-                var pd = new ParameterDefinition(pt);
-                if (at.Kind == HlTypeKind.Null)
+                var rdata = container.GetGlobalData<RuntimeImports>();
+                var ft = ((HlTypeWithFun)func.Type.Value).FunctionDescription;
+                var cache = type.FindField("cachedFuncInfo_" + func.FunctionIndex);
+                if (cache == null)
                 {
-                    il.Emit(OpCodes.Box, pt);
-                    pd.ParameterType = rdata.objectType;
+                    cache = new("cachedFuncInfo_" + func.FunctionIndex, FieldAttributes.Private | FieldAttributes.Static,
+                        rdata.functionInfoCache);
+                    type.Fields.Add(cache);
                 }
-                //pd.CheckDynamic(rdata, pd.ParameterType);
-                cs.Parameters.Add(pd);
-            }
-
-            il.Emit(OpCodes.Ldloc, di);
-            il.Emit(OpCodes.Ldfld, rdata.delegateInfoTargetField);
-            il.Emit(OpCodes.Calli, cs);
-
-            if (ft.ReturnType.Value.Kind != HlTypeKind.Void)
-            {
-                if (!cs.ReturnType.IsValueType)
+                var di = il.Body.Variables.FirstOrDefault(x => x.VariableType == rdata.delegateInfoType);
+                if (di == null)
                 {
-                    il.Emit(OpCodes.Call, new GenericInstanceMethod(rdata.hGetProxy)
+                    di = new(rdata.delegateInfoType);
+                    il.Body.Variables.Add(di);
+                }
+
+                var passed = Instruction.Create(OpCodes.Nop);
+
+                il.Emit(OpCodes.Ldc_I4, func.FunctionIndex);
+                il.Emit(OpCodes.Ldsflda, cache);
+                il.Emit(OpCodes.Call, rdata.hGetCallInfoById);
+                il.Emit(OpCodes.Stloc, di);
+
+                il.Emit(OpCodes.Ldloc, di);
+                il.Emit(OpCodes.Brfalse, passed);
+
+                il.Emit(OpCodes.Ldloc, di);
+                il.Emit(OpCodes.Ldfld, rdata.delegateInfoSelfField);
+
+                var cs = new CallSite(container.GetTypeRef(ft.ReturnType.Value))
+                {
+                    HasThis = true
+                };
+
+                for (var i = 0; i < ft.Arguments.Length; i++)
+                {
+                    var at = ft.Arguments[i].Value;
+                    var pt = container.GetTypeRef(at);
+
+
+                    emitArg(il, i);
+                    var pd = new ParameterDefinition(pt);
+                    if (at.Kind == HlTypeKind.Null)
                     {
-                        GenericArguments = { cs.ReturnType }
-                    });
+                        il.Emit(OpCodes.Box, pt);
+                        pd.ParameterType = rdata.objectType;
+                    }
+                    //pd.CheckDynamic(rdata, pd.ParameterType);
+                    cs.Parameters.Add(pd);
                 }
-                else if (ft.ReturnType.Value.Kind == HlTypeKind.Null)
+
+                il.Emit(OpCodes.Ldloc, di);
+                il.Emit(OpCodes.Ldfld, rdata.delegateInfoTargetField);
+                il.Emit(OpCodes.Calli, cs);
+
+                if (ft.ReturnType.Value.Kind != HlTypeKind.Void)
                 {
-                    il.Emit(OpCodes.Unbox_Any, cs.ReturnType);
-                    cs.ReturnType = rdata.objectType;
+                    if (!cs.ReturnType.IsValueType)
+                    {
+                        il.Emit(OpCodes.Call, new GenericInstanceMethod(rdata.hGetProxy)
+                        {
+                            GenericArguments = { cs.ReturnType }
+                        });
+                    }
+                    else if (ft.ReturnType.Value.Kind == HlTypeKind.Null)
+                    {
+                        il.Emit(OpCodes.Unbox_Any, cs.ReturnType);
+                        cs.ReturnType = rdata.objectType;
+                    }
                 }
+
+                il.Emit(OpCodes.Ret);
+
+                il.Append(passed);
             }
         }
 
@@ -268,6 +281,46 @@ namespace HashlinkNET.Compiler.Utils
                 gm.GenericArguments.Add(v);
             }
             return gm;
+        }
+
+        /// <summary>
+        /// Builds a <c>Ref&lt;T&gt;.From(ref T)</c> reference for a concrete
+        /// element type. The type parameter belongs to the generic declaring
+        /// type, so the declaring type itself must be instantiated.
+        /// </summary>
+        public static MethodReference MakeRefFrom( this RuntimeImports rdata, TypeReference element )
+        {
+            var refT = rdata.refType.MakeGenericInstanceType(element);
+            var result = new MethodReference("From", refT, refT)
+            {
+                HasThis = false
+            };
+            result.Parameters.Add(new(new ByReferenceType(element)));
+            return result;
+        }
+
+        /// <summary>
+        /// Builds the <c>Ref&lt;T&gt;.value</c> field reference (a byref field)
+        /// for a concrete element type.
+        /// </summary>
+        public static FieldReference MakeRefValueField( this RuntimeImports rdata, TypeReference element )
+        {
+            var refT = rdata.refType.MakeGenericInstanceType(element);
+            return new FieldReference("value", new ByReferenceType(element), refT);
+        }
+
+        /// <summary>
+        /// Builds <c>new Ref&lt;T&gt;(ref T)</c> for a concrete element type.
+        /// </summary>
+        public static MethodReference MakeRefCtor( this RuntimeImports rdata, TypeReference element )
+        {
+            var refT = rdata.refType.MakeGenericInstanceType(element);
+            var ctor = new MethodReference(".ctor", rdata.typeSystem.Void, refT)
+            {
+                HasThis = true
+            };
+            ctor.Parameters.Add(new(new ByReferenceType(element)));
+            return ctor;
         }
 
         public static MethodReference CreateGenericInstanceTypeMethod( this MethodReference method, TypeReference newType )

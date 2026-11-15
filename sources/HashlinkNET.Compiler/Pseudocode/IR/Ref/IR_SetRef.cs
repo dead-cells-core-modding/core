@@ -14,7 +14,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Ref
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             ptr.Emit(ctx, true);
-            var vt = val.Emit(ctx, true);
+            var vt = val.Emit(ctx, true)!;
             il.Emit(OpCodes.Stobj, vt);
             return null;
         }

@@ -43,6 +43,16 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
 
             ParseBB(gdata.HlBasicBlocks[0]);
 
+            // Exception handler blocks are not targeted by normal control-flow
+            // transitions, so make sure every basic block (including catch
+            // handlers and otherwise unreachable code) has a corresponding IR
+            // block. Only blocks reachable from the entry/handlers are emitted
+            // by LinearizeBasicBlocksStep.
+            foreach (var hlbb in gdata.HlBasicBlocks)
+            {
+                ParseBB(hlbb);
+            }
+
             IRBasicBlockData ParseBB( HlBasicBlockData hlbb )
             {
                 if (mapping.TryGetValue(hlbb, out var irbb))
@@ -53,6 +63,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 irbb = new()
                 {
                     startInHlbc = hlbb.opcodeStart,
+                    endInHlbc = hlbb.opcodeStart + hlbb.opcodes.Length,
                     index = bb.Count
                 };
                 bb.Add(irbb);
@@ -110,6 +121,16 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         public TypeReference GetLocalRegType( int index )
         {
             return gdata.Registers[index]!.RegisterType;
+        }
+        private bool IsEnumOperand( int index )
+        {
+            if (index < 0 || index >= gdata.Registers.Count ||
+                gdata.Registers[index] == null)
+            {
+                return false;
+            }
+            return container.TryGetData<EnumClassData>(
+                gdata.Registers[index]!.RegisterType, out _);
         }
         private PropertyDefinition GetFieldById( TypeReference tr, int index )
         {
@@ -276,16 +297,15 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     else
                     {
                         var mr = container.GetData<MethodReference>(hlc.Functions[fidx]);
-                        if (mr.Name == "__inst_construct__" &&
-                            (gdata.Definition.Name != "__inst_construct__" ||
-                            code.Parameters[argSkip] != 0))
+                        // The New opcode has already allocated the object, so
+                        // invoke the constructor on the existing instance
+                        // instead of allocating another one through newobj.
+                        src = new IR_Call(mr, false, args);
+                        if (mr.ReturnType.MetadataType == MetadataType.Void)
                         {
-                            src = new IR_CallCtor(GetLocalRegType(code.Parameters[argSkip]), args[1..]);
-                            dstReg = code.Parameters[argSkip];
-                        }
-                        else
-                        {
-                            src = new IR_Call(mr, false, args);
+                            // No value to store: the destination already holds
+                            // the instance allocated by New.
+                            dstReg = -2;
                         }
                     }
 
@@ -343,8 +363,9 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 }
                 else if (c == HlOpcodeKind.GetType)
                 {
-                    src = new IR_GetType(
-                            container.GetTypeRef(hlc.Types[code.Parameters[1]])
+                    // Returns the runtime hl_type pointer of the register.
+                    src = new IR_GetRuntimeType(
+                            CreateLoadLocalReg(code.Parameters[1])
                             );
                 }
                 else if (c == HlOpcodeKind.GetTID)
@@ -355,8 +376,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 }
                 else if (c == HlOpcodeKind.New)
                 {
-                    currentAssign = null;
-                    src = null;// new IR_New(GetLocalRegType(code.Parameters[0]));
+                    src = new IR_New(GetLocalRegType(code.Parameters[0]));
                 }
                 else if (c == HlOpcodeKind.ArraySize)
                 {
@@ -403,12 +423,18 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         CreateLoadLocalReg(code.Parameters[1]),
                         hlc.GetUString(code.Parameters[2]));
                 }
+                else if (c == HlOpcodeKind.ToVirtual)
+                {
+                    src = new IR_ToVirtual(
+                        CreateLoadLocalReg(code.Parameters[1]),
+                        gdata.Registers[code.Parameters[0]]!.RegisterType
+                        );
+                }
                 else if (c == HlOpcodeKind.SafeCast ||
                         c == HlOpcodeKind.ToDyn ||
                         c == HlOpcodeKind.ToInt ||
                         c == HlOpcodeKind.ToSFloat ||
-                        c == HlOpcodeKind.ToUFloat ||
-                        c == HlOpcodeKind.ToVirtual)
+                        c == HlOpcodeKind.ToUFloat)
                 {
                     src = new IR_Cast(
                         CreateLoadLocalReg(code.Parameters[1]),
@@ -471,10 +497,11 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 }
                 else if (c == HlOpcodeKind.EnumAlloc)
                 {
-                    var ctor = container.GetData<EnumClassData>(
+                    var en = container.GetData<EnumClassData>(
                         GetLocalRegType(code.Parameters[0])
-                            ).ItemTypes[code.Parameters[1]];
-                    src = new IR_New(ctor);
+                            );
+                    var itemIndex = code.Parameters[1];
+                    src = new IR_New(en.ItemTypes[itemIndex]);
                 }
                 else if (c == HlOpcodeKind.EnumIndex)
                 {
@@ -508,16 +535,24 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
 
                 if (src != null)
                 {
-                    if (dstReg == -1)
+                    if (dstReg == -2)
                     {
-                        dstReg = code.Parameters[0];
+                        // Void call: no destination register to store into.
+                        irbb.AddIR(src);
                     }
+                    else
+                    {
+                        if (dstReg == -1)
+                        {
+                            dstReg = code.Parameters[0];
+                        }
 
-                    irbb.AddIR(new IR_SetLocalReg(
-                        gdata.Registers[dstReg],
-                        src,
-                        currentAssign
-                        ));
+                        irbb.AddIR(new IR_SetLocalReg(
+                            gdata.Registers[dstReg],
+                            src,
+                            currentAssign
+                            ));
+                    }
                     currentAssign = null;
                 }
             }
@@ -536,9 +571,16 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 irbb.AddIR(new IR_SetMem(
                     CreateLoadLocalReg(code.Parameters[0]),
                     CreateLoadLocalReg(code.Parameters[1]),
-                    CreateLoadLocalReg(code.Parameters[2])
+                    CreateLoadLocalReg(code.Parameters[2]),
+                    c switch
+                    {
+                        HlOpcodeKind.SetI8 => typeSystem.Byte,
+                        HlOpcodeKind.SetI16 => typeSystem.Int16,
+                        _ => null
+                    }
                     ));
             }
+
             else if (c == HlOpcodeKind.Setref)
             {
                 irbb.AddIR(new IR_SetRef(
@@ -591,11 +633,13 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 var r = gdata.Registers[code.Parameters[0]];
                 irbb.AddIR(new IR_Ret(r == null ? null : new IR_LoadLocalReg(r)));
             }
-            else if (c == HlOpcodeKind.Throw || c == HlOpcodeKind.Rethrow)
+            else if (c == HlOpcodeKind.Throw)
             {
-                irbb.AddIR(new IR_Throw(
-                    c == HlOpcodeKind.Throw ? CreateLoadLocalReg(code.Parameters[0]) : null
-                    ));
+                irbb.AddIR(new IR_Throw(CreateLoadLocalReg(code.Parameters[0])));
+            }
+            else if (c == HlOpcodeKind.Rethrow)
+            {
+                irbb.AddIR(new IR_Rethrow());
             }
             else if (c == HlOpcodeKind.JAlways)
             {
@@ -620,6 +664,12 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             }
             else if (c >= HlOpcodeKind.JSLt && c <= HlOpcodeKind.JNotEq)
             {
+                // Enum proxies overload == / !=; when both operands are enum
+                // values, call the operator instead of comparing references.
+                var useEqualityOperator =
+                    (c == HlOpcodeKind.JEq || c == HlOpcodeKind.JNotEq) &&
+                    IsEnumOperand(code.Parameters[0]) &&
+                    IsEnumOperand(code.Parameters[1]);
                 irbb.AddIR(new IR_JmpConditional2(
                     GetJmpTarget(irbb, index, code.Parameters[2]),
                     c switch
@@ -630,14 +680,17 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         HlOpcodeKind.JSLt => IR_JmpConditional2.ConditionKind.Less,
                         HlOpcodeKind.JSGte => IR_JmpConditional2.ConditionKind.NotLess,
                         HlOpcodeKind.JSLte => IR_JmpConditional2.ConditionKind.NotGreate,
-                        HlOpcodeKind.JNotLt => IR_JmpConditional2.ConditionKind.NotLess,
-                        HlOpcodeKind.JNotGte => IR_JmpConditional2.ConditionKind.NotGreate,
-                        HlOpcodeKind.JUGte => IR_JmpConditional2.ConditionKind.SGreate,
+                        // Hashlink defines JNotLt as unsigned >= and JNotGte as
+                        // unsigned < (see hashlink jit_x86_64.c).
+                        HlOpcodeKind.JNotLt => IR_JmpConditional2.ConditionKind.UGreate,
+                        HlOpcodeKind.JNotGte => IR_JmpConditional2.ConditionKind.UNotGreate,
+                        HlOpcodeKind.JUGte => IR_JmpConditional2.ConditionKind.UGreate,
                         HlOpcodeKind.JULt => IR_JmpConditional2.ConditionKind.SLess,
                         _ => throw new InvalidOperationException()
                     },
                     CreateLoadLocalReg(code.Parameters[0]),
-                    CreateLoadLocalReg(code.Parameters[1])
+                    CreateLoadLocalReg(code.Parameters[1]),
+                    useEqualityOperator
                     ));
             }
             else if (c == HlOpcodeKind.Switch)

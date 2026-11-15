@@ -64,38 +64,65 @@ namespace HashlinkNET.Compiler.Steps.Enum
                 }
 
                 itemTypes[i] = td;
-                var ctor = new MethodDefinition(".ctor", MethodAttributes.SpecialName | MethodAttributes.RTSpecialName |
-                    MethodAttributes.Public, gdata.Module.TypeSystem.Void)
+
+                const MethodAttributes ctorAttrs =
+                    MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Public;
+
+                void EmitAllocation( MethodDefinition ctor )
+                {
+                    var ilp = ctor.Body.GetILProcessor();
+                    ilp.Emit(OpCodes.Ldarg_0);
+                    ilp.Emit(OpCodes.Ldc_I4, type.TypeIndex);
+                    ilp.Emit(OpCodes.Ldc_I4, i);
+                    ilp.Emit(OpCodes.Call, rdata.hCreateEnumInstance);
+                    ilp.Emit(OpCodes.Call, rdata.objBaseCtorMethod);
+                }
+
+                // Parameterless constructor used by the EnumAlloc opcode
+                // (allocation only; fields are filled by SetEnumField).
+                var allocCtor = new MethodDefinition(".ctor", ctorAttrs,
+                    gdata.Module.TypeSystem.Void)
                 {
                     HasThis = true
                 };
-                td.Methods.Add(ctor);
-                itemCtors[i] = ctor;
-                var ilp = ctor.Body.GetILProcessor();
+                td.Methods.Add(allocCtor);
+                EmitAllocation(allocCtor);
+                allocCtor.Body.GetILProcessor().Emit(OpCodes.Ret);
+                itemCtors[i] = allocCtor;
+                container.AddData(td, new CtorData(allocCtor));
 
-                ilp.Emit(OpCodes.Ldarg_0);
-                ilp.Emit(OpCodes.Ldc_I4, type.TypeIndex);
-                ilp.Emit(OpCodes.Ldc_I4, i);
-                ilp.Emit(OpCodes.Call, rdata.hCreateEnumInstance);
-                ilp.Emit(OpCodes.Call, rdata.objBaseCtorMethod);
-
-                for (int j = 0; j < ec.Params.Length; j++)
+                if (ec.Params.Length > 0)
                 {
-                    var pd = new PropertyDefinition("Param" + j, PropertyAttributes.None,
-                        container.GetTypeRef(ec.Params[j].Value));
-                    pd.CheckDynamic(rdata, pd.PropertyType);
-                    GeneralUtils.EmitFieldGetterSetter(
-                        td, pd, container, (j | i << 16).ToString());
-                    td.Properties.Add(pd);
+                    // Constructor with the enum construct parameters, emitted
+                    // as a natural C# 'new EnumItem(args)' call site.
+                    var ctor = new MethodDefinition(".ctor", ctorAttrs,
+                        gdata.Module.TypeSystem.Void)
+                    {
+                        HasThis = true
+                    };
+                    td.Methods.Add(ctor);
+                    EmitAllocation(ctor);
+                    var ilp = ctor.Body.GetILProcessor();
 
-                    var mp = new ParameterDefinition("p" + j, ParameterAttributes.None, pd.PropertyType);
+                    for (int j = 0; j < ec.Params.Length; j++)
+                    {
+                        var pd = new PropertyDefinition("Param" + j, PropertyAttributes.None,
+                            container.GetTypeRef(ec.Params[j].Value));
+                        pd.CheckDynamic(rdata, pd.PropertyType);
+                        GeneralUtils.EmitFieldGetterSetter(
+                            td, pd, container, (j | i << 16).ToString());
+                        td.Properties.Add(pd);
 
-                    ctor.Parameters.Add(mp);
-                    ilp.Emit(OpCodes.Ldarg_0);
-                    ilp.Emit(OpCodes.Ldarg, mp);
-                    ilp.Emit(OpCodes.Callvirt, pd.SetMethod);
+                        var mp = new ParameterDefinition("p" + j, ParameterAttributes.None, pd.PropertyType);
+
+                        ctor.Parameters.Add(mp);
+                        ilp.Emit(OpCodes.Ldarg_0);
+                        ilp.Emit(OpCodes.Ldarg, mp);
+                        ilp.Emit(OpCodes.Callvirt, pd.SetMethod);
+                    }
+                    ilp.Emit(OpCodes.Ret);
+                    itemCtors[i] = ctor;
                 }
-                ilp.Emit(OpCodes.Ret);
             }
 
         }

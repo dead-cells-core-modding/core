@@ -21,7 +21,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             else if (value is long @long)
             {
                 il.Emit(OpCodes.Ldc_I8, @long);
-                return ctx.TypeSystem.Byte;
+                return ctx.TypeSystem.Int64;
             }
             else if (value is float @float)
             {

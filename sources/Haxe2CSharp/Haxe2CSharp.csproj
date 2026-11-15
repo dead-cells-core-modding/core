@@ -13,8 +13,4 @@
     <ProjectReference Include="..\ModCore.Native\ModCore.Native.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="IR\" />
-  </ItemGroup>
-
 </Project>

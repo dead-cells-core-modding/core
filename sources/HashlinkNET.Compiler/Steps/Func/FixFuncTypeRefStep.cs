@@ -2,6 +2,7 @@ using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
+using Mono.Cecil.Rocks;
 
 namespace HashlinkNET.Compiler.Steps.Func
 {
@@ -50,18 +51,30 @@ namespace HashlinkNET.Compiler.Steps.Func
             var desc = func.FunctionDescription;
             var ret = desc.ReturnType.Value;
 
+            // Delegate generic arguments cannot be managed pointers, so refs
+            // are represented by Ref<T> inside function types even though the
+            // main methods themselves take 'ref T'.
+            TypeReference GetDelegateTypeRef( HlType type )
+            {
+                if (type.Kind == HlTypeKind.Ref && type is HlTypeWithType withType)
+                {
+                    var element = container.GetTypeRef(withType.Type.Value);
+                    return rdata.refType.MakeGenericInstanceType(element);
+                }
+                return container.GetTypeRef(type)!;
+            }
 
             var gpId = 0;
             if (ret.Kind != HlTypeKind.Void)
             {
-                var rt = container.GetTypeRef(ret);
+                var rt = GetDelegateTypeRef(ret);
                 invokeMR.ReturnType = bt.GenericParameters[0];
                 gpId++;
                 ft.GenericArguments.Add(rt);
             }
             for (int i = 0; i < desc.Arguments.Length; i++)
             {
-                var at = container.GetTypeRef(desc.Arguments[i].Value);
+                var at = GetDelegateTypeRef(desc.Arguments[i].Value);
                 invokeMR.Parameters.Add(new(bt.GenericParameters[gpId++]));
                 ft.GenericArguments.Add(at);
             }

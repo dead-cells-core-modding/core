@@ -34,21 +34,18 @@ namespace HashlinkNET.Compiler.Steps.Func.Native
                 td.Methods.Add(pd.GetMethod);
                 td.Properties.Add(pd);
 
-                if (!gdata.Config.GeneratePseudocode)
-                {
-                    var md = pd.GetMethod;
-                    md.Body = new(md);
-                    var il = md.Body.GetILProcessor();
+                var md = pd.GetMethod;
+                md.Body = new(md);
+                var il = md.Body.GetILProcessor();
 
-                    var cf = new FieldDefinition("cache_" + v.Name, FieldAttributes.Static | FieldAttributes.Private, pt);
+                var cf = new FieldDefinition("cache_" + v.Name, FieldAttributes.Static | FieldAttributes.Private, pt);
 
-                    td.Fields.Add(cf);
+                td.Fields.Add(cf);
 
-                    il.Emit(OpCodes.Ldc_I4, v.NativeIndex);
-                    il.Emit(OpCodes.Ldsflda, cf);
-                    il.Emit(OpCodes.Call, rdata.hGetNativeCall.MakeInstance(pt));
-                    il.Emit(OpCodes.Ret);
-                }
+                il.Emit(OpCodes.Ldc_I4, v.NativeIndex);
+                il.Emit(OpCodes.Ldsflda, cf);
+                il.Emit(OpCodes.Call, rdata.hGetNativeCall.MakeInstance(pt));
+                il.Emit(OpCodes.Ret);
             }
         }
     }

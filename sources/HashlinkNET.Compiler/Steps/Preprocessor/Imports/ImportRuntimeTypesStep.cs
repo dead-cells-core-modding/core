@@ -45,14 +45,9 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
 
             rdata.bytesType = ImportType<nint>();
             rdata.refType = module.ImportReference(typeof(Ref<>));
-            if (!gdata.Config.GeneratePseudocode)
-            {
-                rdata.nativeArray = ImportType<HashlinkArray>();
-            }
-            else
-            {
-                rdata.nativeArray = ImportType<Array>();
-            }
+
+            rdata.nativeArray = ImportType<HashlinkArray>();
+
             rdata.enumType = module.ImportReference(typeof(HaxeEnum<,>));
             rdata.virtualType = ImportType<HaxeVirtual>();
             rdata.objectBaseType = ImportType<HaxeObject>();
@@ -72,15 +67,56 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.delegateInfoSelfField = module.ImportReference(DelegateInfo.FI_self);
             rdata.delegateInfoTargetField = module.ImportReference(DelegateInfo.FI_invokePtr);
 
-            rdata.phToVirtual = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.ToVirtual));
             rdata.phGetNativeMethod = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetNativeMethod));
             rdata.phDynGetMethod = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.DynGet));
             rdata.phDynSetMethod = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.DynSet));
-            rdata.phCreateObject = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.CreateObject));
             rdata.phCreateClosure = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.CreateClosure));
-            rdata.phReadMem = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.ReadMem));
-            rdata.phWriteMem = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.WriteMem));
             rdata.phSetGlobal = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.SetGlobal));
+
+            rdata.phWrapException = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.WrapException));
+            rdata.phUnwrapException = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.UnwrapException));
+            rdata.phGetTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetTypePointer));
+            rdata.phGetRuntimeTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetRuntimeTypePointer));
+            rdata.phGetTypeId = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetTypeId));
+            rdata.phGetRefPointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetRefPointer));
+            rdata.phAsRef = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.AsRef));
+            rdata.phUnref = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.Unref));
+            rdata.phMakeRef = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.MakeRef));
+
+            rdata.arrayGetItem = module.ImportReference(
+                typeof(HashlinkArray).GetProperty("Item")!.GetMethod);
+            rdata.arraySetItem = module.ImportReference(
+                typeof(HashlinkArray).GetProperty("Item")!.SetMethod);
+            rdata.arrayGetCount = module.ImportReference(
+                typeof(HashlinkArray).GetProperty("Count")!.GetMethod);
+
+            rdata.refFrom = module.ImportReference(
+                typeof(Ref<>).GetMethod(nameof(Ref<int>.From)));
+            rdata.refValueGetter = module.ImportReference(
+                typeof(Ref<>).GetProperty(nameof(Ref<int>.Value))!.GetMethod);
+            rdata.refValueSetter = module.ImportReference(
+                typeof(Ref<>).GetProperty(nameof(Ref<int>.Value))!.SetMethod);
+            rdata.refReferenceGetter = module.ImportReference(
+                typeof(Ref<>).GetProperty(nameof(Ref<int>.Reference))!.GetMethod);
+
+            rdata.unsafeRead = module.ImportReference(
+                typeof(Unsafe).GetMethods().First(m =>
+                    m.Name == nameof(Unsafe.Read) &&
+                    m.IsGenericMethodDefinition &&
+                    m.GetParameters().Length == 1 &&
+                    m.GetParameters()[0].ParameterType == typeof(void*)));
+            rdata.unsafeWrite = module.ImportReference(
+                typeof(Unsafe).GetMethods().First(m =>
+                    m.Name == nameof(Unsafe.Write) &&
+                    m.IsGenericMethodDefinition &&
+                    m.GetParameters().Length == 2 &&
+                    m.GetParameters()[0].ParameterType == typeof(void*)));
+            rdata.unsafeAsRef = module.ImportReference(
+                typeof(Unsafe).GetMethods().First(m =>
+                    m.Name == nameof(Unsafe.AsRef) &&
+                    m.IsGenericMethodDefinition &&
+                    m.GetParameters().Length == 1 &&
+                    m.GetParameters()[0].ParameterType == typeof(void*)));
 
             rdata.hCreateInstance = ImportHelperMethod(nameof(HaxeProxyHelper.CreateInstance));
             rdata.hGetCallInfoById = ImportHelperMethod(nameof(HaxeProxyHelper.GetCallInfoById));
@@ -92,8 +128,11 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.hGetProxy = ImportHelperMethod(nameof(HaxeProxyHelper.GetProxy));
             rdata.hCreateEnumInstance = ImportHelperMethod(nameof(HaxeProxyHelper.CreateEnumInstance));
             rdata.hGetEnumIndex = ImportMethod(typeof(HaxeEnum), "get_RawIndex");
+            rdata.hEnumEquality = ImportMethod(typeof(HaxeEnum), "op_Equality");
+            rdata.hEnumInequality = ImportMethod(typeof(HaxeEnum), "op_Inequality");
             rdata.hGetTypeIndexFromType = ImportHelperMethod(nameof(HaxeProxyHelper.GetTypeIndexFromType));
-            rdata.hToVirtual = ImportHelperMethod(nameof(HaxeProxyHelper.ToVirtual));
+            rdata.hToVirtual = module.ImportReference(
+                typeof(HaxeProxyBase).GetMethod(nameof(HaxeProxyBase.ToVirtual)));
             rdata.hToObject = ImportHelperMethod(nameof(HaxeProxyHelper.ToObject));
             rdata.hGetNativeCall = ImportHelperMethod(nameof(HaxeProxyHelper.GetNativeCall));
             rdata.hGetRef = ImportHelperMethod(nameof(HaxeProxyHelper.GetRef));

@@ -48,6 +48,14 @@ namespace HashlinkNET.Compiler.Data
             get; set;
         } = null!;
 
+        /// <summary>
+        /// Constructor overload that mirrors <c>__inst_construct__</c>,
+        /// used when a <c>New</c> opcode is merged with its constructor call.
+        /// </summary>
+        public MethodReference? ConstructArgs {
+            get; set;
+        }
+
         public TypeDefinition? GlobalClassType {
             get; set;
         }

@@ -17,8 +17,12 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Array
         {
             src.Emit(ctx, true);
             index.Emit(ctx, true);
-            var rt = val.Emit(ctx, true);
-            il.Emit(OpCodes.Stelem_Any, rt);
+            var rt = val.Emit(ctx, true)!;
+            if (rt.IsValueType && !rt.IsGenericParameter)
+            {
+                il.Emit(OpCodes.Box, rt);
+            }
+            il.Emit(OpCodes.Callvirt, ctx.RuntimeImports.arraySetItem);
             return null;
         }
     }

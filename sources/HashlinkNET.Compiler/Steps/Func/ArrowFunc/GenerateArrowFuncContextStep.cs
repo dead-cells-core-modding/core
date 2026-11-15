@@ -68,7 +68,8 @@ namespace HashlinkNET.Compiler.Steps.Func.ArrowFunc
 
                     });
 
-                    ilp.Emit(OpCodes.Ret);
+                    ilp.Emit(OpCodes.Ldnull);
+                    ilp.Emit(OpCodes.Throw);
                 }
             }
 

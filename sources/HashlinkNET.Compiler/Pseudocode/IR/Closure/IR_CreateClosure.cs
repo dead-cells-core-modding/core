@@ -1,3 +1,4 @@
+using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Data.Interfaces;
 using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
@@ -23,32 +24,26 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Closure
             {
                 il.Emit(OpCodes.Ldnull);
             }
-            if (
-                (
-                (method.HasThis &&
-                selfType != null &&
-                method.DeclaringType == selfType)
-                )
-                )
+
+            // Translated methods use 'ref T', but delegates use Ref<T>.
+            // Bind overloads/wrappers with the matching signature instead.
+            var target = method;
+            if (method.Parameters.Any(p => p.ParameterType.IsByReference) &&
+                container.TryGetData<AltFuncData>(method, out var altData))
             {
-                if (isVirt)
-                {
-                    il.Emit(OpCodes.Dup);
-                }
-                il.Emit(isVirt ? OpCodes.Ldvirtftn : OpCodes.Ldftn, method);
-                il.Emit(OpCodes.Newobj, container.GetData<IConstructable>(type).Construct);
-                return type;
+                target = altData.Alt;
             }
-            if (isVirt)
+
+            if (isVirt && target.HasThis && selfType != null && target.DeclaringType == selfType)
             {
-                //il.Emit(OpCodes.Dup);
-                il.Emit(OpCodes.Ldtoken, method);
+                il.Emit(OpCodes.Dup);
+                il.Emit(OpCodes.Ldvirtftn, target);
             }
             else
             {
-                il.Emit(OpCodes.Ldtoken, method);
+                il.Emit(OpCodes.Ldftn, target);
             }
-            il.Emit(OpCodes.Call, ctx.RuntimeImports.phCreateClosure.MakeInstance(type));
+            il.Emit(OpCodes.Newobj, container.GetData<IConstructable>(type).Construct);
             return type;
         }
     }

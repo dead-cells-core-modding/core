@@ -21,6 +21,7 @@ namespace HashlinkNET.Compiler.Pseudocode
             AddStep<SplitBasicBlocksStep>();
 
             AddStep<ParseOpCodesStep>();
+            AddStep<MergeNewCtorStep>();
 
             //DFA
             AddStep<GenerateFlatIRStep>();
@@ -30,7 +31,8 @@ namespace HashlinkNET.Compiler.Pseudocode
             AddStep<PostprocessBasicBlocksStep>();
             AddStep<LinearizeBasicBlocksStep>();
             AddStep<EmitILStep>();
-            //AddStep<SetupExceptionHandlersStep>(); // It has bugs
+            AddStep<PinPointerLocalsStep>();
+            AddStep<SetupExceptionHandlersStep>();
             AddStep<TrimILStep>();
             if (config.GenerateBytecodeMapping)
             {

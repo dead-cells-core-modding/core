@@ -1,6 +1,7 @@
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Pseudocode.Data;
 using HashlinkNET.Compiler.Steps;
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil.Cil;
 
 namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
@@ -18,13 +19,29 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 
             md.Body.Instructions.Clear();
             var il = md.Body.GetILProcessor();
+
+            md.DeclaringType.EmitCallHlFunc(il, container, gdata.Function, ( il, i ) =>
+            {
+                if (md.IsStatic)
+                {
+                    il.Emit(OpCodes.Ldarg, md.Parameters[i]);
+                }
+                else if (i > 0)
+                {
+                    il.Emit(OpCodes.Ldarg, md.Parameters[i - 1]);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Ldarg_0);
+                }
+
+            });
+
             var startInst = Instruction.Create(OpCodes.Nop);
             il.Append(startInst);
             var endInst = Instruction.Create(OpCodes.Nop);
             var mdsd = md.DebugInformation.Scope = new(startInst, endInst);
             var vds = new ScopeDebugInformation[gdata.Registers.Count];
-
-
 
             foreach (var bb in list)
             {

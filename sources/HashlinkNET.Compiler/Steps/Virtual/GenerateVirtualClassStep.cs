@@ -48,6 +48,12 @@ namespace HashlinkNET.Compiler.Steps.Virtual
                     il.Emit(OpCodes.Call, rdata.hCreateInstance);
                     il.Emit(OpCodes.Call, rdata.objBaseCtorMethod);
                     il.Emit(OpCodes.Ret);
+
+                    foreach (var v in group.Types)
+                    {
+                        var vi = container.GetData<VirtualClassData>(v);
+                        container.TryAddData(vi.TypeRef, new CtorData(ctor));
+                    }
                 }
 
                 //Fields

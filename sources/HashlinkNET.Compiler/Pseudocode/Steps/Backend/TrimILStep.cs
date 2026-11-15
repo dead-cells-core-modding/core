@@ -195,10 +195,15 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                         {
                             instruction = it,
                             variable = loc,
-                            register = gdata.LocalRegisters[loc.Index],
+                            // Temporary locals introduced by the backend (e.g.
+                            // ref-field access) have no corresponding HL
+                            // register and are left untouched by this pass.
+                            register = loc.Index < gdata.LocalRegisters.Count
+                                ? gdata.LocalRegisters[loc.Index]
+                                : null,
                             isLast = true
                         };
-                        Debug.Assert(info.register?.Variable == loc);
+                        Debug.Assert(info.register == null || info.register.Variable == loc);
                         it.Operand = info;
                         if (buf[loc.Index] != null)
                         {

@@ -6,6 +6,7 @@ using Hashlink.Proxy.DynamicAccess;
 using Hashlink.Proxy.Objects;
 using Hashlink.Proxy.Values;
 using Hashlink.Reflection.Members;
+using Hashlink.Reflection.Members.Object;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper;
@@ -41,9 +42,18 @@ namespace HaxeProxy.Runtime.Internals
                     {
                         cache.isConstructor = true;
                     }
+                    HashlinkObjectField? f;
 
-                    var f = ot.FindField(name) ??
+                    if (name.Length > 0 && name[0] == '#')
+                    {
+                        var idx = int.Parse(name[1..]);
+                        f = ot.FindFieldById(idx);
+                    }
+                    else
+                    {
+                        f = ot.FindField(name) ??
                         throw new MissingFieldException(ot.Name, name);
+                    }
                     cache.field = f.FieldType;
                     cache.offset = (nint)HashlinkNative.hl_obj_lookup((HL_vdynamic*)self.HashlinkPointer,
                         f.HashedName, out _) - self.HashlinkPointer;
@@ -219,8 +229,15 @@ namespace HaxeProxy.Runtime.Internals
             return cachedValue = HaxeProxyManager.type2typeId[typeof(T)];
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DelegateInfo GetCallInfoById( int findex, ref FunctionInfoCache cache )
+        public static DelegateInfo? GetCallInfoById( int findex, ref FunctionInfoCache cache )
         {
+            if (cache.function != null)
+            {
+                if (cache.function.IsDotnetCompiled)
+                {
+                    return null;
+                }
+            }
             if (cache.directEntry != null)
             {
                 return cache.directEntry;
@@ -228,6 +245,11 @@ namespace HaxeProxy.Runtime.Internals
             if (cache.function == null)
             {
                 cache.function = (HashlinkFunction)HashlinkMarshal.Module.GetFunctionByFIndex(findex);
+
+                if (cache.function.IsDotnetCompiled)
+                {
+                    return null;
+                }
             }
             if (cache.directEntry == null)
             {

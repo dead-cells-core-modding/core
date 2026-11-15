@@ -97,10 +97,7 @@ namespace HashlinkNET.Compiler
             #endregion
 
             #region Hooks
-            if (!Config.GeneratePseudocode)
-            {
-                AddStep<GenerateHooksClassStep>();
-            }
+            AddStep<GenerateHooksClassStep>();
             #endregion
 
             #region Modifiers
@@ -111,27 +108,23 @@ namespace HashlinkNET.Compiler
             AddStep<GenerateNativeImplClassStep>();
             AddStep<GenerateNativeFieldsDefStep>();
 
+            // Alt overloads/wrappers must exist before function bodies are
+            // translated so that closures can bind to the Ref<T> variants.
+            AddStep<GenerateAltClosureDefStep>();
+            AddStep<GenerateAltFuncDef>();
+
             #region Pseudocode
             if (Config.GeneratePseudocode)
             {
                 AddStep<ScanGlobalValuesStep>();
-
-
-
                 AddStep<FindMissingFunctionStep>();
                 AddStep<CollectUnnamedFuncStep>();
                 AddStep<GeneratePseudocodeStep>();
-                AddStep<PostGeneratePseudocodeStep>();
             }
-            else
-            {
-                if (Config.HaxeDocument != null)
-                {
-                    AddStep<GenerateXmlDocsStep>();
-                }
 
-                AddStep<GenerateAltClosureDefStep>();
-                AddStep<GenerateAltFuncDef>();
+            if (Config.HaxeDocument != null)
+            {
+                AddStep<GenerateXmlDocsStep>();
             }
             #endregion
         }

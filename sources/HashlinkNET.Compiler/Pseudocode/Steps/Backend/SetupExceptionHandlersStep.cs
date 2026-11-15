@@ -19,6 +19,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
         {
             var gdata = container.GetGlobalData<FuncEmitGlobalData>();
             var gdata2 = container.GetGlobalData<GlobalData>();
+            var rdata = container.GetGlobalData<RuntimeImports>();
             var md = gdata.Definition;
             // Use the linearized list (from LinearizeBasicBlocksStep) because
             // it reflects the actual instruction order after BB cloning.
@@ -26,30 +27,53 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 
             foreach (var tr in gdata.TrapRegions)
             {
+                // Malformed/nested trap information can produce a handler end
+                // that precedes the catch entry. Emitting such a region would
+                // produce invalid IL, so skip it.
+                if (tr.HandlerEndPosition >= 0 &&
+                    tr.HandlerEndPosition < tr.CatchHandlerPosition)
+                {
+                    continue;
+                }
+
                 // --- Resolve BBs from the linearized list ---
                 // Use the linearized list because it has the actual startInst/endInst
                 // that were placed in the IL stream during EmitILStep.
-                var tryBBs = linearList.Where(b =>
-                    b.startInHlbc > tr.TrapOpcodePosition
-                    && b.startInHlbc <= tr.TryEndPosition).ToList();
+                // EndTrap/Catch opcodes emit no IR, so they live inside the
+                // basic block that precedes the next block boundary. Resolve
+                // regions by containment instead of exact BB start matches.
+                IRBasicBlockData? FindContaining( int opIndex )
+                {
+                    return linearList.FirstOrDefault(b =>
+                        b.startInHlbc <= opIndex && opIndex < b.endInHlbc);
+                }
 
-                var tryEndBB = linearList.Find(b => b.startInHlbc == tr.TryEndPosition);
-                var handlerBB = linearList.Find(b => b.startInHlbc == tr.CatchHandlerPosition);
+                var tryEndBB = FindContaining(tr.TryEndPosition);
+                var handlerBB = linearList.Find(b => b.startInHlbc == tr.CatchHandlerPosition)
+                    ?? FindContaining(tr.CatchHandlerPosition);
 
                 if (tryEndBB == null || handlerBB == null)
+                {
                     continue;
+                }
 
                 IRBasicBlockData? handlerEndBB = null;
                 if (tr.HandlerEndPosition >= 0)
                 {
-                    handlerEndBB = linearList.Find(
-                        b => b.startInHlbc == tr.HandlerEndPosition);
+                    handlerEndBB = FindContaining(tr.HandlerEndPosition);
+                    if (handlerEndBB == null)
+                    {
+                        continue;
+                    }
                 }
 
+                // The try body starts immediately after the Trap opcode.
+                var tryStartBB =
+                    linearList.Find(b => b.startInHlbc == tr.TrapOpcodePosition + 1) ??
+                    linearList.FirstOrDefault(b => b.startInHlbc > tr.TrapOpcodePosition);
+
                 // --- Instruction boundaries ---
-                Instruction tryStart = tryBBs.Count > 0
-                    ? tryBBs[0].startInst
-                    : tryEndBB.startInst;
+                Instruction tryStart = tryStartBB?.startInst ?? tryEndBB.startInst;
                 Instruction tryEnd = tryEndBB.endInst;
                 Instruction handlerStart = handlerBB.startInst;
                 Instruction handlerEnd = handlerEndBB?.endInst ?? handlerBB.endInst;
@@ -60,15 +84,18 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                 // we must emit a store (or at minimum a pop) to consume it.
                 var excReg = gdata.Registers[tr.ExceptionRegIndex];
                 var il = md.Body.GetILProcessor();
-                if (excReg?.Variable != null)
+                if (excReg != null &&
+                    (excReg.Variable != null || excReg.Parameter != null))
                 {
-                    il.InsertAfter(handlerStart,
-                        Instruction.Create(OpCodes.Stloc, excReg.Variable));
-                }
-                else if (excReg?.Parameter != null)
-                {
-                    il.InsertAfter(handlerStart,
-                        Instruction.Create(OpCodes.Starg, excReg.Parameter));
+                    // Convert the managed exception back into the HL value that
+                    // the translated code expects in the exception register.
+                    var unwrap = Instruction.Create(OpCodes.Call,
+                        rdata.phUnwrapException.MakeInstance(excReg.RegisterType));
+                    il.InsertAfter(handlerStart, unwrap);
+                    il.InsertAfter(unwrap,
+                        excReg.Variable != null
+                            ? Instruction.Create(OpCodes.Stloc, excReg.Variable)
+                            : Instruction.Create(OpCodes.Starg, excReg.Parameter));
                 }
                 else
                 {

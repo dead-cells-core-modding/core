@@ -11,8 +11,8 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             src.Emit(ctx, true);
-            il.Emit(OpCodes.Callvirt, ctx.RuntimeImports.objectGetTypeMethod);
-            return ctx.RuntimeImports.typeType;
+            il.Emit(OpCodes.Call, ctx.RuntimeImports.phGetTypeId);
+            return ctx.RuntimeImports.typeSystem.Int32;
         }
     }
 }

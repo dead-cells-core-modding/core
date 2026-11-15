@@ -47,6 +47,19 @@ namespace HaxeProxy.Runtime
         }
 
         /// <summary>
+        /// Gets or sets the referenced value.
+        /// </summary>
+        public T Value {
+            readonly get => value;
+            set => this.value = value;
+        }
+
+        /// <summary>
+        /// Gets a reference to the referenced value.
+        /// </summary>
+        public ref T Reference => ref value;
+
+        /// <summary>
         /// Gets a value indicating whether the current instance represents a null reference.
         /// </summary>
         public bool IsNull => Unsafe.IsNullRef(ref value);

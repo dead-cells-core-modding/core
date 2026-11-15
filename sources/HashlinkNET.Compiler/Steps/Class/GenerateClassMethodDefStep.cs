@@ -50,7 +50,8 @@ namespace HashlinkNET.Compiler.Steps.Class
 
                 });
 
-                ilp.Emit(OpCodes.Ret);
+                ilp.Emit(OpCodes.Ldnull);
+                ilp.Emit(OpCodes.Throw);
             }
 
             foreach (var b in obj.Bindings)
