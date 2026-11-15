@@ -307,7 +307,7 @@ namespace Hashlink.UnsafeUtilities
 
             ilg.Emit(OpCodes.Ldarg_0);
             ilg.Emit(OpCodes.Ldfld, DelegateInfo.FI_invokePtr);
-            ilg.EmitCalli(OpCodes.Calli, CallingConventions.HasThis, m.ReturnType, ps, null);
+            ilg.EmitCalli(OpCodes.Calli, CallingConventions.HasThis, m.ReturnType, ts, null);
             if (!m.ReturnType.IsValueType)
             {
                 ilg.Emit(OpCodes.Call, invoke.ReturnType.IsAssignableTo(typeof(IExtraDataItem)) ?
