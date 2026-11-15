@@ -21,7 +21,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
                 HlTypeKind.Bool => ts.Boolean,
                 HlTypeKind.Bytes => rdata.bytesType,
                 HlTypeKind.Array => rdata.nativeArray,
-                HlTypeKind.Dyn => ts.Object,
+                HlTypeKind.Dyn => rdata.objectType,
                 HlTypeKind.DynObj => rdata.dynType,
                 HlTypeKind.Abstract => ts.IntPtr,
                 HlTypeKind.Type => ts.IntPtr,

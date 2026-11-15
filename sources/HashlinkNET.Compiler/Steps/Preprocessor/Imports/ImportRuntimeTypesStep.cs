@@ -32,7 +32,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.functionInfoCache = ImportType<FunctionInfoCache>();
             rdata.objFieldInfoCache = ImportType<ObjFieldInfoCache>();
 
-            rdata.objectType = module.TypeSystem.Object;
+            rdata.objectType = module.ImportReference(typeof(object));
             rdata.nullType = module.ImportReference(typeof(Nullable<>));
             rdata.valueTypeType = ImportType<ValueType>();
             rdata.delegateType = ImportType<Delegate>();
@@ -77,7 +77,6 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.phUnwrapException = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.UnwrapException));
             rdata.phGetTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetTypePointer));
             rdata.phGetVoidTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetVoidTypePointer));
-            rdata.phGetObjectTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetObjectTypePointer));
             rdata.phCreateEmptyInstance = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.CreateEmptyInstance));
             rdata.phGetRuntimeTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetRuntimeTypePointer));
             rdata.phGetTypeId = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetTypeId));

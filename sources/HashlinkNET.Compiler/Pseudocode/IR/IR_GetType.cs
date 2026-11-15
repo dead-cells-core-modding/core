@@ -15,10 +15,6 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             {
                 il.Emit(OpCodes.Call, ctx.RuntimeImports.phGetVoidTypePointer);
             }
-            else if (type.FullName == "System.Object")
-            {
-                il.Emit(OpCodes.Call, ctx.RuntimeImports.phGetObjectTypePointer);
-            }
             else
             {
                 il.Emit(OpCodes.Call, ctx.RuntimeImports.phGetTypePointer.MakeInstance(type));
