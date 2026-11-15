@@ -16,9 +16,16 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
         public readonly IRResult[] args = args;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
-            src.Emit(ctx, true);
+            var srcType = src.Emit(ctx, true);
             if (invokeMethod != null)
             {
+                if (!invokeMethod.DeclaringType.IsValueType &&
+                    !invokeMethod.DeclaringType.IsGenericParameter &&
+                    !invokeMethod.DeclaringType.IsByReference &&
+                    invokeMethod.DeclaringType.FullName != "System.Object")
+                {
+                    il.Emit(OpCodes.Castclass, invokeMethod.DeclaringType);
+                }
                 for (var i = 0; i < args.Length; i++)
                 {
                     var argType = args[i].Emit(ctx, true)!;
