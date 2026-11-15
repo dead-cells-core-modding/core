@@ -1,4 +1,5 @@
 using HashlinkNET.Compiler.Pseudocode.Data;
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Diagnostics;
@@ -16,13 +17,16 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         public readonly string? assign = assign;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
-            src.Emit(ctx, dst != null);
+            var srcType = src.Emit(ctx, dst != null);
 
             if (dst == null)
             {
                 return null;
             }
-            else if (dst.Kind == HlFuncRegisterData.RegisterKind.Parameter)
+
+            il.EmitNullableConversion(container, dst.RegisterType, srcType);
+
+            if (dst.Kind == HlFuncRegisterData.RegisterKind.Parameter)
             {
                 il.Emit(OpCodes.Starg, dst.Parameter);
             }

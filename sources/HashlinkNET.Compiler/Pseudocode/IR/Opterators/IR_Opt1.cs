@@ -1,3 +1,4 @@
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -20,6 +21,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Opterators
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             var ret = src.Emit(ctx, true);
+            ret = il.EmitNullableUnwrap(container, ret);
             if (kind == OptKind.Neg)
             {
                 il.Emit(OpCodes.Neg);

@@ -1,3 +1,4 @@
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -14,9 +15,59 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
 
-            foreach (var v in args)
+            for (var i = 0; i < args.Length; i++)
             {
-                v.Emit(ctx, true);
+                var actual = args[i].Emit(ctx, true);
+
+                TypeReference? expected = null;
+                if (method.HasThis)
+                {
+                    if (i == 0)
+                    {
+                        expected = method.DeclaringType;
+                    }
+                    else if (i - 1 < method.Parameters.Count)
+                    {
+                        expected = method.Parameters[i - 1].ParameterType;
+                    }
+                }
+                else if (i < method.Parameters.Count)
+                {
+                    expected = method.Parameters[i].ParameterType;
+                }
+
+                if (expected is GenericParameter gp &&
+                    gp.Type == GenericParameterType.Type &&
+                    method.DeclaringType is GenericInstanceType dgi &&
+                    gp.Position < dgi.GenericArguments.Count)
+                {
+                    expected = dgi.GenericArguments[gp.Position];
+                }
+
+                if (expected is GenericInstanceType pgi &&
+                    pgi.ElementType.FullName == ctx.RuntimeImports.refType.FullName &&
+                    actual.IsByReference)
+                {
+                    il.Emit(OpCodes.Call,
+                        ctx.RuntimeImports.phMakeRef.MakeInstance(pgi.GenericArguments[0]));
+                }
+                else
+                {
+                    il.EmitNullableConversion(container, expected, actual);
+                    if (expected?.FullName == "System.Object")
+                    {
+                        var boxType = actual;
+                        if (boxType.IsByReference)
+                        {
+                            boxType = ((ByReferenceType)boxType).ElementType;
+                            il.Emit(OpCodes.Ldobj, boxType);
+                        }
+                        if (boxType.IsValueType && !boxType.IsGenericParameter)
+                        {
+                            il.Emit(OpCodes.Box, boxType);
+                        }
+                    }
+                }
             }
 
             il.Emit(virt && method.HasThis ? OpCodes.Callvirt : OpCodes.Call, method);

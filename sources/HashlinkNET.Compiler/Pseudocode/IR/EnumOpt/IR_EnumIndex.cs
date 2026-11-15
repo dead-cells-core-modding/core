@@ -13,14 +13,14 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.EnumOpt
         {
             var tr = input.Emit(ctx, true);
 
-            il.Emit(OpCodes.Call, ctx.RuntimeImports.hGetEnumIndex);
+            il.Emit(OpCodes.Callvirt, ctx.RuntimeImports.hGetEnumIndex);
 
-            if (tr is not null)
+            // The raw enum index is an int32. The generated Indexes type is a
+            // CLR enum (a value type), so castclass would be invalid IL.
+            if (tr is not null &&
+                container.TryGetData<EnumClassData>(tr, out var ecd))
             {
-                if (container.TryGetData<EnumClassData>(tr, out var ecd))
-                {
-                    il.Emit(OpCodes.Castclass, ecd.IndexType);
-                }
+                return ecd.IndexType;
             }
             return ctx.TypeSystem.Int32;
         }

@@ -82,6 +82,11 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.phAsRef = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.AsRef));
             rdata.phUnref = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.Unref));
             rdata.phMakeRef = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.MakeRef));
+            rdata.phMakeNullable = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.MakeNullable));
+            rdata.phNullNullable = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.NullNullable));
+            rdata.phGetNullableValue = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetNullableValue));
+            rdata.phAsHaxeString = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.AsHaxeString));
+            rdata.phAsHaxeStringPtr = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.AsHaxeStringPtr));
 
             rdata.arrayGetItem = module.ImportReference(
                 typeof(HashlinkArray).GetProperty("Item")!.GetMethod);
@@ -117,6 +122,18 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
                     m.IsGenericMethodDefinition &&
                     m.GetParameters().Length == 1 &&
                     m.GetParameters()[0].ParameterType == typeof(void*)));
+            rdata.unsafeIsNullRef = module.ImportReference(
+                typeof(Unsafe).GetMethods().First(m =>
+                    m.Name == nameof(Unsafe.IsNullRef) &&
+                    m.IsGenericMethodDefinition &&
+                    m.GetParameters().Length == 1 &&
+                    m.GetParameters()[0].ParameterType.IsByRef));
+            rdata.unsafeAreSame = module.ImportReference(
+                typeof(Unsafe).GetMethods().First(m =>
+                    m.Name == nameof(Unsafe.AreSame) &&
+                    m.IsGenericMethodDefinition &&
+                    m.GetParameters().Length == 2 &&
+                    m.GetParameters()[0].ParameterType.IsByRef));
 
             rdata.hCreateInstance = ImportHelperMethod(nameof(HaxeProxyHelper.CreateInstance));
             rdata.hGetCallInfoById = ImportHelperMethod(nameof(HaxeProxyHelper.GetCallInfoById));
@@ -130,6 +147,8 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.hGetEnumIndex = ImportMethod(typeof(HaxeEnum), "get_RawIndex");
             rdata.hEnumEquality = ImportMethod(typeof(HaxeEnum), "op_Equality");
             rdata.hEnumInequality = ImportMethod(typeof(HaxeEnum), "op_Inequality");
+            rdata.objectEquals = module.ImportReference(typeof(object).GetMethod(
+                nameof(object.Equals), [typeof(object), typeof(object)]));
             rdata.hGetTypeIndexFromType = ImportHelperMethod(nameof(HaxeProxyHelper.GetTypeIndexFromType));
             rdata.hToVirtual = module.ImportReference(
                 typeof(HaxeProxyBase).GetMethod(nameof(HaxeProxyBase.ToVirtual)));

@@ -22,9 +22,16 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
                 for (var i = 0; i < args.Length; i++)
                 {
                     var argType = args[i].Emit(ctx, true)!;
-                    var paramType = i < invokeMethod.Parameters.Count
+                    TypeReference? paramType = i < invokeMethod.Parameters.Count
                         ? invokeMethod.Parameters[i].ParameterType
                         : null;
+                    if (paramType is GenericParameter gp &&
+                        gp.Type == GenericParameterType.Type &&
+                        invokeMethod.DeclaringType is GenericInstanceType dgi &&
+                        gp.Position < dgi.GenericArguments.Count)
+                    {
+                        paramType = dgi.GenericArguments[gp.Position];
+                    }
 
                     // Delegates (notably native ones) still take Ref<T> even
                     // though translated methods use 'ref T'.
@@ -33,6 +40,23 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
                         argType.IsByReference)
                     {
                         il.Emit(OpCodes.Call, ctx.RuntimeImports.phMakeRef.MakeInstance(pgi.GenericArguments[0]));
+                    }
+                    else
+                    {
+                        il.EmitNullableConversion(container, paramType, argType);
+                        if (paramType?.FullName == "System.Object")
+                        {
+                            var boxType = argType;
+                            if (boxType.IsByReference)
+                            {
+                                boxType = ((ByReferenceType)boxType).ElementType;
+                                il.Emit(OpCodes.Ldobj, boxType);
+                            }
+                            if (boxType.IsValueType && !boxType.IsGenericParameter)
+                            {
+                                il.Emit(OpCodes.Box, boxType);
+                            }
+                        }
                     }
                 }
                 il.Emit(OpCodes.Callvirt, invokeMethod);

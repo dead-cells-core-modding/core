@@ -11,8 +11,13 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             il.Emit(OpCodes.Ldc_I4, globalValue);
-            val.Emit(ctx, true);
+            var st = val.Emit(ctx, true);
+            if (st != null && st.IsValueType && !st.IsGenericParameter)
+            {
+                il.Emit(OpCodes.Box, st);
+            }
             il.Emit(OpCodes.Call, ctx.RuntimeImports.phSetGlobal);
+            il.Emit(OpCodes.Pop);
             return null;
         }
     }

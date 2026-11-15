@@ -1,3 +1,4 @@
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -31,7 +32,9 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Opterators
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             var ret = srcA.Emit(ctx, true);
-            srcB.Emit(ctx, true);
+            ret = il.EmitNullableUnwrap(container, ret);
+            var retB = srcB.Emit(ctx, true);
+            il.EmitNullableUnwrap(container, retB);
 
             il.Emit(kind switch
             {

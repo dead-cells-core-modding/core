@@ -230,7 +230,6 @@ namespace HashlinkNET.Compiler.Utils
                     var at = ft.Arguments[i].Value;
                     var pt = container.GetTypeRef(at);
 
-
                     emitArg(il, i);
                     var pd = new ParameterDefinition(pt);
                     if (at.Kind == HlTypeKind.Null)
@@ -307,6 +306,144 @@ namespace HashlinkNET.Compiler.Utils
         {
             var refT = rdata.refType.MakeGenericInstanceType(element);
             return new FieldReference("value", new ByReferenceType(element), refT);
+        }
+
+        /// <summary>
+        /// Converts an emitted argument value to <c>Nullable&lt;T&gt;</c> when
+        /// the consumer expects one. Null/object values become the default
+        /// Nullable value, and the underlying value is wrapped.
+        /// </summary>
+        public static void EmitNullableConversion( this ILProcessor il, IDataContainer container,
+            TypeReference? expected, TypeReference? actual )
+        {
+            if (expected is not GenericInstanceType nullable ||
+                nullable.ElementType.FullName != "System.Nullable`1" ||
+                nullable.GenericArguments.Count != 1)
+            {
+                return;
+            }
+            if (actual is GenericInstanceType actualNullable &&
+                actualNullable.ElementType.FullName == nullable.ElementType.FullName)
+            {
+                return;
+            }
+
+            if (actual != null && actual.IsValueType && !actual.IsGenericParameter)
+            {
+                var rdata = container.GetGlobalData<RuntimeImports>();
+                il.Emit(OpCodes.Call,
+                    rdata.phMakeNullable.MakeInstance(nullable.GenericArguments[0]));
+            }
+            else
+            {
+                // Discard the source value (usually ldnull) before producing
+                // the default Nullable value.
+                il.Emit(OpCodes.Pop);
+                var rdata = container.GetGlobalData<RuntimeImports>();
+                il.Emit(OpCodes.Call,
+                    rdata.phNullNullable.MakeInstance(nullable.GenericArguments[0]));
+            }
+        }
+
+        /// <summary>
+        /// If the emitted value is a <c>Nullable&lt;T&gt;</c>, replace it on the
+        /// stack with its underlying value (default for null) and return the
+        /// underlying type.
+        /// </summary>
+        public static TypeReference? EmitNullableUnwrap( this ILProcessor il,
+            IDataContainer container, TypeReference? type )
+        {
+            if (type is GenericInstanceType nullable &&
+                nullable.ElementType.FullName == "System.Nullable`1" &&
+                nullable.GenericArguments.Count == 1)
+            {
+                var underlying = nullable.GenericArguments[0];
+                var rdata = container.GetGlobalData<RuntimeImports>();
+                il.Emit(OpCodes.Call,
+                    rdata.phGetNullableValue.MakeInstance(underlying));
+                return underlying;
+            }
+            return type;
+        }
+
+        /// <summary>
+        /// Emits a conditional branch. If the branch leaves the current
+        /// protected region (try/handler), a conditional skip plus
+        /// <c>leave</c> is emitted, because brtrue/brfalse may not cross a
+        /// region boundary.
+        /// </summary>
+        public static void EmitProtectedBranch( this ILProcessor il,
+            OpCode branch, Instruction target )
+        {
+            var body = il.Body;
+            if (body.Instructions.Count == 0)
+            {
+                il.Emit(branch, target);
+                return;
+            }
+
+            var current = body.Instructions[^1];
+            var currentIndex = body.Instructions.IndexOf(current);
+            var targetIndex = body.Instructions.IndexOf(target);
+            var needLeave = false;
+
+            foreach (var eh in body.ExceptionHandlers)
+            {
+                var tryStart = body.Instructions.IndexOf(eh.TryStart);
+                var tryEnd = eh.TryEnd == null
+                    ? body.Instructions.Count
+                    : body.Instructions.IndexOf(eh.TryEnd);
+                var handlerStart = eh.HandlerStart == null
+                    ? -1
+                    : body.Instructions.IndexOf(eh.HandlerStart);
+                var handlerEnd = eh.HandlerEnd == null
+                    ? body.Instructions.Count
+                    : body.Instructions.IndexOf(eh.HandlerEnd);
+
+                var inTry = currentIndex >= tryStart && currentIndex < tryEnd;
+                var inHandler = handlerStart >= 0 &&
+                    currentIndex >= handlerStart && currentIndex < handlerEnd;
+                if (!inTry && !inHandler)
+                {
+                    continue;
+                }
+
+                var targetInTry = targetIndex >= tryStart && targetIndex < tryEnd;
+                var targetInHandler = handlerStart >= 0 &&
+                    targetIndex >= handlerStart && targetIndex < handlerEnd;
+                if ((inTry && !targetInTry) || (inHandler && !targetInHandler))
+                {
+                    needLeave = true;
+                    break;
+                }
+            }
+
+            if (!needLeave)
+            {
+                il.Emit(branch, target);
+                return;
+            }
+
+            var skip = Instruction.Create(OpCodes.Nop);
+            var inverse = branch.Code switch
+            {
+                Code.Brtrue or Code.Brtrue_S => OpCodes.Brfalse,
+                Code.Brfalse or Code.Brfalse_S => OpCodes.Brtrue,
+                Code.Beq or Code.Beq_S => OpCodes.Bne_Un,
+                Code.Bne_Un or Code.Bne_Un_S => OpCodes.Beq,
+                Code.Bgt or Code.Bgt_S => OpCodes.Ble,
+                Code.Ble or Code.Ble_S => OpCodes.Bgt,
+                Code.Blt or Code.Blt_S => OpCodes.Bge,
+                Code.Bge or Code.Bge_S => OpCodes.Blt,
+                Code.Bgt_Un or Code.Bgt_Un_S => OpCodes.Ble_Un,
+                Code.Ble_Un or Code.Ble_Un_S => OpCodes.Bgt_Un,
+                Code.Blt_Un or Code.Blt_Un_S => OpCodes.Bge_Un,
+                Code.Bge_Un or Code.Bge_Un_S => OpCodes.Blt_Un,
+                _ => OpCodes.Brfalse
+            };
+            il.Emit(inverse, skip);
+            il.Emit(OpCodes.Leave, target);
+            il.Append(skip);
         }
 
         /// <summary>

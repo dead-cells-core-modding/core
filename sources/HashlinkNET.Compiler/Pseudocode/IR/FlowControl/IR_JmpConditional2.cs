@@ -1,5 +1,6 @@
 using HashlinkNET.Compiler.Data.Interfaces;
 using HashlinkNET.Compiler.Pseudocode.Data;
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -54,10 +55,53 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
         public readonly bool useEqualityOperator = useEqualityOperator;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
-            var at = a.Emit(ctx, true);
-            b.Emit(ctx, true);
+            var isEquality = kind is ConditionKind.Eq or ConditionKind.NotEq;
 
-            if (useEqualityOperator && kind is ConditionKind.Eq or ConditionKind.NotEq)
+            var at = a.Emit(ctx, true);
+            var aIsByRef = at is ByReferenceType;
+            var aIsValue = at is { IsValueType: true };
+            if (isEquality && aIsValue)
+            {
+                il.Emit(OpCodes.Box, at!);
+            }
+            else if (at != null && at.IsPointer)
+            {
+                il.Emit(OpCodes.Conv_I);
+            }
+
+            var bt = b.Emit(ctx, true);
+            var bIsByRef = bt is ByReferenceType;
+            var bIsValue = bt is { IsValueType: true };
+            if (isEquality && bIsValue)
+            {
+                il.Emit(OpCodes.Box, bt!);
+            }
+            else if (bt != null && bt.IsPointer)
+            {
+                il.Emit(OpCodes.Conv_I);
+            }
+
+            if (isEquality && aIsByRef && bIsByRef)
+            {
+                // Managed pointers cannot be compared with beq/bne directly.
+                il.Emit(OpCodes.Call, ctx.RuntimeImports.unsafeAreSame.MakeInstance(
+                    ((ByReferenceType)at!).ElementType));
+                il.EmitProtectedBranch(kind == ConditionKind.Eq ? OpCodes.Brtrue : OpCodes.Brfalse,
+                    target.startInst);
+                return null;
+            }
+
+            if (isEquality && (aIsValue || bIsValue))
+            {
+                // Non-primitive value types (e.g. Nullable<T>) cannot use
+                // beq/bne; compare the boxed values instead.
+                il.Emit(OpCodes.Call, ctx.RuntimeImports.objectEquals);
+                il.EmitProtectedBranch(kind == ConditionKind.Eq ? OpCodes.Brtrue : OpCodes.Brfalse,
+                    target.startInst);
+                return null;
+            }
+
+            if (useEqualityOperator && isEquality)
             {
                 // Haxe proxy types may overload == / != (for example HaxeEnum
                 // compares structurally), so use the operator instead of a
@@ -65,7 +109,16 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                 il.Emit(OpCodes.Call, kind == ConditionKind.Eq
                     ? ctx.RuntimeImports.hEnumEquality
                     : ctx.RuntimeImports.hEnumInequality);
-                il.Emit(OpCodes.Brtrue, target.startInst);
+                il.EmitProtectedBranch(OpCodes.Brtrue, target.startInst);
+                return null;
+            }
+
+            if (isEquality && !aIsValue && !bIsValue && !aIsByRef && !bIsByRef)
+            {
+                // Object references are compared with ceq, not beq/bne.
+                il.Emit(OpCodes.Ceq);
+                il.EmitProtectedBranch(kind == ConditionKind.Eq ? OpCodes.Brtrue : OpCodes.Brfalse,
+                    target.startInst);
                 return null;
             }
 
@@ -75,7 +128,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                 il.Emit(OpCodes.Ldc_I4_0);
             }
 
-            il.Emit(kind switch
+            il.EmitProtectedBranch(kind switch
             {
                 ConditionKind.Eq => OpCodes.Beq,
                 ConditionKind.NotEq => OpCodes.Bne_Un,

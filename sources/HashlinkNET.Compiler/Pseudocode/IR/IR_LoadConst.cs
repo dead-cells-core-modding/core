@@ -1,15 +1,26 @@
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace HashlinkNET.Compiler.Pseudocode.IR
 {
-    class IR_LoadConst( object? val ) : IRBase
+    class IR_LoadConst( object? val, TypeReference? targetType = null ) : IRBase
     {
         public object? value = val;
+        public TypeReference? targetType = targetType;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             if (value == null)
             {
+                if (targetType != null &&
+                    (targetType.FullName == "System.IntPtr" ||
+                     targetType.FullName == "System.UIntPtr" ||
+                     targetType.IsPointer))
+                {
+                    il.Emit(OpCodes.Ldc_I4_0);
+                    il.Emit(OpCodes.Conv_U);
+                    return targetType;
+                }
                 il.Emit(OpCodes.Ldnull);
                 return ctx.TypeSystem.Object;
             }
@@ -36,6 +47,20 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             else if (value is string @string)
             {
                 il.Emit(OpCodes.Ldstr, @string);
+                if (targetType != null && targetType.FullName != "System.String")
+                {
+                    if (targetType.FullName == "System.IntPtr" ||
+                        targetType.FullName == "System.UIntPtr")
+                    {
+                        il.Emit(OpCodes.Call, ctx.RuntimeImports.phAsHaxeStringPtr);
+                        return ctx.TypeSystem.IntPtr;
+                    }
+                    // System.String must be converted into the Haxe string
+                    // proxy (dc.String) through the shared helper.
+                    il.Emit(OpCodes.Call,
+                        ctx.RuntimeImports.phAsHaxeString.MakeInstance(targetType));
+                    return targetType;
+                }
                 return ctx.TypeSystem.String;
             }
             else if (value is bool @bool)

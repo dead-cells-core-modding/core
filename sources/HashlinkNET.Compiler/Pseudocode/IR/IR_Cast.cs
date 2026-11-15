@@ -1,3 +1,4 @@
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -56,6 +57,8 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                     break;
                 case nameof(Boolean):
                     il.Emit(OpCodes.Conv_I4);
+                    il.Emit(OpCodes.Ldc_I4_0);
+                    il.Emit(OpCodes.Cgt_Un);
                     break;
                 default:
                     throw new InvalidOperationException($"Unsupported cast to {to.FullName}");
@@ -65,6 +68,13 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             var st = src.Emit(ctx, true)!;
+            var targetIsNullable = type is GenericInstanceType targetGit &&
+                targetGit.ElementType.FullName == "System.Nullable`1";
+            if (!targetIsNullable)
+            {
+                // Numeric/other conversions operate on the underlying value.
+                st = il.EmitNullableUnwrap(container, st)!;
+            }
             if (type.IsByReference || st.IsByReference)
             {
                 if (!st.IsByReference)
@@ -96,17 +106,12 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                 nullable.ElementType.FullName == "System.Nullable`1" &&
                 nullable.GenericArguments.Count == 1)
             {
-                // T -> Nullable<T>
+                // T -> Nullable<T>. Constructing Nullable<T>::.ctor directly
+                // can mix corlib scopes; the helper guarantees the runtime's
+                // Nullable<T> type identity.
                 var underlying = nullable.GenericArguments[0];
-                var ctor = new MethodReference(".ctor", ctx.TypeSystem.Void, nullable)
-                {
-                    HasThis = true,
-                    Parameters =
-                    {
-                        new(underlying)
-                    }
-                };
-                il.Emit(OpCodes.Newobj, ctor);
+                il.Emit(OpCodes.Call,
+                    ctx.RuntimeImports.phMakeNullable.MakeInstance(underlying));
             }
             else
             {

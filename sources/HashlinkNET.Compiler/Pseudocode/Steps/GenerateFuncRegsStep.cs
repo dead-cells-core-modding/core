@@ -17,6 +17,10 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             var md = gdata.Definition;
 
             md.FixPIndex();
+            // The method body may have been created before HasThis/parameters
+            // were finalized (e.g. by GenerateFuncDefStep), which leaves
+            // Body.ThisParameter null. Recreate it so 'this' loads are valid.
+            md.Body = new(md);
             md.Body.Variables.Clear();
 
             for (var i = 0; i < f.LocalVariables.Length; i++)

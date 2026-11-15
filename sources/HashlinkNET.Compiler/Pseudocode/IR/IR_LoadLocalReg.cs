@@ -20,7 +20,16 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             }
             else if (src.Kind == HlFuncRegisterData.RegisterKind.Parameter)
             {
-                il.Emit(OpCodes.Ldarg, src.Parameter);
+                // Cecil's ThisParameter has index -1 and cannot be encoded as
+                // an ldarg operand, so load 'this' explicitly.
+                if (src.Parameter == null || src.Parameter.Index < 0)
+                {
+                    il.Emit(OpCodes.Ldarg_0);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Ldarg, src.Parameter);
+                }
             }
             else
             {

@@ -85,6 +85,7 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference hGetEnumIndex;
         public MethodReference hEnumEquality;
         public MethodReference hEnumInequality;
+        public MethodReference objectEquals;
         public MethodReference hGetTypeIndexFromType;
         public MethodReference attrInitialValue;
         public MethodReference hGetNativeCall;
@@ -99,6 +100,11 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference phAsRef;
         public MethodReference phUnref;
         public MethodReference phMakeRef;
+        public MethodReference phMakeNullable;
+        public MethodReference phNullNullable;
+        public MethodReference phGetNullableValue;
+        public MethodReference phAsHaxeString;
+        public MethodReference phAsHaxeStringPtr;
 
         public MethodReference arrayGetItem;
         public MethodReference arraySetItem;
@@ -112,5 +118,7 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference unsafeRead;
         public MethodReference unsafeWrite;
         public MethodReference unsafeAsRef;
+        public MethodReference unsafeIsNullRef;
+        public MethodReference unsafeAreSame;
     }
 }

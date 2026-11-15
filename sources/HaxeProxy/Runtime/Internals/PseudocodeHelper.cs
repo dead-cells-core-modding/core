@@ -108,7 +108,27 @@ namespace HaxeProxy.Runtime.Internals
         {
             return Ref<T>.From(ref value);
         }
-        public static nint GetRefPointer<T>( Ref<T> reference )
+        public static T? MakeNullable<T>( T value ) where T : struct
+        {
+            return value;
+        }
+        public static T? NullNullable<T>() where T : struct
+        {
+            return default;
+        }
+        public static T GetNullableValue<T>( T? value ) where T : struct
+        {
+            return value ?? default;
+        }
+        public static T AsHaxeString<T>( string value ) where T : HaxeProxyBase
+        {
+            return new HashlinkString(value).AsHaxe<T>();
+        }
+        public static IntPtr AsHaxeStringPtr( string value )
+        {
+            var proxy = new HashlinkString(value).AsHaxe<HaxeProxyBase>();
+            return proxy.HashlinkPointer;
+        }        public static nint GetRefPointer<T>( Ref<T> reference )
         {
             return (nint)Unsafe.AsPointer(ref reference.value);
         }

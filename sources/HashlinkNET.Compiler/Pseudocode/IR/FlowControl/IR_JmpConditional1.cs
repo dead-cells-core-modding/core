@@ -1,4 +1,5 @@
 using HashlinkNET.Compiler.Pseudocode.Data;
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -38,9 +39,35 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
 
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
-            src.Emit(ctx, true);
+            var st = src.Emit(ctx, true);
+            if (st is ByReferenceType byRef)
+            {
+                // brtrue/brfalse do not accept managed pointers, so test the
+                // reference with Unsafe.IsNullRef<T>.
+                il.Emit(OpCodes.Call,
+                    ctx.RuntimeImports.unsafeIsNullRef.MakeInstance(byRef.ElementType));
+                il.EmitProtectedBranch(kind switch
+                {
+                    ConditionKind.True => OpCodes.Brfalse,
+                    ConditionKind.False => OpCodes.Brtrue,
+                    ConditionKind.Null => OpCodes.Brtrue,
+                    ConditionKind.NotNull => OpCodes.Brfalse,
+                    _ => throw new NotSupportedException()
+                }, target.startInst);
+                return null;
+            }
+            if (st != null && st.IsValueType && !st.IsPrimitive)
+            {
+                // brtrue/brfalse need a primitive/object; box non-primitive
+                // value types (e.g. Nullable<T>).
+                il.Emit(OpCodes.Box, st);
+            }
+            else if (st != null && st.IsPointer)
+            {
+                il.Emit(OpCodes.Conv_I);
+            }
 
-            il.Emit(kind switch
+            il.EmitProtectedBranch(kind switch
             {
                 ConditionKind.True => OpCodes.Brtrue,
                 ConditionKind.False => OpCodes.Brfalse,

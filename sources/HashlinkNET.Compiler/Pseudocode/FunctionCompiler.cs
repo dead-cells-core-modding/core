@@ -33,12 +33,16 @@ namespace HashlinkNET.Compiler.Pseudocode
             AddStep<EmitILStep>();
             AddStep<PinPointerLocalsStep>();
             AddStep<SetupExceptionHandlersStep>();
+            AddStep<NormalizeExceptionRegionsStep>();
+            AddStep<FixHandlerBranchesStep>();
             AddStep<TrimILStep>();
+            AddStep<RemoveNopILStep>();
             if (config.GenerateBytecodeMapping)
             {
                 AddStep<FillBytecodeMappingDataStep>();
             }
             AddStep<OptimizeILStep>();
+            AddStep<RemoveUnreachableILStep>();
         }
 
         protected override void BeforeRun()

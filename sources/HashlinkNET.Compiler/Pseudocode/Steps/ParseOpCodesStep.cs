@@ -203,15 +203,16 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         HlOpcodeKind.Int => new IR_LoadConst(hlc.Ints[srcId]),
                         HlOpcodeKind.Float => new IR_LoadConst(hlc.Floats[srcId]),
                         HlOpcodeKind.Bool => new IR_LoadConst(srcId),
-                        HlOpcodeKind.Bytes => new IR_LoadConst(null), //TODO: Fix ME
-                        HlOpcodeKind.String => new IR_LoadConst(hlc.GetUString(srcId)),
+                        HlOpcodeKind.Bytes => new IR_LoadConst(null, GetLocalRegType(code.Parameters[0])), //TODO: Fix ME
+                        HlOpcodeKind.String => new IR_LoadConst(
+                            hlc.GetUString(srcId), GetLocalRegType(code.Parameters[0])),
                         _ => throw new NotSupportedException()
                     };
 
                 }
                 else if (c == HlOpcodeKind.Null)
                 {
-                    src = new IR_LoadConst(null);
+                    src = new IR_LoadConst(null, GetLocalRegType(code.Parameters[0]));
                 }
                 else if (c >= HlOpcodeKind.Add && c <= HlOpcodeKind.Xor)
                 {
@@ -248,7 +249,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     }
                     else if (gd is string)
                     {
-                        src = new IR_LoadConst(gd);
+                        src = new IR_LoadConst(gd, GetLocalRegType(code.Parameters[0]));
                     }
                     else if (gd is IGlobalValue gv)
                     {
@@ -256,7 +257,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     }
                     else
                     {
-                        src = new IR_LoadConst(null);
+                        src = new IR_LoadConst(null, GetLocalRegType(code.Parameters[0]));
                     }
                 }
                 else if (c == HlOpcodeKind.CallClosure)
