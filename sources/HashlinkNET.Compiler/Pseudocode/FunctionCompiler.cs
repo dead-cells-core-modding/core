@@ -35,7 +35,7 @@ namespace HashlinkNET.Compiler.Pseudocode
             AddStep<SetupExceptionHandlersStep>();
             AddStep<NormalizeExceptionRegionsStep>();
             AddStep<FixHandlerBranchesStep>();
-            AddStep<TrimILStep>();
+            // AddStep<TrimILStep>();
             AddStep<RemoveNopILStep>();
             if (config.GenerateBytecodeMapping)
             {
