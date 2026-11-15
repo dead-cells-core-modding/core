@@ -19,6 +19,13 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Closure
             if (self != null)
             {
                 selfType = self.Emit(ctx, true);
+                if (selfType != null &&
+                    selfType.IsValueType &&
+                    !selfType.IsByReference)
+                {
+                    il.Emit(OpCodes.Box, selfType);
+                    selfType = ctx.TypeSystem.Object;
+                }
             }
             else
             {

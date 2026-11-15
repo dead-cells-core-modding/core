@@ -94,6 +94,10 @@ namespace HaxeProxy.Runtime.Internals
         {
             return (nint)HashlinkMarshal.Module.PreferTypes[GetTypeIndex(typeof(T))].NativeType;
         }
+        public static nint GetTypePointer( Type type )
+        {
+            return (nint)HashlinkMarshal.Module.PreferTypes[GetTypeIndex(type)].NativeType;
+        }
         public static nint GetVoidTypePointer()
         {
             return 0;

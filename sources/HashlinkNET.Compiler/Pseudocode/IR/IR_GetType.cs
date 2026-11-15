@@ -17,7 +17,9 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             }
             else
             {
-                il.Emit(OpCodes.Call, ctx.RuntimeImports.phGetTypePointer.MakeInstance(type));
+                il.Emit(OpCodes.Ldtoken, type);
+                il.Emit(OpCodes.Call, ctx.RuntimeImports.typeGetTypeFromHandle);
+                il.Emit(OpCodes.Call, ctx.RuntimeImports.phGetTypePointerByType);
             }
             return ctx.RuntimeImports.bytesType;
         }

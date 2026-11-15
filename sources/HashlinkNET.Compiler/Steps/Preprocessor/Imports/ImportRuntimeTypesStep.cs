@@ -75,7 +75,14 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
 
             rdata.phWrapException = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.WrapException));
             rdata.phUnwrapException = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.UnwrapException));
-            rdata.phGetTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetTypePointer));
+            rdata.phGetTypePointer = module.ImportReference(typeof(PseudocodeHelper)
+                .GetMethods().First(m => m.Name == nameof(PseudocodeHelper.GetTypePointer) &&
+                    m.IsGenericMethodDefinition));
+            rdata.phGetTypePointerByType = module.ImportReference(typeof(PseudocodeHelper)
+                .GetMethods().First(m => m.Name == nameof(PseudocodeHelper.GetTypePointer) &&
+                    !m.IsGenericMethod && m.GetParameters().Length == 1));
+            rdata.typeGetTypeFromHandle = module.ImportReference(
+                typeof(Type).GetMethod(nameof(Type.GetTypeFromHandle))!);
             rdata.phGetVoidTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetVoidTypePointer));
             rdata.phCreateEmptyInstance = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.CreateEmptyInstance));
             rdata.phGetRuntimeTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetRuntimeTypePointer));
