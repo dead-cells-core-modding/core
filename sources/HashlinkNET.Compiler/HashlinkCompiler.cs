@@ -142,5 +142,36 @@ namespace HashlinkNET.Compiler
                 XmlDocument: XmlDocument
             ));
         }
+
+        protected override void AfterRun()
+        {
+            // Cecil can add several AssemblyNameReference objects with the
+            // same identity through different ImportReference calls. Remove
+            // the duplicates and remap any TypeReference scopes to the kept
+            // reference.
+            var module = Output.MainModule;
+            var refs = module.AssemblyReferences;
+            var seen = new Dictionary<string, AssemblyNameReference>();
+            for (var i = refs.Count - 1; i >= 0; i--)
+            {
+                var reference = refs[i];
+                var key = reference.FullName;
+                if (seen.TryGetValue(key, out var keep))
+                {
+                    foreach (var tr in module.GetTypeReferences())
+                    {
+                        if (ReferenceEquals(tr.Scope, reference))
+                        {
+                            tr.Scope = keep;
+                        }
+                    }
+                    refs.RemoveAt(i);
+                }
+                else
+                {
+                    seen[key] = reference;
+                }
+            }
+        }
     }
 }
