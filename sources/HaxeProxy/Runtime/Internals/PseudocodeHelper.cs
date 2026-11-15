@@ -97,6 +97,9 @@ namespace HaxeProxy.Runtime.Internals
         public static nint GetVoidTypePointer()
         {
             return 0;
+        }        public static nint GetObjectTypePointer()
+        {
+            return GetTypePointer<object>();
         }        public static nint GetRuntimeTypePointer( object? value )
         {
             if (value is null)
