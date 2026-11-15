@@ -539,7 +539,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     if (dstReg == -2)
                     {
                         // Void call: no destination register to store into.
-                        irbb.AddIR(src);
+                        irbb.AddIR(new IR_Discard(src));
                     }
                     else
                     {
