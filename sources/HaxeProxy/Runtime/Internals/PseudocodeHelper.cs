@@ -20,6 +20,23 @@ namespace HaxeProxy.Runtime.Internals
         {
             throw new NotSupportedException();
         }
+        public static T CreateEmptyInstance<T>()
+        {
+            var t = typeof(T);
+            if (typeof(HaxeProxyBase).IsAssignableFrom(t))
+            {
+                HashlinkMarshal.EnsureThreadRegistered();
+                var type = HashlinkMarshal.Module.PreferTypes[GetTypeIndex(t)];
+                return (T)(object)type.CreateInstance().AsHaxe<HaxeProxyBase>();
+            }
+            if (t.IsValueType)
+            {
+                return default!;
+            }
+            return (T)System.Runtime.CompilerServices.RuntimeHelpers
+                .GetUninitializedObject(t);
+        }
+
         public static object? DynGet( object? obj, string name )
         {
             if (obj is HaxeProxyBase proxy &&
