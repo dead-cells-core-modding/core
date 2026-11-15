@@ -19,6 +19,16 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
             {
                 var actual = args[i].Emit(ctx, true);
 
+                if (method.HasThis && i == 0 && actual != null &&
+                    !actual.IsValueType && !actual.IsByReference &&
+                    !method.DeclaringType.IsValueType &&
+                    !method.DeclaringType.IsGenericParameter &&
+                    !method.DeclaringType.IsByReference &&
+                    method.DeclaringType.FullName != "System.Object")
+                {
+                    il.Emit(OpCodes.Castclass, method.DeclaringType);
+                }
+
                 TypeReference? expected = null;
                 if (method.HasThis)
                 {
@@ -54,6 +64,16 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
                 else
                 {
                     il.EmitNullableConversion(container, expected, actual);
+                    if (expected != null && actual != null &&
+                        !expected.IsValueType && !actual.IsValueType &&
+                        !actual.IsByReference && !expected.IsByReference &&
+                        expected.FullName != "System.Object" &&
+                        actual.FullName != expected.FullName)
+                    {
+                        // Haxe switch/type narrowing does not change the CLR
+                        // static type; insert the required downcast.
+                        il.Emit(OpCodes.Castclass, expected);
+                    }
                     if (expected?.FullName == "System.Object")
                     {
                         var boxType = actual;
