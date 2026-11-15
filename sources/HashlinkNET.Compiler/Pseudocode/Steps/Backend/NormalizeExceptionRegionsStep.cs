@@ -50,6 +50,38 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
 
             int Index( Instruction inst ) => instructions.IndexOf(inst);
 
+            // A catch/filter handler is entered only by the runtime. Any
+            // explicit branch into a handler is invalid; drop the regions and
+            // redirect those branches past the handler.
+            foreach (var eh in body.ExceptionHandlers)
+            {
+                var hs = eh.HandlerStart == null ? -1 : Index(eh.HandlerStart);
+                var he = eh.HandlerEnd == null ? instructions.Count : Index(eh.HandlerEnd);
+                if (hs < 0)
+                {
+                    continue;
+                }
+                for (var i = 0; i < instructions.Count; i++)
+                {
+                    var tgt = instructions[i].Operand switch
+                    {
+                        Instruction one => one,
+                        Instruction[] many when many.Length > 0 => many[0],
+                        _ => null
+                    };
+                    if (tgt == null)
+                    {
+                        continue;
+                    }
+                    var ti = Index(tgt);
+                    if (ti >= hs && ti < he && (i < hs || i >= he))
+                    {
+                        DropExceptionRegions(body);
+                        return;
+                    }
+                }
+            }
+
             foreach (var eh in body.ExceptionHandlers)
             {
                 var tryStart = Index(eh.TryStart);
@@ -97,14 +129,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                             // cannot be represented in a single protected
                             // region. Drop the region; the remaining body is
                             // still valid straight-line IL.
-                            body.ExceptionHandlers.Clear();
-                            foreach (var x in instructions)
-                            {
-                                if (x.OpCode.Code is Code.Leave or Code.Leave_S)
-                                {
-                                    x.OpCode = OpCodes.Br;
-                                }
-                            }
+                            DropExceptionRegions(body);
                             return;
                         }
 
@@ -154,6 +179,53 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             }
         }
 
+        private static void DropExceptionRegions( MethodBody body )
+        {
+            var instructions = body.Instructions;
+            foreach (var eh in body.ExceptionHandlers)
+            {
+                if (eh.HandlerStart == null)
+                {
+                    continue;
+                }
+                var hs = instructions.IndexOf(eh.HandlerStart);
+                var he = eh.HandlerEnd == null
+                    ? instructions.Count
+                    : instructions.IndexOf(eh.HandlerEnd);
+                var end = eh.HandlerEnd;
+                foreach (var ins in instructions)
+                {
+                    if (ins.Operand is Instruction one)
+                    {
+                        var ti = instructions.IndexOf(one);
+                        if (ti >= hs && ti < he)
+                        {
+                            ins.Operand = end;
+                        }
+                    }
+                    else if (ins.Operand is Instruction[] many)
+                    {
+                        for (var i = 0; i < many.Length; i++)
+                        {
+                            var ti = instructions.IndexOf(many[i]);
+                            if (ti >= hs && ti < he)
+                            {
+                                many[i] = end!;
+                            }
+                        }
+                    }
+                }
+            }
+
+            body.ExceptionHandlers.Clear();
+            foreach (var ins in instructions)
+            {
+                if (ins.OpCode.Code is Code.Leave or Code.Leave_S)
+                {
+                    ins.OpCode = OpCodes.Br;
+                }
+            }
+        }
         private static int StackDelta( Instruction ins )
         {
             var code = ins.OpCode.Code;

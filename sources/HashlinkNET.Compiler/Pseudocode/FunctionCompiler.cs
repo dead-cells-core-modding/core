@@ -28,7 +28,7 @@ namespace HashlinkNET.Compiler.Pseudocode
             AddStep<ScanRegistersAccessStep>();
 
             //Backend
-            AddStep<PostprocessBasicBlocksStep>();
+            // AddStep<PostprocessBasicBlocksStep>();
             AddStep<LinearizeBasicBlocksStep>();
             AddStep<EmitILStep>();
             AddStep<PinPointerLocalsStep>();
