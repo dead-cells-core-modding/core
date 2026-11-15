@@ -29,7 +29,9 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                 return;
             }
 
-            var hasValue = Delta(last) > 0;
+            var hasValue = last.Operand is MethodReference lastMethod
+                ? lastMethod.ReturnType.MetadataType != MetadataType.Void
+                : Delta(last) > 0;
             var ret = gdata.Definition.ReturnType;
             if (ret.MetadataType == MetadataType.Void)
             {
