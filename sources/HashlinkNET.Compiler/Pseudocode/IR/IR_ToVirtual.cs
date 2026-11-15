@@ -13,7 +13,14 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         public TypeReference type = type;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
-            src.Emit(ctx, true);
+            var st = src.Emit(ctx, true);
+            if (st != null &&
+                !st.IsValueType &&
+                !st.IsByReference &&
+                st.FullName != ctx.RuntimeImports.objBaseType.FullName)
+            {
+                il.Emit(OpCodes.Castclass, ctx.RuntimeImports.objBaseType);
+            }
             il.Emit(OpCodes.Callvirt, ctx.RuntimeImports.hToVirtual.MakeInstance(type));
             return type;
         }
