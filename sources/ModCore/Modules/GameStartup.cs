@@ -11,23 +11,10 @@ namespace ModCore.Modules
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal | CoreModuleAttribute.CoreModuleKind.Important)]
     internal unsafe class GameStartup : CoreModule<GameStartup>, IOnNativeEvent
     {
-        
-        private static void BakeBoot()
-        {
-            Logger.Information("Bake boot");
-            HaxeProxyUtils.UseCSharpVersionCode(typeof(_Boot), false);
-            HaxeProxyUtils.UseCSharpVersionCode(typeof(Boot), false);
-            HaxeProxyUtils.UseCSharpVersionCode(typeof(TitleScreen), false);
-            HaxeProxyUtils.UseCSharpVersionCode(typeof(Game), false);
-            HaxeProxyUtils.UseCSharpVersionCode(typeof(App), false);
-            HaxeProxyUtils.UseCSharpVersionCode(typeof(_App), false);
-            Logger.Information("Bake boot Done");
-        }
-        
         private void StartGame()
         {
             HashlinkMarshal.EnsureThreadRegistered();
-            BakeBoot();
+
             var entry = (HashlinkClosure)HashlinkMarshal.ConvertHashlinkObject(
                     &HashlinkVM.Instance.Context->c
                     )!;

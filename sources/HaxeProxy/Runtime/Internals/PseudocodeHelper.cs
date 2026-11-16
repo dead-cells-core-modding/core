@@ -109,14 +109,15 @@ namespace HaxeProxy.Runtime.Internals
         }
         public static nint GetVoidTypePointer()
         {
-            return 0;
+            var type = HashlinkMarshal.GetHashlinkType(typeof(void));
+            return type == null ? 0 : (nint)type.NativeType;
         }
 
         public static nint GetRuntimeTypePointer( object? value )
         {
             if (value is null)
             {
-                return 0;
+                return GetVoidTypePointer();
             }
             if (value is HaxeProxyBase proxy)
             {
@@ -190,3 +191,5 @@ namespace HaxeProxy.Runtime.Internals
         public override string Message => Value?.ToString() ?? "<null>";
     }
 }
+
+

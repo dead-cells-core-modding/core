@@ -51,7 +51,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.enumType = module.ImportReference(typeof(HaxeEnum<,>));
             rdata.virtualType = ImportType<HaxeVirtual>();
             rdata.objectBaseType = ImportType<HaxeObject>();
-            rdata.dynType = ImportType<ExpandoObject>();
+            rdata.dynType = ImportType<HaxeDynObj>();
 
 
 
@@ -224,3 +224,4 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
         }
     }
 }
+

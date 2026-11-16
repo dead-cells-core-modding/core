@@ -6,10 +6,12 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
 {
     class IR_Cast(
         IRResult src,
-        TypeReference type ) : IRBase(src)
+        TypeReference type,
+        bool safe = false ) : IRBase(src)
     {
         public readonly IRResult src = src;
         public TypeReference type = type;
+        public bool safe = safe;
 
         private static void EmitNumericConvert( ILProcessor il, TypeReference from, TypeReference to )
         {
@@ -70,6 +72,15 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             var st = src.Emit(ctx, true)!;
             var targetIsNullable = type is GenericInstanceType targetGit &&
                 targetGit.ElementType.FullName == "System.Nullable`1";
+            if (safe)
+            {
+                HashlinkMethodMarker.MarkShouldUseNative(ctx.DataContainer, ctx.Definition);
+            }
+            if (!targetIsNullable && type.IsValueType &&
+                st != null && !st.IsValueType && !st.IsByReference)
+            {
+                HashlinkMethodMarker.MarkShouldUseNative(ctx.DataContainer, ctx.Definition);
+            }
             if (!targetIsNullable)
             {
                 // Numeric/other conversions operate on the underlying value.
@@ -89,7 +100,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                 {
                     il.Emit(OpCodes.Box, st);
                 }
-                else if (type.FullName != "System.Object")
+                if (type.FullName != "System.Object")
                 {
                     il.Emit(OpCodes.Call, ctx.RuntimeImports.phCast.MakeInstance(type));
                 }
@@ -121,3 +132,6 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         }
     }
 }
+
+
+

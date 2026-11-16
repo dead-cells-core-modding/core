@@ -32,6 +32,13 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                 srcType = il.EmitNullableUnwrap(container, srcType);
             }
 
+            if (srcType?.FullName == "System.Object" &&
+                dst.RegisterType.FullName != "System.Object" &&
+                src.IR is HashlinkNET.Compiler.Pseudocode.IR.DynObj.IR_GetDynObj)
+            {
+                HashlinkMethodMarker.MarkShouldUseNative(ctx.DataContainer, ctx.Definition);
+            }
+
             il.EmitNullableConversion(container, dst.RegisterType, srcType);
 
             if (dst.Kind == HlFuncRegisterData.RegisterKind.Parameter)
@@ -67,3 +74,6 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         }
     }
 }
+
+
+

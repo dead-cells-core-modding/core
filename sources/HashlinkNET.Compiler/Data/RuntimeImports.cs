@@ -120,3 +120,4 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference unsafeAreSame;
     }
 }
+

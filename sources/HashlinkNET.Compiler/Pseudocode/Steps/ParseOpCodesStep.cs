@@ -439,7 +439,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 {
                     src = new IR_Cast(
                         CreateLoadLocalReg(code.Parameters[1]),
-                        gdata.Registers[code.Parameters[0]]!.RegisterType
+                        gdata.Registers[code.Parameters[0]]!.RegisterType,
+                        c == HlOpcodeKind.SafeCast
                         );
                 }
                 else if (c == HlOpcodeKind.UnsafeCast)
@@ -529,7 +530,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         c switch
                         {
                             HlOpcodeKind.GetI8 => typeSystem.Byte,
-                            HlOpcodeKind.GetI16 => typeSystem.Int16,
+                            HlOpcodeKind.GetI16 => typeSystem.UInt16,
                             _ => GetLocalRegType(code.Parameters[0])
                         }
                         );
@@ -728,3 +729,4 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         }
     }
 }
+

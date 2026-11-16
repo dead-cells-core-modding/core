@@ -40,6 +40,14 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
                         paramType = dgi.GenericArguments[gp.Position];
                     }
 
+                    if (paramType != null && paramType.IsValueType &&
+                        !(paramType is GenericInstanceType pn &&
+                          pn.ElementType.FullName == "System.Nullable`1") &&
+                        !argType.IsValueType && !argType.IsByReference)
+                    {
+                        HashlinkMethodMarker.MarkShouldUseNative(ctx.DataContainer, ctx.Definition);
+                    }
+
                     // Delegates (notably native ones) still take Ref<T> even
                     // though translated methods use 'ref T'.
                     if (paramType is GenericInstanceType pgi &&
@@ -102,3 +110,4 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
         }
     }
 }
+

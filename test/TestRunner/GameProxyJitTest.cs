@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using HaxeProxy.Runtime.Internals;
 
 namespace TestRunner
 {
@@ -64,3 +63,5 @@ namespace TestRunner
         }
     }
 }
+
+

@@ -67,6 +67,13 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
                 {
                     actual = il.EmitNullableUnwrap(container, actual);
                 }
+                if (expected != null && expected.IsValueType &&
+                    !(expected is GenericInstanceType expectedNullable2 &&
+                      expectedNullable2.ElementType.FullName == "System.Nullable`1") &&
+                    actual != null && !actual.IsValueType && !actual.IsByReference)
+                {
+                    HashlinkMethodMarker.MarkShouldUseNative(ctx.DataContainer, ctx.Definition);
+                }
 
                 if (expected is GenericInstanceType pgi &&
                     pgi.ElementType.FullName == ctx.RuntimeImports.refType.FullName &&
@@ -109,3 +116,4 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
         }
     }
 }
+
