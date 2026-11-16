@@ -7,6 +7,7 @@ using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper.Callbacks;
 using ModCore.Modules;
 using MonoMod.Utils;
+using Steamworks;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
@@ -21,9 +22,8 @@ namespace ModCore.Hooks
         public readonly HlCallback callback;
         public readonly HashlinkFuncType funcType;
         public readonly HashlinkFunction function;
-        private readonly HashlinkClosure origClosure;
-
-        private static readonly ConcurrentDictionary<MethodInfo, DynamicMethod> adapts = [];
+        private HashlinkClosure? origClosure;
+        private nint originPtr;
         private readonly List<Delegate> hooks = [];
         private HashlinkClosure? cachedHookChain;
 
@@ -42,8 +42,20 @@ namespace ModCore.Hooks
             callback.RedirectTarget = hook.Original;
             callback.Target = CreateDelegateAdapt().CreateAnonymousDelegate(this);
 
+            SetupOrigin(hook.Original);
+        }
 
-            origClosure = new HashlinkClosure(funcType, hook.Original, 0);
+        internal void SetupOrigin( nint newOrigin )
+        {
+            originPtr = newOrigin;
+            origClosure = new HashlinkClosure(funcType, newOrigin, 0);
+
+            if (callback.RedirectTarget != 0)
+            {
+                callback.RedirectTarget = originPtr;
+            }
+
+            cachedHookChain = null;
         }
 
         public Delegate GetProcessorChainLast()
@@ -134,6 +146,7 @@ namespace ModCore.Hooks
         {
             if (cachedHookChain == null)
             {
+                Debug.Assert(origClosure != null);
                 HashlinkClosure prev = origClosure;
                 for (int i = 0; i < hooks.Count; i++)
                 {

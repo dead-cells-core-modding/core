@@ -1,9 +1,11 @@
 
+using Hashlink.Events.Interfaces;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper;
+using ModCore.Events;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -86,10 +88,8 @@ namespace Hashlink.Reflection.Members
             var ptr = HashlinkMarshal.GetDyn(m.CreateAnonymousDelegate(null, true));
             dotnetWrapperClosure = (HashlinkClosure) HashlinkMarshal.ReadData(&ptr, HashlinkMarshal.Module.KnownTypes.Dynamic)!;
 
-
-            Module.NativeModule->functions_ptrs[
-             FunctionIndex
-            ] = (void*)dotnetWrapperClosure.FunctionPtr;
+            EventSystem.BroadcastEvent<IOnActivateDotnetCompiledCode, IOnActivateDotnetCompiledCode.Data>(new(this, m, 
+                dotnetWrapperClosure.FunctionPtr));
         }
 
         public override string? Name {

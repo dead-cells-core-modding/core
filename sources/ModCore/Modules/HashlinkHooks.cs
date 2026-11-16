@@ -1,3 +1,4 @@
+using Hashlink.Events.Interfaces;
 using Hashlink.Marshaling;
 using Hashlink.Reflection.Members;
 using HaxeProxy.Events;
@@ -11,7 +12,8 @@ namespace ModCore.Modules
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     public unsafe class HashlinkHooks : CoreModule<HashlinkHooks>,
         IOnAddHashlinkHook,
-        IOnRemoveHashlinkHook
+        IOnRemoveHashlinkHook,
+        IOnActivateDotnetCompiledCode
     {
         private readonly Dictionary<nint, HashlinkHookManager> managers = [];
         private readonly List<HookHandle> hooks = [];
@@ -100,6 +102,12 @@ namespace ModCore.Modules
         void IOnRemoveHashlinkHook.OnRemoveHashlinkHook( IOnRemoveHashlinkHook.Data data )
         {
             GetManager(data.Function).RemoveHook(data.Target);
+        }
+
+        void IOnActivateDotnetCompiledCode.OnActivateDotnetCompiledCode( IOnActivateDotnetCompiledCode.Data data )
+        {
+            var manager = GetManager(data.Function);
+            manager.SetupOrigin(data.Target);
         }
     }
 }
