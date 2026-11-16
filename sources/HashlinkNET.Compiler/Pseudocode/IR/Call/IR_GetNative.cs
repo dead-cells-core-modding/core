@@ -10,10 +10,6 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
     {
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
-            /*il.Emit(OpCodes.Ldstr, native.Lib);
-            il.Emit(OpCodes.Ldstr, native.Name);
-            il.Emit(OpCodes.Call, ctx.RuntimeImports.phGetNativeMethod);
-            return ctx.RuntimeImports.delegateBaseType;*/
             var f = container.GetData<PropertyDefinition>(native);
             il.Emit(OpCodes.Call, f.GetMethod);
             return f.PropertyType;

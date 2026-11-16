@@ -12,14 +12,7 @@ namespace HaxeProxy.Runtime.Internals
 {
     public unsafe class PseudocodeHelper
     {
-        public static Delegate GetNativeMethod( string libName, string funcName )
-        {
-            throw new NotSupportedException();
-        }
-        public static HaxeVirtual ToVirtual( HaxeProxyBase obj )
-        {
-            throw new NotSupportedException();
-        }
+
         public static T CreateEmptyInstance<T>()
         {
             var t = typeof(T);
@@ -54,10 +47,6 @@ namespace HaxeProxy.Runtime.Internals
                 f.SetFieldValue(name, value);
             }
         }
-        public static object? CreateClosure<T>( object? self, RuntimeMethodHandle method )
-        {
-            throw new NotSupportedException();
-        }
 
         public static object? SetGlobal( int globalIndex, object? val )
         {
@@ -70,8 +59,32 @@ namespace HaxeProxy.Runtime.Internals
             return val;
         }
 
+        public static T Cast<T>( object obj ) where T : class
+        {
+            if (obj is T r)
+            {
+                return r;
+            }
+            if (typeof(T).IsAssignableTo(typeof(HaxeProxyBase)))
+            {
+                if (obj is HaxeProxyBase)
+                {
+                    return (T)obj;
+                }
+                if (obj is HashlinkObj ho)
+                {
+                    return (T)(object)ho.AsHaxe();
+                }
+            }
+            return (T)(dynamic)obj;
+        }
+
         public static Exception WrapException( object? value )
         {
+            if (value is IHashlinkPointer ptr)
+            {
+                return new HashlinkError(ptr.HashlinkPointer);
+            }
             return value as Exception ?? new HaxeThrownException(value);
         }
         [StackTraceHidden]
@@ -150,13 +163,6 @@ namespace HaxeProxy.Runtime.Internals
         {
             var proxy = new HashlinkString(value).AsHaxe<HaxeProxyBase>();
             return proxy.HashlinkPointer;
-        }        public static nint GetRefPointer<T>( Ref<T> reference )
-        {
-            return (nint)Unsafe.AsPointer(ref reference.value);
-        }
-        public static Ref<T> AsRef<T>( nint ptr )
-        {
-            return Ref<T>.From(ref Unsafe.AsRef<T>((void*)ptr));
         }
 
         internal static int GetTypeIndex( Type type )

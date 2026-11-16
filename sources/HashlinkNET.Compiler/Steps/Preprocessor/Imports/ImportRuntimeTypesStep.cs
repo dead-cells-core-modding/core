@@ -67,11 +67,10 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.delegateInfoSelfField = module.ImportReference(DelegateInfo.FI_self);
             rdata.delegateInfoTargetField = module.ImportReference(DelegateInfo.FI_invokePtr);
 
-            rdata.phGetNativeMethod = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetNativeMethod));
             rdata.phDynGetMethod = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.DynGet));
             rdata.phDynSetMethod = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.DynSet));
-            rdata.phCreateClosure = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.CreateClosure));
             rdata.phSetGlobal = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.SetGlobal));
+            rdata.phCast = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.Cast));
 
             rdata.phWrapException = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.WrapException));
             rdata.phUnwrapException = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.UnwrapException));
@@ -80,8 +79,6 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.phCreateEmptyInstance = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.CreateEmptyInstance));
             rdata.phGetRuntimeTypePointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetRuntimeTypePointer));
             rdata.phGetTypeId = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetTypeId));
-            rdata.phGetRefPointer = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.GetRefPointer));
-            rdata.phAsRef = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.AsRef));
             rdata.phUnref = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.Unref));
             rdata.phMakeRef = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.MakeRef));
             rdata.phMakeNullable = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.MakeNullable));
@@ -195,6 +192,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.attrIgnoreAccessCheck = ImportAttribute<IgnoresAccessChecksToAttribute>();
             rdata.attrInitialValue = ImportAttribute<HashlinkInitialvalueAttribute>();
             rdata.attrAlt = ImportAttribute<HashlinkAltAttribute>();
+            rdata.attrShouldUseNative = ImportAttribute<HashlinkShouldUseNativeAttribute>();
             rdata.jsonIgnoreCtor = ImportAttribute<JsonIgnoreAttribute>();
 
             rdata.funcTypes = new TypeReference[FUNC_MAX_ARGS_COUNT];

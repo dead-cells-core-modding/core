@@ -35,9 +35,17 @@ namespace HashlinkNET.Compiler.Steps.Class
             // threads, so this is deferred to the synchronized phase.
             RunSync(() =>
             {
-                var targetType = info.GlobalClassType ?? td;
-                var realCtor = targetType.FindMethod("__inst_construct__") ??
-                    targetType.FindMethod("__construct__");
+                var tglobal = info.GlobalHlType;
+                if (tglobal == null)
+                {
+                    return;
+                }
+                var tglobal_info = container.GetData<ObjClassData>(tglobal)!;
+                if (tglobal_info.InstanceCtor == null)
+                {
+                    return;
+                }
+                var realCtor = container.GetData<MethodDefinition>(tglobal_info.InstanceCtor);
                 if (realCtor == null || realCtor.Parameters.Count <= 1)
                 {
                     return;

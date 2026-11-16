@@ -1,10 +1,30 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using HaxeProxy.Runtime.Internals;
 
 namespace TestRunner
 {
     public class GameProxyJitTest
     {
+        [Fact]
+        public void MethodsWithExceptionHandlersAreMarkedForNativeFallback()
+        {
+            var asm = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(a => a.GetName().Name == "GameProxy");
+            Assert.NotNull(asm);
+
+            var type = asm!.GetType("dc.tool._LangMod");
+            Assert.NotNull(type);
+
+            var method = type!.GetMethods(
+                BindingFlags.Public | BindingFlags.NonPublic |
+                BindingFlags.Instance | BindingFlags.Static |
+                BindingFlags.DeclaredOnly)
+                .FirstOrDefault(m => m.Name == "parsePath" && m.GetParameters().Length == 1);
+            Assert.NotNull(method);
+            Assert.NotNull(method!.GetCustomAttribute<HashlinkShouldUseNativeAttribute>());
+        }
+
         [Fact]
         public void AllDeclaredMethodsCanBeJitted()
         {

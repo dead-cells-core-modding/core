@@ -18,7 +18,7 @@ namespace HashlinkNET.Compiler.Steps.Class
             var obj = ((HlTypeWithObj)type).Obj;
             var od = container.GetData<ObjClassData>(type);
             HlFunction? f = null;
-            for (int i = 0; i < obj.Bindings.Length; i += 2)
+            for (int i = 0; i < obj.Bindings.Length; i ++)
             {
                 var fid = obj.Bindings[i].FieldIndex;
                 var mid = obj.Bindings[i].FunctionIndex;

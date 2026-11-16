@@ -1,7 +1,11 @@
 
+using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using Hashlink.Reflection.Types;
+using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Hashlink.Reflection.Members
 {
@@ -52,6 +56,41 @@ namespace Hashlink.Reflection.Members
         public nint EntryPointer => (nint)Module.NativeModule->functions_ptrs[
              FunctionIndex
             ];
+
+        private HashlinkClosure? dotnetWrapperClosure;
+
+        public void UseDotnetCompiledVersion(MethodInfo m)
+        {
+            if (IsDotnetCompiled)
+            {
+                throw new InvalidOperationException();
+            }
+            IsDotnetCompiled = true;
+
+            if (!m.IsStatic && m.DeclaringType != null)
+            {
+                var pc = m.GetParameters().Length + 1;
+                DynamicMethod dm = new("dotnet_compiled_bridge", m.ReturnType, [m.DeclaringType, 
+                    ..m.GetParameters().Select(x => x.ParameterType)]);
+                var il = dm.GetILGenerator();
+                for (int i = 0; i < pc; i++)
+                {
+                    il.Emit(OpCodes.Ldarg, i);
+                }
+                il.Emit(OpCodes.Call, m);
+                il.Emit(OpCodes.Ret);
+
+                m = dm;
+            }
+
+            var ptr = HashlinkMarshal.GetDyn(m.CreateAnonymousDelegate(null, true));
+            dotnetWrapperClosure = (HashlinkClosure) HashlinkMarshal.ReadData(&ptr, HashlinkMarshal.Module.KnownTypes.Dynamic)!;
+
+
+            Module.NativeModule->functions_ptrs[
+             FunctionIndex
+            ] = (void*)dotnetWrapperClosure.FunctionPtr;
+        }
 
         public override string? Name {
             get {

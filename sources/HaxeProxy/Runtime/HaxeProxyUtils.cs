@@ -1,6 +1,7 @@
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
+using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Types;
 using HaxeProxy.Runtime.Internals;
 using HaxeProxy.Runtime.Internals.Inheritance;
@@ -10,6 +11,41 @@ namespace HaxeProxy.Runtime
 {
     public static class HaxeProxyUtils
     {
+        public static void UseCSharpVersionCode( Delegate del )
+        {
+            UseCSharpVersionCode(del.Method);
+        }
+        public static void UseCSharpVersionCode( Type t )
+        {
+            foreach (var v in t.GetMethods(BindingFlags.Public))
+            {
+                if (v.GetCustomAttribute<HashlinkFIndexAttribute>() is not null &&
+                    v.GetCustomAttribute<HashlinkShouldUseNativeAttribute>() is null)
+                {
+                    UseCSharpVersionCode(v);
+                }
+            }
+        }
+        public static void UseCSharpVersionCode( MethodInfo m )
+        {
+            if (m.GetCustomAttribute<HashlinkShouldUseNativeAttribute>() != null)
+            {
+                throw new InvalidProgramException();
+            }
+
+            if (m.GetCustomAttribute<HashlinkFIndexAttribute>() is not HashlinkFIndexAttribute fidx)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var ifunc = HashlinkMarshal.Module.GetFunctionByFIndex(fidx.Index);
+            if (ifunc is not HashlinkFunction func)
+            {
+                throw new InvalidOperationException();
+            }
+
+            func.UseDotnetCompiledVersion(m);
+        }
         public static HaxeProxyBase AsHaxe( this HashlinkObj obj )
         {
             return ((IExtraData)obj).GetData<HaxeProxyBase>();

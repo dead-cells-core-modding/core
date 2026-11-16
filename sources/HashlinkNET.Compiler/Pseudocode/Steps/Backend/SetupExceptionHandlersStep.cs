@@ -21,6 +21,10 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             var gdata2 = container.GetGlobalData<GlobalData>();
             var rdata = container.GetGlobalData<RuntimeImports>();
             var md = gdata.Definition;
+            if (gdata.TrapRegions.Count > 0)
+            {
+                HashlinkMethodMarker.MarkShouldUseNative(container, md);
+            }
             // Use the linearized list (from LinearizeBasicBlocksStep) because
             // it reflects the actual instruction order after BB cloning.
             var linearList = container.GetGlobalData<List<IRBasicBlockData>>();

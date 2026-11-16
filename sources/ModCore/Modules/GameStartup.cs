@@ -1,5 +1,9 @@
+using dc;
+using dc.hxd;
+using dc.pr;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
+using HaxeProxy.Runtime;
 using ModCore.Events.Interfaces;
 
 namespace ModCore.Modules
@@ -7,13 +11,28 @@ namespace ModCore.Modules
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal | CoreModuleAttribute.CoreModuleKind.Important)]
     internal unsafe class GameStartup : CoreModule<GameStartup>, IOnNativeEvent
     {
+        
+        private static void BakeBoot()
+        {
+            Logger.Information("Bake boot");
+            HaxeProxyUtils.UseCSharpVersionCode(typeof(_Boot));
+            HaxeProxyUtils.UseCSharpVersionCode(typeof(Boot));
+            HaxeProxyUtils.UseCSharpVersionCode(typeof(TitleScreen));
+            HaxeProxyUtils.UseCSharpVersionCode(typeof(Game));
+            HaxeProxyUtils.UseCSharpVersionCode(typeof(App));
+            HaxeProxyUtils.UseCSharpVersionCode(typeof(_App));
+            Logger.Information("Bake boot Done");
+        }
+        
         private void StartGame()
         {
             HashlinkMarshal.EnsureThreadRegistered();
+            BakeBoot();
             var entry = (HashlinkClosure)HashlinkMarshal.ConvertHashlinkObject(
                     &HashlinkVM.Instance.Context->c
                     )!;
             hl_blocking(1);
+
             var action = entry.CreateDelegate<Action>();
             action();
         }

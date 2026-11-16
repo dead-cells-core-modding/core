@@ -36,6 +36,7 @@ namespace ModCore.Modules.Internals
 
             proxyCache.UpdateMetadata("code", gameHash);
             proxyCache.UpdateMetadata("version", GetType().Assembly.GetName().Version?.ToString() ?? "None");
+            proxyCache.UpdateMetadata("generate_p", Core.Config.Value.GeneratePseudocodeAssembly ? "true" : "false");
 
             hlbootCache.UpdateMetadata("code", gameHash);
 
@@ -46,7 +47,7 @@ namespace ModCore.Modules.Internals
 
             var code = HlCode.FromBytes(data);
 
-            if (!proxyCache.IsValid || true)
+            if (!proxyCache.IsValid)
             {
                 Logger.Information("Generating Haxe Proxy Assembly");
 
@@ -55,7 +56,7 @@ namespace ModCore.Modules.Internals
                     code, asm, new()
                     {
                         AllowParalle = true,
-                        GeneratePseudocode = true,
+                        GeneratePseudocode = Core.Config.Value.GeneratePseudocodeAssembly,
                     });
                 compiler.Compile();
                 asm.Write(proxyCache.CachePath);

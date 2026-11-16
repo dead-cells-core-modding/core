@@ -54,35 +54,6 @@ namespace HashlinkNET.Compiler.Steps.Class
                 ilp.Emit(OpCodes.Throw);
             }
 
-            foreach (var b in obj.Bindings)
-            {
-                var f = gdata.Code.GetFunctionById(b.FunctionIndex);
-                var field = info.GetField(b.FieldIndex);
-                if (f == null ||
-                    field == null)
-                {
-                    continue;
-                }
-                var method = container.GetData<FuncData>(f);
-                method.Definition.Name = field.Name;
-                method.DeclaringClass = info;
-            }
-
-
-            if (info.InstanceCtor != null)
-            {
-                var fd = ((HlTypeWithFun)info.InstanceCtor.Type.Value).FunctionDescription;
-                var method = container.GetData<FuncData>(info.InstanceCtor);
-                method.DeclaringClass = info;
-                var md = method.Definition;
-
-                md.Name = "__inst_construct__";
-                md.IsAssembly = true;
-                td.Methods.Add(md);
-
-                EmitFunc(info.InstanceCtor);
-            }
-
             foreach (var p in obj.Protos)
             {
                 var f = code.Functions[code.FunctionIndexes[p.FIndex]];
@@ -107,6 +78,25 @@ namespace HashlinkNET.Compiler.Steps.Class
                 EmitFunc(f);
             }
 
+            foreach (var b in obj.Bindings)
+            {
+                var f = gdata.Code.GetFunctionById(b.FunctionIndex);
+                var field = info.GetField(b.FieldIndex);
+                if (f == null ||
+                    field == null)
+                {
+                    continue;
+                }
+                var method = container.GetData<FuncData>(f);
+                if (!string.IsNullOrEmpty(method.Definition.Name))
+                {
+                    method.Definition.Name = "s_" + field.Name;
+                    method.DeclaringClass = info;
+                    td.Methods.Add(method.Definition);
+
+                    EmitFunc(f);
+                }
+            }
         }
     }
 }

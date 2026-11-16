@@ -34,6 +34,7 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference attrObsolete;
         public MethodReference attrIgnoreAccessCheck;
         public MethodReference attrAlt;
+        public MethodReference attrShouldUseNative;
         public MethodReference jsonIgnoreCtor;
 
         public MethodReference delegateDynInvokeMethod;
@@ -74,12 +75,8 @@ namespace HashlinkNET.Compiler.Data
         public TypeReference[] funcTypes;
         public TypeReference[] actionTypes;
 
-        public MethodReference phToVirtual;
-        public MethodReference phGetNativeMethod;
         public MethodReference phDynGetMethod;
         public MethodReference phDynSetMethod;
-        public MethodReference phCreateObject;
-        public MethodReference phCreateClosure;
         public MethodReference phSetGlobal;
         public TypeReference objectBaseType;
         public MethodReference hGetEnumIndex;
@@ -98,8 +95,6 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference phCreateEmptyInstance;
         public MethodReference phGetRuntimeTypePointer;
         public MethodReference phGetTypeId;
-        public MethodReference phGetRefPointer;
-        public MethodReference phAsRef;
         public MethodReference phUnref;
         public MethodReference phMakeRef;
         public MethodReference phMakeNullable;
@@ -107,6 +102,7 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference phGetNullableValue;
         public MethodReference phAsHaxeString;
         public MethodReference phAsHaxeStringPtr;
+        public MethodReference phCast;
 
         public MethodReference arrayGetItem;
         public MethodReference arraySetItem;

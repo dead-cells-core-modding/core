@@ -1,5 +1,6 @@
 using HashlinkNET.Compiler.Pseudocode.Data;
 using HashlinkNET.Compiler.Steps;
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -37,6 +38,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                     Code.Jmp or Code.Switch);
                 if (reachable)
                 {
+                    HashlinkMethodMarker.MarkShouldUseNative(container, gdata.Definition);
                     list.Remove(last);
                     if (list.Count == 0)
                     {
@@ -51,6 +53,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                 return;
             }
 
+            HashlinkMethodMarker.MarkShouldUseNative(container, gdata.Definition);
             var hasValue = last.Operand is MethodReference lastMethod
                 ? lastMethod.ReturnType.MetadataType != MetadataType.Void
                 : Delta(last) > 0;

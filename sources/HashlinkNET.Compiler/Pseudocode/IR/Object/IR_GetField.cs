@@ -19,7 +19,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Object
             else
             {
                 obj.Emit(ctx, true);
-                var getMethod = field.GetMethod;
+                MethodReference getMethod = field.GetMethod;
                 TypeReference? declaring = null;
                 try
                 {
