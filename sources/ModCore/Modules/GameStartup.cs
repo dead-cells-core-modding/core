@@ -15,12 +15,12 @@ namespace ModCore.Modules
         private static void BakeBoot()
         {
             Logger.Information("Bake boot");
-            HaxeProxyUtils.UseCSharpVersionCode(typeof(_Boot));
-            HaxeProxyUtils.UseCSharpVersionCode(typeof(Boot));
-            HaxeProxyUtils.UseCSharpVersionCode(typeof(TitleScreen));
-            HaxeProxyUtils.UseCSharpVersionCode(typeof(Game));
-            HaxeProxyUtils.UseCSharpVersionCode(typeof(App));
-            HaxeProxyUtils.UseCSharpVersionCode(typeof(_App));
+            HaxeProxyUtils.UseCSharpVersionCode(typeof(_Boot), false);
+            HaxeProxyUtils.UseCSharpVersionCode(typeof(Boot), false);
+            HaxeProxyUtils.UseCSharpVersionCode(typeof(TitleScreen), false);
+            HaxeProxyUtils.UseCSharpVersionCode(typeof(Game), false);
+            HaxeProxyUtils.UseCSharpVersionCode(typeof(App), false);
+            HaxeProxyUtils.UseCSharpVersionCode(typeof(_App), false);
             Logger.Information("Bake boot Done");
         }
         

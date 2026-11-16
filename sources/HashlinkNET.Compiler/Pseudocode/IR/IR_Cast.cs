@@ -91,7 +91,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                 }
                 else if (type.FullName != "System.Object")
                 {
-                    il.Emit(OpCodes.Call, ctx.RuntimeImports.phCast);
+                    il.Emit(OpCodes.Call, ctx.RuntimeImports.phCast.MakeInstance(type));
                 }
             }
             else if (!st.IsValueType)

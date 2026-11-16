@@ -74,8 +74,12 @@ namespace HashlinkNET.Compiler.Steps.Class
                 td.Methods.Add(md);
 
                 //Emit Body
-
                 EmitFunc(f);
+
+                if (md.Name == "__compare")
+                {
+                    info.Compare = md;
+                }
             }
 
             foreach (var b in obj.Bindings)
@@ -88,14 +92,12 @@ namespace HashlinkNET.Compiler.Steps.Class
                     continue;
                 }
                 var method = container.GetData<FuncData>(f);
-                if (!string.IsNullOrEmpty(method.Definition.Name))
-                {
-                    method.Definition.Name = "s_" + field.Name;
-                    method.DeclaringClass = info;
-                    td.Methods.Add(method.Definition);
+                method.Definition.Name = "s_" + field.Name;
+                method.DeclaringClass = info;
+                td.Methods.Add(method.Definition);
 
-                    EmitFunc(f);
-                }
+                EmitFunc(f);
+
             }
         }
     }

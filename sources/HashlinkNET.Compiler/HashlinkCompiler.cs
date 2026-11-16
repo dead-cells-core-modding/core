@@ -117,7 +117,7 @@ namespace HashlinkNET.Compiler
             if (Config.GeneratePseudocode)
             {
                 AddStep<ScanGlobalValuesStep>();
-                AddStep<FindMissingFunctionStep>();
+                //AddStep<FindMissingFunctionStep>();
                 AddStep<CollectUnnamedFuncStep>();
                 AddStep<GeneratePseudocodeStep>();
             }

@@ -11,29 +11,34 @@ namespace HaxeProxy.Runtime
 {
     public static class HaxeProxyUtils
     {
-        public static void UseCSharpVersionCode( Delegate del )
+        public static void UseCSharpVersionCode( Delegate del, bool throwOnCompiled )
         {
-            UseCSharpVersionCode(del.Method);
+            UseCSharpVersionCode(del.Method, throwOnCompiled);
         }
-        public static void UseCSharpVersionCode( Type t )
+        public static void UseCSharpVersionCode( Type t, bool throwOnCompiled )
         {
-            foreach (var v in t.GetMethods(BindingFlags.Public))
+            foreach (var v in t.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
             {
                 if (v.GetCustomAttribute<HashlinkFIndexAttribute>() is not null &&
                     v.GetCustomAttribute<HashlinkShouldUseNativeAttribute>() is null)
                 {
-                    UseCSharpVersionCode(v);
+                    UseCSharpVersionCode(v, throwOnCompiled);
                 }
             }
         }
-        public static void UseCSharpVersionCode( MethodInfo m )
+        public static void UseCSharpVersionCode( MethodInfo m, bool throwOnCompiled )
         {
-            if (m.GetCustomAttribute<HashlinkShouldUseNativeAttribute>() != null)
+            if (!HaxeProxyManager.generatedPseudocode)
             {
-                throw new InvalidProgramException();
+                throw new InvalidOperationException();
             }
 
-            if (m.GetCustomAttribute<HashlinkFIndexAttribute>() is not HashlinkFIndexAttribute fidx)
+            if (m.GetCustomAttribute<HashlinkShouldUseNativeAttribute>(false) != null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (m.GetCustomAttribute<HashlinkFIndexAttribute>(false) is not HashlinkFIndexAttribute fidx)
             {
                 throw new InvalidOperationException();
             }
@@ -42,6 +47,15 @@ namespace HaxeProxy.Runtime
             if (ifunc is not HashlinkFunction func)
             {
                 throw new InvalidOperationException();
+            }
+
+            if (func.IsDotnetCompiled)
+            {
+                if (throwOnCompiled)
+                {
+                    throw new InvalidOperationException();
+                }
+                return;
             }
 
             func.UseDotnetCompiledVersion(m);

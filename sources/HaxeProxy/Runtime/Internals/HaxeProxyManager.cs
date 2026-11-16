@@ -46,10 +46,13 @@ namespace HaxeProxy.Runtime.Internals
         public static readonly Dictionary<Type, int> type2typeId = [];
         public static Type[] bindingTypes = [];
         public static Assembly? proxyAssembly;
+        public static bool generatedPseudocode;
         private static ImmutableDictionary<int, Type> subTypes = ImmutableDictionary<int, Type>.Empty;
-        public static void Initialize( Assembly proxyAssembly )
+        public static void Initialize( Assembly proxyAssembly, bool generatedPseudocode )
         {
             HaxeProxyManager.proxyAssembly = proxyAssembly;
+
+            HaxeProxyManager.generatedPseudocode = generatedPseudocode;
 
             bindingTypes = new Type[HashlinkMarshal.Module.PreferTypes.Length];
             var types = proxyAssembly.GetCustomAttributes<HaxeProxyBindingAttribute>();

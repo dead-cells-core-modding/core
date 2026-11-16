@@ -3,6 +3,7 @@ using HashlinkNET.Compiler.Data.Interfaces;
 using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System.Diagnostics;
 
 namespace HashlinkNET.Compiler.Pseudocode.IR.Object
 {
@@ -32,14 +33,17 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Object
             {
                 try
                 {
-                    var def = type.Resolve();
-                    if (def != null)
+                    lock (type)
                     {
-                        foreach (var m in def.Methods)
+                        var def = type.Resolve();
+                        if (def != null)
                         {
-                            if (m.IsConstructor && !m.IsStatic && m.Parameters.Count == 0)
+                            foreach (var m in def.Methods)
                             {
-                                return m;
+                                if (m.IsConstructor && !m.IsStatic && m.Parameters.Count == 0)
+                                {
+                                    return m;
+                                }
                             }
                         }
                     }
@@ -67,6 +71,8 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Object
             var ctor = FindCtor(ctx, container, type, ctorArgs.Length);
             if (ctor != null)
             {
+                Debug.Assert(ctor.DeclaringType is not TypeDefinition td || !td.IsAbstract);
+
                 il.Emit(OpCodes.Newobj, il.Body.Method.Module.ImportReference(ctor));
             }
             else

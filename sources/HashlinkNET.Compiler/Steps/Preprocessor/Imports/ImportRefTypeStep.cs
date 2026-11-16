@@ -20,6 +20,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             // Function type generic arguments still use Ref<T>; see
             // FixFuncTypeRefStep.
             container.AddData(type, et.MakeByReferenceType());
+            addedTypes.Add(new(et.MakeByReferenceType(), AddTypeKind.AddToTypesList, type.TypeIndex));
         }
     }
 }

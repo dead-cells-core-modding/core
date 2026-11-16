@@ -20,21 +20,6 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Object
             {
                 obj.Emit(ctx, true);
                 MethodReference getMethod = field.GetMethod;
-                TypeReference? declaring = null;
-                try
-                {
-                    declaring = getMethod?.DeclaringType;
-                }
-                catch (InvalidCastException)
-                {
-                }
-                if (declaring != null &&
-                    !declaring.IsValueType &&
-                    !declaring.IsByReference &&
-                    declaring.FullName != "System.Object")
-                {
-                    il.Emit(OpCodes.Castclass, declaring);
-                }
                 il.Emit(OpCodes.Call, getMethod);
             }
             return field.PropertyType;

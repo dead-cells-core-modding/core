@@ -99,7 +99,7 @@ namespace ModCore.Modules.Internals
 
             Logger.Information("Initializing Haxe Proxy");
 
-            HaxeProxyManager.Initialize(proxyAssembly);
+            HaxeProxyManager.Initialize(proxyAssembly, Core.Config.Value.GeneratePseudocodeAssembly);
 
             Logger.Information("Loading advanced modules");
 

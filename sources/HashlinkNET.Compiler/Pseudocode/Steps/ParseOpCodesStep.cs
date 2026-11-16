@@ -502,7 +502,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         GetLocalRegType(code.Parameters[0])
                             );
                     var itemIndex = code.Parameters[1];
-                    src = new IR_New(en.ItemTypes[itemIndex]);
+                    var type = en.ItemTypes[itemIndex];
+                    src = new IR_New(type);
                 }
                 else if (c == HlOpcodeKind.EnumIndex)
                 {

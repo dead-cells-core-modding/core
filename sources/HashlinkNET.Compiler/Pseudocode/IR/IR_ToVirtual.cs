@@ -19,7 +19,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                 !st.IsByReference &&
                 st.FullName != ctx.RuntimeImports.objBaseType.FullName)
             {
-                il.Emit(OpCodes.Castclass, ctx.RuntimeImports.objBaseType);
+                il.Emit(OpCodes.Call, ctx.RuntimeImports.phCast.MakeInstance(ctx.RuntimeImports.objBaseType));
             }
             il.Emit(OpCodes.Callvirt, ctx.RuntimeImports.hToVirtual.MakeInstance(type));
             return type;

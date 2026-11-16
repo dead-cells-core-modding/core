@@ -59,7 +59,7 @@ namespace Hashlink.Reflection.Members
 
         private HashlinkClosure? dotnetWrapperClosure;
 
-        public void UseDotnetCompiledVersion(MethodInfo m)
+        internal void UseDotnetCompiledVersion(MethodInfo m)
         {
             if (IsDotnetCompiled)
             {

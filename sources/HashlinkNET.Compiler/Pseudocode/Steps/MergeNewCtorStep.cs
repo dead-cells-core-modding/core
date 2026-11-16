@@ -46,7 +46,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         call = callStore.src.IR as IR_Call;
                     }
                     if (call == null ||
-                        call.method.Name != "__inst_construct__" ||
+                        call.method.Name != "s___constructor__" ||
                         call.args.Length == 0 ||
                         call.args[0].IR is not IR_LoadLocalReg self ||
                         self.src != setIr.dst)
