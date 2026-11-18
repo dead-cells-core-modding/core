@@ -81,7 +81,12 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                 il.Emit(OpCodes.Conv_I);
             }
 
-            if (isEquality && aIsByRef && bIsByRef)
+            if (container.TryGetData<IObjComparable>(at, out var compare) && compare.Compare is not null)
+            {
+                il.Emit(OpCodes.Call, compare.Compare);
+                il.Emit(OpCodes.Ldc_I4_0);
+            }
+            else if (isEquality && aIsByRef && bIsByRef)
             {
                 // Managed pointers cannot be compared with beq/bne directly.
                 il.Emit(OpCodes.Call, ctx.RuntimeImports.unsafeAreSame.MakeInstance(
@@ -90,8 +95,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                     target.startInst);
                 return null;
             }
-
-            if (isEquality)
+            else if (isEquality)
             {
                 // Non-primitive value types (e.g. Nullable<T>) cannot use
                 // beq/bne; compare the boxed values instead.
@@ -101,11 +105,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                 return null;
             }
 
-            if (container.TryGetData<IObjComparable>(at, out var compare) && compare.Compare is not null)
-            {
-                il.Emit(OpCodes.Call, compare.Compare);
-                il.Emit(OpCodes.Ldc_I4_0);
-            }
+            
 
             il.EmitProtectedBranch(kind switch
             {

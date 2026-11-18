@@ -5,6 +5,7 @@ using Hashlink.Reflection.Members;
 using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper.Callbacks;
+using HaxeProxy.Runtime.Internals;
 using ModCore.Modules;
 using MonoMod.Utils;
 using Steamworks;
@@ -41,6 +42,10 @@ namespace ModCore.Hooks
                 callback.NativePointer, true);
             callback.RedirectTarget = hook.Original;
             callback.Target = CreateDelegateAdapt().CreateAnonymousDelegate(this);
+
+            Debug.Assert(HaxeProxyManager.function_is_hooked_mark != null);
+
+            HaxeProxyManager.function_is_hooked_mark[func.FunctionIndex] = true;
 
             SetupOrigin(hook.Original);
         }

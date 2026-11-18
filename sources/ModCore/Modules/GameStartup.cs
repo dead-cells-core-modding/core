@@ -1,6 +1,8 @@
 using dc;
+using dc.haxe.format;
 using dc.hxd;
 using dc.pr;
+using dc.tool.utils;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using HaxeProxy.Runtime;

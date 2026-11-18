@@ -47,7 +47,8 @@ namespace HaxeProxy.Runtime.Internals
                     if (name.Length > 0 && name[0] == '#')
                     {
                         var idx = int.Parse(name[1..]);
-                        f = ot.FindFieldById(idx);
+                        f = ot.FindFieldById(idx) ??
+                        throw new MissingFieldException(ot.Name, name);
                     }
                     else
                     {
@@ -55,8 +56,7 @@ namespace HaxeProxy.Runtime.Internals
                         throw new MissingFieldException(ot.Name, name);
                     }
                     cache.field = f.FieldType;
-                    cache.offset = (nint)HashlinkNative.hl_obj_lookup((HL_vdynamic*)self.HashlinkPointer,
-                        f.HashedName, out _) - self.HashlinkPointer;
+                    cache.offset = t.NativeType->data.obj->rt->fields_indexes[f.Index];
                 }
                 else if (t is HashlinkEnumType et)
                 {
@@ -233,9 +233,15 @@ namespace HaxeProxy.Runtime.Internals
         {
             if (cache.function != null)
             {
-                if (cache.function.IsDotnetCompiled)
+                Debug.Assert(HaxeProxyManager.function_is_hooked_mark != null);
+                if (cache.function.IsDotnetCompiled &&
+                    HaxeProxyManager.function_is_hooked_mark[findex])
                 {
-                    return null;
+                    if (HaxeProxyManager.next_call_origin_function - 1 != findex)
+                    {
+                        return null;
+                    }
+                    HaxeProxyManager.next_call_origin_function = 0;
                 }
             }
             if (cache.directEntry != null)

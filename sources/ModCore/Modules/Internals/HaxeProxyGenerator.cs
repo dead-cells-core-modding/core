@@ -69,6 +69,11 @@ namespace ModCore.Modules.Internals
                 GC.Collect();
 
                 proxyCache.UpdateCache();
+
+                if (Core.Config.Value.GeneratePseudocodeAssembly)
+                {
+                    File.Copy(proxyCache.CachePath, FolderInfo.Cache.GetFilePath("GamePseudocode.dll"), true);
+                }
             }
 
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;

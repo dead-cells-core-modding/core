@@ -47,6 +47,11 @@ namespace HaxeProxy.Runtime.Internals
         public static Type[] bindingTypes = [];
         public static Assembly? proxyAssembly;
         public static bool generatedPseudocode;
+
+        public static bool[]? function_is_hooked_mark;
+        [ThreadStatic]
+        public static int next_call_origin_function;
+
         private static ImmutableDictionary<int, Type> subTypes = ImmutableDictionary<int, Type>.Empty;
         public static void Initialize( Assembly proxyAssembly, bool generatedPseudocode )
         {
@@ -80,10 +85,10 @@ namespace HaxeProxy.Runtime.Internals
 
             knownProxyTypes = [.. bindingTypes];
 
+            function_is_hooked_mark = new bool[HashlinkMarshal.Module.Functions.Length];
+
             EventSystem.AddReceiver(new EventReceiver());
 
-            var real = HashlinkMarshal.Module.KnownTypes.I32;
-            var fake = HashlinkMarshal.Module.PreferTypes[type2typeId[typeof(int)]];
             Debug.Assert(HashlinkMarshal.Module.PreferTypes[type2typeId[typeof(int)]].TypeKind == TypeKind.HI32);
             Debug.Assert(HashlinkMarshal.Module.PreferTypes[type2typeId[typeof(int?)]].TypeKind == TypeKind.HNULL);
         }

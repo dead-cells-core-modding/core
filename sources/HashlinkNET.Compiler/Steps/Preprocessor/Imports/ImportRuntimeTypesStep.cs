@@ -151,7 +151,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
                 nameof(object.Equals), [typeof(object), typeof(object)]));
             rdata.hGetTypeIndexFromType = ImportHelperMethod(nameof(HaxeProxyHelper.GetTypeIndexFromType));
             rdata.hToVirtual = module.ImportReference(
-                typeof(HaxeProxyBase).GetMethod(nameof(HaxeProxyBase.ToVirtual)));
+                typeof(HaxeProxyBase).GetMethod(nameof(HaxeProxyBase.ToVirtual), 1, []));
             rdata.hToObject = ImportHelperMethod(nameof(HaxeProxyHelper.ToObject));
             rdata.hGetNativeCall = ImportHelperMethod(nameof(HaxeProxyHelper.GetNativeCall));
             rdata.hGetRef = ImportHelperMethod(nameof(HaxeProxyHelper.GetRef));

@@ -11,6 +11,8 @@ namespace HaxeProxy.Runtime
 {
     public static class HaxeProxyUtils
     {
+        private static readonly FieldInfo f_next_call_origin_function = typeof(HaxeProxyManager)
+            .GetField(nameof(HaxeProxyManager.next_call_origin_function))!;
         internal static void UseCSharpVersionCode( Delegate del, bool throwOnCompiled )
         {
             UseCSharpVersionCode(del.Method, throwOnCompiled);
@@ -58,7 +60,7 @@ namespace HaxeProxy.Runtime
                 return;
             }
 
-            func.UseDotnetCompiledVersion(m);
+            func.UseDotnetCompiledVersion(m, f_next_call_origin_function);
         }
         public static HaxeProxyBase AsHaxe( this HashlinkObj obj )
         {

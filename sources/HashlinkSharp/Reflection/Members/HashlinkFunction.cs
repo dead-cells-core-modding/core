@@ -61,7 +61,7 @@ namespace Hashlink.Reflection.Members
 
         private HashlinkClosure? dotnetWrapperClosure;
 
-        internal void UseDotnetCompiledVersion(MethodInfo m)
+        internal void UseDotnetCompiledVersion(MethodInfo m, FieldInfo f_next_call_origin_function )
         {
             if (IsDotnetCompiled)
             {
@@ -72,17 +72,42 @@ namespace Hashlink.Reflection.Members
             if (!m.IsStatic && m.DeclaringType != null)
             {
                 var pc = m.GetParameters().Length + 1;
-                DynamicMethod dm = new("dotnet_compiled_bridge", m.ReturnType, [m.DeclaringType, 
+                DynamicMethod dm = new("dotnet_compiled_bridge", m.ReturnType, [m.DeclaringType,
                     ..m.GetParameters().Select(x => x.ParameterType)]);
                 var il = dm.GetILGenerator();
+
+                il.Emit(OpCodes.Ldc_I4, FunctionIndex);
+                il.Emit(OpCodes.Stsfld, f_next_call_origin_function);
                 for (int i = 0; i < pc; i++)
                 {
                     il.Emit(OpCodes.Ldarg, i);
                 }
+
                 il.Emit(OpCodes.Call, m);
                 il.Emit(OpCodes.Ret);
 
                 m = dm;
+            }
+            else
+            {
+                if (!m.IsStatic && m.DeclaringType != null)
+                {
+                    var pc = m.GetParameters().Length;
+                    DynamicMethod dm = new("dotnet_compiled_bridge", m.ReturnType, [..m.GetParameters().Select(x => x.ParameterType)]);
+                    var il = dm.GetILGenerator();
+
+                    il.Emit(OpCodes.Ldc_I4, FunctionIndex);
+                    il.Emit(OpCodes.Stsfld, f_next_call_origin_function);
+                    for (int i = 0; i < pc; i++)
+                    {
+                        il.Emit(OpCodes.Ldarg, i);
+                    }
+
+                    il.Emit(OpCodes.Call, m);
+                    il.Emit(OpCodes.Ret);
+
+                    m = dm;
+                }
             }
 
             var ptr = HashlinkMarshal.GetDyn(m.CreateAnonymousDelegate(null, true));

@@ -65,15 +65,34 @@ namespace HaxeProxy.Runtime
             }
             return base.TryConvert(binder, out result);
         }
-        public virtual T ToVirtual<T>() where T : HaxeVirtual
+        public virtual HaxeVirtual ToVirtual(Type t)
         {
-            var tid = HaxeProxyManager.type2typeId[typeof(T)];
+            var tid = HaxeProxyManager.type2typeId[t];
             var vt = HashlinkMarshal.Module.PreferTypes[tid];
             var result = (HashlinkVirtual)HashlinkMarshal.ConvertHashlinkObject(
                 HashlinkNative.hl_to_virtual(vt.NativeType, (HL_vdynamic*)HashlinkPointer)
                 )!;
-            return result.AsHaxe<T>();
+            return result.AsHaxe<HaxeVirtual>();
         }
+        public T ToVirtual<T>() where T : HaxeVirtual
+        {
+            return (T) ToVirtual(typeof(T));
+        }
+
+        public HaxeObject AsObject()
+        {
+            if (this is HaxeObject result)
+            {
+                return result;
+            }
+            if (this is HaxeVirtual)
+            {
+                return ((HashlinkVirtual)HashlinkObj).GetValue()?.AsHaxe<HaxeObject>()
+                    ?? throw new InvalidCastException();
+            }
+            throw new InvalidCastException();
+        }
+
         public virtual T AsObject<T>() where T : HaxeObject
         {
             if (this is T result)
