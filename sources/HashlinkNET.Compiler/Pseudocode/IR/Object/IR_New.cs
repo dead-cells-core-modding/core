@@ -25,37 +25,17 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Object
                 return od.ConstructArgs;
             }
             if (container.TryGetData<IConstructable>(type, out var c) &&
+                c.Construct != null &&
                 c.Construct.Parameters.Count == argCount)
             {
                 return c.Construct;
             }
             if (argCount == 0)
             {
-                try
+                return new MethodReference(".ctor", ctx.Module.TypeSystem.Void, type)
                 {
-                    lock (type)
-                    {
-                        var def = type.Resolve();
-                        if (def != null)
-                        {
-                            foreach (var m in def.Methods)
-                            {
-                                if (m.IsConstructor && !m.IsStatic && m.Parameters.Count == 0)
-                                {
-                                    return m;
-                                }
-                            }
-                        }
-                    }
-                }
-                catch
-                {
-                }
-                // No real parameterless constructor. Haxe allocates the
-                // object separately from __inst_construct__, so create an
-                // uninitialized instance instead of emitting an invalid
-                // newobj against a non-existent .ctor.
-                return null;
+                    HasThis = true,
+                };
             }
             throw new InvalidOperationException(
                 $"Constructor with {argCount} parameter(s) not found for '{type.FullName}'.");

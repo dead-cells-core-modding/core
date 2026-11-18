@@ -59,6 +59,7 @@ namespace HaxeProxy.Runtime.Internals
             return val;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static T Cast<T>( object obj ) where T : class
         {
             if (obj is T r)
@@ -179,6 +180,28 @@ namespace HaxeProxy.Runtime.Internals
             var ht = HashlinkMarshal.GetHashlinkType(type) ??
                 throw new InvalidOperationException($"Cannot resolve hashlink type for {type}");
             return ht.TypeIndex;
+        }
+
+        public static bool Compare(object a, object b)
+        {
+            if (a == b)
+            {
+                return true;
+            }
+            if (a == null && b != null)
+            {
+                return false;
+            }
+            if (a != null && b == null)
+            {
+                return false;
+            }
+            
+            if (a is HaxeEnum ae)
+            {
+                return ae.Equals(b);
+            }
+            return a!.Equals(b);
         }
     }
 

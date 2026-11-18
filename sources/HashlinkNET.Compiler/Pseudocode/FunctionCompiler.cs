@@ -11,8 +11,7 @@ namespace HashlinkNET.Compiler.Pseudocode
     internal class FunctionCompiler(
         HlFunction function,
         FuncData func,
-        IDataContainer parent,
-        BytecodeMappingData.FunctionData mappingData ) : BaseCompiler
+        IDataContainer parent) : BaseCompiler
     {
         protected override void InstallSteps()
         {
@@ -32,20 +31,13 @@ namespace HashlinkNET.Compiler.Pseudocode
             AddStep<LinearizeBasicBlocksStep>();
             AddStep<EmitILStep>();
             AddStep<PinPointerLocalsStep>();
+            AddStep<MergeNewCtorStep>();
             AddStep<SetupExceptionHandlersStep>();
             AddStep<NormalizeExceptionRegionsStep>();
             AddStep<FixHandlerBranchesStep>();
             // AddStep<TrimILStep>();
             AddStep<RemoveNopILStep>();
-            AddStep<RemoveDeadPushBeforeTargetStep>();
-            AddStep<RemoveNopILStep>();
-            if (config.GenerateBytecodeMapping)
-            {
-                AddStep<FillBytecodeMappingDataStep>();
-            }
             AddStep<OptimizeILStep>();
-            AddStep<RemoveUnreachableILStep>();
-            AddStep<EnsureReturnStep>();
         }
 
         protected override void BeforeRun()
@@ -54,8 +46,7 @@ namespace HashlinkNET.Compiler.Pseudocode
             data.AddGlobalData<FuncEmitGlobalData>(new(
                 function,
                 ((HlTypeWithFun)function.Type.Value).FunctionDescription,
-                func.Definition,
-                mappingData
+                func.Definition
                 ));
         }
     }

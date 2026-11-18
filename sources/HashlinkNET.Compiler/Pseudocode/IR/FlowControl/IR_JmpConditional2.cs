@@ -91,32 +91,11 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                 return null;
             }
 
-            if (isEquality && (aIsValue || bIsValue))
+            if (isEquality)
             {
                 // Non-primitive value types (e.g. Nullable<T>) cannot use
                 // beq/bne; compare the boxed values instead.
-                il.Emit(OpCodes.Call, ctx.RuntimeImports.objectEquals);
-                il.EmitProtectedBranch(kind == ConditionKind.Eq ? OpCodes.Brtrue : OpCodes.Brfalse,
-                    target.startInst);
-                return null;
-            }
-
-            if (useEqualityOperator && isEquality)
-            {
-                // Haxe proxy types may overload == / != (for example HaxeEnum
-                // compares structurally), so use the operator instead of a
-                // raw reference comparison.
-                il.Emit(OpCodes.Call, kind == ConditionKind.Eq
-                    ? ctx.RuntimeImports.hEnumEquality
-                    : ctx.RuntimeImports.hEnumInequality);
-                il.EmitProtectedBranch(OpCodes.Brtrue, target.startInst);
-                return null;
-            }
-
-            if (isEquality && !aIsValue && !bIsValue && !aIsByRef && !bIsByRef)
-            {
-                // Object references are compared with ceq, not beq/bne.
-                il.Emit(OpCodes.Ceq);
+                il.Emit(OpCodes.Call, ctx.RuntimeImports.phCompare);
                 il.EmitProtectedBranch(kind == ConditionKind.Eq ? OpCodes.Brtrue : OpCodes.Brfalse,
                     target.startInst);
                 return null;

@@ -8,38 +8,24 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
 {
     class IR_SetLocalReg(
         HlFuncRegisterData? dst,
-        IRResult src,
-        string? assign
+        IRResult src
         ) : IRBase(src)
     {
         public HlFuncRegisterData? dst = dst;
         public readonly IRResult src = src;
-        public readonly string? assign = assign;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
-            var srcType = src.Emit(ctx, dst != null);
+            var srcType = src.Emit(ctx, dst != null)!;
 
             if (dst == null)
             {
                 return null;
             }
 
-            var dstIsNullable = dst.RegisterType is GenericInstanceType dstNullable &&
-                dstNullable.ElementType.FullName == "System.Nullable`1";
-            if (!dstIsNullable &&
-                (dst.RegisterType.IsValueType || dst.RegisterType.IsGenericParameter))
+            if (srcType.FullName != dst.RegisterType.FullName)
             {
-                srcType = il.EmitNullableUnwrap(container, srcType);
+                new IR_Cast(new IR_LoadFromStack(srcType), dst.RegisterType, false).Emit(ctx, true);
             }
-
-            if (srcType?.FullName == "System.Object" &&
-                dst.RegisterType.FullName != "System.Object" &&
-                src.IR is HashlinkNET.Compiler.Pseudocode.IR.DynObj.IR_GetDynObj)
-            {
-                HashlinkMethodMarker.MarkShouldUseNative(ctx.DataContainer, ctx.Definition);
-            }
-
-            il.EmitNullableConversion(container, dst.RegisterType, srcType);
 
             if (dst.Kind == HlFuncRegisterData.RegisterKind.Parameter)
             {
@@ -49,26 +35,6 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             {
                 Debug.Assert(dst.Variable != null);
                 il.Emit(OpCodes.Stloc, dst.Variable);
-
-                if (assign != null)
-                {
-                    var scope = ctx.VariableDebugs[dst.Index];
-                    var last = il.Body.Instructions[^1];
-                    if (scope != null)
-                    {
-                        scope.End = new(last);
-                    }
-
-                    scope = new(last, last)
-                    {
-                        End = ctx.Scope.End,
-                    };
-                    ctx.VariableDebugs[dst.Index] = scope;
-                    scope.Variables.Add(new VariableDebugInformation(dst.Variable, assign));
-                    ctx.Scope.Scopes.Add(scope);
-                }
-
-
             }
             return null;
         }

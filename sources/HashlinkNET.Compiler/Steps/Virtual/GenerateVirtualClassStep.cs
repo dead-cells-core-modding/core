@@ -3,6 +3,7 @@ using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
+using MonoMod.Utils;
 using System.Runtime.CompilerServices;
 
 namespace HashlinkNET.Compiler.Steps.Virtual
@@ -20,9 +21,10 @@ namespace HashlinkNET.Compiler.Steps.Virtual
             {
                 var td = group.TypeDef;
 
+                MethodDefinition ctor;
                 //Ctor
                 {
-                    var ctor = new MethodDefinition(".ctor", MethodAttributes.Public |
+                    ctor = new(".ctor", MethodAttributes.Public |
                                MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
                                gdata.Module.TypeSystem.Void);
                     td.Methods.Add(ctor);
@@ -84,6 +86,10 @@ namespace HashlinkNET.Compiler.Steps.Virtual
                     {
                         var virtInfo = container.GetData<VirtualClassData>(v);
                         var fields = virtInfo.Fields;
+
+                        virtInfo.Construct = ctor.CreateGenericInstanceTypeMethod(virtInfo.TypeRef);
+
+
                         foreach (var f in v.Virtual.Fields)
                         {
                             var parent = td.Properties.First(x => x.Name == f.Name);

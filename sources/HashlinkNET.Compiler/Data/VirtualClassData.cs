@@ -6,7 +6,8 @@ namespace HashlinkNET.Compiler.Data
     class VirtualClassData :
         IGetField,
         ITypeReferenceValue,
-        ITypeIndex
+        ITypeIndex,
+        IConstructable
     {
         public required TypeReference TypeRef {
             get; set;
@@ -22,6 +23,10 @@ namespace HashlinkNET.Compiler.Data
             get; set;
         }
 
+        public MethodReference Construct
+        {
+            get; set;
+        } = null!;
 
         public PropertyDefinition? GetField( int index )
         {

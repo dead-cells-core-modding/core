@@ -11,11 +11,11 @@ namespace HaxeProxy.Runtime
 {
     public static class HaxeProxyUtils
     {
-        public static void UseCSharpVersionCode( Delegate del, bool throwOnCompiled )
+        internal static void UseCSharpVersionCode( Delegate del, bool throwOnCompiled )
         {
             UseCSharpVersionCode(del.Method, throwOnCompiled);
         }
-        public static void UseCSharpVersionCode( Type t, bool throwOnCompiled )
+        internal static void UseCSharpVersionCode( Type t, bool throwOnCompiled )
         {
             foreach (var v in t.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
             {
@@ -26,7 +26,7 @@ namespace HaxeProxy.Runtime
                 }
             }
         }
-        public static void UseCSharpVersionCode( MethodInfo m, bool throwOnCompiled )
+        internal static void UseCSharpVersionCode( MethodInfo m, bool throwOnCompiled )
         {
             if (!HaxeProxyManager.generatedPseudocode)
             {

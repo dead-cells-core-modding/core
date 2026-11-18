@@ -4,6 +4,7 @@ using HashlinkNET.Compiler.Data.Interfaces;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using CallSite = Mono.Cecil.CallSite;
 
@@ -277,6 +278,7 @@ namespace HashlinkNET.Compiler.Utils
             var gm = new GenericInstanceMethod(method);
             foreach (var v in types)
             {
+                Debug.Assert(!v.IsByReference);
                 gm.GenericArguments.Add(v);
             }
             return gm;
@@ -308,41 +310,17 @@ namespace HashlinkNET.Compiler.Utils
             return new FieldReference("value", new ByReferenceType(element), refT);
         }
 
-        /// <summary>
-        /// Converts an emitted argument value to <c>Nullable&lt;T&gt;</c> when
-        /// the consumer expects one. Null/object values become the default
-        /// Nullable value, and the underlying value is wrapped.
-        /// </summary>
-        public static void EmitNullableConversion( this ILProcessor il, IDataContainer container,
-            TypeReference? expected, TypeReference? actual )
+        public static bool IsNullable( this TypeReference type, [NotNullWhen(true)] out TypeReference? underlying )
         {
-            if (expected is not GenericInstanceType nullable ||
-                nullable.ElementType.FullName != "System.Nullable`1" ||
-                nullable.GenericArguments.Count != 1)
+            if (type is not GenericInstanceType nullable ||
+               nullable.ElementType.FullName != "System.Nullable`1" ||
+               nullable.GenericArguments.Count != 1)
             {
-                return;
+                underlying = null;
+                return false;
             }
-            if (actual is GenericInstanceType actualNullable &&
-                actualNullable.ElementType.FullName == nullable.ElementType.FullName)
-            {
-                return;
-            }
-
-            if (actual != null && actual.IsValueType && !actual.IsGenericParameter)
-            {
-                var rdata = container.GetGlobalData<RuntimeImports>();
-                il.Emit(OpCodes.Call,
-                    rdata.phMakeNullable.MakeInstance(nullable.GenericArguments[0]));
-            }
-            else
-            {
-                // Discard the source value (usually ldnull) before producing
-                // the default Nullable value.
-                il.Emit(OpCodes.Pop);
-                var rdata = container.GetGlobalData<RuntimeImports>();
-                il.Emit(OpCodes.Call,
-                    rdata.phNullNullable.MakeInstance(nullable.GenericArguments[0]));
-            }
+            underlying = nullable.GenericArguments[0];
+            return true;
         }
 
         /// <summary>
@@ -358,9 +336,8 @@ namespace HashlinkNET.Compiler.Utils
                 nullable.GenericArguments.Count == 1)
             {
                 var underlying = nullable.GenericArguments[0];
-                var rdata = container.GetGlobalData<RuntimeImports>();
-                il.Emit(OpCodes.Call,
-                    rdata.phGetNullableValue.MakeInstance(underlying));
+                il.Emit(OpCodes.Box, type);
+                il.Emit(OpCodes.Unbox_Any, underlying);
                 return underlying;
             }
             return type;

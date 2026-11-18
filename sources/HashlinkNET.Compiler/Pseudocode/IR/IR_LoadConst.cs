@@ -4,6 +4,9 @@ using Mono.Cecil.Cil;
 
 namespace HashlinkNET.Compiler.Pseudocode.IR
 {
+    class IR_LoadNull( TypeReference? targetType = null ) : IR_LoadConst(null, targetType)
+    {
+    }
     class IR_LoadConst( object? val, TypeReference? targetType = null ) : IRBase
     {
         public object? value = val;

@@ -20,12 +20,6 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                     inst.Operand is IR_DebugSequence info)
                 {
                     inst.Operand = null;
-                    gdata.MappingData.Instructions.Add(new()
-                    {
-                        ILIndex = i,
-                        Line = info.Info.Line,
-                        Path = info.Info.FileName
-                    });
                 }
             }
         }

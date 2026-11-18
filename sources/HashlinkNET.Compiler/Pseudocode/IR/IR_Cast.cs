@@ -1,6 +1,8 @@
 using HashlinkNET.Compiler.Utils;
+using HaxeProxy.Runtime;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System.Diagnostics;
 
 namespace HashlinkNET.Compiler.Pseudocode.IR
 {
@@ -70,64 +72,100 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
             var st = src.Emit(ctx, true)!;
-            var targetIsNullable = type is GenericInstanceType targetGit &&
-                targetGit.ElementType.FullName == "System.Nullable`1";
-            if (safe)
+
+            if (st.FullName == type.FullName)
             {
-                HashlinkMethodMarker.MarkShouldUseNative(ctx.DataContainer, ctx.Definition);
+                return st;
             }
-            if (!targetIsNullable && type.IsValueType &&
-                st != null && !st.IsValueType && !st.IsByReference)
+
+            var targetIsNullable = type.IsNullable(out var typeNullableUnderlying);
+            var srcIsNullable = st.IsNullable(out var stNullableUnderlying);
+
+            Debug.Assert(!targetIsNullable || !srcIsNullable);
+            if (safe && !st.IsValueType && !type.IsValueType
+                && !st.IsByReference && !type.IsByReference)
             {
-                HashlinkMethodMarker.MarkShouldUseNative(ctx.DataContainer, ctx.Definition);
+                il.Emit(OpCodes.Isinst, type);
+                return type;
             }
-            if (!targetIsNullable)
+
+            if (st.FullName == "System.Object" && type.IsByReference) // Load Null (object)
             {
-                // Numeric/other conversions operate on the underlying value.
-                st = il.EmitNullableUnwrap(container, st)!;
+                //il.Emit(OpCodes.Pop);
+                //il.Emit(OpCodes.Ldc_I4_0);
+                //il.Emit(OpCodes.Conv_U);
+                return type;
             }
-            if (type.IsByReference || st.IsByReference)
+
+            if (st.IsByReference && type is GenericInstanceType git_r
+                && git_r.ElementType.FullName == typeof(Ref<>).FullName)
             {
-                if (!st.IsByReference)
+                il.Emit(OpCodes.Call, ctx.RuntimeImports.phMakeRef.MakeInstance(git_r.GenericArguments[0]));
+                return type;
+            }
+            if (type.IsByReference && st is GenericInstanceType git_r2
+                && git_r2.ElementType.FullName == typeof(Ref<>).FullName)
+            {
+                il.Emit(OpCodes.Call, ctx.RuntimeImports.phUnref.MakeInstance(git_r2.GenericArguments[0]));
+                return type;
+            }
+
+            if (st.IsValueType && !type.IsValueType)
+            {
+                il.Emit(OpCodes.Box, st);
+                if (type.FullName != "System.Object")
                 {
-                    il.Emit(OpCodes.Conv_U);
+                    Debug.Assert(!type.IsValueType && !type.IsByReference);
+                    il.Emit(OpCodes.Call, ctx.RuntimeImports.phCast.MakeInstance(type));
                 }
                 return type;
             }
-            if (!type.IsValueType)
+
+            if (!st.IsValueType && type.IsValueType)
             {
-                if (st.IsValueType)
+                il.Emit(OpCodes.Unbox_Any, type);
+                return type;
+            }
+
+            if (!st.IsValueType && !type.IsValueType)
+            {
+                if (type.FullName == "System.Object")
                 {
                     il.Emit(OpCodes.Box, st);
                 }
-                if (type.FullName != "System.Object")
+                else
                 {
+                    Debug.Assert(!type.IsValueType && !type.IsByReference);
                     il.Emit(OpCodes.Call, ctx.RuntimeImports.phCast.MakeInstance(type));
                 }
+                return type;
             }
-            else if (!st.IsValueType)
+
+            if (targetIsNullable != srcIsNullable)
             {
-                il.Emit(OpCodes.Unbox_Any, type);
+                if ((typeNullableUnderlying ?? type).FullName == (stNullableUnderlying ?? st).FullName)
+                {
+                    il.Emit(OpCodes.Box, st);
+                    il.Emit(OpCodes.Unbox_Any, type);
+                    return type;
+                }
+                if (srcIsNullable)
+                {
+                    il.Emit(OpCodes.Box, st);
+                    il.Emit(OpCodes.Unbox_Any, stNullableUnderlying);
+                }
+
+                EmitNumericConvert(il, stNullableUnderlying ?? st, typeNullableUnderlying ?? type);
+
+                if (targetIsNullable)
+                {
+                    il.Emit(OpCodes.Box, typeNullableUnderlying);
+                    il.Emit(OpCodes.Unbox_Any, type);
+                }
+                return type;
             }
-            else if (st.FullName == type.FullName)
-            {
-                // Same type: nothing to do.
-            }
-            else if (type is GenericInstanceType nullable &&
-                nullable.ElementType.FullName == "System.Nullable`1" &&
-                nullable.GenericArguments.Count == 1)
-            {
-                // T -> Nullable<T>. Constructing Nullable<T>::.ctor directly
-                // can mix corlib scopes; the helper guarantees the runtime's
-                // Nullable<T> type identity.
-                var underlying = nullable.GenericArguments[0];
-                il.Emit(OpCodes.Call,
-                    ctx.RuntimeImports.phMakeNullable.MakeInstance(underlying));
-            }
-            else
-            {
-                EmitNumericConvert(il, st, type);
-            }
+
+            EmitNumericConvert(il, st, type);
             return type;
         }
     }

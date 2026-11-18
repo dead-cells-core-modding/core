@@ -7,8 +7,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
     record class FuncEmitGlobalData(
         HlFunction Function,
         HlTypeFun FuncType,
-        MethodDefinition Definition,
-        BytecodeMappingData.FunctionData MappingData
+        MethodDefinition Definition
         )
     {
 

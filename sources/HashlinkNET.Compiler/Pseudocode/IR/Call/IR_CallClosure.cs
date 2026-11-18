@@ -2,6 +2,7 @@ using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System.Diagnostics;
 
 namespace HashlinkNET.Compiler.Pseudocode.IR.Call
 {
@@ -16,66 +17,39 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
         public readonly IRResult[] args = args;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
-            var srcType = src.Emit(ctx, true);
+            src.Emit(ctx, true);
             if (invokeMethod != null)
             {
-                if (!invokeMethod.DeclaringType.IsValueType &&
-                    !invokeMethod.DeclaringType.IsGenericParameter &&
-                    !invokeMethod.DeclaringType.IsByReference &&
-                    invokeMethod.DeclaringType.FullName != "System.Object")
-                {
-                    il.Emit(OpCodes.Castclass, invokeMethod.DeclaringType);
-                }
                 for (var i = 0; i < args.Length; i++)
                 {
-                    var argType = args[i].Emit(ctx, true)!;
-                    TypeReference? paramType = i < invokeMethod.Parameters.Count
-                        ? invokeMethod.Parameters[i].ParameterType
-                        : null;
-                    if (paramType is GenericParameter gp &&
+                    var actual = args[i].Emit(ctx, true)!;
+                    var expected = invokeMethod.Parameters[i].ParameterType;
+                    if (expected is GenericParameter gp &&
                         gp.Type == GenericParameterType.Type &&
                         invokeMethod.DeclaringType is GenericInstanceType dgi &&
                         gp.Position < dgi.GenericArguments.Count)
                     {
-                        paramType = dgi.GenericArguments[gp.Position];
+                        expected = dgi.GenericArguments[gp.Position];
                     }
 
-                    if (paramType != null && paramType.IsValueType &&
-                        !(paramType is GenericInstanceType pn &&
-                          pn.ElementType.FullName == "System.Nullable`1") &&
-                        !argType.IsValueType && !argType.IsByReference)
-                    {
-                        HashlinkMethodMarker.MarkShouldUseNative(ctx.DataContainer, ctx.Definition);
-                    }
+                    Debug.Assert(actual != null);
+                    Debug.Assert(expected != null);
 
-                    // Delegates (notably native ones) still take Ref<T> even
-                    // though translated methods use 'ref T'.
-                    if (paramType is GenericInstanceType pgi &&
-                        pgi.ElementType.FullName == ctx.RuntimeImports.refType.FullName &&
-                        argType.IsByReference)
+                    if (actual.FullName != expected.FullName)
                     {
-                        il.Emit(OpCodes.Call, ctx.RuntimeImports.phMakeRef.MakeInstance(pgi.GenericArguments[0]));
-                    }
-                    else
-                    {
-                        il.EmitNullableConversion(container, paramType, argType);
-                        if (paramType?.FullName == "System.Object")
-                        {
-                            var boxType = argType;
-                            if (boxType.IsByReference)
-                            {
-                                boxType = ((ByReferenceType)boxType).ElementType;
-                                il.Emit(OpCodes.Ldobj, boxType);
-                            }
-                            if (boxType.IsValueType && !boxType.IsGenericParameter)
-                            {
-                                il.Emit(OpCodes.Box, boxType);
-                            }
-                        }
+                        new IR_Cast(new IR_LoadFromStack(actual), expected, false).Emit(ctx, true);
                     }
                 }
                 il.Emit(OpCodes.Callvirt, invokeMethod);
-                return invokeMethod.ReturnType;
+                var rt = invokeMethod.ReturnType;
+                if (rt is GenericParameter gpr &&
+                    invokeMethod.DeclaringType is GenericInstanceType dgi2)
+                {
+                    Debug.Assert(gpr.Type == GenericParameterType.Type);
+                    rt = dgi2.GenericArguments[gpr.Position];
+                }
+
+                return rt;
             }
             else
             {

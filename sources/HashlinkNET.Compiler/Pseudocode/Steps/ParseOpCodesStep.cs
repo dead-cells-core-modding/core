@@ -27,7 +27,6 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         protected FuncEmitGlobalData gdata = null!;
         protected TypeSystem typeSystem = null!;
         protected IDataContainer container = null!;
-        protected string? currentAssign = null;
 
         public override void Execute( IDataContainer container )
         {
@@ -106,17 +105,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         }
         private IR_LoadLocalReg CreateLoadLocalReg( int index, bool isValue = false )
         {
-            var an = currentAssign;
-            if (isValue)
-            {
-                currentAssign = null;
-            }
-            else
-            {
-                an = null;
-            }
-
-            return new IR_LoadLocalReg(gdata.Registers[index], an);
+            return new IR_LoadLocalReg(gdata.Registers[index]);
         }
         public TypeReference GetLocalRegType( int index )
         {
@@ -181,12 +170,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             var hlc = gdata2.Code;
             var c = code.Kind;
             var op = HlOpCodes.OpCodes[(int)code.Kind];
-            currentAssign = null;
-            if (gdata.Assigns.TryGetValue(index + 1, out var assign) &&
-                assign.Count > 0)
-            {
-                currentAssign = string.Join('_', assign);
-            }
+
             if (op.Payloads.Length > 0 &&
                 op.Payloads[0].HasFlag(HlOpCode.PayloadKind.StoreResult))
             {
@@ -552,11 +536,9 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
 
                         irbb.AddIR(new IR_SetLocalReg(
                             gdata.Registers[dstReg],
-                            src,
-                            currentAssign
+                            src
                             ));
                     }
-                    currentAssign = null;
                 }
             }
             else if (c == HlOpcodeKind.SetArray)
@@ -723,9 +705,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
             {
                 // Exception handling metadata — no IR emitted.
                 // ExceptionHandlers are built from TrapRegionData after IL emission.
-                currentAssign = null;
             }
-            Debug.Assert(currentAssign == null);
         }
     }
 }

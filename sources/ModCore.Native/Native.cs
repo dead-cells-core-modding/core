@@ -157,6 +157,7 @@ namespace ModCore.Native
 
         private static nint orig_jit_hl_jit_code;
 
+        [UnmanagedCallersOnly]
         protected static void* Hook_jit_hl_jit_code( nint ctx, HL_module* m, int* codesize, nint debug, HL_module* prev )
         {
             for (int i = 0; i < m->code->nfunctions; i++)
@@ -639,6 +640,7 @@ namespace ModCore.Native
                 BindingFlags.FlattenHierarchy);
 
             Debug.Assert(hook != null);
+            Debug.Assert(hook.GetCustomAttribute<UnmanagedCallersOnlyAttribute>() is not null);
 
             var ptr = hook.MethodHandle.GetFunctionPointer();
 

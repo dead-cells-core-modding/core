@@ -1,6 +1,7 @@
 using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System.Diagnostics;
 
 namespace HashlinkNET.Compiler.Pseudocode.IR.Call
 {
@@ -19,18 +20,10 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
             {
                 var actual = args[i].Emit(ctx, true);
 
-                if (method.HasThis && i == 0 && actual != null &&
-                    !actual.IsValueType && !actual.IsByReference &&
-                    !method.DeclaringType.IsValueType &&
-                    !method.DeclaringType.IsGenericParameter &&
-                    !method.DeclaringType.IsByReference &&
-                    method.DeclaringType.FullName != "System.Object")
-                {
-                    il.Emit(OpCodes.Castclass, method.DeclaringType);
-                }
+                Debug.Assert(actual != null);
 
                 TypeReference? expected = null;
-                if (method.HasThis)
+                if (method.HasThis && !method.ExplicitThis)
                 {
                     if (i == 0)
                     {
@@ -46,68 +39,11 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
                     expected = method.Parameters[i].ParameterType;
                 }
 
-                if (expected is GenericParameter gp &&
-                    gp.Type == GenericParameterType.Type &&
-                    method.DeclaringType is GenericInstanceType dgi &&
-                    gp.Position < dgi.GenericArguments.Count)
-                {
-                    expected = dgi.GenericArguments[gp.Position];
-                }
-                else if (expected is GenericParameter mgp &&
-                    mgp.Type == GenericParameterType.Method &&
-                    method is GenericInstanceMethod gim &&
-                    mgp.Position < gim.GenericArguments.Count)
-                {
-                    expected = gim.GenericArguments[mgp.Position];
-                }
+                Debug.Assert(expected != null);
 
-                if (expected != null && expected.IsValueType &&
-                    !(expected is GenericInstanceType expectedNullable &&
-                      expectedNullable.ElementType.FullName == "System.Nullable`1"))
+                if (actual.FullName != expected.FullName)
                 {
-                    actual = il.EmitNullableUnwrap(container, actual);
-                }
-                if (expected != null && expected.IsValueType &&
-                    !(expected is GenericInstanceType expectedNullable2 &&
-                      expectedNullable2.ElementType.FullName == "System.Nullable`1") &&
-                    actual != null && !actual.IsValueType && !actual.IsByReference)
-                {
-                    HashlinkMethodMarker.MarkShouldUseNative(ctx.DataContainer, ctx.Definition);
-                }
-
-                if (expected is GenericInstanceType pgi &&
-                    pgi.ElementType.FullName == ctx.RuntimeImports.refType.FullName &&
-                    actual.IsByReference)
-                {
-                    il.Emit(OpCodes.Call,
-                        ctx.RuntimeImports.phMakeRef.MakeInstance(pgi.GenericArguments[0]));
-                }
-                else
-                {
-                    il.EmitNullableConversion(container, expected, actual);
-                    if (expected != null && actual != null &&
-                        !expected.IsValueType && !actual.IsValueType &&
-                        !actual.IsByReference && !expected.IsByReference &&
-                        expected.FullName != "System.Object" &&
-                        actual.FullName != expected.FullName)
-                    {
-                        // Haxe switch/type narrowing does not change the CLR
-                        // static type; insert the required downcast.
-                        il.Emit(OpCodes.Castclass, expected);
-                    }
-                    if (expected?.FullName == "System.Object")
-                    {
-                        var boxType = actual;
-                        if (boxType.IsByReference)
-                        {
-                            boxType = ((ByReferenceType)boxType).ElementType;
-                            il.Emit(OpCodes.Ldobj, boxType);
-                        }
-                        if (boxType.IsValueType && !boxType.IsGenericParameter)
-                        {
-                            il.Emit(OpCodes.Box, boxType);
-                        }
-                    }
+                    new IR_Cast(new IR_LoadFromStack(actual), expected, false).Emit(ctx, true);
                 }
             }
 
