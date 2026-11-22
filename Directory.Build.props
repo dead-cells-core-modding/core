@@ -8,8 +8,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CopyDocumentationFilesFromPackages>true</CopyDocumentationFilesFromPackages>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <MonoMod_CheckTargetRuntime>false</MonoMod_CheckTargetRuntime>
-    <MonoMod_ReallySkipCheckTargetRuntime>true</MonoMod_ReallySkipCheckTargetRuntime>
     <!-- arm64 is reserved for future Android arm64 support. -->
     <!-- Add it to the Platforms list (AnyCPU;x64;arm64) once the AArch64 -->
     <!-- Native subclass and assembly generators are implemented. -->

@@ -11,7 +11,7 @@
   <ItemGroup>
     <PackageReference Include="HarmonyX" Version="2.16.1" />
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
-    <PackageReference Include="MonoMod.RuntimeDetour" Version="25.4.0-prerelease.1" />
+    <PackageReference Include="MonoMod.RuntimeDetour" Version="25.4.0-prerelease.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="SDL3-CS" Version="3.4.20" />
     <PackageReference Include="Serilog" Version="4.4.0" />
