@@ -19,4 +19,8 @@
     <Features>runtime-async=on</Features>
   </PropertyGroup>
 
+  <ItemGroup>
+    <AssemblyMetadata Include="License" Value="MIT" />
+  </ItemGroup>
+
 </Project>

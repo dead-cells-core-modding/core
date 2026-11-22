@@ -5,6 +5,7 @@ using ModCore.Storage;
 using Serilog;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -12,11 +13,50 @@ namespace ModCore
 {
     internal static unsafe class Startup
     {
+        private const string Banner =
+            """
+            ██████╗  ██████╗ ██████╗ ███╗   ███╗
+            ██╔══██╗██╔════╝██╔════╝████╗ ████║
+            ██║  ██║██║     ██║     ██╔████╔██║
+            ██║  ██║██║     ██║     ██║╚██╔╝██║
+            ██████╔╝╚██████╗╚██████╗██║ ╚═╝ ██║
+            ╚═════╝  ╚═════╝ ╚═════╝╚═╝     ╚═╝
+            """;
+
+        private static readonly Assembly CoreAssembly = typeof(Startup).Assembly;
+
+        private static string Version =>
+            CoreAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+            ?? CoreAssembly.GetName().Version?.ToString()
+            ?? "Unknown";
+
+        private static string Repository =>
+            GetMetadata("RepositoryUrl") ?? "Unknown";
+
+        private static string License =>
+            GetMetadata("License") ?? "Unknown";
+
+
+        private static string? GetMetadata(string key) =>
+            CoreAssembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+                .FirstOrDefault(x => x.Key == key)?.Value;
+
         public static int StartGame()
         {
             ContextConfig.SetReadonly();
 
             LogInitializer.InitializeLog();
+
+            if (ContextConfig.Config.consoleOutput)
+            {
+                Console.WriteLine();
+                Console.WriteLine(Banner);
+                Console.WriteLine($"Dead Cells Core Modding v{Version}");
+                Console.WriteLine($"Repository: {Repository}");
+                Console.WriteLine($"License: {License}");
+                Console.WriteLine("Not affiliated with Motion Twin.");
+                Console.WriteLine();
+            }
 
             Environment.SetEnvironmentVariable("SteamAPPId", "588650");
 
