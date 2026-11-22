@@ -17,45 +17,57 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         {
             var gdata = container.GetGlobalData<FuncEmitGlobalData>();
 
+            var hashset = new HashSet<int>();
+
             foreach (var bb in gdata.IRBasicBlocks)
             {
+                hashset.Clear();
+
                 var list = bb.ir;
                 for (var i = 0; i < list.Count; i++)
                 {
+                    if (hashset.Contains(i))
+                    {
+                        continue;
+                    }
                     if (list[i].IR is not IR_SetLocalReg setIr ||
                         setIr.src.IR is not IR_New newIr ||
-                        newIr.ctorArgs.Length != 0 ||
                         setIr.dst == null)
                     {
                         continue;
                     }
 
-                    var j = i + 1;
-                    while (j < list.Count && list[j].IR is IR_DebugSequence)
-                    {
-                        j++;
-                    }
-                    if (j >= list.Count)
-                    {
-                        continue;
-                    }
 
-                    IR_Call? call = list[j].IR as IR_Call;
-                    if (call == null && list[j].IR is IR_SetLocalReg callStore)
+                    for (int j = i; j < bb.ir.Count; j++)
                     {
-                        call = callStore.src.IR as IR_Call;
-                    }
-                    if (call == null ||
-                        call.method.Name != "s___constructor__" ||
-                        call.args.Length == 0 ||
-                        call.args[0].IR is not IR_LoadLocalReg self ||
-                        self.src != setIr.dst)
-                    {
-                        continue;
-                    }
+                        if (list[j].IR is not IR_SetLocalReg call_slr ||
+                            call_slr.src.IR is not IR_Call call)
+                        {
+                            continue;
+                        }
+                        if (call.args.Length == 0)
+                        {
+                            continue;
+                        }
+                        if (call.method.Name != "s___constructor__")
+                        {
+                            continue;
+                        }
+                        if (call.args[0].IR is not IR_LoadLocalReg llr)
+                        {
+                            continue;
+                        }
+                        if (llr.src != setIr.dst)
+                        {
+                            continue;
+                        }
 
-                    setIr.src.IR = new IR_New(newIr.type, call.args[1..]);
-                    list.RemoveAt(j);
+                        hashset.Add(j);
+                        list[i].IR = null;
+                        list[j].IR = new IR_SetLocalReg(setIr.dst,
+                            new IR_New(newIr.type, call.args[1..]));
+                        break;
+                    }
                 }
             }
         }

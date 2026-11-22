@@ -60,9 +60,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                     il.Emit(OpCodes.Conv_U);
                     break;
                 case nameof(Boolean):
-                    il.Emit(OpCodes.Conv_I4);
-                    il.Emit(OpCodes.Ldc_I4_0);
-                    il.Emit(OpCodes.Cgt_Un);
+                    il.Emit(OpCodes.Nop);
                     break;
                 default:
                     throw new InvalidOperationException($"Unsupported cast to {to.FullName}");

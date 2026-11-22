@@ -96,7 +96,6 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 {
                     foreach (var v in hlbb.opcodes.Span)
                     {
-                        irbb.AddIR(new IR_DebugSequence(hlbb.function.Debug[optIdx]));
                         ParseOpCode(v, optIdx++, irbb);
                     }
                 }
@@ -282,16 +281,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     else
                     {
                         var mr = container.GetData<MethodReference>(hlc.Functions[fidx]);
-                        // The New opcode has already allocated the object, so
-                        // invoke the constructor on the existing instance
-                        // instead of allocating another one through newobj.
+
                         src = new IR_Call(mr, false, args);
-                        if (mr.ReturnType.MetadataType == MetadataType.Void)
-                        {
-                            // No value to store: the destination already holds
-                            // the instance allocated by New.
-                            dstReg = -2;
-                        }
                     }
 
                 }
@@ -522,23 +513,16 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
 
                 if (src != null)
                 {
-                    if (dstReg == -2)
+                    if (dstReg == -1)
                     {
-                        // Void call: no destination register to store into.
-                        irbb.AddIR(new IR_Discard(src));
+                        dstReg = code.Parameters[0];
                     }
-                    else
-                    {
-                        if (dstReg == -1)
-                        {
-                            dstReg = code.Parameters[0];
-                        }
 
-                        irbb.AddIR(new IR_SetLocalReg(
-                            gdata.Registers[dstReg],
-                            src
-                            ));
-                    }
+                    irbb.AddIR(new IR_SetLocalReg(
+                        gdata.Registers[dstReg],
+                        src
+                        ));
+
                 }
             }
             else if (c == HlOpcodeKind.SetArray)
