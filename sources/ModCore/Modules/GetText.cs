@@ -49,17 +49,12 @@ namespace ModCore.Modules
         public string GetString( string str, IDictionary<string, string> @params )
         {
             var s = str.AsHaxeString();
-            dynamic param = new HaxeDynObj();
-            foreach (var v in @params)
+            var result = Lang.Class.t.get(s, null).ToString()!;
+            foreach ((var key, var val) in @params)
             {
-                param[v.Key] = v.Value.AsHaxeString();
+                result = result.Replace($"::{key}::", val);
             }
-
-            var fields = (ArrayObj) Reflect.Class.fields(param);
-
-            Debug.Assert(fields.length == @params.Count);
-
-            return Lang.Class.t.get(s, param).ToString()!;
+            return result;
         }
 
         /// <summary>
