@@ -58,6 +58,14 @@ namespace ModCore.Utilities
             return new BytesMemoryManager(bytes).Memory;
         }
 
-
+        extension( Bytes )
+        {
+            public static Bytes Create( ReadOnlySpan<byte> data )
+            {
+                var bytes = Bytes.Class.alloc(data.Length);
+                data.CopyTo(bytes.AsSpan());
+                return bytes;
+            }
+        }
     }
 }

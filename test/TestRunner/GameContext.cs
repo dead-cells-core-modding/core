@@ -30,6 +30,7 @@ namespace TestRunner
                 consoleOutput = Debugger.IsAttached || Environment.GetEnvironmentVariable("DCCM_TEST_OUTPUT") == "1",
                 disableWorkerProcessUtils = true,
                 suppressFatalWindows = true,
+                dontStartAsDeadCells = true
             };
             //Console.WriteLine("Setup receiver");
             EventSystem.AddReceiver(this);

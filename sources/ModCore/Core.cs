@@ -36,7 +36,6 @@ namespace ModCore
         }
 
         public static bool InMainThread => Thread.CurrentThread == MainThread;
-        private static readonly ConcurrentDictionary<string, Assembly?> name2typeLookup = [];
 
         public static void LoadCoreModules(
             Assembly asm,

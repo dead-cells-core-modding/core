@@ -19,6 +19,6 @@ namespace ModCore
         public bool AutoRefreshFxAtlas { get; set; } = true;
         public bool SkipLogoSplash { get; set; } = false;
         public bool EnableMesaD3D12 { get; set; } = false;
-        public bool UseOldSFX { get; set; } = true;
+        public bool DontStartAsDeadCells { get; set; } = false;
     }
 }

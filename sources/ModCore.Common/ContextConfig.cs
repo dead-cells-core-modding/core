@@ -15,6 +15,7 @@ namespace ModCore
                 ],
             consoleOutput = true,
             useHLC = "true".Equals(Environment.GetEnvironmentVariable("DCCM_USE_HLC"), StringComparison.OrdinalIgnoreCase),
+            dontStartAsDeadCells = false
         };
 
         private static ContextConfig current = Default;
@@ -48,5 +49,6 @@ namespace ModCore
         public bool useHLC;
         public bool hlcPDB;
         public bool noModsMode;
+        public bool dontStartAsDeadCells;
     }
 }

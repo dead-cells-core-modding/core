@@ -1,7 +1,9 @@
 
+using Microsoft.Win32;
 using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Storage;
+using MonoMod.Utils;
 using Serilog;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -25,6 +27,8 @@ namespace ModCore
 
         private static readonly Assembly CoreAssembly = typeof(Startup).Assembly;
 
+        private static CacheFile deadcellsExeCache = new("deadcells.exe");
+
         private static string Version =>
             CoreAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
             ?? CoreAssembly.GetName().Version?.ToString()
@@ -41,9 +45,53 @@ namespace ModCore
             CoreAssembly.GetCustomAttributes<AssemblyMetadataAttribute>()
                 .FirstOrDefault(x => x.Key == key)?.Value;
 
+        private static bool ShouldStartAsDeadCells()
+        {
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DCCM_DONT_START_AS_DEAD_CELLS")))
+            {
+                return false;
+            }
+
+            if (Core.Config.Value.DontStartAsDeadCells || ContextConfig.Config.dontStartAsDeadCells)
+            {
+                return false;
+            }
+
+            if(OperatingSystem.IsWindows())
+            {
+                using var baseKey = Registry.LocalMachine.OpenSubKey("SOFTWARE\\A-Volute\\Nahimic", false);
+                if (baseKey != null)
+                {
+                    return true; // Hahimic installed
+                }
+            }
+            return false;
+        }
+
         public static int StartGame()
         {
             ContextConfig.SetReadonly();
+
+            if (ShouldStartAsDeadCells())
+            {
+                var procName = Path.GetFileName(Environment.ProcessPath);
+                if (procName != "deadcells.exe")
+                {
+                    var data = File.ReadAllBytes(Environment.ProcessPath!);
+                    deadcellsExeCache.UpdateMetadata("startup", data);
+                    if (!deadcellsExeCache.IsValid)
+                    {
+                        deadcellsExeCache.UpdateCache(data);
+                    }
+
+                    Environment.SetEnvironmentVariable("DCCM_DONT_START_AS_DEAD_CELLS", "true");
+
+                    Console.WriteLine("Starting deadcells.exe");
+                    var proc = Process.Start(deadcellsExeCache.CachePath);
+                    proc.WaitForExit();
+                    return proc.ExitCode;
+                }
+            }
 
             LogInitializer.InitializeLog();
 

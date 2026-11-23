@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -27,7 +27,6 @@
   <ItemGroup>
     <ProjectReference Include="../../sources/ModCore/ModCore.csproj" />
     <ProjectReference Include="../../sources/DCCMShell/DCCMShell.csproj" />
-    <ProjectReference Include="../../sources/Haxe2CSharp/Haxe2CSharp.csproj" />
     <ProjectReference Include="../../sources/ModCore.Native/ModCore.Native.csproj" />
   </ItemGroup>
 
