@@ -74,7 +74,7 @@ namespace DeadCellsModding
 
             return hostfxr_run_app(ctx);
         }
-        private static int StartGame()
+        private static int StartGame( string[] args )
         {
             var gameRoot = Environment.GetEnvironmentVariable("DEAD_CELLS_GAME_PATH");
             if (string.IsNullOrEmpty(gameRoot))
@@ -106,6 +106,32 @@ namespace DeadCellsModding
 
             Directory.SetCurrentDirectory(gameRoot!);
 
+            // Audio drivers such as Nahimic select the game's surround profile by
+            // executable name. Keep the public launcher, but run the VM under the
+            // original name so it receives the same device format and processing.
+            if (OperatingSystem.IsWindows() &&
+                !string.Equals(Path.GetFileName(Environment.ProcessPath), "deadcells.exe", StringComparison.OrdinalIgnoreCase))
+            {
+                var gameProcessPath = Path.Combine(Path.GetDirectoryName(modcore)!, "startup", "game", "deadcells.exe");
+                if (!File.Exists(gameProcessPath))
+                {
+                    throw new FileNotFoundException("The game process launcher is missing. Reinstall the framework.", gameProcessPath);
+                }
+                var startInfo = new ProcessStartInfo(gameProcessPath)
+                {
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WorkingDirectory = gameRoot!
+                };
+                foreach (var arg in args)
+                {
+                    startInfo.ArgumentList.Add(arg);
+                }
+                using var game = Process.Start(startInfo) ?? throw new InvalidOperationException("Could not start the game process.");
+                game.WaitForExit();
+                return game.ExitCode;
+            }
+
             if (RuntimeFeature.IsDynamicCodeCompiled)
             {
                 var core = Assembly.LoadFrom(modcore);
@@ -121,7 +147,7 @@ namespace DeadCellsModding
         }
         private static int Main( string[] args )
         {
-            return StartGame();
+            return StartGame(args);
         }
     }
 }

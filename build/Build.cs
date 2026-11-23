@@ -299,6 +299,13 @@ class Build : NukeBuild
 
                 DotNetTasks.DotNetPublish(s => s.SetConfiguration("Release")
                     .SetProject(SourceRoot + "/DeadCellsModding"));
+
+                if (CurrentOSPlatform == "win")
+                {
+                    var startup = HostBinRoot + "/startup";
+                    var gameProcess = (startup + "/game").CreateDirectory();
+                    File.Copy(startup + "/DeadCellsModding.exe", gameProcess + "/deadcells.exe", true);
+                }
             });
 
     Target BuildAssets => _ => _
