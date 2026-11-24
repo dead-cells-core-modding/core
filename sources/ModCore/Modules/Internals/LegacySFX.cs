@@ -13,9 +13,7 @@ using Path = System.IO.Path;
 
 namespace ModCore.Modules.Internals
 {
-    [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     internal class LegacySFX : CoreModule<LegacySFX>,
-        IOnCoreModuleInitializing,
         IOnAdvancedModuleInitializing
     {
         private static class HashlinkHooks
@@ -91,18 +89,11 @@ dither = false
 cf_level = 5
 stereo-encoding = basic
 channels = stereo
-
-[reverb]
-boost = 6
 """;
-        void IOnCoreModuleInitializing.OnCoreModuleInitializing()
+        internal void Init()
         {
-            if (!Core.Config.Value.UseOldSFX)
-            {
-                return;
-            }
 
-            var alsoftini = Path.GetFullPath(FolderInfo.Cache.GetFilePath("alsoft.ini"));
+            var alsoftini = Path.GetFullPath(FolderInfo.Cache.GetFilePath("alsoft_legacy.ini"));
             File.WriteAllText(alsoftini, ALSOFT_INI_CONTENT);
 
             Environment.SetEnvironmentVariable("ALSOFT_CONF", alsoftini);
@@ -110,11 +101,6 @@ boost = 6
 
         void IOnAdvancedModuleInitializing.OnAdvancedModuleInitializing()
         {
-            if (!Core.Config.Value.UseOldSFX)
-            {
-                return;
-            }
-
             HashlinkHooks.Init();
         }
     }
