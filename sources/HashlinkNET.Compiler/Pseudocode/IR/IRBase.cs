@@ -9,6 +9,8 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             get;
         } = values;
 
+        public virtual bool HasSideEffects => Values.Any(x => x?.HasSideEffects ?? false);
+
         public TypeReference? Emit( EmitContext ctx, bool requestValue = false )
         {
             ctx.RequestValue = requestValue;

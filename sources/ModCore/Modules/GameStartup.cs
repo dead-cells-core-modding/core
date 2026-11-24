@@ -27,7 +27,14 @@ namespace ModCore.Modules
                 typeof(dc.hxd.fmt.pak.FileSystem),
                 typeof(dc.hxd.fmt.pak._FileSystem),
                 typeof(_Sys),
+                typeof(dc.libs.Process),
+                typeof(dc.libs._Process),
+                typeof(Assets),
+                typeof(_Assets),
+                typeof(AssetsLibManager),
+                typeof(_AssetsLibManager)
                 ];
+
 
             //foreach (var t in typeof(_Boot).Assembly.GetTypes())
             //{
@@ -51,7 +58,7 @@ namespace ModCore.Modules
         {
             HashlinkMarshal.EnsureThreadRegistered();
 
-//BakeCode();
+            //BakeCode();
 
             var entry = (HashlinkClosure)HashlinkMarshal.ConvertHashlinkObject(
                     &HashlinkVM.Instance.Context->c

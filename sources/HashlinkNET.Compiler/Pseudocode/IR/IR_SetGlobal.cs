@@ -6,7 +6,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
     class IR_SetGlobal(
         IRResult val,
         int globalValue
-        ) : IRBase(val)
+        ) : IRBaseWithSideEffects(val)
     {
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {

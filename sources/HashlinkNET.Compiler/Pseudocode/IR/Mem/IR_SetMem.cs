@@ -9,7 +9,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Mem
         IRResult index,
         IRResult val,
         TypeReference? storeType = null
-        ) : IRBase(ptr, index, val)
+        ) : IRBaseWithSideEffects(ptr, index, val)
     {
         public readonly IRResult ptr = ptr;
         public readonly IRResult val = val;

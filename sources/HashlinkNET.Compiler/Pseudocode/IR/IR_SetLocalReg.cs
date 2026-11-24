@@ -9,7 +9,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
     class IR_SetLocalReg(
         HlFuncRegisterData? dst,
         IRResult src
-        ) : IRBase(src)
+        ) : IRBaseWithSideEffects(src)
     {
         public HlFuncRegisterData? dst = dst;
         public readonly IRResult src = src;

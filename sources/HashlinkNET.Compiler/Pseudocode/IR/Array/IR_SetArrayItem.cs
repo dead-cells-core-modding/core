@@ -7,7 +7,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Array
         IRResult src,
         IRResult index,
         IRResult val
-        ) : IRBase(src, index, val)
+        ) : IRBaseWithSideEffects(src, index, val)
     {
         public readonly IRResult src = src;
         public readonly IRResult index = index;

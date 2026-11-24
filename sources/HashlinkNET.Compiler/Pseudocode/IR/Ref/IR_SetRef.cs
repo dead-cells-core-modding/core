@@ -6,7 +6,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Ref
     class IR_SetRef(
         IRResult ptr,
         IRResult val
-        ) : IRBase(ptr, val)
+        ) : IRBaseWithSideEffects(ptr, val)
     {
         public readonly IRResult ptr = ptr;
         public readonly IRResult val = val;

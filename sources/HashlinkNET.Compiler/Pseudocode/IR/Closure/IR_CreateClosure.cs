@@ -11,7 +11,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Closure
         TypeReference type,
         bool isVirt,
         IRResult? self
-        ) : IRBase(self)
+        ) : IRBaseWithSideEffects(self)
     {
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {

@@ -10,7 +10,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Object
     class IR_New(
         TypeReference type,
         params IRResult[] ctorArgs
-        ) : IRBase(ctorArgs)
+        ) : IRBaseWithSideEffects(ctorArgs)
     {
         public TypeReference type = type;
         public readonly IRResult[] ctorArgs = ctorArgs;

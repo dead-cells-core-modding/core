@@ -7,7 +7,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.DynObj
         IRResult src,
         IRResult val,
         string name
-        ) : IRBase(src, val)
+        ) : IRBaseWithSideEffects(src, val)
     {
         public readonly IRResult src = src;
         public readonly IRResult val = val;

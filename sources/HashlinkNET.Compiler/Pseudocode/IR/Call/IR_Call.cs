@@ -9,7 +9,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
         MethodReference method,
         bool virt,
         params IRResult[] args
-        ) : IRBase(args)
+        ) : IRBaseWithSideEffects(args)
     {
         public MethodReference method = method;
         public readonly IRResult[] args = args;

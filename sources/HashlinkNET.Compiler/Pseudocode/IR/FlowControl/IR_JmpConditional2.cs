@@ -55,9 +55,12 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
         public readonly bool useEqualityOperator = useEqualityOperator;
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
         {
+            var a_r = new IR_ReuseResult(a);
+            var b_r = new IR_ReuseResult(b);
+
             var isEquality = kind is ConditionKind.Eq or ConditionKind.NotEq;
 
-            var at = a.Emit(ctx, true);
+            var at = a_r.Emit(ctx, true);
             var aIsByRef = at is ByReferenceType;
             var aIsValue = at is { IsValueType: true };
             if (isEquality && aIsValue)
@@ -69,7 +72,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
                 il.Emit(OpCodes.Conv_I);
             }
 
-            var bt = b.Emit(ctx, true);
+            var bt = b_r.Emit(ctx, true);
             var bIsByRef = bt is ByReferenceType;
             var bIsValue = bt is { IsValueType: true };
             if (isEquality && bIsValue)
@@ -83,7 +86,31 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
 
             if (container.TryGetData<IObjComparable>(at, out var compare) && compare.Compare is not null)
             {
+                var finalLabel = Instruction.Create(OpCodes.Nop);
+
+                il.Emit(OpCodes.Ceq);
+                il.Emit(OpCodes.Ldc_I4_0);
+                il.Emit(OpCodes.Ceq);
+                il.Emit(OpCodes.Dup);
+
+                il.Emit(OpCodes.Brfalse, finalLabel);
+
+                il.Emit(OpCodes.Pop);
+
+                a_r.Emit(ctx, true);
+                il.Emit(OpCodes.Ldnull);
+                il.Emit(OpCodes.Ceq);
+                il.Emit(OpCodes.Dup);
+                il.Emit(OpCodes.Brtrue, finalLabel);
+
+                il.Emit(OpCodes.Pop);
+
+                a_r.Emit(ctx, true);
+                b_r.Emit(ctx, true);
+
                 il.Emit(OpCodes.Call, compare.Compare);
+
+                il.Append(finalLabel);
                 il.Emit(OpCodes.Ldc_I4_0);
             }
             else if (isEquality && aIsByRef && bIsByRef)

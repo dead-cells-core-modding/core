@@ -10,7 +10,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
         MethodReference? invokeMethod,
         IRResult src,
         params IRResult[] args
-        ) : IRBase([src, .. args])
+        ) : IRBaseWithSideEffects([src, .. args])
     {
         public MethodReference? invokeMethod = invokeMethod;
         public readonly IRResult src = src;

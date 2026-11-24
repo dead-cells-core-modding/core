@@ -14,6 +14,8 @@ namespace HashlinkNET.Compiler.Pseudocode
             get; set;
         }
 
+        public bool HasSideEffects => IR?.HasSideEffects ?? false;
+
         public TypeReference? Emit( EmitContext ctx, bool requestValue = false )
         {
             if (IR == null && requestValue)

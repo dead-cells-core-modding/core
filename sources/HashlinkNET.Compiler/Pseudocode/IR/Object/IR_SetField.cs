@@ -7,7 +7,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Object
         IRResult obj,
         PropertyDefinition field,
         IRResult src
-        ) : IRBase(obj, src)
+        ) : IRBaseWithSideEffects(obj, src)
     {
         public readonly IRResult obj = obj;
         public readonly IRResult src = src;

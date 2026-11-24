@@ -8,7 +8,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Object
         TypeReference type,
         IRResult[] args
         )
-        : IRBase(args)
+        : IRBaseWithSideEffects(args)
     {
         public TypeReference type = type;
         public readonly IRResult[] args = args;
