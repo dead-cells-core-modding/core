@@ -20,6 +20,7 @@ namespace Hashlink.Reflection.Types
                     {
                         cachedFields[i] = GetMemberFrom<HashlinkObjectField>(TypeData->fields + i);
                         cachedFields[i].Index = i;
+                        cachedFields[i].DeclaringType = this;
                     }
                 }
                 return cachedFields;

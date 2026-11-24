@@ -55,8 +55,13 @@ namespace HaxeProxy.Runtime.Internals
                         f = ot.FindField(name) ??
                         throw new MissingFieldException(ot.Name, name);
                     }
+
+                    Debug.Assert(f.Index < t.NativeType->data.obj->rt->nfields);
                     cache.field = f.FieldType;
                     cache.offset = t.NativeType->data.obj->rt->fields_indexes[f.Index];
+
+                    Debug.Assert(cache.offset >= 0);
+                    Debug.Assert(cache.offset < HashlinkObjPtr.Get(self.HashlinkPointer).GetMemSize());
                 }
                 else if (t is HashlinkEnumType et)
                 {

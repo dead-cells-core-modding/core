@@ -11,7 +11,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
 {
     internal unsafe static class InheritanceManager
     {
-        private static readonly ReaderWriterLockSlim rwLock = new();
+        private static readonly ReaderWriterLockSlim rwLock = new(LockRecursionPolicy.SupportsRecursion);
         private static readonly Dictionary<Type, CustomHaxeType> processed = [];
 
         private static HashlinkObjectType FindHLType( Type type )

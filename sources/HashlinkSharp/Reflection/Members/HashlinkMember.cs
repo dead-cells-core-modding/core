@@ -30,7 +30,10 @@ namespace Hashlink.Reflection.Members
             }
         }
         public virtual string? Name => null;
-        public virtual HashlinkType? DeclaringType => null;
+        public virtual HashlinkType? DeclaringType
+        {
+            get; internal set;
+        }
         public HashlinkModule Module {
             get;
         }

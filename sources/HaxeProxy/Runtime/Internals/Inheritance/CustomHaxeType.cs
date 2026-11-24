@@ -3,6 +3,7 @@ using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Marshaling.ObjHandle;
 using Hashlink.Proxy;
+using Hashlink.Proxy.Clousre;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection;
 using Hashlink.Reflection.Types;
@@ -241,6 +242,10 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
             }
         }
 
+        private readonly static HashlinkClosure noCtorClosure = HashlinkMarshal.ConvertHashlinkObject<HashlinkClosure>( 
+            HashlinkObjPtr.Get(HashlinkMarshal.GetDyn((Delegate)Throw_No_Closure))
+            )!;
+
         private readonly static HashlinkObjectType ClassType = (HashlinkObjectType)HashlinkMarshal.Module.GetTypeByName("hl.Class");
         private readonly static EventReceiver er = new();
 
@@ -255,6 +260,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
         internal static readonly ConcurrentDictionary<nint, CustomHaxeType> customTypes = new();
         internal struct FakeTypeData
         {
+            public HashlinkClosure ctorClosure;
             public HashlinkObject globalValue;
             public nint globalValuePtr;
             public HashlinkDynObj meta;
@@ -274,6 +280,11 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
         public HashlinkObjectType Type {
             get; private set;
         } = null!;
+
+        private static void Throw_No_Closure()
+        {
+            throw new NotImplementedException();
+        }
 
         public CustomHaxeType( Type type, HashlinkObjectType otype )
         {
@@ -320,11 +331,32 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
             fakeTypeDataPtr = (nint)Unsafe.AsPointer(ref data);
             data.type = type;
             data.typePtr = (nint)Unsafe.AsPointer(ref data.hlType);
+            data.ctorClosure = noCtorClosure;
             nativeType = (HL_type*)data.typePtr;
 
             customTypes.TryAdd(data.typePtr, this);
 
             HashlinkObject classObj;
+
+            {
+                var defaultCtor = type.GetConstructor([]);
+                if (defaultCtor != null)
+                {
+                    var callCtor = new DynamicMethod("call_ctor+" + type.FullName, typeof(void), [ typeof(HaxeProxyBase) ]);
+                    var il = callCtor.GetILGenerator();
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Call, callCtor);
+                    il.Emit(OpCodes.Ret);
+
+                    var ctorDel = callCtor.CreateAnonymousDelegate(null);
+                    data.ctorClosure = HashlinkMarshal.ConvertHashlinkObject<HashlinkClosure>(
+                        HashlinkObjPtr.Get(HashlinkMarshal.GetDyn(ctorDel))
+                        )!;
+
+                }
+            }
+
+            Debug.Assert(data.ctorClosure != null);
 
             {
                 nint? classObjPtr = null;
@@ -371,6 +403,10 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
             data.hlObj = *srcObj;
             data.hlObj.super = src;
             data.hlObj.name = (char*)Marshal.StringToHGlobalUni(type.AssemblyQualifiedName);
+            data.hlObj.nfields = 0;
+            data.hlObj.nproto = 0;
+            data.hlObj.nbindings = 0;
+
             data.hlObj.rt = (HL_runtime_obj*)Unsafe.AsPointer(ref data.rtObj);
 
             data.rtObj = *srcRT;
@@ -393,7 +429,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
             data.globalValue = classObj;
             data.globalValue.SetFieldValue("__name__", type.AssemblyQualifiedName);
             data.globalValue.SetFieldValue("__type__", (nint)nativeType);
-            data.globalValue.SetFieldValue("__constructor__", (nint)0);
+            data.globalValue.SetFieldValue("__constructor__", data.ctorClosure);
             data.globalValue.SetFieldValue("__meta__", data.meta);
 
 

@@ -1,6 +1,7 @@
 ﻿using dc;
 using dc.h2d.col;
 using dc.hl.types;
+using dc.libs.heaps.slib;
 using dc.pr;
 using dc.tool;
 using Hashlink;
@@ -37,6 +38,18 @@ namespace TestRunner
 
             Assert.Equal(1d, p.x);
 
+            var test_obj = new dc.ui.hud.LifeBar();
+            var test_hobj = ((HashlinkObject)test_obj.HashlinkObj);
+            var test_sb = new HSpriteBatch();
+            var test_sb2 = new HSpriteBatch();
+
+            test_obj.sb = test_sb;
+
+            Assert.Equal(test_sb, test_obj.sb);
+            Assert.Equal(test_sb, (HSpriteBatch)(dynamic)test_hobj.GetFieldValue("sb")!);
+
+            test_hobj.SetFieldValue("sb", test_sb2);
+            Assert.Equal(test_sb2, test_obj.sb);
 
         }
 

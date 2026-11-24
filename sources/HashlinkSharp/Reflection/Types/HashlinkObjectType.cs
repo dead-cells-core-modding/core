@@ -39,6 +39,7 @@ namespace Hashlink.Reflection.Types
                     for (int i = 0; i < TypeData->nproto; i++)
                     {
                         protos[i] = GetMemberFrom<HashlinkObjectProto>(TypeData->proto + i);
+                        protos[i].DeclaringType = this;
                     }
 
                     protos = Interlocked.CompareExchange(ref cachedProtos, protos, null) ?? protos;
@@ -54,7 +55,10 @@ namespace Hashlink.Reflection.Types
                     bindings = new HashlinkObjectBinding[TypeData->nbindings];
                     for (int i = 0; i < TypeData->nbindings; i++)
                     {
-                        bindings[i] = new(Module, TypeData->bindings + i * 2, this);
+                        bindings[i] = new(Module, TypeData->bindings + i * 2, this)
+                        {
+                            DeclaringType = this
+                        };
                     }
 
                     bindings = Interlocked.CompareExchange(ref cachedBindings, bindings, null) ?? bindings;
@@ -73,6 +77,7 @@ namespace Hashlink.Reflection.Types
                     {
                         fields[i] = GetMemberFrom<HashlinkObjectField>(TypeData->fields + i);
                         fields[i].Index = (Super?.TotalFieldsCount ?? 0) + i;
+                        fields[i].DeclaringType = this;
                     }
 
                     fields = Interlocked.CompareExchange(ref cachedFields, fields, null) ?? fields;
