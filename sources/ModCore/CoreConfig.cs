@@ -20,5 +20,6 @@ namespace ModCore
         public bool SkipLogoSplash { get; set; } = false;
         public bool EnableMesaD3D12 { get; set; } = false;
         public bool DontStartAsDeadCells { get; set; } = false;
+        public bool UseOldSFX { get; set; } = true;
     }
 }

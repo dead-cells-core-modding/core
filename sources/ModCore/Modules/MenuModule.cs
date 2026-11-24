@@ -49,18 +49,22 @@ namespace ModCore.Modules
         /// <summary>
         /// Gets the options section associated with the main menu of the DCCM.
         /// </summary>
-        public OptionsSection DCCMMainMenu {
-            get {
+        public OptionsSection DCCMMainMenu
+        {
+            get
+            {
                 return GetCustomMenu(_mainMenu);
             }
         }
 
         private class CustomMenu : OptionsSection.S_Main
         {
-            public OptionsSection? PrevSection {
+            public OptionsSection? PrevSection
+            {
                 get; set;
             }
-            public required IModMenu MenuMod {
+            public required IModMenu MenuMod
+            {
                 get; init;
             }
 
@@ -109,13 +113,13 @@ namespace ModCore.Modules
 
                 var w = options.addSimpleWidget(GetString("About Core Modding"),
                     $"DCCM Version: {Core.Version}".AsHaxeString(), () =>
-                {
-                    OpenURL("https://dead-cells-core-modding.github.io/docs/docs/");
-                }, Ref<int>.In(5), flow);
+                    {
+                        OpenURL("https://dead-cells-core-modding.github.io/docs/docs/");
+                    }, Ref<int>.In(5), flow);
 
                 w.set_horizontalAlign(new FlowAlign.Right());
 
-               
+
 
                 options.addSimpleWidget(GetString("Generate Crash Log"), "Crash!".AsHaxeString(),
                     () =>
@@ -124,18 +128,26 @@ namespace ModCore.Modules
 
                         unsafe
                         {
-                            ((delegate*<void>)0x1145)();
+                            ((delegate*< void >)0x1145)();
                         }
 
                     }, Ref<int>.In(5), flow);
 
-                options.addToggleWidget(GetString("Enable Mesa D3D12"), 
+                options.addToggleWidget(GetString("Enable Mesa D3D12"),
                     GetString("Use D3D12 as the rendering backend to avoid certain issues caused by OpenGL"), () =>
-                {
-                    Core.Config.Value.EnableMesaD3D12 = !Core.Config.Value.EnableMesaD3D12;
-                    Core.Config.Save();
-                    return Core.Config.Value.EnableMesaD3D12;
-                }, Ref<bool>.In(Core.Config.Value.EnableMesaD3D12), flow);
+                    {
+                        Core.Config.Value.EnableMesaD3D12 = !Core.Config.Value.EnableMesaD3D12;
+                        Core.Config.Save();
+                        return Core.Config.Value.EnableMesaD3D12;
+                    }, Ref<bool>.In(Core.Config.Value.EnableMesaD3D12), flow);
+
+                options.addToggleWidget(GetString("Using legacy game audio effects"),
+                    GetString("Takes effect after restarting the game"), () =>
+                    {
+                        Core.Config.Value.UseOldSFX = !Core.Config.Value.UseOldSFX;
+                        Core.Config.Save();
+                        return Core.Config.Value.UseOldSFX;
+                    }, Ref<bool>.In(Core.Config.Value.UseOldSFX), flow);
 
                 options.addToggleWidget(GetString("Skip the splash logo"),
                     GetString(""), () =>
@@ -150,9 +162,9 @@ namespace ModCore.Modules
                 {
                     options.addSimpleWidget(GetString("Get mods"),
                     GetString("Get mods from the Steam Workshop"), () =>
-                   {
-                       OpenURL("https://steamcommunity.com/workshop/browse/?appid=588650&searchtext=%5BDCCM%5D");
-                   }, Ref<int>.In(5), flow);
+                    {
+                        OpenURL("https://steamcommunity.com/workshop/browse/?appid=588650&searchtext=%5BDCCM%5D");
+                    }, Ref<int>.In(5), flow);
 
                     var disabledMAPI = ((EItemState)SteamUGC.GetItemState(new(MAPI_PFID))).HasFlag(EItemState.k_EItemStateDisabledLocally);
 
@@ -340,10 +352,10 @@ namespace ModCore.Modules
                     self.addSeparator("".AsHaxeString(), self.scrollerFlow);
                 }
 
-                self.addToggleWidget(mod.GetDisplayName().AsHaxeString(), "".AsHaxeString(), () => true, Ref<bool>.In(true), 
+                self.addToggleWidget(mod.GetDisplayName().AsHaxeString(), "".AsHaxeString(), () => true, Ref<bool>.In(true),
                     self.scrollerFlow);
             }
-            
+
         }
         private void Hook_Options_showMain( Hook_Options.orig_showMain orig, Options self )
         {
@@ -389,7 +401,7 @@ namespace ModCore.Modules
 
             text.set_textAlign(new Align.Center());
 
-            var options = (ArrayObj) ((dynamic)pause).options;
+            var options = (ArrayObj)((dynamic)pause).options;
             var botMenu = (Flow)((dynamic)pause).botMenu;
 
             Interactive? templateInteractive = null;
@@ -401,8 +413,8 @@ namespace ModCore.Modules
                 {
                     continue;
                 }
-                
-                if(inter.onClick != null && inter.onOver != null)
+
+                if (inter.onClick != null && inter.onOver != null)
                 {
                     var clickCL = (HashlinkClosure)((dynamic)inter.HashlinkObj).onClick;
 
@@ -438,23 +450,23 @@ namespace ModCore.Modules
             {
                 interactive.onClick = templateInteractive.onClick;
 
-                static HashlinkClosure NewArrowClosure(HashlinkClosure cl, virtual_cb_inter_t_ entry)
+                static HashlinkClosure NewArrowClosure( HashlinkClosure cl, virtual_cb_inter_t_ entry )
                 {
                     Debug.Assert(cl.BindingThis != null);
 
-                    var arrowCtx = (HashlinkEnum) cl.BindingThis;
+                    var arrowCtx = (HashlinkEnum)cl.BindingThis;
 
-                    var newCtx = new HashlinkEnum((HashlinkEnumType) arrowCtx.Type, 0);
+                    var newCtx = new HashlinkEnum((HashlinkEnumType)arrowCtx.Type, 0);
                     newCtx[0] = arrowCtx[0];
                     newCtx[1] = entry;
-                    return new HashlinkClosure((HashlinkFuncType) cl.Type, cl.FunctionPtr, newCtx.HashlinkPointer);
+                    return new HashlinkClosure((HashlinkFuncType)cl.Type, cl.FunctionPtr, newCtx.HashlinkPointer);
                 }
 
                 //Unsafe
                 interactive.onOver = (dynamic)NewArrowClosure((HashlinkClosure)((dynamic)templateInteractive.HashlinkObj).onOver, entry);
             }
 
-           
+
 
             botMenu.addChildAt(text, index + 1);
             options.insertDyn(index, entry);

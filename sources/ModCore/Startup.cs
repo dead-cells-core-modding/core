@@ -47,7 +47,8 @@ namespace ModCore
 
         private static bool ShouldStartAsDeadCells()
         {
-            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DCCM_DONT_START_AS_DEAD_CELLS")))
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DCCM_DONT_START_AS_DEAD_CELLS")) ||
+                Debugger.IsAttached)
             {
                 return false;
             }
