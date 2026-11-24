@@ -1,7 +1,9 @@
 using Hashlink.Marshaling;
 using Hashlink.Reflection.Types;
+using Hashlink.Reflection.Types.Special;
 using Hashlink.UnsafeUtilities;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -49,7 +51,6 @@ namespace Hashlink.Wrapper
             var targs = new Type[args.Length + 1];
             var dargs = new Type[args.Length];
 
-            List<(int, LocalBuilder)>? objRefs = null;
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -74,32 +75,25 @@ namespace Hashlink.Wrapper
                 ilg.Emit(OpCodes.Ldarg, i + 1);
                 if (t is HashlinkRefType rt)
                 {
-                    if (!rt.RefType.TypeKind.IsValueType())
-                    {
-                        objRefs ??= [];
-                        var l = ilg.DeclareLocal(typeof(nint));
+                    Debug.Assert(rt.RefType.TypeKind.IsValueType());
 
-                        ilg.Emit(OpCodes.Ldind_I);
+                    var l = ilg.DeclareLocal(typeof(void*), true);
+                    ilg.Emit(OpCodes.Stloc, l);
+                    ilg.Emit(OpCodes.Ldloc, l);
 
-                        ilg.Emit(OpCodes.Ldc_I4, t.TypeIndex);
-                        ilg.Emit(OpCodes.Call, MI_WrapperHelper_AsPointer);
-                        ilg.Emit(OpCodes.Stloc, l);
-                        ilg.Emit(OpCodes.Ldloca, l);
-                        objRefs.Add((i + 1, l));
-                    }
-                    else
-                    {
-                        var l = ilg.DeclareLocal(typeof(void*), true);
-                        ilg.Emit(OpCodes.Stloc, l);
-                        ilg.Emit(OpCodes.Ldloc, l);
-                    }
                 }
                 else if (!k.IsValueType())
                 {
+                    if (k == TypeKind.HNULL)
+                    {
+                        ilg.Emit(OpCodes.Box, typeof(Nullable<>).MakeGenericType(
+                            GetManageType(((HashlinkNullType)t).ValueType.TypeKind)
+                            ));
+                    }
                     ilg.Emit(OpCodes.Ldc_I4, t.TypeIndex);
                     ilg.Emit(OpCodes.Call, MI_WrapperHelper_AsPointer);
                 }
-                else if(k == TypeKind.HBOOL)
+                else if (k == TypeKind.HBOOL)
                 {
                     ilg.Emit(OpCodes.Call, MI_CheckBool);
                 }
@@ -122,17 +116,6 @@ namespace Hashlink.Wrapper
 
             ilg.Emit(OpCodes.Ldloca, loc_eh);
             ilg.Emit(OpCodes.Call, MI_WrapperHelper_UnInitErrorHandler);
-
-            if (objRefs != null)
-            {
-                foreach ((var pid, var loc) in objRefs)
-                {
-                    ilg.Emit(OpCodes.Ldarg, pid);
-                    ilg.Emit(OpCodes.Ldloc, loc);
-                    ilg.Emit(OpCodes.Call, MI_WrapperHelper_GetObjectFromPtr);
-                    ilg.Emit(OpCodes.Stind_I);
-                }
-            }
 
             if (!func.ReturnType.TypeKind.IsValueType())
             {

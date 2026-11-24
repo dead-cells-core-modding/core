@@ -60,32 +60,46 @@ namespace HaxeProxy.Runtime.Internals
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
+        public static T? CastSafe<T>( object? obj ) where T : class
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+            if (obj is T r)
+            {
+                return r;
+            }
+            if (typeof(T).IsAssignableTo(typeof(HaxeVirtual)))
+            {
+                return (object)((HaxeProxyBase)HaxeProxyHelper.GetProxy<T>(obj)).ToVirtual(typeof(T)) as T;
+            }
+            if (typeof(T).IsAssignableTo(typeof(HaxeProxyBase)))
+            {
+                if (obj is HaxeVirtual virt)
+                {
+                    return virt.AsObject() as T;
+                }
+                if (obj is HashlinkObj ho)
+                {
+                    return ho.AsHaxe() as T;
+                }
+            }
+            return (T)(dynamic)obj;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static T? Cast<T>( object? obj ) where T : class
         {
             if (obj == null)
             {
                 return null;
             }
-            if (typeof(T).IsAssignableTo(typeof(HaxeVirtual)))
-            {
-                return (T)(object)((HaxeProxyBase)HaxeProxyHelper.GetProxy<T>(obj)).ToVirtual(typeof(T));
-            }
             if (obj is T r)
             {
                 return r;
             }
-            if (typeof(T).IsAssignableTo(typeof(HaxeProxyBase)))
-            {
-                if (obj is HaxeProxyBase)
-                {
-                    return (T)obj;
-                }
-                if (obj is HashlinkObj ho)
-                {
-                    return (T)(object)ho.AsHaxe();
-                }
-            }
-            return (T)(dynamic)obj;
+            return CastSafe<T>(obj) ?? throw new InvalidCastException($"Unable to cast {obj.GetType().FullName} to {typeof(T).FullName}");
         }
 
         public static Exception WrapException( object? value )

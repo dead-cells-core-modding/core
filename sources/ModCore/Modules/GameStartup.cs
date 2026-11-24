@@ -1,8 +1,8 @@
+
 using dc;
-using dc.haxe.format;
 using dc.hxd;
 using dc.pr;
-using dc.tool.utils;
+using dc.ui;
 using Hashlink.Marshaling;
 using Hashlink.Proxy.Clousre;
 using HaxeProxy.Runtime;
@@ -13,9 +13,45 @@ namespace ModCore.Modules
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal | CoreModuleAttribute.CoreModuleKind.Important)]
     internal unsafe class GameStartup : CoreModule<GameStartup>, IOnNativeEvent
     {
+        private void BakeCode()
+        {
+            List<System.Type> types = [
+                typeof(_Boot),
+                typeof(Boot),
+                typeof(App),
+                typeof(_App),
+                typeof(Main),
+                typeof(_Main),
+                typeof(TitleScreen),
+                typeof(_TitleScreen),
+                typeof(dc.hxd.fmt.pak.FileSystem),
+                typeof(dc.hxd.fmt.pak._FileSystem),
+                typeof(_Sys),
+                ];
+
+            //foreach (var t in typeof(_Boot).Assembly.GetTypes())
+            //{
+            //    if (t.IsAssignableTo(typeof(HaxeObject)))
+            //    {
+            //        types.Add(t);
+            //    }
+            //}
+
+            Logger.Information("Cook types: {num}", types.Count);
+
+            foreach (var t in types)
+            {
+                HaxeProxyUtils.UseCSharpVersionCode(t, false);
+            }
+
+            Logger.Information("Cook types finished!");
+        }
+
         private void StartGame()
         {
             HashlinkMarshal.EnsureThreadRegistered();
+
+//BakeCode();
 
             var entry = (HashlinkClosure)HashlinkMarshal.ConvertHashlinkObject(
                     &HashlinkVM.Instance.Context->c
@@ -37,7 +73,7 @@ namespace ModCore.Modules
                 catch (Exception ex)
                 {
                     Logger.Fatal(ex, "Fatal Error");
-                    Console.Error.WriteLine("[DCCM_FORCE_SHOW_ERROR_REPORT]");
+                    System.Console.Error.WriteLine("[DCCM_FORCE_SHOW_ERROR_REPORT]");
                     Environment.Exit(-1);
                     throw;
                 }

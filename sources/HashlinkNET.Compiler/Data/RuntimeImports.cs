@@ -101,6 +101,7 @@ namespace HashlinkNET.Compiler.Data
         public MethodReference phAsHaxeString;
         public MethodReference phAsHaxeStringPtr;
         public MethodReference phCast;
+        public MethodReference phCastSafe;
         public MethodReference phCompare;
 
         public MethodReference arrayGetItem;

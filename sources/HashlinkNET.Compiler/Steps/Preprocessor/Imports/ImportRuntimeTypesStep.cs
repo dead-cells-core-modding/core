@@ -71,6 +71,7 @@ namespace HashlinkNET.Compiler.Steps.Preprocessor.Imports
             rdata.phDynSetMethod = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.DynSet));
             rdata.phSetGlobal = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.SetGlobal));
             rdata.phCast = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.Cast));
+            rdata.phCastSafe = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.CastSafe));
             rdata.phCompare = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.Compare));
 
             rdata.phWrapException = ImportPseudocodeHelperMethod(nameof(PseudocodeHelper.WrapException));

@@ -83,7 +83,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             if (safe && !st.IsValueType && !type.IsValueType
                 && !st.IsByReference && !type.IsByReference)
             {
-                il.Emit(OpCodes.Isinst, type);
+                il.Emit(OpCodes.Call, ctx.RuntimeImports.phCastSafe.MakeInstance(type));
                 return type;
             }
 

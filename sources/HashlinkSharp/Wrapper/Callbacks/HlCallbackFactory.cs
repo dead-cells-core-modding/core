@@ -1,7 +1,9 @@
 using Hashlink.Marshaling;
 using Hashlink.Reflection.Types;
+using Hashlink.Reflection.Types.Special;
 using Hashlink.UnsafeUtilities;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
@@ -52,8 +54,6 @@ namespace Hashlink.Wrapper.Callbacks
 
             var targs = new Type[args.Length + 1];
             var dargs = new Type[args.Length];
-
-            List<(int pid, LocalBuilder loc, int tid)>? objRefs = null;
 
             targs[0] = typeof(HlCallbackInfo);
 
@@ -110,17 +110,7 @@ namespace Hashlink.Wrapper.Callbacks
                 var k = args[i].TypeKind;
                 if (args[i] is HashlinkRefType rtype)
                 {
-                    if (!rtype.RefType.IsValueType)
-                    {
-                        objRefs ??= [];
-                        var l = ilg.DeclareLocal(typeof(object));
-                        ilg.Emit(OpCodes.Ldind_I);
-
-                        ilg.Emit(OpCodes.Call, MI_WrapperHelper_GetObjectFromPtr);
-                        ilg.Emit(OpCodes.Stloc, l);
-                        ilg.Emit(OpCodes.Ldloca, l);
-                        objRefs.Add((i + 1, l, rtype.TypeIndex));
-                    }
+                    Debug.Assert(rtype.RefType.IsValueType);
                 }
                 else if (!k.IsValueType())
                 {
@@ -144,22 +134,16 @@ namespace Hashlink.Wrapper.Callbacks
             ilg.EmitCalli(OpCodes.Calli, CallingConventions.HasThis,
                 GetManageType(sign.ReturnType.TypeKind), dargs, null);
 
-            if (objRefs != null)
-            {
-                foreach ((var pid, var loc, var tid) in objRefs)
-                {
-                    ilg.Emit(OpCodes.Ldarg, pid);
-                    ilg.Emit(OpCodes.Ldloc, loc);
-                    ilg.Emit(OpCodes.Ldc_I4, tid);
-                    ilg.Emit(OpCodes.Call, MI_WrapperHelper_AsPointer);
-                    ilg.Emit(OpCodes.Stind_I);
-                }
-            }
-
             if (resultLoc != null)
             {
                 if (!sign.ReturnType.IsValueType)
                 {
+                    if (sign.ReturnType is HashlinkNullType nullType)
+                    {
+                        ilg.Emit(OpCodes.Box, typeof(Nullable<>).MakeGenericType(
+                            GetManageType(nullType.ValueType.TypeKind)
+                            ));
+                    }
                     ilg.Emit(OpCodes.Ldc_I4, sign.ReturnType.TypeIndex);
                     ilg.Emit(OpCodes.Call, MI_WrapperHelper_AsPointer);
                 }

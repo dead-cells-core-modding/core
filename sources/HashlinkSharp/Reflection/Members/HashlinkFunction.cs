@@ -76,7 +76,7 @@ namespace Hashlink.Reflection.Members
                     ..m.GetParameters().Select(x => x.ParameterType)]);
                 var il = dm.GetILGenerator();
 
-                il.Emit(OpCodes.Ldc_I4, FunctionIndex);
+                il.Emit(OpCodes.Ldc_I4, FunctionIndex + 1);
                 il.Emit(OpCodes.Stsfld, f_next_call_origin_function);
                 for (int i = 0; i < pc; i++)
                 {
@@ -90,13 +90,13 @@ namespace Hashlink.Reflection.Members
             }
             else
             {
-                if (!m.IsStatic && m.DeclaringType != null)
+                if (m.IsStatic)
                 {
                     var pc = m.GetParameters().Length;
                     DynamicMethod dm = new("dotnet_compiled_bridge", m.ReturnType, [..m.GetParameters().Select(x => x.ParameterType)]);
                     var il = dm.GetILGenerator();
 
-                    il.Emit(OpCodes.Ldc_I4, FunctionIndex);
+                    il.Emit(OpCodes.Ldc_I4, FunctionIndex + 1);
                     il.Emit(OpCodes.Stsfld, f_next_call_origin_function);
                     for (int i = 0; i < pc; i++)
                     {

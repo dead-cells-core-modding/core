@@ -60,8 +60,10 @@ namespace HaxeProxy.Runtime.Internals
                     cache.field = f.FieldType;
                     cache.offset = t.NativeType->data.obj->rt->fields_indexes[f.Index];
 
+                    var memsize = HashlinkObjPtr.Get(self.HashlinkPointer).GetMemSize();
+
                     Debug.Assert(cache.offset >= 0);
-                    Debug.Assert(cache.offset < HashlinkObjPtr.Get(self.HashlinkPointer).GetMemSize());
+                    Debug.Assert(memsize == -1 || cache.offset < memsize);
                 }
                 else if (t is HashlinkEnumType et)
                 {
@@ -242,7 +244,7 @@ namespace HaxeProxy.Runtime.Internals
                 if (cache.function.IsDotnetCompiled &&
                     HaxeProxyManager.function_is_hooked_mark[findex])
                 {
-                    if (HaxeProxyManager.next_call_origin_function - 1 != findex)
+                    if (HaxeProxyManager.next_call_origin_function - 1 == findex)
                     {
                         return null;
                     }

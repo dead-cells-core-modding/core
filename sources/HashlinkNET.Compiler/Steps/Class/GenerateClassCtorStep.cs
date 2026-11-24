@@ -27,6 +27,29 @@ namespace HashlinkNET.Compiler.Steps.Class
             il.Emit(OpCodes.Ldc_I4, type.TypeIndex);
             il.Emit(OpCodes.Call, rdata.hCreateInstance);
             il.Emit(OpCodes.Call, rdata.objBaseCtorMethod);
+
+            while (true)
+            {
+                var tglobal = info.GlobalHlType;
+                if (tglobal == null)
+                {
+                    break;
+                }
+                var tglobal_info = container.GetData<ObjClassData>(tglobal)!;
+                if (tglobal_info.InstanceCtor == null)
+                {
+                    break;
+                }
+                var realCtor = container.GetData<MethodDefinition>(tglobal_info.InstanceCtor);
+                if (realCtor == null || realCtor.Parameters.Count != 1)
+                {
+                    break;
+                }
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Call, realCtor);
+                break;
+            }
+
             il.Emit(OpCodes.Ret);
 
             // Additional constructor overload mirroring __inst_construct__,
