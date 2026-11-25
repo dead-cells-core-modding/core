@@ -82,6 +82,7 @@ namespace Hashlink
                 var val = *(nint*)bottom;
                 if (val <= ptr)
                 {
+                    NativeData.hl2cs_return_pointers = bottom;
                     return;
                 }
                 if (val == 0 || val == 1)

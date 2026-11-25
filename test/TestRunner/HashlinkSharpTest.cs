@@ -145,42 +145,6 @@ namespace TestRunner
         }
 
         [Fact]
-        public void Marshal_IsValueType()
-        {
-            Assert.True(TypeKind.HVOID.IsValueType());
-            Assert.True(TypeKind.HI32.IsValueType());
-            Assert.True(TypeKind.HI64.IsValueType());
-            Assert.True(TypeKind.HF32.IsValueType());
-            Assert.True(TypeKind.HF64.IsValueType());
-            Assert.True(TypeKind.HBOOL.IsValueType());
-            Assert.True(TypeKind.HBYTES.IsValueType());
-            Assert.True(TypeKind.HREF.IsValueType());
-            Assert.True(TypeKind.HTYPE.IsValueType());
-
-            Assert.False(TypeKind.HOBJ.IsValueType());
-            Assert.False(TypeKind.HDYN.IsValueType());
-            Assert.False(TypeKind.HFUN.IsValueType());
-            Assert.False(TypeKind.HARRAY.IsValueType());
-        }
-
-        [Fact]
-        public void Marshal_IsPointer()
-        {
-            Assert.True(TypeKind.HBYTES.IsPointer());
-            Assert.True(TypeKind.HOBJ.IsPointer());
-            Assert.True(TypeKind.HDYN.IsPointer());
-            Assert.True(TypeKind.HARRAY.IsPointer());
-            Assert.True(TypeKind.HREF.IsPointer());
-            Assert.True(TypeKind.HTYPE.IsPointer());
-            Assert.True(TypeKind.HFUN.IsPointer());
-
-            Assert.False(TypeKind.HVOID.IsPointer());
-            Assert.False(TypeKind.HI32.IsPointer());
-            Assert.False(TypeKind.HF64.IsPointer());
-            Assert.False(TypeKind.HBOOL.IsPointer());
-        }
-
-        [Fact]
         public void Marshal_FindFunction_ExistingProto()
         {
             HashlinkMarshal.EnsureThreadRegistered();

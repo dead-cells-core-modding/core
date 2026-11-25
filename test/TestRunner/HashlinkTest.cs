@@ -131,7 +131,7 @@ namespace TestRunner
                 HashlinkMarshal.WriteData(&tptr, () =>
                 {
                     run = true;
-                }, null);
+                }, HashlinkMarshal.Module.KnownTypes.Dynamic);
 
                 var cl2 = new HashlinkClosure(HashlinkObjPtr.Get(tptr));
                 cl2.DynamicInvoke();
@@ -142,7 +142,7 @@ namespace TestRunner
                 {
                     run = a;
                     return 2;
-                }, null);
+                }, HashlinkMarshal.Module.KnownTypes.Dynamic);
 
                 cl2 = new HashlinkClosure(HashlinkObjPtr.Get(tptr));
                 var r = cl2.DynamicInvoke(false);

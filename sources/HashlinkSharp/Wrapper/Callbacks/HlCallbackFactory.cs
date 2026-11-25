@@ -124,12 +124,6 @@ namespace Hashlink.Wrapper.Callbacks
             {
                 if (sign.ReturnType.TypeKind.IsManagedPointer())
                 {
-                    if (sign.ReturnType is HashlinkNullType nullType)
-                    {
-                        ilg.Emit(OpCodes.Box, typeof(Nullable<>).MakeGenericType(
-                            GetManageType(nullType.ValueType.TypeKind)
-                            ));
-                    }
                     ilg.Emit(OpCodes.Ldc_I4, sign.ReturnType.TypeIndex);
                     ilg.Emit(OpCodes.Call, MI_WrapperHelper_AsPointer);
                 }

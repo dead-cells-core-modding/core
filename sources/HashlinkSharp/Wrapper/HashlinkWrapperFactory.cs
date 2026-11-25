@@ -96,12 +96,6 @@ namespace Hashlink.Wrapper
                 }
                 else if (k.IsManagedPointer())
                 {
-                    if (k == TypeKind.HNULL)
-                    {
-                        ilg.Emit(OpCodes.Box, typeof(Nullable<>).MakeGenericType(
-                            GetManageType(((HashlinkNullType)t).ValueType.TypeKind)
-                            ));
-                    }
                     ilg.Emit(OpCodes.Ldc_I4, t.TypeIndex);
                     ilg.Emit(OpCodes.Call, MI_WrapperHelper_AsPointer);
                 }
