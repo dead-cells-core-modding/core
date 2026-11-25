@@ -271,27 +271,7 @@ namespace TestRunner
             Assert.Equal(TypeKind.HOBJ, m.GetTypeByName("String").TypeKind);
         }
 
-        [Fact]
-        public void Type_IsProperties()
-        {
-            HashlinkMarshal.EnsureThreadRegistered();
-            var m = HashlinkMarshal.Module;
-
-            var i32 = m.GetTypeByName("i32");
-            Assert.True(i32.IsValueType);
-            Assert.False(i32.IsPointer);
-            Assert.False(i32.IsObject);
-            Assert.False(i32.IsVirtual);
-            Assert.False(i32.IsEnum);
-            Assert.False(i32.IsArray);
-            Assert.False(i32.IsDyn);
-
-            var objType = m.GetTypeByName("String");
-            Assert.True(objType.IsObject);
-            Assert.True(objType.IsPointer);
-            Assert.False(objType.IsValueType);
-            Assert.False(objType.IsEnum);
-        }
+       
 
         [Fact]
         public void Type_SizeOf_Primitives()
@@ -1218,49 +1198,6 @@ namespace TestRunner
             var logGlobal = HashlinkMarshal.GetGlobal("haxe.Log");
             Assert.NotNull(logGlobal);
             Assert.True(logGlobal.IsValid);
-        }
-
-        // =========================================================================
-        // HashlinkType Edge Case Tests
-        // =========================================================================
-
-        [Fact]
-        public void Type_IsEnum()
-        {
-            HashlinkMarshal.EnsureThreadRegistered();
-
-            var et = HashlinkMarshal.Module.GetTypeByName("enum<AffectKeepChoice>");
-            Assert.True(et.IsEnum);
-            Assert.False(et.IsObject);
-            Assert.False(et.IsVirtual);
-        }
-
-        [Fact]
-        public void Type_IsAbstract()
-        {
-            HashlinkMarshal.EnsureThreadRegistered();
-
-            // Test that the property doesn't throw on various types
-            var i32Type = HashlinkMarshal.Module.GetTypeByName("i32");
-            Assert.False(i32Type.IsAbstract);
-        }
-
-        [Fact]
-        public void Type_IsRef()
-        {
-            HashlinkMarshal.EnsureThreadRegistered();
-
-            var i32Type = HashlinkMarshal.Module.GetTypeByName("i32");
-            Assert.False(i32Type.IsRef);
-        }
-
-        [Fact]
-        public void Type_IsNull()
-        {
-            HashlinkMarshal.EnsureThreadRegistered();
-
-            var i32Type = HashlinkMarshal.Module.GetTypeByName("i32");
-            Assert.False(i32Type.IsNull);
         }
 
         // =========================================================================

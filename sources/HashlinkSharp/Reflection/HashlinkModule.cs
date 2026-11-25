@@ -118,6 +118,11 @@ namespace Hashlink.Reflection
             for (int i = 0; i < NativeCode->ntypes; i++)
             {
                 var type = GetMemberFrom<HashlinkType>(NativeCode->types + i);
+
+                //Debug.Assert(type.TypeKind != TypeKind.HMETHOD);
+                Debug.Assert(type.TypeKind != TypeKind.HPACKED);
+                Debug.Assert(type.TypeKind != TypeKind.HGUID);
+
                 Types[i] = type;
                 type.TypeIndex = i;
                 if (type.Name != null)

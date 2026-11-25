@@ -16,6 +16,7 @@ using Hashlink.Marshaling;
 using Hashlink.Proxy.Objects;
 using Hashlink.Reflection.Types;
 using Hashlink.Virtuals;
+using HashlinkNET.Native.Impl;
 using HaxeProxy.Events;
 using HaxeProxy.Runtime;
 using HaxeProxy.Runtime.Internals.Inheritance;
@@ -340,8 +341,11 @@ namespace ModCore.Modules
 
         private void Hook_Boot_mainLoop( Hook_Boot.orig_mainLoop orig, Boot self )
         {
+            Debug.Assert(self.frameProfiler != null);
+            
             try
             {
+                //
                 SynchronizationContext.SetSynchronizationContext(SynchronizationContext);
                 FlushSyncTasks();
                 orig(self);
@@ -455,7 +459,7 @@ namespace ModCore.Modules
                     Logger.Warning(ex, "Failed to initialize SteamPlatformModule");
                 }
             }
-
+ 
             EventSystem.BroadcastEvent<IOnBeforeGameInit>();
             orig();
         }

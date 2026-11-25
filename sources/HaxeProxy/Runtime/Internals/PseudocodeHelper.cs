@@ -72,7 +72,7 @@ namespace HaxeProxy.Runtime.Internals
             }
             if (typeof(T).IsAssignableTo(typeof(HaxeVirtual)))
             {
-                return (object)((HaxeProxyBase)HaxeProxyHelper.GetProxy<T>(obj)).ToVirtual(typeof(T)) as T;
+                return ((HaxeProxyBase)HaxeProxyHelper.GetProxy<T>(obj))?.ToVirtual(typeof(T)) as T;
             }
             if (typeof(T).IsAssignableTo(typeof(HaxeProxyBase)))
             {

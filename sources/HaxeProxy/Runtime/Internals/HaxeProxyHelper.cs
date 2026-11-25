@@ -85,6 +85,7 @@ namespace HaxeProxy.Runtime.Internals
         public static object? GetFieldById<T>( HaxeProxyBase self, string name, ref ObjFieldInfoCache cache )
             where T : class
         {
+            Debug.Assert(self.GetType() != null);
             if (string.IsNullOrEmpty(name))
             {
                 return null;
@@ -92,10 +93,11 @@ namespace HaxeProxy.Runtime.Internals
             EnsureFieldInfo(self, name, ref cache);
             if (cache.offset == 0)
             {
-                return GetProxy<T>(
+                return (T?) GetProxy<T>(
                     ((IHashlinkFieldObject)self.HashlinkObj).GetFieldValue(name)
                     );
             }
+            Debug.Assert(cache.field != null);
             var result = HashlinkMarshal.ReadData((void*)(self.HashlinkPointer + cache.offset),
                 cache.field);
 
@@ -106,12 +108,13 @@ namespace HaxeProxy.Runtime.Internals
                 return ctorClosure.NoClosure;
             }
 
-            return GetProxy<T>(result);
+            return (T?) GetProxy<T>(result);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetValueFieldById<T>( HaxeProxyBase self, string name, ref ObjFieldInfoCache cache )
             where T : unmanaged
         {
+            Debug.Assert(self.GetType() != null);
             if (string.IsNullOrEmpty(name))
             {
                 return default;
@@ -126,12 +129,16 @@ namespace HaxeProxy.Runtime.Internals
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetFieldById( HaxeProxyBase self, object? value, string name, ref ObjFieldInfoCache cache )
         {
+            Debug.Assert(self.GetType() != null);
+            Debug.Assert(value == null || value?.GetType() != null);
+
             EnsureFieldInfo(self, name, ref cache);
             if (cache.offset == 0)
             {
                 ((IHashlinkFieldObject)self.HashlinkObj).SetFieldValue(name, value);
                 return;
             }
+            Debug.Assert(cache.field != null);
             HashlinkMarshal.WriteData((void*)(self.HashlinkPointer + cache.offset),
                 value, cache.field);
         }
@@ -139,6 +146,7 @@ namespace HaxeProxy.Runtime.Internals
         public static void SetValueFieldById<T>( HaxeProxyBase self, T value, string name, ref ObjFieldInfoCache cache )
             where T : unmanaged
         {
+            Debug.Assert(self.GetType() != null);
             EnsureFieldInfo(self, name, ref cache);
             if (cache.offset == 0)
             {
@@ -166,22 +174,26 @@ namespace HaxeProxy.Runtime.Internals
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T ToObject<T>( HaxeProxyBase val ) where T : HaxeObject
         {
+            Debug.Assert(val.GetType() != null);
             return val.AsObject<T>();
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T ToVirtual<T>( HaxeProxyBase val ) where T : HaxeVirtual
         {
+            Debug.Assert(val.GetType() != null);
             return ((IExtraData)val).GetData<VirtualCastCache<T>>().Value;
         }
         [return: NotNullIfNotNull(nameof(val))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetProxy<T>( object? val )
         {
-
             if (val == null)
             {
                 return null;
             }
+
+            Debug.Assert(val.GetType() != null);
+
             if (val is T && typeof(T) != typeof(object))
             {
                 return val;
@@ -201,15 +213,11 @@ namespace HaxeProxy.Runtime.Internals
                     return closure.CreateDelegate(typeof(T));
                 }
             }
-            if (val is HashlinkDynObj dyn)
-            {
-                return dyn.AsDynamic();
-            }
             if (val is IExtraData ied)
             {
                 return ied.GetData<HaxeProxyBase>();
             }
-            return val;
+            return (T)val;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -238,31 +246,27 @@ namespace HaxeProxy.Runtime.Internals
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DelegateInfo? GetCallInfoById( int findex, ref FunctionInfoCache cache )
         {
-            if (cache.function != null)
-            {
-                Debug.Assert(HaxeProxyManager.function_is_hooked_mark != null);
-                if (cache.function.IsDotnetCompiled &&
-                    HaxeProxyManager.function_is_hooked_mark[findex])
-                {
-                    if (HaxeProxyManager.next_call_origin_function - 1 == findex)
-                    {
-                        return null;
-                    }
-                    HaxeProxyManager.next_call_origin_function = 0;
-                }
-            }
-            if (cache.directEntry != null)
-            {
-                return cache.directEntry;
-            }
             if (cache.function == null)
             {
                 cache.function = (HashlinkFunction)HashlinkMarshal.Module.GetFunctionByFIndex(findex);
+            }
 
-                if (cache.function.IsDotnetCompiled)
+            if(cache.function.IsDotnetCompiled)
+            {
+                Debug.Assert(HaxeProxyManager.function_is_hooked_mark != null);
+                if (HaxeProxyManager.function_is_hooked_mark[findex])
                 {
-                    return null;
+                    if (HaxeProxyManager.next_call_origin_function == findex)
+                    {
+                        return null;
+                    }
+                    HaxeProxyManager.next_call_origin_function = -1;
                 }
+            }
+
+            if (cache.directEntry != null)
+            {
+                return cache.directEntry;
             }
             if (cache.directEntry == null)
             {

@@ -343,7 +343,6 @@ namespace TestRunner
             var nullIntType = HashlinkMarshal.Module.GetTypeByName("null<i32>");
             Assert.NotNull(nullIntType);
             Assert.Equal(TypeKind.HNULL, nullIntType.TypeKind);
-            Assert.True(nullIntType.IsNull);
         }
     }
 }

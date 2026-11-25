@@ -21,6 +21,15 @@ namespace HashlinkNET.Compiler.Steps.Class
             int fid = 0;
             var fields = info.Fields;
 
+            var fieldIndexBase = 0;
+            {
+                var super = (HlTypeWithObj?)ot.Obj.Super?.Value;
+                while (super != null)
+                {
+                    fieldIndexBase += super.Obj.Fields.Length;
+                    super = (HlTypeWithObj?)super.Obj.Super?.Value;
+                }
+            }
             foreach (var f in obj.Fields)
             {
                 var fd = new PropertyDefinition(f.Name, PropertyAttributes.None,
@@ -28,7 +37,7 @@ namespace HashlinkNET.Compiler.Steps.Class
                 if (string.IsNullOrEmpty(f.Name))
                 {
                     fd.Name = "unnamedField" + fid++;
-                    td.EmitFieldGetterSetter(fd, container, $"#{f.Index}");
+                    td.EmitFieldGetterSetter(fd, container, $"#{f.Index + fieldIndexBase}");
                 }
                 else
                 {

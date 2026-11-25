@@ -50,17 +50,6 @@ namespace Hashlink.Reflection.Types
         }
         public override string? Name => cachedName ??= NativeType->TypeName;
         public TypeKind TypeKind => NativeType->kind;
-        public virtual bool IsPointer => TypeKind.IsPointer();
-        public virtual bool IsValueType => TypeKind.IsValueType();
-        public virtual bool IsObject => TypeKind == TypeKind.HOBJ;
-        public virtual bool IsVirtual => TypeKind == TypeKind.HVIRTUAL;
-        public virtual bool IsAbstract => TypeKind == TypeKind.HABSTRACT;
-        public virtual bool IsDynObj => TypeKind == TypeKind.HDYNOBJ;
-        public virtual bool IsDyn => TypeKind == TypeKind.HDYN;
-        public virtual bool IsArray => TypeKind == TypeKind.HARRAY;
-        public virtual bool IsEnum => TypeKind == TypeKind.HENUM;
-        public virtual bool IsRef => TypeKind == TypeKind.HREF;
-        public virtual bool IsNull => TypeKind == TypeKind.HNULL;
         public virtual int SizeOf => hl_type_size(NativeType);
 
         public int TypeIndex {

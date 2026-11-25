@@ -57,23 +57,23 @@ namespace Hashlink.Marshaling
             return HashlinkMarshal.Module.GetMemberFrom<HashlinkFuncType>(Unsafe.AsPointer(ref f.type));
         }
 
-        private static void WriteDynamicValue( HL_vdynamic* dyn, object val, HashlinkType type )
+        private void WriteDynamicValue( HL_vdynamic* dyn, object val, HashlinkType type )
         {
             var b = (byte*)&dyn->val;
-            HashlinkMarshal.WriteData(b, val, type);
+            HashlinkMarshal.WriteData(b, val, type, this);
         }
 
         protected DefaultHashlinkMarshaler( bool ignoreCustomMarshaler )
         {
             this.ignoreCustomMarshaler = ignoreCustomMarshaler;
         }
-        public virtual object? TryReadData( void* target, HashlinkType? type )
+        public virtual object? TryReadData( void* target, HashlinkType type )
         {
-            var typeKind = type?.TypeKind;
+            Debug.Assert(type != null);
+
+            var typeKind = type.TypeKind;
             switch (typeKind)
             {
-                case null:
-                    return null;
                 case TypeKind.HBOOL:
                     return (object?)(*(byte*)target != 0);
                 case TypeKind.HUI8:
@@ -96,20 +96,26 @@ namespace Hashlink.Marshaling
                     return (object?)*(nint*)target;
                 case TypeKind.HNULL:
                 default:
-                    if (type?.IsPointer ?? false)
+                    if (typeKind.IsManagedPointer())
                     {
                         return HashlinkMarshal.ConvertHashlinkObject(*(void**)target);
                     }
+                    else if (typeKind.IsRawPointer())
+                    {
+                        return (object?)*(nint*)target;
+                    }
                     else
                     {
-                        return null;
+                        throw new NotImplementedException();
                     }
             }
         }
 
-        public virtual bool TryWriteData( void* target, object? value, HashlinkType? type )
+        public virtual bool TryWriteData( void* target, object? value, HashlinkType type )
         {
             HashlinkMarshal.EnsureThreadRegistered();
+
+            Debug.Assert(type != null);
 
             if (!ignoreCustomMarshaler && value is IHashlinkCustomMarshaler customMarshaler)
             {
@@ -130,30 +136,14 @@ namespace Hashlink.Marshaling
                 return true;
             }
 
-            if (type is null ||
-                type.TypeKind == TypeKind.HDYN)
-            {
-                HashlinkType? valType = null;
+            var typeKind = type.TypeKind;
 
-                if (value is not null)
+            if (value is Delegate del)
+            {
+                if (type is not HashlinkFuncType ft)
                 {
-                    valType = HashlinkMarshal.GetHashlinkType(value.GetType(), this);
+                    ft = (HashlinkFuncType) HashlinkMarshal.GetHashlinkType(value.GetType(), this)!;
                 }
-
-                if (type?.TypeKind != TypeKind.HDYN || !(valType?.IsValueType ?? true))
-                {
-                    type = valType;
-                }
-            }
-
-            var typeKind = type?.TypeKind;
-            if (typeKind is null || value is null)
-            {
-                return false;
-            }
-
-            if (value is Delegate del && type is HashlinkFuncType ft)
-            {
                 var cl = new HashlinkClosure(ft, del);
                 * (nint*)target = cl.HashlinkPointer;
                 Debug.Assert(HashlinkMarshal.ConvertHashlinkObject(HashlinkObjPtr.Get(*(nint*)target)) == cl);
@@ -161,9 +151,19 @@ namespace Hashlink.Marshaling
             }
             else if (value is string str && typeKind is not TypeKind.HBYTES)
             {
-                *(nint*)target = new HashlinkString(str).HashlinkPointer;
+                var hstr = new HashlinkString(str);
+                if (typeKind is TypeKind.HBYTES)
+                {
+                    *(nint*)target = HashlinkMarshal.GetDyn((nint)((HL_vstring*)hstr.HashlinkPointer)->bytes);
+                }
+                else
+                {
+                    *(nint*)target = hstr.HashlinkPointer;
+                }
+                
                 return true;
             }
+
 
             if (typeKind is TypeKind.HUI8)
             {
@@ -225,8 +225,11 @@ namespace Hashlink.Marshaling
                 }
                 else
                 { // Slow Path
-                    var vt = HashlinkMarshal.GetHashlinkType(value.GetType()) ??
+                    var vt = HashlinkMarshal.GetHashlinkType(value.GetType(), this) ??
                         throw new InvalidOperationException();
+
+                    Debug.Assert(vt.TypeKind.IsBox());
+
                     var dptr = hl_alloc_dynamic(
                         vt.NativeType
                         );

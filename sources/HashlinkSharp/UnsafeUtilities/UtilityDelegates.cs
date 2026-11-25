@@ -256,13 +256,13 @@ namespace Hashlink.UnsafeUtilities
                 var tt = ts[i];
                 if (type == null)
                 {
-                    if (!pt.IsValueType)
-                    {
-                        ps[i] = typeof(object);
-                    }
-                    else if (pt.IsByRefLike || pt.IsByRef)
+                    if (pt.IsByRef || pt.IsByRefLike)
                     {
                         ps[i] = ts[i] = typeof(nint);
+                    }
+                    else if (!pt.IsValueType)
+                    {
+                        ps[i] = typeof(object);
                     }
                 }
                 else if (tt == typeof(nint) &&

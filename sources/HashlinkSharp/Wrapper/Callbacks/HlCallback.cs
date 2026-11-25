@@ -21,6 +21,7 @@ namespace Hashlink.Wrapper.Callbacks
 
         private ExecutableMemoryManager<PreCode>.Cell* precode;
         private nint routerPtr;
+        private nint realTarget;
         private Delegate? callback;
         private Delegate? target;
         private readonly MethodInfo callbackMI;
@@ -32,8 +33,8 @@ namespace Hashlink.Wrapper.Callbacks
         }
 
         public nint RedirectTarget {
-            get => info.directRoute;
-            set => info.directRoute = value;
+            get => precode->value.realTarget == realTarget ? 0 : precode->value.realTarget;
+            set => precode->value.realTarget = value == 0 ? realTarget : value;
         }
 
         public Delegate? Target {
@@ -50,7 +51,9 @@ namespace Hashlink.Wrapper.Callbacks
                     precode = memoryManager.Alloc();
                     PreCode.call_code_x64.CopyTo(new Span<byte>(precode->value.shellcode, 12));
                     *(long*)&precode->value.shellcode[2] = Native.Current.asm_hl2cs_store_return_ptr;
-                    precode->value.realTarget = Marshal.GetFunctionPointerForDelegate(callback);
+
+                    realTarget = Marshal.GetFunctionPointerForDelegate(callback);
+                    precode->value.realTarget = realTarget;
 
                     routerPtr = (nint)precode->value.shellcode;
                 }

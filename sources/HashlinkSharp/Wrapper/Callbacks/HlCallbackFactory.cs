@@ -16,8 +16,6 @@ namespace Hashlink.Wrapper.Callbacks
         private static ConcurrentDictionary<HashlinkFuncType, MethodInfo>? hl_callback_cache;
         private static readonly FieldInfo FI_hlrouterinfo_entry = typeof(HlCallbackInfo)
             .GetField(nameof(HlCallbackInfo.entry))!;
-        private static readonly FieldInfo FI_hlrouterinfo_directRoute = typeof(HlCallbackInfo)
-            .GetField(nameof(HlCallbackInfo.directRoute))!;
         private static readonly MethodInfo MI_WrapperHelper_AsPointer = typeof(WrapperHelper)
             .GetMethod(nameof(WrapperHelper.AsPointer))!;
         private static readonly MethodInfo MI_WrapperHelper_GetObjectFromPtr = typeof(WrapperHelper)
@@ -37,7 +35,11 @@ namespace Hashlink.Wrapper.Callbacks
             {
                 return result;
             }
-            return typeof(nint);
+            if (kind.IsRawPointer() || kind.IsManagedPointer())
+            {
+                return typeof(nint);
+            }
+            throw new InvalidCastException();
         }
         private static Type GetManageType( TypeKind kind )
         {
@@ -45,7 +47,15 @@ namespace Hashlink.Wrapper.Callbacks
             {
                 return result;
             }
-            return typeof(object);
+            if (kind.IsRawPointer())
+            {
+                return typeof(nint);
+            }
+            else if (kind.IsManagedPointer())
+            {
+                return typeof(object);
+            }
+            throw new InvalidCastException();
         }
 
         private static MethodInfo CreateHlCallback( HashlinkFuncType sign )
@@ -73,30 +83,6 @@ namespace Hashlink.Wrapper.Callbacks
             var resultLoc = dm.ReturnType == typeof(void) ? null : ilg.DeclareLocal(dm.ReturnType);
             var endOfMethod = ilg.DefineLabel();
 
-            ilg.Emit(OpCodes.Ldarg_0);
-            ilg.Emit(OpCodes.Ldfld, FI_hlrouterinfo_directRoute);
-
-            var l1 = ilg.DefineLabel();
-            ilg.Emit(OpCodes.Brfalse, l1);
-
-            for (var i = 0; i < args.Length; i++)
-            {
-                ilg.Emit(OpCodes.Ldarg, i + 1);
-            }
-
-            ilg.Emit(OpCodes.Ldarg_0);
-            ilg.Emit(OpCodes.Ldfld, FI_hlrouterinfo_directRoute);
-
-            ilg.Emit(OpCodes.Tailcall);
-            ilg.EmitCalli(OpCodes.Calli, CallingConvention.Cdecl, dm.ReturnType, targs[1..]);
-            ilg.Emit(OpCodes.Ret);
-
-            ilg.Emit(OpCodes.Nop);
-
-            ilg.MarkLabel(l1);
-
-            ilg.Emit(OpCodes.Nop);
-
             ilg.BeginExceptionBlock();
 
             ilg.Emit(OpCodes.Ldarg_0);
@@ -110,9 +96,9 @@ namespace Hashlink.Wrapper.Callbacks
                 var k = args[i].TypeKind;
                 if (args[i] is HashlinkRefType rtype)
                 {
-                    Debug.Assert(rtype.RefType.IsValueType);
+                    Debug.Assert(rtype.RefType.TypeKind.IsValueType() || rtype.RefType.TypeKind.IsRawPointer());
                 }
-                else if (!k.IsValueType())
+                else if (k.IsManagedPointer())
                 {
                     ilg.Emit(OpCodes.Call, MI_WrapperHelper_GetObjectFromPtr);
                 }
@@ -136,7 +122,7 @@ namespace Hashlink.Wrapper.Callbacks
 
             if (resultLoc != null)
             {
-                if (!sign.ReturnType.IsValueType)
+                if (sign.ReturnType.TypeKind.IsManagedPointer())
                 {
                     if (sign.ReturnType is HashlinkNullType nullType)
                     {

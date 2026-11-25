@@ -26,6 +26,7 @@ namespace Hashlink.Wrapper
 
         public static T GetObjectFrom<T>( object obj ) where T : class, IExtraDataItem
         {
+            Debug.Assert(obj.GetType() != null);
             if (obj is T result)
             {
                 return result;
@@ -44,10 +45,7 @@ namespace Hashlink.Wrapper
 
         public static nint AsPointerWithType( object obj, HashlinkType type )
         {
-            if (!type.IsPointer)
-            {
-                throw new InvalidOperationException();
-            }
+            Debug.Assert(type.TypeKind.IsManagedPointer());
 
             nint result = 0;
             HashlinkMarshal.WriteData(&result, obj, type);

@@ -34,7 +34,11 @@ namespace Hashlink.Wrapper
             {
                 return result;
             }
-            return typeof(nint);
+            if (kind.IsRawPointer() || kind.IsManagedPointer())
+            {
+                return typeof(nint);
+            }
+            throw new InvalidCastException();
         }
         private static Type GetManageType( TypeKind kind )
         {
@@ -42,7 +46,15 @@ namespace Hashlink.Wrapper
             {
                 return result;
             }
-            return typeof(object);
+            if (kind.IsRawPointer())
+            {
+                return typeof(nint);
+            }
+            else if (kind.IsManagedPointer())
+            {
+                return typeof(object);
+            }
+            throw new InvalidCastException();
         }
         private static DynamicMethod CreateWrapper( HashlinkFuncType func )
         {
@@ -82,7 +94,7 @@ namespace Hashlink.Wrapper
                     ilg.Emit(OpCodes.Ldloc, l);
 
                 }
-                else if (!k.IsValueType())
+                else if (k.IsManagedPointer())
                 {
                     if (k == TypeKind.HNULL)
                     {
@@ -117,7 +129,7 @@ namespace Hashlink.Wrapper
             ilg.Emit(OpCodes.Ldloca, loc_eh);
             ilg.Emit(OpCodes.Call, MI_WrapperHelper_UnInitErrorHandler);
 
-            if (!func.ReturnType.TypeKind.IsValueType())
+            if (func.ReturnType.TypeKind.IsManagedPointer())
             {
                 ilg.Emit(OpCodes.Call, MI_WrapperHelper_GetObjectFromPtr);
             }

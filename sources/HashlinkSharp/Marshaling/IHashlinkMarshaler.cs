@@ -6,7 +6,7 @@ namespace Hashlink.Marshaling
     {
         HashlinkType? GetHashlinkType( Type type );
         object? TryConvertHashlinkObject( void* target );
-        object? TryReadData( void* target, HashlinkType? typeKind );
-        bool TryWriteData( void* target, object? value, HashlinkType? typeKind );
+        object? TryReadData( void* target, HashlinkType typeKind );
+        bool TryWriteData( void* target, object? value, HashlinkType typeKind );
     }
 }

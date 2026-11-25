@@ -114,17 +114,35 @@ namespace Hashlink.Marshaling
             [TypeKind.HBOOL] = typeof(bool),
             [TypeKind.HVOID] = typeof(void),
             [TypeKind.HREF] = typeof(nint),
-            [TypeKind.HTYPE] = typeof(nint)
+            [TypeKind.HTYPE] = typeof(nint),
+            [TypeKind.HABSTRACT] = typeof(nint)
         };
 
+        public static bool IsRawPointer( this TypeKind type )
+        {
+            return type == TypeKind.HBYTES || type == TypeKind.HSTRUCT || type == TypeKind.HREF
+                || type == TypeKind.HABSTRACT || type == TypeKind.HTYPE;
+        }
         public static bool IsValueType( this TypeKind type )
         {
-            return type <= TypeKind.HBYTES || type == TypeKind.HREF || type == TypeKind.HTYPE;
+            return type < TypeKind.HBYTES || type == TypeKind.HGUID;
+        }
+
+        public static bool IsManagedPointer( this TypeKind type )
+        {
+            return type == TypeKind.HOBJ || type == TypeKind.HDYN || type == TypeKind.HDYNOBJ
+                || type == TypeKind.HARRAY || type == TypeKind.HENUM || type == TypeKind.HFUN ||
+                type == TypeKind.HNULL || type == TypeKind.HVIRTUAL || type == TypeKind.HMETHOD;
+        }
+
+        public static bool IsBox( this TypeKind type )
+        {
+            return type.IsValueType() || type.IsRawPointer();
         }
 
         public static bool IsPointer( this TypeKind type )
         {
-            return type >= TypeKind.HBYTES;
+            return type.IsManagedPointer() || type.IsRawPointer();
         }
 
         public static HashlinkObject? GetGlobal( string name )
@@ -154,7 +172,7 @@ namespace Hashlink.Marshaling
         public static void WriteData(
             void* target,
             object? val,
-            HashlinkType? type,
+            HashlinkType type,
             IHashlinkMarshaler? marshaler = null )
         {
             ArgumentNullException.ThrowIfNull(target, nameof(target));
@@ -163,13 +181,13 @@ namespace Hashlink.Marshaling
 
             if (!marshaler.TryWriteData(target, val, type))
             {
-                throw new InvalidOperationException("Unable to marshal the specified object");
+                throw new InvalidOperationException($"Unable to marshal the specified object: {val?.GetType()?.FullName} -> {type}");
             }
         }
 
         public static object? ReadData(
             void* target,
-            HashlinkType? type,
+            HashlinkType type,
             IHashlinkMarshaler? marshaler = null
             )
         {

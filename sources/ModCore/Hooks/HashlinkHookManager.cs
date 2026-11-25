@@ -40,7 +40,9 @@ namespace ModCore.Hooks
             hook = NativeHooks.Instance.CreateHook(
                 target + HashlinkFunction.FS_OFFSET_NATIVE_HOOK,
                 callback.NativePointer, true);
+
             callback.RedirectTarget = hook.Original;
+
             callback.Target = CreateDelegateAdapt().CreateAnonymousDelegate(this);
 
             Debug.Assert(HaxeProxyManager.function_is_hooked_mark != null);

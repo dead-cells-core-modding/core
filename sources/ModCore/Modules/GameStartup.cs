@@ -1,6 +1,8 @@
 
 using dc;
+using dc.haxe;
 using dc.hxd;
+using dc.hxd.res;
 using dc.pr;
 using dc.ui;
 using Hashlink.Marshaling;
@@ -29,11 +31,19 @@ namespace ModCore.Modules
                 typeof(_Sys),
                 typeof(dc.libs.Process),
                 typeof(dc.libs._Process),
-                typeof(Assets),
-                typeof(_Assets),
+                //typeof(Assets),
+                //typeof(_Assets),
                 typeof(AssetsLibManager),
-                typeof(_AssetsLibManager)
+                typeof(_AssetsLibManager),
+                typeof(MainLoop),
+                typeof(_MainLoop),
+                typeof(_System),
+                typeof(dc.hxd.System),
+                typeof(_EntryPoint),
+                typeof(BitmapFont),
+                typeof(_BitmapFont)
                 ];
+
 
 
             //foreach (var t in typeof(_Boot).Assembly.GetTypes())

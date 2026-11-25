@@ -95,12 +95,12 @@ namespace HaxeProxy.Runtime.Internals
         public static void CheckCustomProxy( HaxeProxyBase proxy, HashlinkObj obj )
         {
             var type = proxy.GetType();
-            if (!obj.Type.IsObject || knownProxyTypes.Contains(type))
+            if (obj.Type is not HashlinkObjectType ot || knownProxyTypes.Contains(type))
             {
                 return;
             }
             obj.MarkStateful();
-            InheritanceManager.Check(type, (HashlinkObjectType)obj.Type, out var cht);
+            InheritanceManager.Check(type, ot, out var cht);
             *(nint*)obj.HashlinkPointer = (nint)cht.nativeType;
             obj.RefreshTypeInfo(cht.nativeType, false);
         }
@@ -113,7 +113,7 @@ namespace HaxeProxy.Runtime.Internals
             }
             else if (ht.TypeIndex >= 0)
             {
-                if (ht.IsEnum && obj != null)
+                if (ht.TypeKind == TypeKind.HENUM && obj != null)
                 {
                     var hle = (HashlinkEnum)obj;
                     type = subTypes[HaxeProxyBindingAttribute.GetSubTypeId(ht.TypeIndex,

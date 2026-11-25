@@ -80,9 +80,13 @@ namespace Hashlink
             while (NativeData.hl2cs_return_pointers > bottom)
             {
                 var val = *(nint*)bottom;
-                if (val <= ptr || val == 0 || val == 1)
+                if (val <= ptr)
                 {
-                    NativeData.hl2cs_return_pointers = bottom;
+                    return;
+                }
+                if (val == 0 || val == 1)
+                {
+                    NativeData.hl2cs_return_pointers = bottom - sizeof(nint);
                     return;
                 }
                 bottom += sizeof(nint);

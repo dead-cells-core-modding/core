@@ -6,6 +6,8 @@ using Hashlink.Reflection.Types;
 using Hashlink.UnsafeUtilities;
 using Hashlink.Wrapper;
 using ModCore.Events;
+using MonoMod.Utils;
+using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -69,14 +71,17 @@ namespace Hashlink.Reflection.Members
             }
             IsDotnetCompiled = true;
 
-            if (!m.IsStatic && m.DeclaringType != null)
+            Debug.Assert(m.DeclaringType != null || m.IsStatic);
+
+            var dmName = $"dotnet_compiled_bridge_fidx_{FunctionIndex}_@{m.Name}";
+            if (!m.IsStatic)
             {
                 var pc = m.GetParameters().Length + 1;
-                DynamicMethod dm = new("dotnet_compiled_bridge", m.ReturnType, [m.DeclaringType,
+                DynamicMethod dm = new(dmName, m.ReturnType, [m.GetThisParamType(),
                     ..m.GetParameters().Select(x => x.ParameterType)]);
                 var il = dm.GetILGenerator();
 
-                il.Emit(OpCodes.Ldc_I4, FunctionIndex + 1);
+                il.Emit(OpCodes.Ldc_I4, FunctionIndex);
                 il.Emit(OpCodes.Stsfld, f_next_call_origin_function);
                 for (int i = 0; i < pc; i++)
                 {
@@ -90,24 +95,21 @@ namespace Hashlink.Reflection.Members
             }
             else
             {
-                if (m.IsStatic)
+                var pc = m.GetParameters().Length;
+                DynamicMethod dm = new(dmName, m.ReturnType, [.. m.GetParameters().Select(x => x.ParameterType)]);
+                var il = dm.GetILGenerator();
+
+                il.Emit(OpCodes.Ldc_I4, FunctionIndex);
+                il.Emit(OpCodes.Stsfld, f_next_call_origin_function);
+                for (int i = 0; i < pc; i++)
                 {
-                    var pc = m.GetParameters().Length;
-                    DynamicMethod dm = new("dotnet_compiled_bridge", m.ReturnType, [..m.GetParameters().Select(x => x.ParameterType)]);
-                    var il = dm.GetILGenerator();
-
-                    il.Emit(OpCodes.Ldc_I4, FunctionIndex + 1);
-                    il.Emit(OpCodes.Stsfld, f_next_call_origin_function);
-                    for (int i = 0; i < pc; i++)
-                    {
-                        il.Emit(OpCodes.Ldarg, i);
-                    }
-
-                    il.Emit(OpCodes.Call, m);
-                    il.Emit(OpCodes.Ret);
-
-                    m = dm;
+                    il.Emit(OpCodes.Ldarg, i);
                 }
+
+                il.Emit(OpCodes.Call, m);
+                il.Emit(OpCodes.Ret);
+
+                m = dm;
             }
 
             var ptr = HashlinkMarshal.GetDyn(m.CreateAnonymousDelegate(null, true));
