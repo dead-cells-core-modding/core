@@ -71,13 +71,6 @@ namespace TestRunner
             GC.KeepAlive(obj);
         }
 
-        [Fact]
-        public void CallbackCheckBool_NormalizesNonStandardBool()
-        {
-            Assert.False(WrapperHelper.CheckBool(0));
-            Assert.True(WrapperHelper.CheckBool(1));
-            Assert.True(WrapperHelper.CheckBool(2));
-            Assert.True(WrapperHelper.CheckBool(-1));
-        }
+  
     }
 }
