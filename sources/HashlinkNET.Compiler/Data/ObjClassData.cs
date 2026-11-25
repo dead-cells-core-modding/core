@@ -15,7 +15,8 @@ namespace HashlinkNET.Compiler.Data
         IGetProto,
         IGlobalValue,
         IGlobalValueSetter,
-        ITypeIndex
+        ITypeIndex,
+        ICast
     {
         public ObjClassData? Super {
             get; set;
@@ -75,6 +76,11 @@ namespace HashlinkNET.Compiler.Data
             get; set;
         }
         public HlTypeWithObj? GlobalHlType {
+            get; set;
+        }
+
+        public MethodReference? Cast
+        {
             get; set;
         }
 

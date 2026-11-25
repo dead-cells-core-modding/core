@@ -142,6 +142,8 @@ namespace ModCore.Native
 
             // mov rcx, [rax]   →   movq (%rax), %rcx
             c.mov_mr(R.rcx, R.rax);
+            c.mov_imm(R.r11, 0);
+            c.mov_rm(R.r11, R.rax);
 
             // sub rsp, 56
             c.sub(R.rsp, 56);

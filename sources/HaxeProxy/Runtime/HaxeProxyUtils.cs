@@ -17,7 +17,7 @@ namespace HaxeProxy.Runtime
         {
             UseCSharpVersionCode(del.Method, throwOnCompiled);
         }
-        internal static void UseCSharpVersionCode( Type t, bool throwOnCompiled )
+        public static void UseCSharpVersionCode( Type t, bool throwOnCompiled )
         {
             foreach (var v in t.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
             {
@@ -28,7 +28,7 @@ namespace HaxeProxy.Runtime
                 }
             }
         }
-        internal static void UseCSharpVersionCode( MethodInfo m, bool throwOnCompiled )
+        public static void UseCSharpVersionCode( MethodInfo m, bool throwOnCompiled )
         {
             if (!HaxeProxyManager.generatedPseudocode)
             {

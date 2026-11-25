@@ -253,5 +253,7 @@ namespace Hashlink
         public static partial void emit_nop( nint ctx, int count );
         [LibraryImport(LIBHL)]
         public static partial void hl_unregister_thread();
+        [LibraryImport(LIBHL)]
+        public static partial int hl_safe_cast( HL_type* t, HL_type* to );
     }
 }

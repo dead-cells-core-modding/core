@@ -346,7 +346,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 }
                 else if (c == HlOpcodeKind.GetTID)
                 {
-                    src = new IR_GetObjType(
+                    src = new IR_GetTypeId(
                             CreateLoadLocalReg(code.Parameters[1])
                             );
                 }

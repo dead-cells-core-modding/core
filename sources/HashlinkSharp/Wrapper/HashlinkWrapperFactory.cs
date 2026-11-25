@@ -30,6 +30,10 @@ namespace Hashlink.Wrapper
 
         private static Type GetNativeType( TypeKind kind )
         {
+            if (kind == TypeKind.HBOOL)
+            {
+                return typeof(int);
+            }
             if (HashlinkMarshal.PrimitiveTypes.TryGetValue(kind, out var result))
             {
                 return result;

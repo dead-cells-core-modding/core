@@ -1,3 +1,4 @@
+using HashlinkNET.Compiler.Data.Interfaces;
 using HashlinkNET.Compiler.Utils;
 using HaxeProxy.Runtime;
 using Mono.Cecil;
@@ -74,6 +75,13 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             if (st.FullName == type.FullName)
             {
                 return st;
+            }
+
+            if (container.TryGetData<ICast>(st, out var icast) && icast.Cast is not null)
+            {
+                il.Emit(OpCodes.Call, ctx.RuntimeImports.phGetTypePointer.MakeInstance(type));
+                il.Emit(OpCodes.Call, icast.Cast);
+                return ctx.RuntimeImports.objectType;
             }
 
             var targetIsNullable = type.IsNullable(out var typeNullableUnderlying);

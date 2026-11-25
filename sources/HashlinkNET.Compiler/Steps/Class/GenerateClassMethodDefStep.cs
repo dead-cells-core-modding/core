@@ -80,6 +80,10 @@ namespace HashlinkNET.Compiler.Steps.Class
                 {
                     info.Compare = md;
                 }
+                else if (md.Name == "__cast")
+                {
+                    info.Cast = md;
+                }
             }
 
             foreach (var b in obj.Bindings)

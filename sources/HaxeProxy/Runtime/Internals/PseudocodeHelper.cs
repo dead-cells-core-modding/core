@@ -2,7 +2,9 @@ using Hashlink;
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Proxy.Objects;
+using Hashlink.Reflection.Types;
 using HaxeProxy.Runtime;
+using Microsoft.CSharp.RuntimeBinder;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -85,7 +87,14 @@ namespace HaxeProxy.Runtime.Internals
                     return ho.AsHaxe() as T;
                 }
             }
-            return (T)(dynamic)obj;
+            try
+            {
+                return (T)(dynamic)obj;
+            }
+            catch (RuntimeBinderException)
+            {
+                return null;
+            }
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -138,25 +147,30 @@ namespace HaxeProxy.Runtime.Internals
 
         public static nint GetRuntimeTypePointer( object? value )
         {
-            if (value is null)
+            if (value == null)
             {
-                return GetVoidTypePointer();
+                return (nint)HashlinkMarshal.Module.KnownTypes.Void.NativeType;
+            }
+            if (value is HashlinkObj hobj)
+            {
+                return (nint)hobj.NativeType;
             }
             if (value is HaxeProxyBase proxy)
             {
                 return (nint)proxy.HashlinkObj.Type.NativeType;
             }
             var t = HashlinkMarshal.GetHashlinkType(value.GetType());
-            return t is null ? 0 : (nint)t.NativeType;
+            Debug.Assert(t != null);
+            return (nint)t.NativeType;
         }
-        public static int GetTypeId( object? value )
+        public static int GetTypeId( nint value )
         {
-            if (value is HaxeProxyBase proxy)
+            var t = (HL_type*)value;
+            if (t == null)
             {
-                return proxy.HashlinkObj.Type.TypeIndex;
+                return 0;
             }
-            var t = HashlinkMarshal.GetHashlinkType(value?.GetType() ?? typeof(object));
-            return t?.TypeIndex ?? -1;
+            return (int)t->kind;
         }
 
         public static ref T Unref<T>( Ref<T> value )
@@ -183,10 +197,10 @@ namespace HaxeProxy.Runtime.Internals
         {
             return new HashlinkString(value).AsHaxe<T>();
         }
-        public static IntPtr AsHaxeStringPtr( string value )
+        public static nint AsHaxeStringPtr( string value )
         {
-            var proxy = new HashlinkString(value).AsHaxe<HaxeProxyBase>();
-            return proxy.HashlinkPointer;
+            var proxy = new HashlinkString(value);
+            return (nint)((HL_vstring*)proxy.HashlinkPointer)->bytes;
         }
 
         internal static int GetTypeIndex( Type type )

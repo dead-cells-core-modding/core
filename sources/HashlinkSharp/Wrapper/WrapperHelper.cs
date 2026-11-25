@@ -60,7 +60,8 @@ namespace Hashlink.Wrapper
 
         public static bool CheckBool( int b )
         {
-            return b != 0;
+            var val = b & 1;
+            return val != 0;
         }
     }
 }
