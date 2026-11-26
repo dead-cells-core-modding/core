@@ -8,9 +8,9 @@
 
 | Property | Value |
 |---|---|
-| **Version** | `35.12.4` (in `Directory.Build.props`) |
+| **Version** | `35.16.1` (in `Directory.Build.props`) |
 | **License** | MIT |
-| **Target Framework** | .NET 10 |
+| **Target Framework** | .NET 11 (`net11.0`, `runtime-async=on`) |
 | **Platforms** | Windows x64, Linux x64 (arm64 reserved for Android) |
 | **Game Stores** | Steam, GOG |
 | **Repo** | `github.com/dead-cells-core-modding/core` |
@@ -23,20 +23,25 @@
 ### Boot Flow
 
 ```
-DeadCellsModding.exe (NativeAOT launcher, sources/DeadCellsModding/Program.cs)
-  → nethost locates .NET runtime
-  → loads DCCMShell.dll (sources/DCCMShell/Shell.cs)
-    → Startup.StartGame() (sources/ModCore/Startup.cs)
-      → Checks .NET 10+ runtime
-      → Serilog initialization (LogInitializer)
-      → Core.Initialize() (sources/ModCore/Core.cs)
-        → Assembly resolve hooks
-        → Loads [CoreModule(CoreModuleKind.Preload)] modules
-        → Broadcasts IOnCoreModuleInitializing
-      → Loads hlboot.dat bytecode (from hlboots/)
-      → Native.InitializeGame() → starts Hashlink VM
-      → Broadcasts lifecycle events (IOnGameInit, IOnFrameUpdate, etc.)
+deadcells.exe / DeadCellsModding.exe (launcher shell)
+  → SteamStartShell / GOGStartShell (Windows) or DeadCellsModding
+    → nethost locates .NET runtime
+    → loads DCCMShell.dll (sources/DCCMShell/Shell.cs)
+      → Startup.StartGame() (sources/ModCore/Startup.cs)
+        → Checks .NET 11+ runtime
+        → Serilog initialization (LogInitializer)
+        → Prints startup banner (version, repository, license)
+        → Core.Initialize() (sources/ModCore/Core.cs)
+          → Assembly resolve hooks
+          → Loads [CoreModule(CoreModuleKind.Preload)] modules
+          → Broadcasts IOnCoreModuleInitializing
+        → Loads hlboot.dat bytecode (from hlboots/, or embedded in deadcells_gl.exe)
+        → Native.InitializeGame() → starts Hashlink VM
+        → Broadcasts lifecycle events (IOnGameInit, IOnFrameUpdate, etc.)
 ```
+
+On Steam, `SteamStartShell` (published as `deadcells.exe`) wraps `SteamLauncher`, which performs
+Workshop sync/self-update and then launches `DeadCellsModding`.
 
 ### Two-Layer Module System
 
@@ -60,21 +65,20 @@ Modules implement event interfaces (e.g., `IOnGameInit`, `IOnFrameUpdate`, `IOnB
 |---|---|
 | **ModCore** | Core modding framework — initialization, module system, event bus, mod loading, hooks, plugins, storage, menus, serialization |
 | **ModCore.Common** | Shared utilities — `EventSystem`, collections, storage abstractions, native helpers (namespace `ModCore`) |
-| **ModCore.Game** | Game-specific integration layer (refs ModCore + HashlinkSharp) |
 | **ModCore.Assets** | Asset bundling (requires MDK installed) |
 | **ModCore.Native** | Native interop — P/Invoke, TCC JIT compiler, assembly code gen, memory mgmt, platform abstraction |
 | **ModCore.Native.Fody** | Fody IL weaver — compile-time native call stub generation |
 | **ModCore.ModLoader.Default** | Default mod/plugin loader — reads `modinfo.json`, constructs `ModBase` instances |
 | **DCCMShell** | Bridge DLL called by the launcher; sets up env and invokes `Startup.StartGame()` |
 | **DeadCellsModding** | NativeAOT launcher EXE — uses `nethost` to load .NET runtime and DCCMShell |
-| **SteamStartShell** | Steam-specific launcher (workshop support, error reporting) |
+| **SteamLauncher** | Steam Workshop sync, self-update, and game launch logic used by `SteamStartShell` |
+| **SteamStartShell** | Steam-specific launcher (published as `deadcells.exe`; workshop support, error reporting) |
 | **GOGStartShell** | GOG-specific launcher |
 | **HashlinkSharp** | Hashlink VM bridge — wraps native HL API in C# (threads, marshaling, reflection) |
 | **HashlinkNET.Bytecode** | HL bytecode reader — parses `.hlb` into C# object model |
-| **Haxe2CSharp** | Haxe → C# transpiler |
+| **HashlinkNET.Compiler** | HL bytecode → .NET assembly compiler (pseudocode IR emission) |
 | **HaxeProxy** | Runtime proxy generation — C# proxies for Haxe types |
 | **HaxeDocs** | Haxe documentation parser |
-| **ShellCommon** | Shared shell utilities |
 | **NonPublicNativeMembers** | Native member scanner — reads PDB/ELF for non-public function signatures |
 
 ### `sources/ModCore/` Internal Structure
@@ -82,15 +86,16 @@ Modules implement event interfaces (e.g., `IOnGameInit`, `IOnFrameUpdate`, `IOnB
 | Directory | Purpose |
 |---|---|
 | `Events/Interfaces/` | Lifecycle event interfaces (`IOnGameInit`, `IOnFrameUpdate`, `IOnBeforeGameInit`, `IOnSaveConfig`, etc.) |
-| `Events/Interfaces/Game/` | Game-specific events (Save, Hero, Menu) |
-| `Events/Interfaces/VM/` | Hashlink VM lifecycle events |
-| `Modules/` | Core module implementations (`Game.cs`, `ModLoader.cs`, `HashlinkHooks.cs`, `MenuModule.cs`, etc.) |
-| `Modules/Internals/` | Internal modules (`PluginLoader`, `NativeModuleResolver`, `HaxeProxyGenerator`) |
-| `Hooks/` | `HashlinkHookManager` — dynamic IL adapters for game function hooks |
+| `Events/Interfaces/Game/` | Game-specific events (CDB, Pak, Save, Hero, Menu) |
+| `Events/Interfaces/Mods/` | Mod discovery/registration events |
+| `Events/Interfaces/VM/` | Hashlink VM and native resolution events |
+| `Modules/` | Core modules (`Game`, `GameStartup`, `ModLoader`, `HashlinkHooks`, `HashlinkVM`, `CDBManager`, `SaveManager`, `StorageManager`, `MenuModule`, `FsPak`, `GetText`, `NativeHooks`) |
+| `Modules/Internals/` | Internal modules (`PluginLoader`, `NativeModuleResolver`, `HaxeProxyGenerator`, `HLCModule`, `HxbitModule`, `HarmonyXModule`, `SFXModule`, `LegacySFX`, `AtlasRefresher`) |
+| `Hooks/` | `HashlinkHookManager`, `HashlinkFunctionPatcher`, `HookOrigClosure` — dynamic IL adapters for game hooks |
 | `Menu/` | `IModMenu` / `IModMenuProvider` interfaces |
 | `Mods/` | `ModBase` (user mod base class), `ModInfo` (JSON metadata) |
 | `Plugins/` | `PluginBase` + `[Plugin]` attribute |
-| `Storage/` | `Config<T>` (JSON config), `SaveData<T>` (per-save data) |
+| `Storage/` | `Config<T>` (JSON config), `SaveData<T>` (per-save data), `IHxbitSerializable` |
 | `Serialization/` | Hxbit serialization (game save format) |
 | `Utilities/` | String/Array/Bytes/Color/Enum/Process utilities |
 
@@ -98,20 +103,31 @@ Modules implement event interfaces (e.g., `IOnGameInit`, `IOnFrameUpdate`, `IOnB
 
 | Subdirectory | Role |
 |---|---|
-| `modcorenative/` | Core native library (`modcorenative.dll/.so`) — links Hashlink with .NET nethost |
+| `modcorenative/` | Core native library (`modcorenative.dll/.so`) — links Hashlink with .NET nethost and hosts the HLC runtime |
 | `3rd/hashlink/` | Vendored Hashlink VM source (MIT, git submodule) |
-| `3rd/tinycc/` | Vendored TinyCC JIT compiler (LGPL, git submodule) |
-| `hdlls/` | Custom Hashlink DLLs — Steamworks/GOG plugins |
+| `3rd/tinycc/` | Vendored TinyCC JIT compiler (LGPL 2.1, git submodule) |
+| `3rd/cv2pdb/` | CV to PDB converter source (git submodule) |
+| `tinycc/` | Build shim for the TinyCC HLC runtime (`tinycc.c`, `core_hlc_inc.h`) |
+| `cv2pdb/` | CMake shim that builds the `cv2pdb` submodule |
+| `hdlls/` | Custom Hashlink DLLs — Steamworks/GOG plugins (git submodule) |
 | `host_lib/` | Host library for NativeAOT linking |
-| `cv2pdb/` | CV to PDB converter |
 
 ### `mdk/` — Mod Development Kit (separate solution `mdk.slnx`)
 
-The MDK is the toolchain mod authors install. It includes MSBuild targets, proxy assemblies, and CLI tools.
+The MDK is the toolchain mod authors install. It includes MSBuild targets (`ModCore.Tasks`,
+`build.props`/`build.targets`), proxy assemblies, and the `DCCMTool` CLI.
+
+| Project | Role |
+|---|---|
+| **DCCMTool** | CLI used by build + mods — game proxy generation, CDB/pak tools, native member scanning, Workshop upload |
+| **ModCore.Tasks** | MSBuild task assembly (`ResolveModDependencies`, modinfo generation) |
+| **DeadCellsCoreModding.MDK** | MSBuild `.props`/`.targets` imported by mod projects |
+| **MDK.Package** | Packs/installs the MDK (`install.ps1`, `install-linux.sh`) |
+| **GameRes.Core** | CDB/pak/atlas resource types shared with tools |
 
 ### `tools/` — Developer Utilities (separate solution `tools.slnx`)
 
-Bytecode mapping, Haxe proxy generation, non-public member scanning.
+`BytecodeMapping`, `HaxeProxyGenerator`, `NonPublicMemberScanner`.
 
 ### `sample/` — Example Mods (separate solution `sample.slnx`)
 
@@ -124,11 +140,12 @@ Bytecode mapping, Haxe proxy generation, non-public member scanning.
 | `DebugMod` | mod | Debug utilities |
 | `LibraryMod` | library | Shared library pattern |
 
-### `test/` — Integration Tests
+### `test/` — Integration Tests & Benchmarks
 
-- **TestRunner** — xUnit v3 test project (single-threaded, 600s timeout)
+- **TestRunner** — xUnit v3 test project on Microsoft.Testing.Platform (single-threaded, 600s timeout)
 - **TestMod** — Minimal mod used during integration tests
-- Test categories: `GcTest`, `HashlinkTest`, `HaxeProxyTest`, `ModLoaderTest`, `ObjectInheritanceTest`, `ExceptionTest`
+- **Benchmark** — BenchmarkDotNet project for marshaling, hooks, proxies, and event dispatch
+- Test categories include `GcTest`, `HashlinkTest`, `HaxeProxyTest`, `ModLoaderTest`, `ObjectInheritanceTest`, `ExceptionTest`, `HookExceptionTest`, `GameProxyJitTest`
 
 ### `3rd/` — Vendored Third-Party Binaries
 
@@ -137,6 +154,7 @@ Bytecode mapping, Haxe proxy generation, non-public member scanning.
 | Goldberg | LGPL 3.0 | Steam emulator for non-Steam environments |
 | Steamworks.NET | MIT | Steamworks SDK .NET bindings |
 | RectpackSharp | MIT | Rectangle packing |
+| Mesa-d3d12 | MIT | D3D12 Mesa runtime for Windows |
 | crashlink | MIT | Python Hashlink bytecode tools (git submodule) |
 
 ### Other Directories
@@ -147,8 +165,7 @@ Bytecode mapping, Haxe proxy generation, non-public member scanning.
 | `build/` | NUKE build project (C# build automation) |
 | `bin/` | Build output — native DLLs, managed assemblies, MDK, logs, mods |
 | `workshop-publish/` | Steam Workshop publishing staging |
-| `_manifest/` | SPDX 2.2 SBOM (generated during CI) |
-| `docs/` | Empty — documentation hosted externally |
+| `.opencode/` | OpenCode commands and configuration (`commands/commit.md`, `commands/release-info.md`) |
 
 ---
 
@@ -162,44 +179,51 @@ Build logic is in `build/Build.cs` — a NUKE C# build project. Bootstrapped via
 
 | Target | What it does |
 |---|---|
-| `BuildNative` | CMake build of native runtime (modcorenative, hljit, libhl) + Goldberg emulator copy + native member scanning via DCCMTool |
-| `PrepareHLC` | Copies TinyCC headers + crashlink Python source |
-| `GenerateGameProxy` | Runs DCCMTool to generate game proxy assemblies from `hlboots/*.dat` |
-| `BuildCore` | Builds DCCMShell + ModCore.ModLoader.Default; publishes SteamStartShell, GOGStartShell, DeadCellsModding |
-| `BuildMDK` | Builds `mdk/mdk.slnx` and publishes to `bin/core/mdk/` |
+| `BuildNative` | CMake build of native runtime (modcorenative, hljit, libhl) + Goldberg copy + Mesa d3d12 copy + native member scanning via DCCMTool |
+| `PrepareHLC` | Copies TinyCC headers + crashlink Python source into build output |
+| `GenerateGameProxy` | Runs DCCMTool to generate per-boot proxies from `hlboots/*.dat` and merges `GameProxy.dll` |
+| `BuildCore` | Builds DCCMShell + ModCore.ModLoader.Default; publishes SteamStartShell/GOGStartShell (Windows) and DeadCellsModding |
+| `BuildMDK` | Builds `mdk/mdk.slnx` and publishes/copies to `bin/core/mdk/` |
 | `BuildAssets` | Builds ModCore.Assets (requires MDK installed first) |
-| `BuildAll` | BuildNative → BuildCore → BuildMDK → BuildAssets |
+| `BuildAll` | Default target — BuildNative → BuildCore → BuildMDK → BuildAssets |
+| `DownloadWin64Bin` / `DownloadLinux64Bin` | Fetch latest release archives into `workshop-publish/` |
 | `GenerateReleaseInfo` | Uses OpenCode to generate release notes |
+| `Release` | Commits release info, tags `v<version>`, and pushes |
 | `PublishMAPI` | Uploads to Steam Workshop |
+| `PublishDiscordAnnouncement` | Posts the release to Discord via webhook |
 
 ### Native Build (CMake + Ninja)
 
-- **Presets**: `win-x64-debug`, `win-x64-release`, `linux-x64-debug`, `linux-x64-release`
-- **Compilers**: MSVC (Windows), GCC (Linux)
+- **Presets**: `win-x64-{debug,release}`, `linux-x64-{debug,release}`, `android-x64-{debug,release}`, `android-arm64-{debug,release}` (arm64 reserved)
+- **Compilers**: MSVC (Windows), GCC (Linux), NDK (Android)
 - **C Standard**: C11, **C++ Standard**: C++17
-- **Output**: `bin/core/native/{win,linux}-x64/`
+- **Output**: `bin/core/native/{platform}-{arch}/`
 
 ### Key MSBuild Properties
 
 From root `Directory.Build.props`:
 ```xml
-<Version>35.12.4</Version>
-<TargetFramework>net10.0</TargetFramework>
+<Version>35.16.1</Version>
+<TargetFramework>net11.0</TargetFramework>
 <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 <Platforms>AnyCPU;x64</Platforms>
-<Nullable>enable</Nullable>
-<ImplicitUsings>enable</ImplicitUsings>
+<EmbedUntrackedSources>true</EmbedUntrackedSources>
 <CETCompat>false</CETCompat>
+<Features>runtime-async=on</Features>
 ```
+
+`Nullable` and `ImplicitUsings` are enabled per-project (test and sample projects set them
+explicitly) rather than globally in `Directory.Build.props`.
 
 ### Build Output Structure
 
 ```
 bin/core/
-├── host/startup/       — DeadCellsModding.exe (launcher) + steam/gog shells
+├── host/startup/       — DeadCellsModding.exe (launcher) + steam/gog shells (deadcells.exe)
 ├── host/               — ModCore.dll, DCCMShell.dll, all managed assemblies
 ├── mdk/                — MDK toolchain (install.ps1, ref/, bin/, tools/)
-└── native/{platform}/  — modcorenative.dll, libhl.dll, hljit.dll, hdlls, goldberg/
+├── crashlink/          — crashlink + hlrun Python sources
+└── native/{platform}/  — modcorenative.dll, libhl.dll, hljit.dll, hdlls, goldberg/, mesa-d3d12/
 ```
 
 ---
@@ -288,6 +312,7 @@ internal class MyModule : CoreModule<MyModule>, IOnGameInit
 | Interface | When Called |
 |---|---|
 | `IOnCoreModuleInitializing` | After preload modules load, before normal modules |
+| `IOnAdvancedModuleInitializing` | During advanced module initialization |
 | `IOnPluginInitializing` | During plugin initialization |
 | `IOnPluginInitialized` | After all plugins initialized |
 | `IOnBeforeGameInit` | Before game Haxe entry point executes |
@@ -297,6 +322,10 @@ internal class MyModule : CoreModule<MyModule>, IOnGameInit
 | `IOnGameExit` | When game exits |
 | `IOnSaveConfig` | On config save |
 | `IOnAfterLoadingAssets` | After game resources loaded |
+| `IOnAfterLoadingCDB` / `IOnLoadedPak` / `IOnUpdatedPakRecord` / `IOnLoadingLanguage` | CDB and Pak loading |
+| `IOnBeforeLoadingSave` / `IOnAfterLoadingSave` / `IOnBeforeSavingSave` / `IOnAfterSavingSave` | Save lifecycle |
+| `IOnBeforeSavingModdedSave` / `IOnAfterLoadingModdedSave` | Modded save data |
+| `IOnHashlinkVMReady` / `IOnResolveNativeLib` / `IOnResolveNativeFunction` | Hashlink VM and native resolution |
 | `IOnHeroInit` / `IOnHeroUpdate` / `IOnHeroDispose` | Hero lifecycle |
 
 Full list in `sources/ModCore/Events/Interfaces/`.
@@ -346,16 +375,17 @@ var saveData = new SaveData<MyDataType>("unique_save_key");
 
 ### Framework
 
-- **xUnit v3** (`xunit.v3` NuGet, v3.2.2)
+- **xUnit v3** (`xunit.v3` NuGet, v4.0.2) on Microsoft.Testing.Platform
 - **Test project**: `test/TestRunner/TestRunner.csproj`
 - **Test mod**: `test/TestMod/` — compiled and loaded during integration tests
 - **Custom framework**: `DCCMTestFramework` extending `XunitTestFramework` (handles rerun detection)
+- **Benchmarks**: `test/Benchmark/` — BenchmarkDotNet project
 
 ### Configuration
 
 - Single-threaded execution (`parallelizeAssembly: false`)
 - Long test timeout: 600 seconds
-- Test categories in separate files: `ExceptionTest.cs`, `GcTest.cs`, `HashlinkTest.cs`, `HaxeProxyTest.cs`, `ModLoaderTest.cs`, `ObjectInheritanceTest.cs`
+- Test categories in separate files: `ExceptionTest.cs`, `GcTest.cs`, `HashlinkTest.cs`, `HaxeProxyTest.cs`, `ModLoaderTest.cs`, `ObjectInheritanceTest.cs`, `GameProxyJitTest.cs`, `HarmonyXTest.cs`
 
 ### Test Patterns
 
@@ -387,17 +417,22 @@ dotnet test test/TestRunner/TestRunner.csproj
 ### Jobs
 
 1. **`build`** (matrix: win/linux × debug/release)
-   - Setup .NET SDK → download deps → build native + core + MDK + assets
+   - Setup .NET SDK (11) → download deps → build native + core + MDK + assets
    - Generate SPDX SBOM → attest artifacts
 
-2. **`test`** (depends on build, matrix: win/linux × debug × HLC × platform)
-   - Setup env → install MDK → `dotnet test`
+2. **`test`** (depends on build; Windows, debug, matrix: HLC × steam/gog)
+   - Setup env → install MDK → `dotnet test` with `DCCM_USE_HLC`
    - Upload crash dumps on failure
 
-3. **`test-build-samples`** (depends on build, windows)
+3. **`benchmark`** (depends on build, windows)
+   - Downloads build artifacts, copies `hlboot.dat`, runs BenchmarkDotNet
+
+4. **`test-build-samples`** (depends on build, windows)
    - Install MDK → build all sample mods
 
-4. **`publish-release`** (on tag push)
+5. **`sign-win`** (on tag push) — code-sign Windows artifacts via SignPath
+
+6. **`publish-release`** (on tag push)
    - Pack artifacts → create GitHub Release with body from `latest-release.md`
 
 ---
@@ -411,6 +446,7 @@ dotnet test test/TestRunner/TestRunner.csproj
 | `sources/native/3rd/hashlink` | `HaxeFoundation/hashlink` — HashLink VM |
 | `sources/native/hdlls` | `dead-cells-core-modding/hdlls` — Custom HashLink DLLs |
 | `sources/native/3rd/tinycc` | `dead-cells-core-modding/tinycc` — TinyCC fork |
+| `sources/native/3rd/cv2pdb` | `dead-cells-core-modding/cv2pdb` — CV/PDB conversion |
 | `3rd/crashlink` | `dead-cells-core-modding/crashlink` — HL bytecode tools |
 
 ### Key NuGet Packages
@@ -418,12 +454,16 @@ dotnet test test/TestRunner/TestRunner.csproj
 | Package | Used For |
 |---|---|
 | `Mono.Cecil` 0.11.6 | IL manipulation |
-| `MonoMod.RuntimeDetour` 25.3.4 | Runtime detours/hooks |
-| `Serilog` 4.3.1 | Structured logging |
+| `MonoMod.Core` 1.4.0-prerelease.3 | Core detour/IL helpers |
+| `MonoMod.RuntimeDetour` 25.4.0-prerelease.3 | Runtime detours/hooks |
+| `HarmonyX` 2.16.1 | Harmony patch compatibility |
+| `Serilog` 4.4.0 | Structured logging |
 | `Newtonsoft.Json` 13.0.4 | JSON serialization |
-| `Microsoft.Windows.CsWin32` 0.3.298 | Windows P/Invoke code gen |
+| `Microsoft.Windows.CsWin32` 0.3.369 | Windows P/Invoke code gen |
 | `Fody` 6.9.3 | Compile-time IL weaving |
-| `xunit.v3` 3.2.2 | Testing |
+| `SDL3-CS` 3.4.20 | SDL3 bindings |
+| `SharpPdb` 1.0.4 | PDB parsing for native member scanner |
+| `xunit.v3` 4.0.2 | Testing |
 
 ---
 
@@ -435,25 +475,23 @@ For mod projects consuming this framework:
 
 ```xml
 <ModName>MyMod</ModName>
-<ModType>mod|library</ModType>
+<ModType>mod|library|plugin</ModType>
 <ModMain>MyMod.MainClass</ModMain>
 <AutoInstallMod>true</AutoInstallMod>        <!-- auto-copy to mods/ -->
-<GenerateDiffCDB>true</GenerateDiffCDB>      <!-- modify game data -->
+<GenerateDiffCDB>true</GenerateDiffCDB>      <!-- modify game data (requires GameVersion) -->
 <GenerateSinglePakFile>true</GenerateSinglePakFile>  <!-- single res.pak -->
 <GameVersion>35</GameVersion>
+<NoModCore>true</NoModCore>                  <!-- opt out of default ModCore references -->
 ```
+
+Extra MSBuild items: `<ModDependency Include="..."/>`, `<ModTag Include="..."/>`, and
+`<PackAssets Include="assets/**/*" RootInPak="my_mod"/>` for asset packing.
 
 ### `modinfo.json`
 
-```json
-{
-  "name": "MyMod",
-  "version": "1.0.0",
-  "type": "mod",
-  "main": "MyMod.MainClass",
-  "dependencies": []
-}
-```
+`modinfo.json` is generated by the MDK during build (`GenerateModInfo`, default on), merging
+`ModName`, `Version`, `ModType`, tags, dependencies, and executable/Pak metadata. Commit a
+hand-written `modinfo.json` only as an optional template; it is merged with generated values.
 
 ### Entry Point Class
 
@@ -671,3 +709,7 @@ This project uses OpenCode with custom commands defined in `.opencode/commands/`
 11. **Build with NUKE, not plain `dotnet build`** — Use `build.ps1` or `build.sh` to invoke the full build pipeline.
 
 12. **Document breaking changes in release notes** — API changes affecting mod authors must be noted.
+
+13. **HashlinkNET.\* generates pseudocode DLLs** — `HashlinkNET.Bytecode` and `HashlinkNET.Compiler` translate game HL bytecode into .NET assemblies; keep this context when changing codegen or proxies.
+
+14. **Two execution paths (native + HLC)** — Native hooks and the TinyCC-based HLC/pseudocode runtime coexist. Changes to hooks, marshaling, or proxies should account for both `DCCM_USE_HLC` modes.
