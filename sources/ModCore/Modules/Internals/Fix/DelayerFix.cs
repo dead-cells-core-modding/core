@@ -32,7 +32,7 @@ namespace ModCore.Modules.Internals.Fix
 
             int i = count - 1;
             var t = task.t;
-            for (; i > 0; i--)
+            for (; i > 0;)
             {
                 var prev = items[i - 1];
                 if (!(t < accessor_t.GetValue<double>(prev)))
