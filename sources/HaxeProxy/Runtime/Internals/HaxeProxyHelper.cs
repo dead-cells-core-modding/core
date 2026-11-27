@@ -82,7 +82,8 @@ namespace HaxeProxy.Runtime.Internals
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? GetFieldById<T>( HaxeProxyBase self, string name, ref ObjFieldInfoCache cache )
+        public static object? GetFieldById<T>( HaxeProxyBase self, string name,
+            ref ObjFieldInfoCache cache, ref object? valueCache )
             where T : class
         {
             Debug.Assert(self.GetType() != null);
@@ -93,22 +94,46 @@ namespace HaxeProxy.Runtime.Internals
             EnsureFieldInfo(self, name, ref cache);
             if (cache.offset == 0)
             {
-                return (T?) GetProxy<T>(
+                return (T?)GetProxy<T>(
                     ((IHashlinkFieldObject)self.HashlinkObj).GetFieldValue(name)
                     );
             }
             Debug.Assert(cache.field != null);
-            var result = HashlinkMarshal.ReadData((void*)(self.HashlinkPointer + cache.offset),
+
+            var fieldValuePtr = (void**)(self.HashlinkPointer + cache.offset);
+            var valuePtr = *fieldValuePtr;
+
+            if (valuePtr == null)
+            {
+                if (!Unsafe.IsNullRef(ref valueCache))
+                {
+                    valueCache = null;
+                }
+                return null;
+            }
+
+            if (!Unsafe.IsNullRef(ref valueCache))
+            {
+                if (valueCache is HaxeProxyBase hobj)
+                {
+                    if (hobj.HashlinkPointer == (nint)valuePtr)
+                    {
+                        return hobj;
+                    }
+                }
+            }
+
+            var result = HashlinkMarshal.ReadData(fieldValuePtr,
                 cache.field);
 
             if (typeof(T) == typeof(object) &&
                 cache.isConstructor &&
                 result is HashlinkClosure ctorClosure)
             {
-                return ctorClosure.NoClosure;
+                return valueCache = ctorClosure.NoClosure;
             }
 
-            return (T?) GetProxy<T>(result);
+            return valueCache = (T?) GetProxy<T>(result);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetValueFieldById<T>( HaxeProxyBase self, string name, ref ObjFieldInfoCache cache )
@@ -127,7 +152,8 @@ namespace HaxeProxy.Runtime.Internals
             return *(T*)(self.HashlinkPointer + cache.offset);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetFieldById( HaxeProxyBase self, object? value, string name, ref ObjFieldInfoCache cache )
+        public static void SetFieldById( HaxeProxyBase self, object? value, string name, 
+            ref ObjFieldInfoCache cache, ref object? valueCache )
         {
             Debug.Assert(self.GetType() != null);
             Debug.Assert(value == null || value?.GetType() != null);
@@ -139,6 +165,11 @@ namespace HaxeProxy.Runtime.Internals
                 return;
             }
             Debug.Assert(cache.field != null);
+
+            if (!Unsafe.IsNullRef(ref valueCache))
+            {
+                valueCache = value as HaxeProxyBase;
+            }
             HashlinkMarshal.WriteData((void*)(self.HashlinkPointer + cache.offset),
                 value, cache.field);
         }

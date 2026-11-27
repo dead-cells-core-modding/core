@@ -64,21 +64,28 @@ namespace HashlinkNET.Compiler.Utils
 
         }
 
-        private static FieldReference GetHlFieldInfoCache( TypeDefinition type, string name, RuntimeImports rdata )
+        private static (FieldReference fieldCache, FieldReference? valueCache) GetHlFieldInfoCache( TypeDefinition type, string name, RuntimeImports rdata )
         {
-            var cache = type.FindField("cachedFieldInfo_" + name);
-            if (cache == null)
+            var fieldCache = type.FindField("cachedFieldInfo_" + name);
+            if (fieldCache == null)
             {
-                cache = new("cachedFieldInfo_" + name, FieldAttributes.Private | FieldAttributes.Static,
+                fieldCache = new("cachedFieldInfo_" + name, FieldAttributes.Private | FieldAttributes.Static,
                     rdata.objFieldInfoCache);
-                type.Fields.Add(cache);
+                type.Fields.Add(fieldCache);
             }
             if (type.GenericParameters.Count != 0)
             {
-                return new FieldReference(cache.Name, cache.FieldType,
-                    type.MakeGenericInstanceType([.. type.GenericParameters]));
+                return (new FieldReference(fieldCache.Name, fieldCache.FieldType,
+                    type.MakeGenericInstanceType([.. type.GenericParameters])), null);
             }
-            return cache;
+            var valueCache = type.FindField("cachedFieldValue_" + name);
+            if (valueCache == null)
+            {
+                valueCache = new("cachedFieldValue_" + name, FieldAttributes.Private,
+                    rdata.objectType);
+                type.Fields.Add(valueCache);
+            }
+            return (fieldCache, valueCache);
         }
         public static void EmitFieldGetterSetter( this TypeDefinition type,
             PropertyDefinition property,
@@ -125,24 +132,26 @@ namespace HashlinkNET.Compiler.Utils
             string name, TypeReference ft )
         {
             var rdata = container.GetGlobalData<RuntimeImports>();
-            var cache = GetHlFieldInfoCache(type, name, rdata);
+            (var fieldCache, var valueCache) = GetHlFieldInfoCache(type, name, rdata);
             if (ft.Namespace == "System" && ft.Name.StartsWith("Nullable", StringComparison.Ordinal) && ft.IsValueType)
             {
                 il.Emit(OpCodes.Ldstr, name);
-                il.Emit(OpCodes.Ldsflda, cache);
+                il.Emit(OpCodes.Ldsflda, fieldCache);
+                il.Emit(OpCodes.Ldnull);
                 il.Emit(OpCodes.Call, rdata.hGetFieldById.MakeInstance(rdata.objectType));
                 il.Emit(OpCodes.Unbox_Any, ft);
             }
             else if (ft.IsValueType)
             {
                 il.Emit(OpCodes.Ldstr, name);
-                il.Emit(OpCodes.Ldsflda, cache);
+                il.Emit(OpCodes.Ldsflda, fieldCache);
                 il.Emit(OpCodes.Call, rdata.hGetValueFieldById.MakeInstance(ft));
             }
             else if (ft.IsGenericParameter)
             {
                 il.Emit(OpCodes.Ldstr, name);
-                il.Emit(OpCodes.Ldsflda, cache);
+                il.Emit(OpCodes.Ldsflda, fieldCache);
+                il.Emit(OpCodes.Ldnull);
                 il.Emit(OpCodes.Call, rdata.hGetFieldById.MakeInstance(rdata.objectType));
                 il.Emit(OpCodes.Call, rdata.hGetProxy.MakeInstance(ft));
                 il.Emit(OpCodes.Unbox_Any, ft);
@@ -150,7 +159,16 @@ namespace HashlinkNET.Compiler.Utils
             else
             {
                 il.Emit(OpCodes.Ldstr, name);
-                il.Emit(OpCodes.Ldsflda, cache);
+                il.Emit(OpCodes.Ldsflda, fieldCache);
+                if (valueCache != null)
+                {
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Ldflda, valueCache);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Ldnull);
+                }
                 il.Emit(OpCodes.Call, rdata.hGetFieldById.MakeInstance(ft));
             }
         }
@@ -159,7 +177,7 @@ namespace HashlinkNET.Compiler.Utils
             string name, TypeReference ft )
         {
             var rdata = container.GetGlobalData<RuntimeImports>();
-            var cache = GetHlFieldInfoCache(type, name, rdata);
+            (var fieldCache, var valueCache) = GetHlFieldInfoCache(type, name, rdata);
 
             if (ft is GenericParameter ||
                 (ft.Namespace == "System" && ft.Name.StartsWith("Nullable", StringComparison.Ordinal) && ft.IsValueType)
@@ -167,20 +185,30 @@ namespace HashlinkNET.Compiler.Utils
             {
                 il.Emit(OpCodes.Box, ft);
                 il.Emit(OpCodes.Ldstr, name);
-                il.Emit(OpCodes.Ldsflda, cache);
+                il.Emit(OpCodes.Ldsflda, fieldCache);
+                il.Emit(OpCodes.Ldnull);
                 il.Emit(OpCodes.Call, rdata.hSetFieldById);
             }
             else if (ft.IsValueType)
             {
                 il.Emit(OpCodes.Ldstr, name);
-                il.Emit(OpCodes.Ldsflda, cache);
+                il.Emit(OpCodes.Ldsflda, fieldCache);
                 il.Emit(OpCodes.Call, rdata.hSetValueFieldById.MakeInstance(ft));
             }
             else
             {
                 il.Emit(OpCodes.Castclass, ft);
                 il.Emit(OpCodes.Ldstr, name);
-                il.Emit(OpCodes.Ldsflda, cache);
+                il.Emit(OpCodes.Ldsflda, fieldCache);
+                if (valueCache != null)
+                {
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Ldflda, valueCache);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Ldnull);
+                }
                 il.Emit(OpCodes.Call, rdata.hSetFieldById);
             }
         }
