@@ -12,7 +12,7 @@ using System.Text;
 namespace ModCore.Modules.Internals
 {
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
-    internal class AtlasRefresher : CoreModule<AtlasRefresher>,
+    internal class AtlasRefresherModule : CoreModule<AtlasRefresherModule>,
         IOnUpdatedPakRecord
     {
         private record class CachedAtlasId(string Name);

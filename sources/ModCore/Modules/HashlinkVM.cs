@@ -112,7 +112,7 @@ namespace ModCore.Modules
 
             Logger.Information("Initializing Haxe Utils Utils");
 
-            HashlinkMarshal.Initialize(Context->m, HaxeProxyGenerator.Instance.Code);
+            HashlinkMarshal.Initialize(Context->m, HaxeProxyGeneratorModule.Instance.Code);
         }
 
         void IOnNativeEvent.OnNativeEvent( IOnNativeEvent.Event ev )

@@ -27,7 +27,7 @@ stereo-encoding = basic
 
             if (Core.Config.Value.UseOldSFX)
             {
-                new LegacySFX().Init();
+                new LegacySFXModule().Init();
             }
         }
     }

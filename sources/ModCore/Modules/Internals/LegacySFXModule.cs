@@ -13,7 +13,7 @@ using Path = System.IO.Path;
 
 namespace ModCore.Modules.Internals
 {
-    internal class LegacySFX : CoreModule<LegacySFX>,
+    internal class LegacySFXModule : CoreModule<LegacySFXModule>,
         IOnAdvancedModuleInitializing
     {
         private static class HashlinkHooks

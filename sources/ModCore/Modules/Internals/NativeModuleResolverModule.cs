@@ -11,7 +11,7 @@ using System.Runtime.Versioning;
 namespace ModCore.Modules.Internals
 {
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload | CoreModuleAttribute.CoreModuleKind.Important)]
-    internal unsafe class NativeModuleResolver : CoreModule<NativeModuleResolver>,
+    internal unsafe class NativeModuleResolverModule : CoreModule<NativeModuleResolverModule>,
         IOnCoreModuleInitializing,
         IOnResolveNativeFunction,
         IOnResolveNativeLib

@@ -8,7 +8,7 @@ using System.Text;
 namespace ModCore.Modules.Internals
 {
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
-    internal class PluginLoader : CoreModule<PluginLoader>, IOnCoreModuleInitializing
+    internal class PluginModule : CoreModule<PluginModule>, IOnCoreModuleInitializing
     {
         private readonly CacheFile lastLoadedExtraPlugins = new("last_load_extra_plugins_paths");
         public override int Priority => ModulePriorities.PluginLoader;
