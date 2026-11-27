@@ -141,24 +141,21 @@ namespace ModCore.Native
                 }
             }
 
-            if (!needRemark)
+            if (needRemark)
             {
-                return;
+                Debug.Assert(GC_STACK_COUNT(pglobal_mark_stack) > 0);
+                var c = GC_STACK_COUNT(pglobal_mark_stack);
+
+                //Remark
+                gc_dispatch_mark(pglobal_mark_stack, true);
+
+                Debug.Assert(GC_STACK_COUNT(pglobal_mark_stack) == 0);
+
+                while (*pmark_threads_active != 0)
+                {
+                    hl_semaphore_acquire(*pmark_threads_done);
+                }
             }
-
-            Debug.Assert(GC_STACK_COUNT(pglobal_mark_stack) > 0);
-            var c = GC_STACK_COUNT(pglobal_mark_stack);
-
-            //Remark
-            gc_dispatch_mark(pglobal_mark_stack, true);
-
-            Debug.Assert(GC_STACK_COUNT(pglobal_mark_stack) == 0);
-
-            while (*pmark_threads_active != 0)
-            {
-                hl_semaphore_acquire(*pmark_threads_done);
-            }
-
             for (int i = 0; i < roots.Length; i++)
             {
                 var ptr = roots[i];
