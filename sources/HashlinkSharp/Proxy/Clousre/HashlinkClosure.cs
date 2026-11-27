@@ -27,6 +27,7 @@ namespace Hashlink.Proxy.Clousre
 
         private FastInvokerCache? cachedCallbackInvoker;
         private FastInvokerCache? cachedWrapperInvoker;
+        private Delegate? cachedCallbackAdaptDelegate;
 
         public HashlinkClosure( HL_type* funcType, void* funcPtr, void* self ) :
             this(HashlinkObjPtr.Get(hl_alloc_closure_ptr(EnsureThreadRegistered(funcType), funcPtr, self)))
@@ -106,7 +107,8 @@ namespace Hashlink.Proxy.Clousre
             if (callback != null)
             {
                 args ??= [];
-                return FastDynamicInvoke(callback.Target!.CreateAdaptDelegate(), ref cachedCallbackInvoker, args);
+                cachedCallbackAdaptDelegate ??= callback.Target!.CreateAdaptDelegate();
+                return FastDynamicInvoke(cachedCallbackAdaptDelegate, ref cachedCallbackInvoker, args);
             }
             CheckWrapper();
             args ??= [];
