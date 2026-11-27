@@ -99,6 +99,7 @@ namespace HaxeProxy.Runtime.Internals
                     );
             }
             Debug.Assert(cache.field != null);
+            Debug.Assert(cache.field.TypeKind.IsManagedPointer());
 
             var fieldValuePtr = (void**)(self.HashlinkPointer + cache.offset);
             var valuePtr = *fieldValuePtr;

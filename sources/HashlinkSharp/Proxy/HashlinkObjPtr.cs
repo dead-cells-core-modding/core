@@ -1,12 +1,16 @@
 using Hashlink.Marshaling;
+using System.Runtime.InteropServices;
 
 namespace Hashlink.Proxy
 {
+    [StructLayout(LayoutKind.Explicit)]
     public readonly unsafe struct HashlinkObjPtr : IHashlinkPointer
     {
         public HL_type* Type => *(HL_type**)Pointer;
         public TypeKind TypeKind => Type->kind;
         public bool IsNull => Pointer == 0;
+
+        [field: FieldOffset(0)]
         public nint Pointer {
             get;
         }
