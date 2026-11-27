@@ -391,9 +391,9 @@ namespace ModCore.Modules
         /// <summary>
         /// Insert a custom button at the bottom of the pause menu and bind a callback to it.
         /// </summary>
-        /// <param name="buttonText"></param>
-        /// <param name="onClick"></param>
-        /// <param name="pause"></param>
+        /// <param name="buttonText">The text displayed on the button.</param>
+        /// <param name="onClick">The callback invoked when the button is clicked.</param>
+        /// <param name="pause">The pause menu to add the button to.</param>
         /// <param name="index">Insertion position index (offset relative to the existing bottom button)</param>
         public void AddCustomButtonToPause( string buttonText, Action<Pause> onClick, Pause pause, int index )
         {

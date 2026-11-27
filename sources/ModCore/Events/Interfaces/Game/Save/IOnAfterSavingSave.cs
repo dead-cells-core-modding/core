@@ -7,7 +7,7 @@ namespace ModCore.Events.Interfaces.Game.Save
     public interface IOnAfterSavingSave
     {
         /// <summary>
-        /// 
+        /// Raised after a save file has been saved.
         /// </summary>
         void OnAfterSavingSave();
     }

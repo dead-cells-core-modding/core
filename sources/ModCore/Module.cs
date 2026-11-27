@@ -6,7 +6,7 @@ namespace ModCore
     /// <summary>
     /// Base class for all modules
     /// </summary>
-    /// <typeparam name="TModule"></typeparam>
+    /// <typeparam name="TModule">The concrete module type.</typeparam>
     public abstract class Module<TModule> : Module where TModule : Module<TModule>
     {
         /// <summary>
@@ -15,7 +15,7 @@ namespace ModCore
         public static new ILogger Logger { get; } = Log.ForContext("SourceContext", typeof(TModule).Name);
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="Module{TModule}"/> class.
         /// </summary>
         /// <exception cref="InvalidOperationException">Module initialized multiple times</exception>
         public Module()
@@ -55,7 +55,7 @@ namespace ModCore
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="Module"/> class and registers it as an event receiver.
         /// </summary>
         public Module()
         {

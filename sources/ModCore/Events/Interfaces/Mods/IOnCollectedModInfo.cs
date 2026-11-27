@@ -9,9 +9,9 @@ namespace ModCore.Events.Interfaces.Mods
     public interface IOnCollectedModInfo
     {
         /// <summary>
-        /// 
+        /// Raised when the mod loader collects a mod.
         /// </summary>
-        /// <param name="info"></param>
+        /// <param name="info">The metadata of the collected mod.</param>
         void OnCollectedModInfo( ModInfo info );
     }
 }

@@ -7,7 +7,7 @@ namespace ModCore.Events.Interfaces.Game.Hero
     public interface IOnHeroInit
     {
         /// <summary>
-        /// 
+        /// Raised when the hero is being initialized.
         /// </summary>
         void OnHeroInit();
     }

@@ -1,7 +1,7 @@
 namespace ModCore.Serialization
 {
     /// <summary>
-    /// 
+    /// Provides callbacks around hxbit serialization and deserialization.
     /// </summary>
     public interface IHxbitSerializeCallback
     {

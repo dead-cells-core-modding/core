@@ -41,7 +41,7 @@ using System.Runtime.InteropServices;
 namespace ModCore.Modules
 {
     /// <summary>
-    /// 
+    /// Manages game lifecycle hooks and the main thread synchronization context.
     /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     public class Game : CoreModule<Game>,

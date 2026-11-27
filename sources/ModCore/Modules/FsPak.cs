@@ -12,7 +12,7 @@ using System.Diagnostics;
 namespace ModCore.Modules
 {
     /// <summary>
-    /// 
+    /// Provides access to the game's pak file system and resource loading hooks.
     /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     public class FsPak : CoreModule<FsPak>,

@@ -9,6 +9,9 @@ namespace ModCore.Storage
     /// </summary>
     public class FolderInfo
     {
+        /// <summary>
+        /// Occurs when a folder path is rebuilt.
+        /// </summary>
         public static event Action<string>? OnRebuildInfo;
         private static readonly Dictionary<string, FolderInfo> folders = [];
         private static readonly string platform_name =
@@ -86,14 +89,14 @@ namespace ModCore.Storage
         /// <summary>
         /// Get the full path of a file in the folder (the file does not necessarily exist)
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
+        /// <param name="name">The file name.</param>
+        /// <returns>The full path of the file.</returns>
         public string GetFilePath( string name )
         {
             return Path.Combine(FullPath, name);
         }
         /// <summary>
-        /// 
+        /// Gets the <see cref="DirectoryInfo"/> for this folder, creating the folder if necessary.
         /// </summary>
         public DirectoryInfo Info
         {
@@ -177,7 +180,7 @@ namespace ModCore.Storage
         /// Get FolderInfo by name
         /// </summary>
         /// <param name="name">The name of the folder</param>
-        /// <returns></returns>
+        /// <returns>The folder with the specified name, or <see langword="null"/> if it does not exist.</returns>
         public static FolderInfo? GetFolder( string name )
         {
             return folders.TryGetValue(name.ToUpperInvariant(), out var folder) ? folder : null;

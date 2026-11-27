@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 namespace ModCore.Serialization.Converters
 {
     /// <summary>
-    /// 
+    /// Converts <see cref="HaxeObject"/> instances to and from hxbit references during JSON serialization.
     /// </summary>
     public class HxbitConverter : JsonConverter<HaxeObject>
     {

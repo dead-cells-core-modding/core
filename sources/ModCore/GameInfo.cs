@@ -4,7 +4,7 @@ using dc.libs;
 namespace ModCore
 {
     /// <summary>
-    /// 
+    /// Provides information about the running game.
     /// </summary>
     public static class GameInfo
     {

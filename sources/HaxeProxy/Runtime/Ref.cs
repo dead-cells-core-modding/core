@@ -7,8 +7,8 @@ namespace HaxeProxy.Runtime
     /// <summary>
     /// A wrapper for a .NET reference
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="value"></param>
+    /// <typeparam name="T">The referenced value type.</typeparam>
+    /// <param name="value">The value to reference.</param>
     [StructLayout(LayoutKind.Sequential)]
     public unsafe ref struct Ref<T>( ref T value )
     {
@@ -32,14 +32,14 @@ namespace HaxeProxy.Runtime
         /// <summary>
         /// Create a ref from a .NET ref
         /// </summary>
-        /// <param name="val"></param>
-        /// <returns></returns>
+        /// <param name="val">The value to reference.</param>
+        /// <returns>A reference wrapping <paramref name="val"/>.</returns>
         public static Ref<T> From( ref T val ) => new(ref val);
         /// <summary>
         /// Create a ref from a .NET ref
         /// </summary>
-        /// <param name="val"></param>
-        /// <returns></returns>
+        /// <param name="val">The output value to reference, initialized to its default value.</param>
+        /// <returns>A reference wrapping <paramref name="val"/>.</returns>
         public static Ref<T> Out( [UnscopedRef] out T? val )
         {
             val = default;
@@ -65,10 +65,10 @@ namespace HaxeProxy.Runtime
         public bool IsNull => Unsafe.IsNullRef(ref value);
 
         /// <summary>
-        /// 
+        /// Creates a read-only reference from a .NET value.
         /// </summary>
-        /// <param name="val"></param>
-        /// <returns></returns>
+        /// <param name="val">The value to reference.</param>
+        /// <returns>A reference wrapping <paramref name="val"/>.</returns>
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         public static Ref<T> In( [UnscopedRef] in T val )
         {

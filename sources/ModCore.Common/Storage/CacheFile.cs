@@ -38,7 +38,7 @@ namespace ModCore.Storage
         }
 
         /// <summary>
-        /// 
+        /// Initializes a cache file with the specified name.
         /// </summary>
         /// <param name="name">The name of the cache file</param>
         public CacheFile( string name )
@@ -136,7 +136,7 @@ namespace ModCore.Storage
         /// <summary>
         /// Try to get the cache file contents.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">The cache file contents when the cache is valid.</param>
         /// <returns>A value indicating whether the cache is valid</returns>
         public bool TryGetCache( out ReadOnlySpan<byte> data )
         {

@@ -18,6 +18,9 @@ using System.Runtime.CompilerServices;
 
 namespace HaxeProxy.Runtime.Internals
 {
+    /// <summary>
+    /// Provides low-level helpers used by generated Haxe proxies.
+    /// </summary>
     public static unsafe class HaxeProxyHelper
     {
         private class VirtualCastCache<T>( T value ) : IExtraDataItem where T : HaxeVirtual
@@ -81,6 +84,15 @@ namespace HaxeProxy.Runtime.Internals
                 cache.hasCache = true;
             }
         }
+        /// <summary>
+        /// Gets a managed proxy for the specified field of a Haxe object.
+        /// </summary>
+        /// <typeparam name="T">The expected proxy type.</typeparam>
+        /// <param name="self">The Haxe object proxy.</param>
+        /// <param name="name">The field name.</param>
+        /// <param name="cache">The field information cache.</param>
+        /// <param name="valueCache">The cached field value.</param>
+        /// <returns>The proxied field value, or <see langword="null"/> if the field is empty.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetFieldById<T>( HaxeProxyBase self, string name,
             ref ObjFieldInfoCache cache, ref object? valueCache )
@@ -136,6 +148,14 @@ namespace HaxeProxy.Runtime.Internals
 
             return valueCache = (T?) GetProxy<T>(result);
         }
+        /// <summary>
+        /// Gets the unmanaged value of the specified field of a Haxe object.
+        /// </summary>
+        /// <typeparam name="T">The unmanaged field value type.</typeparam>
+        /// <param name="self">The Haxe object proxy.</param>
+        /// <param name="name">The field name.</param>
+        /// <param name="cache">The field information cache.</param>
+        /// <returns>The field value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetValueFieldById<T>( HaxeProxyBase self, string name, ref ObjFieldInfoCache cache )
             where T : unmanaged
@@ -152,6 +172,14 @@ namespace HaxeProxy.Runtime.Internals
             }
             return *(T*)(self.HashlinkPointer + cache.offset);
         }
+        /// <summary>
+        /// Sets the value of the specified field of a Haxe object.
+        /// </summary>
+        /// <param name="self">The Haxe object proxy.</param>
+        /// <param name="value">The value to assign.</param>
+        /// <param name="name">The field name.</param>
+        /// <param name="cache">The field information cache.</param>
+        /// <param name="valueCache">The cached field value.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetFieldById( HaxeProxyBase self, object? value, string name, 
             ref ObjFieldInfoCache cache, ref object? valueCache )
@@ -174,6 +202,14 @@ namespace HaxeProxy.Runtime.Internals
             HashlinkMarshal.WriteData((void*)(self.HashlinkPointer + cache.offset),
                 value, cache.field);
         }
+        /// <summary>
+        /// Sets the unmanaged value of the specified field of a Haxe object.
+        /// </summary>
+        /// <typeparam name="T">The unmanaged field value type.</typeparam>
+        /// <param name="self">The Haxe object proxy.</param>
+        /// <param name="value">The value to assign.</param>
+        /// <param name="name">The field name.</param>
+        /// <param name="cache">The field information cache.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetValueFieldById<T>( HaxeProxyBase self, T value, string name, ref ObjFieldInfoCache cache )
             where T : unmanaged
@@ -187,6 +223,12 @@ namespace HaxeProxy.Runtime.Internals
             }
             *(T*)(self.HashlinkPointer + cache.offset) = value;
         }
+        /// <summary>
+        /// Gets the global value at the specified index.
+        /// </summary>
+        /// <param name="globalIndex">The global value index.</param>
+        /// <param name="cache">The cached proxy for the global value.</param>
+        /// <returns>The proxied global value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HaxeProxyBase? GetGlobal( int globalIndex, ref HaxeProxyBase? cache )
         {
@@ -203,18 +245,36 @@ namespace HaxeProxy.Runtime.Internals
                global
                 );
         }
+        /// <summary>
+        /// Converts a Haxe proxy to a Haxe object.
+        /// </summary>
+        /// <typeparam name="T">The expected Haxe object type.</typeparam>
+        /// <param name="val">The value to convert.</param>
+        /// <returns>The converted Haxe object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T ToObject<T>( HaxeProxyBase val ) where T : HaxeObject
         {
             Debug.Assert(val.GetType() != null);
             return val.AsObject<T>();
         }
+        /// <summary>
+        /// Converts a Haxe proxy to a Haxe virtual object.
+        /// </summary>
+        /// <typeparam name="T">The expected virtual proxy type.</typeparam>
+        /// <param name="val">The value to convert.</param>
+        /// <returns>The converted virtual object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T ToVirtual<T>( HaxeProxyBase val ) where T : HaxeVirtual
         {
             Debug.Assert(val.GetType() != null);
             return ((IExtraData)val).GetData<VirtualCastCache<T>>().Value;
         }
+        /// <summary>
+        /// Converts a value to a managed proxy of the requested type.
+        /// </summary>
+        /// <typeparam name="T">The requested proxy type.</typeparam>
+        /// <param name="val">The value to convert.</param>
+        /// <returns>The converted proxy, or <see langword="null"/> if <paramref name="val"/> is <see langword="null"/>.</returns>
         [return: NotNullIfNotNull(nameof(val))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetProxy<T>( object? val )
@@ -252,6 +312,11 @@ namespace HaxeProxy.Runtime.Internals
             return (T)val;
         }
 
+        /// <summary>
+        /// Creates an instance of the Hashlink type at the specified index.
+        /// </summary>
+        /// <param name="typeIndex">The Hashlink type index.</param>
+        /// <returns>The created Hashlink object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashlinkObj CreateInstance( int typeIndex )
         {
@@ -259,6 +324,12 @@ namespace HaxeProxy.Runtime.Internals
             return HashlinkMarshal.Module.PreferTypes[typeIndex].CreateInstance();
         }
 
+        /// <summary>
+        /// Creates a Hashlink enum value for the specified type and constructor.
+        /// </summary>
+        /// <param name="typeIndex">The Hashlink enum type index.</param>
+        /// <param name="elIndex">The enum constructor index.</param>
+        /// <returns>The created enum value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashlinkEnum CreateEnumInstance( int typeIndex, int elIndex )
         {
@@ -266,6 +337,12 @@ namespace HaxeProxy.Runtime.Internals
             var t = (HashlinkEnumType)HashlinkMarshal.Module.PreferTypes[typeIndex];
             return new HashlinkEnum(t, elIndex);
         }
+        /// <summary>
+        /// Gets the Hashlink type index for <typeparamref name="T"/>, caching the result.
+        /// </summary>
+        /// <typeparam name="T">The .NET type.</typeparam>
+        /// <param name="cachedValue">The cached type index.</param>
+        /// <returns>The Hashlink type index.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetTypeIndexFromType<T>( ref int cachedValue )
         {
@@ -275,6 +352,12 @@ namespace HaxeProxy.Runtime.Internals
             }
             return cachedValue = HaxeProxyManager.type2typeId[typeof(T)];
         }
+        /// <summary>
+        /// Gets or creates call information for the specified Hashlink function index.
+        /// </summary>
+        /// <param name="findex">The Hashlink function index.</param>
+        /// <param name="cache">The function information cache.</param>
+        /// <returns>The call information, or <see langword="null"/> if the function should not be called directly.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DelegateInfo? GetCallInfoById( int findex, ref FunctionInfoCache cache )
         {
@@ -312,6 +395,13 @@ namespace HaxeProxy.Runtime.Internals
             }
             return cache.directEntry;
         }
+        /// <summary>
+        /// Gets or creates a delegate that invokes the specified native function.
+        /// </summary>
+        /// <typeparam name="T">The delegate type.</typeparam>
+        /// <param name="index">The Hashlink function index.</param>
+        /// <param name="cache">The cached delegate.</param>
+        /// <returns>The delegate that invokes the native function.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Delegate GetNativeCall<T>( int index, ref Delegate? cache ) where T : Delegate
         {
@@ -326,21 +416,42 @@ namespace HaxeProxy.Runtime.Internals
             cache = ptr.CreateDelegate<T>();
             return cache;
         }
+        /// <summary>
+        /// Adds a hook to the Hashlink function at the specified index.
+        /// </summary>
+        /// <param name="findex">The Hashlink function index.</param>
+        /// <param name="hook">The hook delegate.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddHook( int findex, Delegate hook )
         {
             HaxeHookManager.AddHook(findex, hook);
         }
+        /// <summary>
+        /// Removes a hook from the Hashlink function at the specified index.
+        /// </summary>
+        /// <param name="findex">The Hashlink function index.</param>
+        /// <param name="hook">The hook delegate to remove.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveHook( int findex, Delegate hook )
         {
             HaxeHookManager.RemoveHook(findex, hook);
         }
+        /// <summary>
+        /// Determines whether the specified type is a user-defined Haxe proxy type rather than a generated one.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns><see langword="true"/> if the type is user-defined; otherwise, <see langword="false"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsCSharpCustomType( Type type )
         {
             return type.Assembly != HaxeProxyManager.proxyAssembly;
         }
+        /// <summary>
+        /// Creates a reference wrapper for the specified value.
+        /// </summary>
+        /// <typeparam name="T">The unmanaged value type.</typeparam>
+        /// <param name="val">The value to reference.</param>
+        /// <returns>A reference wrapping <paramref name="val"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Ref<T> GetRef<T>(ref T val) where T : unmanaged
         {

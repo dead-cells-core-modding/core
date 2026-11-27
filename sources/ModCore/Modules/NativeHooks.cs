@@ -8,7 +8,7 @@ using HookInfo = MonoMod.Core.ICoreNativeDetour;
 namespace ModCore.Modules
 {
     /// <summary>
-    /// 
+    /// Provides native function hooking through runtime detours.
     /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     public unsafe class NativeHooks : CoreModule<NativeHooks>
@@ -48,7 +48,7 @@ namespace ModCore.Modules
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="NativeHooks"/> class.
         /// </summary>
         public NativeHooks()
         {
@@ -58,10 +58,10 @@ namespace ModCore.Modules
         /// <summary>
         /// Create a native hook
         /// </summary>
-        /// <param name="target"></param>
-        /// <param name="detour"></param>
-        /// <param name="applyByDefault"></param>
-        /// <returns></returns>
+        /// <param name="target">The address of the target function.</param>
+        /// <param name="detour">The address of the detour function.</param>
+        /// <param name="applyByDefault">A value indicating whether the hook is applied immediately.</param>
+        /// <returns>A handle that can be used to enable or disable the hook.</returns>
         public HookHandle CreateHook( nint target, nint detour, bool applyByDefault = true )
         {
             HookHandle result;
@@ -73,17 +73,17 @@ namespace ModCore.Modules
         /// <summary>
         /// Get the original code address
         /// </summary>
-        /// <param name="hook"></param>
-        /// <returns></returns>
+        /// <param name="hook">The hook handle.</param>
+        /// <returns>The address of the original function.</returns>
         /// <exception cref="ObjectDisposedException">The hook is not enabled or has been destroyed</exception>
         public nint GetOriginalPtr( HookHandle hook )
         {
             return hook.hook?.OrigEntrypoint ?? throw new ObjectDisposedException(nameof(hook));
         }
         /// <summary>
-        /// Enabel a hook
+        /// Enables a hook
         /// </summary>
-        /// <param name="hook"></param>
+        /// <param name="hook">The hook handle to enable.</param>
         public void EnableHook( HookHandle hook )
         {
             ObjectDisposedException.ThrowIf(hook.hook == null, hook);
@@ -94,9 +94,9 @@ namespace ModCore.Modules
             hook.hook.Apply();
         }
         /// <summary>
-        /// Disable a hook
+        /// Disables a hook
         /// </summary>
-        /// <param name="hook"></param>
+        /// <param name="hook">The hook handle to disable.</param>
         public void DisableHook( HookHandle hook )
         {
             if (hook.hook == null)
@@ -107,10 +107,10 @@ namespace ModCore.Modules
         }
 
         /// <summary>
-        /// 
+        /// Gets the hook handle associated with the specified delegate.
         /// </summary>
-        /// <param name="del"></param>
-        /// <returns></returns>
+        /// <param name="del">The delegate associated with the hook.</param>
+        /// <returns>The hook handle for the delegate.</returns>
         public HookHandle GetHook( Delegate del )
         {
             return delegate2handle[del];
@@ -119,10 +119,10 @@ namespace ModCore.Modules
         /// <summary>
         /// Create a native hook
         /// </summary>
-        /// <typeparam name="TTarget"></typeparam>
-        /// <param name="nativeFunc"></param>
-        /// <param name="target"></param>
-        /// <returns></returns>
+        /// <typeparam name="TTarget">The delegate type of the hook.</typeparam>
+        /// <param name="nativeFunc">The address of the native function to hook.</param>
+        /// <param name="target">The detour delegate.</param>
+        /// <returns>A delegate that invokes the original function.</returns>
         public TTarget CreateHook<TTarget>( nint nativeFunc, TTarget target ) where TTarget : Delegate
         {
             var handle = CreateHook(nativeFunc, Marshal.GetFunctionPointerForDelegate(target));
@@ -132,17 +132,17 @@ namespace ModCore.Modules
             return orig;
         }
         /// <summary>
-        /// 
+        /// Disables the hook associated with the specified delegate.
         /// </summary>
-        /// <param name="original"></param>
+        /// <param name="original">The original or detour delegate associated with the hook.</param>
         public void DisableHook( Delegate original )
         {
             DisableHook(GetHook(original));
         }
         /// <summary>
-        /// 
+        /// Enables the hook associated with the specified delegate.
         /// </summary>
-        /// <param name="original"></param>
+        /// <param name="original">The original or detour delegate associated with the hook.</param>
         public void EnableHook( Delegate original )
         {
             EnableHook(GetHook(original));

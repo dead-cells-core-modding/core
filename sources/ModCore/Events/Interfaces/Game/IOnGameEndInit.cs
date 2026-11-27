@@ -7,7 +7,7 @@
     public interface IOnGameEndInit
     {
         /// <summary>
-        /// 
+        /// Raised when the game has finished initializing.
         /// </summary>
         public void OnGameEndInit();
     }

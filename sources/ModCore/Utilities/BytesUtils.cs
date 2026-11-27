@@ -4,7 +4,7 @@ using System.Buffers;
 namespace ModCore.Utilities
 {
     /// <summary>
-    /// 
+    /// Provides utility methods for working with Haxe <see cref="Bytes"/> instances.
     /// </summary>
     public static unsafe class BytesUtils
     {
@@ -60,6 +60,11 @@ namespace ModCore.Utilities
 
         extension( Bytes )
         {
+            /// <summary>
+            /// Creates a new <see cref="Bytes"/> instance from the specified data.
+            /// </summary>
+            /// <param name="data">The data to copy into the new byte buffer.</param>
+            /// <returns>A new <see cref="Bytes"/> instance containing a copy of <paramref name="data"/>.</returns>
             public static Bytes Create( ReadOnlySpan<byte> data )
             {
                 var bytes = Bytes.Class.alloc(data.Length);

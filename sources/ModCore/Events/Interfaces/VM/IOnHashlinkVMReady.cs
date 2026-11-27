@@ -7,7 +7,7 @@
     public interface IOnHashlinkVMReady
     {
         /// <summary>
-        /// 
+        /// Raised when the Hashlink VM is ready.
         /// </summary>
         public void OnHashlinkVMReady();
     }

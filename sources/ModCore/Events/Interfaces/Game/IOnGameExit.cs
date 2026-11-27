@@ -7,7 +7,7 @@
     public interface IOnGameExit
     {
         /// <summary>
-        /// 
+        /// Raised when the game is about to exit.
         /// </summary>
         public void OnGameExit();
     }

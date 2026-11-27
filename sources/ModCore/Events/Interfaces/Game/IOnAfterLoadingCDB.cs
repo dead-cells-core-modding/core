@@ -9,9 +9,9 @@ namespace ModCore.Events.Interfaces.Game
     public interface IOnAfterLoadingCDB
     {
         /// <summary>
-        /// 
+        /// Raised after the game has loaded the CDB.
         /// </summary>
-        /// <param name="cdb"></param>
+        /// <param name="cdb">The loaded CDB data.</param>
         public void OnAfterLoadingCDB( _Data_ cdb );
     }
 }

@@ -32,7 +32,7 @@ namespace ModCore.Modules
                 get;
             }
             /// <summary>
-            /// 
+            /// Gets the hook delegate.
             /// </summary>
             public Delegate Hook {
                 get;
@@ -68,7 +68,7 @@ namespace ModCore.Modules
         /// <param name="protoName">The name of the target method</param>
         /// <param name="hook">Hook</param>
         /// <param name="enableByDefault">A value indicating whether the hook should be automatically enabled</param>
-        /// <returns></returns>
+        /// <returns>A handle that can be used to enable or disable the hook.</returns>
         public HookHandle CreateHook( string typeName, string protoName, Delegate hook, bool enableByDefault = true )
         {
             return CreateHook(HashlinkMarshal.FindFunction(typeName, protoName), hook, enableByDefault);
@@ -79,7 +79,7 @@ namespace ModCore.Modules
         /// <param name="func">The target method</param>
         /// <param name="hook">Hook</param>
         /// <param name="enableByDefault">A value indicating whether the hook should be automatically enabled</param>
-        /// <returns></returns>
+        /// <returns>A handle that can be used to enable or disable the hook.</returns>
         public HookHandle CreateHook( HashlinkFunction func, Delegate hook, bool enableByDefault = true )
         {
             ArgumentNullException.ThrowIfNull(func);

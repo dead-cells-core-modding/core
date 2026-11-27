@@ -16,12 +16,12 @@ namespace ModCore.Storage
         /// <summary>
         /// Returns the data that should be serialized when serialized by hxbit
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The data to serialize.</returns>
         TData GetData();
         /// <summary>
         /// Used to set the state of the object when deserialized by hxbit
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">The deserialized data.</param>
         void SetData( TData data );
     }
 }

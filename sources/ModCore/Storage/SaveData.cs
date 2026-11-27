@@ -7,7 +7,7 @@ namespace ModCore.Storage
     /// <summary>
     /// Used to store data saved with game saves
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of the saved data.</typeparam>
     public class SaveData<T> : IEventReceiver,
         IOnBeforeSavingModdedSave,
         IOnAfterLoadingModdedSave

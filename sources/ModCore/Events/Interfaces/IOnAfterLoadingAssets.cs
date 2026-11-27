@@ -10,7 +10,7 @@ namespace ModCore.Events.Interfaces
     public interface IOnAfterLoadingAssets
     {
         /// <summary>
-        /// 
+        /// Raised after the game assets have been loaded.
         /// </summary>
         void OnAfterLoadingAssets();
     }

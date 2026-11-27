@@ -7,10 +7,10 @@ namespace ModCore.Events.Interfaces.VM
     public interface IOnResolveNativeLib
     {
         /// <summary>
-        /// 
+        /// Raised when the VM resolves a native library.
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
+        /// <param name="name">The name of the library to resolve.</param>
+        /// <returns>A handle to the resolved library, or the default value to continue with the default resolution.</returns>
         EventResult<nint> OnResolveNativeLib( string name );
     }
 }

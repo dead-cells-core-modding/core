@@ -26,8 +26,8 @@ namespace ModCore.Utilities
         /// <summary>
         /// Convert a string to a Haxe string
         /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
+        /// <param name="str">The .NET string to convert.</param>
+        /// <returns>The equivalent Haxe string.</returns>
         public static dc.String AsHaxeString( this string str )
         {
             if (str.Length > 1024)

@@ -18,7 +18,7 @@ using System.Text;
 namespace ModCore.Modules
 {
     /// <summary>
-    /// 
+    /// Manages loading and modifying the game's CDB data.
     /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     public class CDBManager : CoreModule<CDBManager>,
@@ -27,9 +27,9 @@ namespace ModCore.Modules
         private string? overrideJsonData = null;
 
         /// <summary>
-        /// 
+        /// Loads CDB JSON data and applies it to the game.
         /// </summary>
-        /// <param name="jsonData"></param>
+        /// <param name="jsonData">The JSON data to load.</param>
         public unsafe void LoadJsonData( string jsonData )
         {
             try
@@ -44,9 +44,9 @@ namespace ModCore.Modules
         }
 
         /// <summary>
-        /// 
+        /// Gets the CDB JSON data with all registered modifications applied.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The modified CDB JSON data.</returns>
         public string GetAlteredCDB()
         {
             if (Core.Config.Value.UseGameCDBManager)

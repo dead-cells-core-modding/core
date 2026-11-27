@@ -4,7 +4,7 @@ using ModCore.Storage;
 namespace ModCore.Modules
 {
     /// <summary>
-    /// 
+    /// Manages the framework's storage locations.
     /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload)]
     public class StorageManager : CoreModule<StorageManager>, IOnCoreModuleInitializing

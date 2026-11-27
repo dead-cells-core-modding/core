@@ -14,7 +14,7 @@ using System.Text;
 namespace ModCore.Modules
 {
     /// <summary>
-    /// 
+    /// Manages the Hashlink virtual machine, its native library, and native resolution hooks.
     /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Preload | CoreModuleAttribute.CoreModuleKind.Important)]
     public unsafe class HashlinkVM : CoreModule<HashlinkVM>,

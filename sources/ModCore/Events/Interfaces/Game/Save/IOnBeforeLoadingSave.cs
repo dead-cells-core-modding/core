@@ -7,7 +7,7 @@ namespace ModCore.Events.Interfaces.Game.Save
     public interface IOnBeforeLoadingSave
     {
         /// <summary>
-        /// 
+        /// Raised before a save file is loaded.
         /// </summary>
         void OnBeforeLoadingSave();
     }

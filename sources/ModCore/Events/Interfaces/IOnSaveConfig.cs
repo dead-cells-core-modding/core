@@ -7,7 +7,7 @@
     public interface IOnSaveConfig
     {
         /// <summary>
-        /// 
+        /// Raised when the configuration should be saved.
         /// </summary>
         public void OnSaveConfig();
     }

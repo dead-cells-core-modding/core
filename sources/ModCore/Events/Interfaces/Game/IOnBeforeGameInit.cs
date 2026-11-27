@@ -10,7 +10,7 @@ namespace ModCore.Events.Interfaces.Game
     public interface IOnBeforeGameInit
     {
         /// <summary>
-        /// 
+        /// Raised before the game initializes.
         /// </summary>
         void OnBeforeGameInit();
     }

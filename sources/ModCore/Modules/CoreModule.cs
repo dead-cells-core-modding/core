@@ -36,7 +36,7 @@ namespace ModCore.Modules
     /// <summary>
     /// Base class for all CoreModules
     /// </summary>
-    /// <typeparam name="TModule"></typeparam>
+    /// <typeparam name="TModule">The concrete core module type.</typeparam>
     public abstract class CoreModule<TModule> : Module<TModule> where TModule : CoreModule<TModule>
     {
 

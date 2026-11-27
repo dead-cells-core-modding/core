@@ -17,7 +17,7 @@ using GT = dc.libs.data.GetText;
 namespace ModCore.Modules
 {
     /// <summary>
-    /// 
+    /// Provides access to localized game strings.
     /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     public class GetText : CoreModule<GetText>,
@@ -29,8 +29,8 @@ namespace ModCore.Modules
         /// <summary>
         /// Get localized strings
         /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
+        /// <param name="str">The localized string key.</param>
+        /// <returns>The localized string, or the key itself if no translation is found.</returns>
         public string GetString( string str )
         {
             var s = str.AsHaxeString();

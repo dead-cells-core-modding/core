@@ -7,7 +7,7 @@ namespace ModCore.Events.Interfaces.Game.Hero
     public interface IOnHeroDispose
     {
         /// <summary>
-        /// 
+        /// Raised when the hero is destroyed.
         /// </summary>
         void OnHeroDispose();
     }

@@ -7,9 +7,9 @@ namespace ModCore.Events.Interfaces.Game.Hero
     public interface IOnHeroUpdate
     {
         /// <summary>
-        /// 
+        /// Raised once per frame while the hero exists.
         /// </summary>
-        /// <param name="dt"></param>
+        /// <param name="dt">The elapsed time since the previous frame, in seconds.</param>
         void OnHeroUpdate( double dt );
     }
 }

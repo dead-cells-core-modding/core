@@ -10,7 +10,7 @@ namespace ModCore.Storage
     /// <summary>
     /// Configuration
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of the configuration data.</typeparam>
     public class Config<T> : IEventReceiver, IOnSaveConfig where T : new()
     {
         /// <inheritdoc/>
@@ -60,7 +60,7 @@ namespace ModCore.Storage
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new configuration with the specified name.
         /// </summary>
         /// <param name="name">The name of the configuration</param>
 

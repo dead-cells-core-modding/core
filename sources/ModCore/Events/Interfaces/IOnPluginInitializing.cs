@@ -7,7 +7,7 @@
     public interface IOnPluginInitializing
     {
         /// <summary>
-        /// 
+        /// Raised when plugins are being initialized.
         /// </summary>
         public void OnPluginInitializing();
     }

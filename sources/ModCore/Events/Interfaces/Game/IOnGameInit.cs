@@ -10,7 +10,7 @@
     public interface IOnGameInit
     {
         /// <summary>
-        /// 
+        /// Raised when the game starts initializing.
         /// </summary>
         public void OnGameInit();
     }
