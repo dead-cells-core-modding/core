@@ -47,8 +47,6 @@ namespace ModCore.Hooks
 
             Debug.Assert(HaxeProxyManager.function_is_hooked_mark != null);
 
-            HaxeProxyManager.function_is_hooked_mark[func.FunctionIndex] = true;
-
             SetupOrigin(hook.Original);
         }
 
@@ -75,6 +73,9 @@ namespace ModCore.Hooks
         {
             callback.Target = processor;
             callback.RedirectTarget = 0;
+
+            Debug.Assert(HaxeProxyManager.function_is_hooked_mark != null);
+            HaxeProxyManager.function_is_hooked_mark[function.FunctionIndex] = true;
         }
 
         private DynamicMethod CreateDelegateAdapt()
@@ -138,6 +139,9 @@ namespace ModCore.Hooks
                 hooks.Add(hook);
             }
             callback.RedirectTarget = 0;
+
+            Debug.Assert(HaxeProxyManager.function_is_hooked_mark != null);
+            HaxeProxyManager.function_is_hooked_mark[function.FunctionIndex] = true;
 
             cachedHookChain = null;
         }

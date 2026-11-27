@@ -287,11 +287,16 @@ namespace HaxeProxy.Runtime.Internals
                 Debug.Assert(HaxeProxyManager.function_is_hooked_mark != null);
                 if (HaxeProxyManager.function_is_hooked_mark[findex])
                 {
-                    if (HaxeProxyManager.next_call_origin_function == findex)
+                    var ncof = HaxeProxyManager.next_call_origin_function;
+                    HaxeProxyManager.next_call_origin_function = -1;
+                    if (ncof == findex)
                     {
                         return null;
                     }
-                    HaxeProxyManager.next_call_origin_function = -1;
+                }
+                else
+                {
+                    return null;
                 }
             }
 
