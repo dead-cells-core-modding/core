@@ -20,7 +20,6 @@ namespace ModCore
                 "hljit"
                 ],
             consoleOutput = true,
-            useHLC = "true".Equals(Environment.GetEnvironmentVariable("DCCM_USE_HLC"), StringComparison.OrdinalIgnoreCase),
             dontStartAsDeadCells = false
         };
 
@@ -77,14 +76,6 @@ namespace ModCore
         /// Indicates whether fatal error windows are suppressed.
         /// </summary>
         public bool suppressFatalWindows;
-        /// <summary>
-        /// Indicates whether the HLC runtime is used.
-        /// </summary>
-        public bool useHLC;
-        /// <summary>
-        /// Indicates whether PDB information is generated for HLC.
-        /// </summary>
-        public bool hlcPDB;
         /// <summary>
         /// Indicates whether mod loading is disabled.
         /// </summary>

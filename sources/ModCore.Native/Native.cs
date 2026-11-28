@@ -12,7 +12,6 @@ using System.Reflection;
 using System.Runtime;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using static Hashlink.HashlinkNative;
 
 namespace ModCore.Native
@@ -24,16 +23,7 @@ namespace ModCore.Native
         public nint phl_throw;
         public nint phl_rethrow;
 
-        public readonly List<(int fidx, nint startPtr)> hlc_functions = [];
-        public HL_type** hlc_instance_types;
-        public void** hlc_global_data;
         public HL_setup_t* hl_setup;
-
-
-        public bool RunOnHLC
-        {
-            get; private set;
-        } = false;
 
         public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(Current?.LoadLibrary("libhl") ?? (
             OperatingSystem.IsAndroid() ? NativeLibrary.Load(
@@ -316,25 +306,13 @@ namespace ModCore.Native
 
             nint code;
             int code_size;
-            if (m->jit_code != null)
+            code = (nint)m->jit_code;
+            code_size = m->codesize;
+            if (m->jit_debug != null)
             {
-                code = (nint)m->jit_code;
-                code_size = m->codesize;
-                if (m->jit_debug != null)
-                {
-                    int s = m->jit_debug[0].start;
-                    code += s;
-                    code_size -= s;
-                }
-            }
-            else
-            {
-                // HLC
-                nint min = Current.hlc_functions[0].startPtr;
-                nint max = Current.hlc_functions[^1].startPtr;
-
-                code = min;
-                code_size = (int)(max - min);
+                int s = m->jit_debug[0].start;
+                code += s;
+                code_size -= s;
             }
             low = code;
             high = code + code_size;
@@ -662,143 +640,6 @@ namespace ModCore.Native
             return detour;
         }
 
-        private static readonly Dictionary<string, nint> cachedHDLLs = [];
-
-        private static nint orig_hlc_resolve_symbol;
-
-        [UnmanagedCallersOnly]
-        private static char* ResolveHLCSymbolNative( void* addr, char* out_str, int* outSize )
-        {
-            return ResolveHLCSymbol(addr, out_str, outSize);
-        }
-
-        public static char* ResolveHLCSymbol( void* addr, char* out_str, int* outSize )
-        {
-            var naddr = (nint)addr;
-            var out_span = new Span<char>(out_str, *outSize);
-            out_span.Clear();
-            char* result;
-            result = ((delegate* unmanaged< void*, char*, int*, char* >)orig_hlc_resolve_symbol)(addr, out_str, outSize);
-            string? orig_str = null;
-            if (result != null)
-            {
-                orig_str = new(out_str);
-            }
-
-            GetHLCodeRange(out var low, out var high);
-
-            if (naddr < low || naddr > high)
-            {
-                return null;
-            }
-
-            var functions = Current.hlc_functions;
-            var fit = functions[0];
-
-            foreach (var v in functions)
-            {
-                if (v.startPtr <= naddr)
-                {
-                    fit = v;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            var fidx = fit.fidx;
-
-            var resolve_result = EventSystem.BroadcastEvent<IOnResolveHLCSymbol, IOnResolveHLCSymbol.Data, string>(new(naddr, fidx));
-
-            StringBuilder sb = new();
-
-            if (resolve_result.HasValue && !string.IsNullOrEmpty(resolve_result.Value))
-            {
-                sb.Append(resolve_result.Value);
-            }
-            else
-            {
-                sb.Append("hlc$fidx_");
-                sb.Append(fidx);
-            }
-
-            if (!string.IsNullOrEmpty(orig_str))
-            {
-                sb.Append(":(");
-                sb.Append(orig_str);
-                sb.Append(')');
-            }
-            sb.Append(":(addr: +0x");
-            sb.Append((naddr - fit.startPtr).ToString("x"));
-            sb.Append(')');
-
-            var str = sb.ToString();
-
-            *outSize = out_span.Length;
-
-            if (str.Length < out_span.Length)
-            {
-                *outSize = str.Length;
-            }
-
-            str.TryCopyTo(out_span);
-
-            out_span[*outSize] = (char)0;
-            return out_str;
-        }
-
-        [UnmanagedCallersOnly]
-        private static nint ResolveHLCLibrary( byte* lib, byte* name )
-        {
-            var libName = Marshal.PtrToStringUTF8((nint)lib);
-            var funcName = Marshal.PtrToStringUTF8((nint)name);
-            Debug.Assert(funcName != null);
-
-
-            if (string.IsNullOrEmpty(libName))
-            {
-                if (funcName == "fmod" || funcName == "fmodf")
-                {
-                    funcName = "hlc_" + funcName;
-                }
-                return GetLibhlSymbol(funcName);
-            }
-
-            Debug.Assert(libName != null);
-
-            HLEV_native_resolve_event ev = new()
-            {
-                libName = lib,
-                functionName = name,
-            };
-            EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(new(
-                IOnNativeEvent.EventId.HL_EV_RESOLVE_NATIVE, (nint)(&ev)));
-
-            if (ev.result == null)
-            {
-                if (!cachedHDLLs.TryGetValue(libName, out var hlib))
-                {
-                    ev.functionName = null;
-
-                    EventSystem.BroadcastEvent<IOnNativeEvent, IOnNativeEvent.Event>(new(
-                    IOnNativeEvent.EventId.HL_EV_RESOLVE_NATIVE, (nint)(&ev)));
-
-                    Debug.Assert(ev.result != null);
-                    hlib = (nint)ev.result;
-                    cachedHDLLs[libName] = hlib;
-                }
-
-                var hlp = NativeLibrary.GetExport(hlib, "hlp_" + funcName);
-                nint _r = 0;
-
-                return ((delegate* unmanaged< nint*, nint >)hlp)(&_r);
-            }
-
-
-            return (nint)ev.result;
-        }
-
         protected virtual void InitializeNativeHooks()
         {
             var phLibhl = LoadLibrary("libhl");
@@ -887,91 +728,11 @@ namespace ModCore.Native
 
             var libmodcorenative = LoadLibrary("modcorenative");
 
-            if (ContextConfig.Config.useHLC)
+            if (hl_module_init(ctx->m, 0, 0) == 0)
             {
-                RunOnHLC = true;
-
-                
-                var libhlc = EventSystem.BroadcastEvent<IOnGetCompiledHLC, ReadOnlySpan<byte>, nint>(hlboot).Value;
-
-                Debug.Assert(libhlc != 0);
-
-                HL_module_context* mctx = &ctx->m->ctx;
-                ctx->m->functions_ptrs = (void**)NativeLibrary.GetExport(libhlc, "hl_functions_ptrs");
-
-                var hlc_types = new ReadOnlySpan<nint>(hlc_instance_types = (HL_type**)NativeLibrary.GetExport(libhlc, "hl_instance_types"), code->ntypes);
-
-                hlc_global_data = (void**)NativeLibrary.GetExport(libhlc, "hlc_global_data");
-                ctx->m->globals_data = hlc_global_data[0]; // First
-
-                hl_alloc_init(&mctx->alloc);
-
-                hl_module_init_indexes(ctx->m);
-
-                mctx->functions_ptrs = ctx->m->functions_ptrs;
-                mctx->functions_types = (HL_type**)NativeLibrary.GetExport(libhlc, "hl_functions_types");
-
-                *(void**)NativeLibrary.GetExport(libhlc, "hl_resolve_native_library") = (delegate* unmanaged< byte*, byte*, nint >)&ResolveHLCLibrary;
-                *(void**)NativeLibrary.GetExport(libhlc, "hl_get_thread") = (void*)GetLibhlSymbol("hl_get_thread");
-                *(void**)NativeLibrary.GetExport(libhlc, "hlc_setjmp") = *(void**)NativeLibrary.GetExport(libmodcorenative, "ptr_setjmp");
-
-                orig_hlc_resolve_symbol = NativeLibrary.GetExport(libmodcorenative, "hlc_resolve_symbol");
-                orig_module_capture_stack = NativeLibrary.GetExport(libmodcorenative, "hlc_capture_stack");
-
-                ((delegate* unmanaged< nint, nint, nint, nint, nint, void >)NativeLibrary.GetExport(libmodcorenative, "hlc_setup_callback"))(
-                    (nint)(delegate* unmanaged< void*, char*, int*, char* >)&ResolveHLCSymbolNative,
-                    (nint)(delegate* unmanaged< void**, int, int >)&Hook_module_capture_stack,
-                    NativeLibrary.GetExport(libhlc, "hlc_static_call"),
-                    NativeLibrary.GetExport(libhlc, "hlc_get_wrapper"),
-                    0
-                    );
-
-                for (var i = 0; i < ctx->m->code->nfunctions; i++)
-                {
-                    HL_function* f = ctx->m->code->functions + i;
-                    ctx->m->functions_indexes[f->findex] = i;
-                }
-
-                ((delegate* unmanaged< HL_module_context*, void >)(NativeLibrary.GetExport(libhlc, "hlc_init_types")))(mctx);
-
-                ((delegate* unmanaged< void >)(NativeLibrary.GetExport(libhlc, "hlc_init_hashes")))();
-                ((delegate* unmanaged< void >)(NativeLibrary.GetExport(libhlc, "hlc_init_roots")))();
-
-                for (int i = 0; i < hlc_types.Length; i++)
-                {
-                    ref var src = ref *(HL_type*)hlc_types[i];
-
-                    if (src.kind == TypeKind.HOBJ)
-                    {
-                        _ = hl_get_obj_proto((HL_type*)hlc_types[i]);
-                    }
-
-                    ref var dst = ref code->types[i];
-
-                    dst = src;
-                }
-
-                ctx->c.type = mctx->functions_types[ctx->m->code->entrypoint];
-
-                var funcCount = ctx->m->code->nfunctions;
-                var funcPtrSpan = new ReadOnlySpan<nint>(ctx->m->functions_ptrs, funcCount);
-
-                for (int i = 0; i < funcPtrSpan.Length; i++)
-                {
-                    hlc_functions.Add((i, funcPtrSpan[i]));
-                }
-
-                hlc_functions.Sort(( a, b ) => (int)(a.startPtr - b.startPtr));
+                throw new InvalidProgramException("Failed to init module");
             }
-            else
-            {
-                RunOnHLC = false;
-                if (hl_module_init(ctx->m, 0, 0) == 0)
-                {
-                    throw new InvalidProgramException("Failed to init module");
-                }
-                ctx->c.type = ctx->code->functions[ctx->m->functions_indexes[ctx->m->code->entrypoint]].type;
-            }
+            ctx->c.type = ctx->code->functions[ctx->m->functions_indexes[ctx->m->code->entrypoint]].type;
 
             ((delegate* unmanaged< nint, void >)NativeLibrary.GetExport(libmodcorenative, "hl_set_custom_longjmp"))(
                     RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? asm_custom_longjump : 0

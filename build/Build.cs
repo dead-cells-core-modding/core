@@ -73,11 +73,6 @@ class Build : NukeBuild
     AbsolutePath GoldbergRoot => RootDirectory + "/3rd/Goldberg" + $"/{CurrentOSPlatform}-{CurrentArchPlatform}";
 
     AbsolutePath TinyCCRoot => NativeSrcRoot + "/3rd/tinycc";
-    AbsolutePath TinyCCBuildRoot => NativeSrcRoot + "/tinycc";
-    AbsolutePath TinyCCWin32Root => TinyCCRoot + "/win32";
-
-    AbsolutePath CrashlinkSrcRoot => RootDirectory + "/3rd/crashlink/crashlink";
-    AbsolutePath HlrunSrcRoot => RootDirectory + "/3rd/crashlink/hlrun";
 
     #endregion
 
@@ -94,8 +89,6 @@ class Build : NukeBuild
     AbsolutePath ProxyBinRoot => MDKSelfBinRoot + "/ref";
 
     AbsolutePath MDKBinRoot => CoreBinRoot + "/mdk";
-
-    AbsolutePath CrashlinkDstRoot => CoreBinRoot + "/crashlink";
 
     AbsolutePath WorkshopTemp { get; } = Path.GetTempFileName() + ".dir";
 
@@ -200,6 +193,8 @@ class Build : NukeBuild
             $"--build ./out/build/{cmakePreset}",
             NativeSrcRoot).AssertZeroExitCode();
 
+        File.Copy(TinyCCRoot + "/include/tccdefs.h", TinyCCBinRoot + "/tccdefs.h", true);
+
         if (CurrentOSPlatform != "android")
         {
             Log.Information("Copying Goldberg");
@@ -281,7 +276,6 @@ class Build : NukeBuild
 
     Target BuildCore => _ => _.DependsOn(GenerateGameProxy)
             .DependsOn(BuildNative)
-            .DependsOn(PrepareHLC)
             .Executes(() =>
             {
                 DotNetTasks.DotNetBuild(s => s.SetConfiguration(Configuration)
@@ -307,28 +301,6 @@ class Build : NukeBuild
         {
             DotNetTasks.DotNetBuild(s => s.SetConfiguration(Configuration) 
                 .SetProjectFile(SourceRoot + "/ModCore.Assets"));
-        });
-
-    Target PrepareHLC => _ => _
-        .DependsOn(BuildNative)
-        .Executes(() =>
-        {
-            TinyCCBinRoot.CreateDirectory();
-
-            File.Copy(TinyCCRoot + "/include/tccdefs.h", TinyCCBinRoot + "/tccdefs.h", true);
-            File.Copy(TinyCCBuildRoot + "/include/core_hlc_inc.h", TinyCCBinRoot + "/core_hlc_inc.h", true);
-
-            // Copy crashlink
-            CrashlinkSrcRoot.CopyToDirectory(CrashlinkDstRoot, ExistsPolicy.MergeAndOverwrite);
-            HlrunSrcRoot.CopyToDirectory(CrashlinkDstRoot, ExistsPolicy.MergeAndOverwrite);
-
-            foreach(var v in Directory.GetDirectories(CrashlinkDstRoot, "__pycache__",SearchOption.AllDirectories))
-            {
-                if(Directory.Exists(v))
-                {
-                    Directory.Delete(v, true);
-                }
-            }
         });
 
     #endregion

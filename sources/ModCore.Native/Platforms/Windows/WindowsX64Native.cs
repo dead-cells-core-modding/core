@@ -473,7 +473,7 @@ namespace ModCore.Native
         }
 
         /// <summary>
-        /// Custom longjmp for HLC-compiled code on Windows x64.
+        /// Custom longjmp for the HashLink VM on Windows x64.
         ///
         /// Translates the HashLink JIT longjmp logic:
         ///   buf  → rcx (first MS x64 arg)

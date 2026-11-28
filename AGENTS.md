@@ -90,7 +90,7 @@ Modules implement event interfaces (e.g., `IOnGameInit`, `IOnFrameUpdate`, `IOnB
 | `Events/Interfaces/Mods/` | Mod discovery/registration events |
 | `Events/Interfaces/VM/` | Hashlink VM and native resolution events |
 | `Modules/` | Core modules (`Game`, `GameStartup`, `ModLoader`, `HashlinkHooks`, `HashlinkVM`, `CDBManager`, `SaveManager`, `StorageManager`, `MenuModule`, `FsPak`, `GetText`, `NativeHooks`) |
-| `Modules/Internals/` | Internal modules (`PluginLoader`, `NativeModuleResolver`, `HaxeProxyGenerator`, `HLCModule`, `HxbitModule`, `HarmonyXModule`, `SFXModule`, `LegacySFX`, `AtlasRefresher`) |
+| `Modules/Internals/` | Internal modules (`PluginLoader`, `NativeModuleResolver`, `HaxeProxyGenerator`, `HxbitModule`, `HarmonyXModule`, `SFXModule`, `LegacySFX`, `AtlasRefresher`) |
 | `Hooks/` | `HashlinkHookManager`, `HashlinkFunctionPatcher`, `HookOrigClosure` — dynamic IL adapters for game hooks |
 | `Menu/` | `IModMenu` / `IModMenuProvider` interfaces |
 | `Mods/` | `ModBase` (user mod base class), `ModInfo` (JSON metadata) |
@@ -103,12 +103,10 @@ Modules implement event interfaces (e.g., `IOnGameInit`, `IOnFrameUpdate`, `IOnB
 
 | Subdirectory | Role |
 |---|---|
-| `modcorenative/` | Core native library (`modcorenative.dll/.so`) — links Hashlink with .NET nethost and hosts the HLC runtime |
+| `modcorenative/` | Core native library (`modcorenative.dll/.so`) — links Hashlink with .NET nethost and hosts the native bridge |
 | `3rd/hashlink/` | Vendored Hashlink VM source (MIT, git submodule) |
 | `3rd/tinycc/` | Vendored TinyCC JIT compiler (LGPL 2.1, git submodule) |
-| `3rd/cv2pdb/` | CV to PDB converter source (git submodule) |
-| `tinycc/` | Build shim for the TinyCC HLC runtime (`tinycc.c`, `core_hlc_inc.h`) |
-| `cv2pdb/` | CMake shim that builds the `cv2pdb` submodule |
+| `tinycc/` | Build shim for the bundled TinyCC (`tinycc.c`), used by `AsmAssembler` at runtime |
 | `hdlls/` | Custom Hashlink DLLs — Steamworks/GOG plugins (git submodule) |
 | `host_lib/` | Host library for NativeAOT linking |
 
@@ -155,7 +153,6 @@ The MDK is the toolchain mod authors install. It includes MSBuild targets (`ModC
 | Steamworks.NET | MIT | Steamworks SDK .NET bindings |
 | RectpackSharp | MIT | Rectangle packing |
 | Mesa-d3d12 | MIT | D3D12 Mesa runtime for Windows |
-| crashlink | MIT | Python Hashlink bytecode tools (git submodule) |
 
 ### Other Directories
 
@@ -179,8 +176,7 @@ Build logic is in `build/Build.cs` — a NUKE C# build project. Bootstrapped via
 
 | Target | What it does |
 |---|---|
-| `BuildNative` | CMake build of native runtime (modcorenative, hljit, libhl) + Goldberg copy + Mesa d3d12 copy + native member scanning via DCCMTool |
-| `PrepareHLC` | Copies TinyCC headers + crashlink Python source into build output |
+| `BuildNative` | CMake build of native runtime (modcorenative, hljit, libhl) + TinyCC headers + Goldberg copy + Mesa d3d12 copy + native member scanning via DCCMTool |
 | `GenerateGameProxy` | Runs DCCMTool to generate per-boot proxies from `hlboots/*.dat` and merges `GameProxy.dll` |
 | `BuildCore` | Builds DCCMShell + ModCore.ModLoader.Default; publishes SteamStartShell/GOGStartShell (Windows) and DeadCellsModding |
 | `BuildMDK` | Builds `mdk/mdk.slnx` and publishes/copies to `bin/core/mdk/` |
@@ -222,7 +218,6 @@ bin/core/
 ├── host/startup/       — DeadCellsModding.exe (launcher) + steam/gog shells (deadcells.exe)
 ├── host/               — ModCore.dll, DCCMShell.dll, all managed assemblies
 ├── mdk/                — MDK toolchain (install.ps1, ref/, bin/, tools/)
-├── crashlink/          — crashlink + hlrun Python sources
 └── native/{platform}/  — modcorenative.dll, libhl.dll, hljit.dll, hdlls, goldberg/, mesa-d3d12/
 ```
 
@@ -420,8 +415,8 @@ dotnet test test/TestRunner/TestRunner.csproj
    - Setup .NET SDK (11) → download deps → build native + core + MDK + assets
    - Generate SPDX SBOM → attest artifacts
 
-2. **`test`** (depends on build; Windows, debug, matrix: HLC × steam/gog)
-   - Setup env → install MDK → `dotnet test` with `DCCM_USE_HLC`
+2. **`test`** (depends on build; Windows, debug, matrix: steam/gog)
+   - Setup env → install MDK → `dotnet test`
    - Upload crash dumps on failure
 
 3. **`benchmark`** (depends on build, windows)
@@ -446,8 +441,6 @@ dotnet test test/TestRunner/TestRunner.csproj
 | `sources/native/3rd/hashlink` | `HaxeFoundation/hashlink` — HashLink VM |
 | `sources/native/hdlls` | `dead-cells-core-modding/hdlls` — Custom HashLink DLLs |
 | `sources/native/3rd/tinycc` | `dead-cells-core-modding/tinycc` — TinyCC fork |
-| `sources/native/3rd/cv2pdb` | `dead-cells-core-modding/cv2pdb` — CV/PDB conversion |
-| `3rd/crashlink` | `dead-cells-core-modding/crashlink` — HL bytecode tools |
 
 ### Key NuGet Packages
 
@@ -712,4 +705,4 @@ This project uses OpenCode with custom commands defined in `.opencode/commands/`
 
 13. **HashlinkNET.\* generates pseudocode DLLs** — `HashlinkNET.Bytecode` and `HashlinkNET.Compiler` translate game HL bytecode into .NET assemblies; keep this context when changing codegen or proxies.
 
-14. **Two execution paths (native + HLC)** — Native hooks and the TinyCC-based HLC/pseudocode runtime coexist. Changes to hooks, marshaling, or proxies should account for both `DCCM_USE_HLC` modes.
+14. **Single JIT execution path** — The VM runs game bytecode through Hashlink's JIT. Native hooks, marshaling, and proxies target this path.

@@ -168,7 +168,6 @@ jobs:
 #      matrix:
 #        os: [ubuntu-26.04, windows-latest]
 #        debug: [ true ]
-#        useHLC: [ true, false ]
 #        platform: [ steam, gog ]
 #        include:
 #          - os: windows-latest
@@ -181,7 +180,6 @@ jobs:
        matrix:
          os: [windows-latest]
          debug: [ true ]
-         useHLC: [ true, false ]
          platform: [ steam, gog ]
          include:
            - os: windows-latest
@@ -245,7 +243,6 @@ jobs:
         DOTNET_DbgEnableMiniDump: 1
         COMPlus_DbgEnableMiniDump: 1
         DOTNET_DbgMiniDumpName: "${{ runner.temp }}/dccm_crash_%p.dmp"
-        DCCM_USE_HLC: ${{ matrix.useHLC }}
       run: |
         cd sources
         dotnet test

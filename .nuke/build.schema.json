@@ -33,7 +33,6 @@
         "DownloadWin64Bin",
         "GenerateGameProxy",
         "GenerateReleaseInfo",
-        "PrepareHLC",
         "PublishDiscordAnnouncement",
         "PublishMAPI",
         "Release"

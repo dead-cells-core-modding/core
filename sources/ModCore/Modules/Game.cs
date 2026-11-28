@@ -357,12 +357,7 @@ namespace ModCore.Modules
         {
             orig(self);
             string dccmVer = $"DCCM(v{typeof(Core).Assembly.GetName().Version})";
-            if(Native.Native.Current.RunOnHLC)
-            {
-                dccmVer += "(HLC)";
-            }
 
-            
             self.build.set_text($"{dccmVer} - {self.build.text}".AsHaxeString());
 
             if (!Core.Config.Value.DCCMWarningPopup)

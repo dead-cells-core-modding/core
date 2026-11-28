@@ -4,7 +4,10 @@
 #include <hl.h>
 #include <hlmodule.h>
 
-EXPORT void* ptr_setjmp = setjmp;
+EXPORT void hl_set_custom_longjmp(void* throw_jump)
+{
+	hl_setup.throw_jump = throw_jump;
+}
 
 EXPORT void modcorenative_unregister_hl_thread(hl_thread_info* t) {
 	hl_remove_root(&t->exc_value);

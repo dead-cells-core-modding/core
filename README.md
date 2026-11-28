@@ -153,7 +153,6 @@ This project uses the following open source libraries directly (bundled or linke
 | [Goldberg Emulator](https://gitlab.com/Mr_Goldberg/goldberg_emulator) | LGPL 3.0 | `3rd/Goldberg/` |
 | [Steamworks.NET](https://github.com/rlabrecque/Steamworks.NET) | MIT | `3rd/Steamworks.NET/` |
 | [RectpackSharp](https://github.com/ThomasMiz/RectpackSharp) | MIT | `3rd/RectpackSharp/` |
-| [crashlink](https://github.com/dead-cells-core-modding/crashlink) | MIT | `3rd/crashlink/` |
 
 ### NuGet Packages
 

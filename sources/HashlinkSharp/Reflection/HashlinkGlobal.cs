@@ -1,7 +1,6 @@
 using Hashlink.Marshaling;
 using Hashlink.Proxy;
 using Hashlink.Reflection.Types;
-using ModCore.Native;
 using static Hashlink.HL_type;
 
 namespace Hashlink.Reflection
@@ -22,17 +21,8 @@ namespace Hashlink.Reflection
             Type = type;
             Index = index;
 
-            if (Native.Current.RunOnHLC)
-            {
-                globalPtr = (nint)Native.Current.hlc_global_data[Index];
-
-            }
-            else
-            {
-                globalPtr = (nint)module.NativeModule->globals_data +
-                    module.NativeModule->globals_indexes[Index];
-            }
-            
+            globalPtr = (nint)module.NativeModule->globals_data +
+                module.NativeModule->globals_indexes[Index];
 
         }
         public object? Value => Utils.TryGetFromPointerWithCache(*(nint*)globalPtr, ref cachedGlobalValue);

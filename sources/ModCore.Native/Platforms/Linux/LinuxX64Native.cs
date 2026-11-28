@@ -676,7 +676,7 @@ namespace ModCore.Native
 
         // ── ASM: custom longjmp ──────────────────────────────────────────
         //
-        //  Stub on Linux — the HLC longjmp path is not currently used.
+        //  Stub on Linux — the custom longjmp path is not currently used.
         //  A real implementation would need to comply with System V AMD64 ABI
         //  (first two args in rdi, rsi).
 
