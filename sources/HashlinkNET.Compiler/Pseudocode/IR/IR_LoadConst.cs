@@ -25,6 +25,25 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                     return targetType;
                 }
                 il.Emit(OpCodes.Ldnull);
+                if (targetType != null)
+                {
+                    if (targetType.IsValueType)
+                    {
+                        // Nullable<T>: null is represented by unboxing a null
+                        // reference into the nullable value type.
+                        if (targetType.IsNullable(out _))
+                        {
+                            il.Emit(OpCodes.Unbox_Any, targetType);
+                            return targetType;
+                        }
+                    }
+                    else
+                    {
+                        // Preserve the declared reference type so downstream
+                        // emitters do not insert a redundant cast.
+                        return targetType;
+                    }
+                }
                 return ctx.TypeSystem.Object;
             }
             else if (value is int @int)

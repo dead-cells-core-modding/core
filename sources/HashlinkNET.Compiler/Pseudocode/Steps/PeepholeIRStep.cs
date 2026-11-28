@@ -185,20 +185,44 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 {
                     constants[dst] = set.src;
                 }
+                else if (set.src.IR is IR_Cast cast &&
+                    cast.type.IsSameType(dst.RegisterType) &&
+                    cast.type.IsNullable(out var nullableUnderlying) &&
+                    cast.src.IR is IR_LoadConst inner &&
+                    !cast.src.HasSideEffects &&
+                    MatchesScalar(inner.value, nullableUnderlying))
+                {
+                    // T -> Nullable<T> constant: propagate the whole cast so the
+                    // temporary local can be removed.
+                    constants[dst] = set.src;
+                }
             }
+        }
+
+        private static bool MatchesScalar( object? value, TypeReference type )
+        {
+            return value switch
+            {
+                int => type.FullName == "System.Int32",
+                long => type.FullName == "System.Int64",
+                float => type.FullName == "System.Single",
+                double => type.FullName == "System.Double",
+                bool => type.FullName == "System.Boolean",
+                _ => false
+            };
         }
 
         private static bool IsPropagatableConstant( IR_LoadConst constant, TypeReference registerType )
         {
-            return constant.value switch
+            if (constant.value is null)
             {
-                int => registerType.FullName == "System.Int32",
-                long => registerType.FullName == "System.Int64",
-                float => registerType.FullName == "System.Single",
-                double => registerType.FullName == "System.Double",
-                bool => registerType.FullName == "System.Boolean",
-                _ => false
-            };
+                // A null constant can be propagated when it was created with the
+                // same declared type as the register (references, nullable value
+                // types and raw pointers are all covered).
+                return constant.targetType is not null &&
+                    constant.targetType.IsSameType(registerType);
+            }
+            return MatchesScalar(constant.value, registerType);
         }
 
         private static void RemoveSelfMoves( IRBasicBlockData bb )
