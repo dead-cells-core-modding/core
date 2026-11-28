@@ -23,6 +23,16 @@ namespace HashlinkNET.Compiler.Data
             get; set;
         }
 
+        /// <summary>
+        /// Parameter properties per enum construct (indexed by construct, then
+        /// by parameter). Kept separate from <see cref="TypeDefinition"/>
+        /// properties because those also contain the implicit <c>Index</c>
+        /// member.
+        /// </summary>
+        public PropertyDefinition[][] ItemParamProperties {
+            get; set;
+        } = [];
+
         public List<int> GlobalValueIndex {
             get; set;
         } = [];

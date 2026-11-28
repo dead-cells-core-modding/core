@@ -20,6 +20,7 @@ namespace HashlinkNET.Compiler.Pseudocode
 
             AddStep<ParseOpCodesStep>();
             AddStep<MergeNewCtorStep>();
+            AddStep<PeepholeIRStep>();
 
             //DFA
             AddStep<GenerateFlatIRStep>();
@@ -33,6 +34,7 @@ namespace HashlinkNET.Compiler.Pseudocode
             AddStep<SetupExceptionHandlersStep>();
             AddStep<NormalizeExceptionRegionsStep>();
             AddStep<FixHandlerBranchesStep>();
+            AddStep<StackStoreEliminationStep>();
             // AddStep<TrimILStep>();
             AddStep<RemoveNopILStep>();
             AddStep<OptimizeILStep>();

@@ -18,6 +18,8 @@ namespace HashlinkNET.Compiler.Steps.Enum
 
             var itemTypes = ei.ItemTypes = new TypeDefinition[te.Constructs.Length];
             var itemCtors = ei.ItemCtors = new MethodReference[te.Constructs.Length];
+            var itemParamProperties = ei.ItemParamProperties =
+                new PropertyDefinition[te.Constructs.Length][];
 
             if (isCtx && te.Constructs.Length != 1)
             {
@@ -64,6 +66,7 @@ namespace HashlinkNET.Compiler.Steps.Enum
                 }
 
                 itemTypes[i] = td;
+                itemParamProperties[i] = [];
 
                 const MethodAttributes ctorAttrs =
                     MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Public;
@@ -103,6 +106,8 @@ namespace HashlinkNET.Compiler.Steps.Enum
                     td.Methods.Add(ctor);
                     EmitAllocation(ctor);
                     var ilp = ctor.Body.GetILProcessor();
+                    var paramProperties = new PropertyDefinition[ec.Params.Length];
+                    itemParamProperties[i] = paramProperties;
 
                     for (int j = 0; j < ec.Params.Length; j++)
                     {
@@ -112,6 +117,7 @@ namespace HashlinkNET.Compiler.Steps.Enum
                         GeneralUtils.EmitFieldGetterSetter(
                             td, pd, container, (j | i << 16).ToString());
                         td.Properties.Add(pd);
+                        paramProperties[j] = pd;
 
                         var mp = new ParameterDefinition("p" + j, ParameterAttributes.None, pd.PropertyType);
 

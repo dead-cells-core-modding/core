@@ -22,6 +22,13 @@ namespace HashlinkNET.Compiler.Pseudocode.Data
 
         public IRResult[]? flatIR;
 
+        /// <summary>
+        /// Registers whose value is live on exit of this block (i.e. a successor
+        /// may read them before assigning). Filled by the dataflow pass and used
+        /// by later IL-level optimizations.
+        /// </summary>
+        public HashSet<HlFuncRegisterData>? liveOutRegs;
+
         public bool CanRepeat => transitions.Count <= 1 && parents.Count > 1 && ir.Count <= 20 && ir.Count > 0;
 
         public void ReserveConditionalJmp()

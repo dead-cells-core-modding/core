@@ -61,11 +61,77 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                     il.Emit(OpCodes.Conv_U);
                     break;
                 case nameof(Boolean):
-                    il.Emit(OpCodes.Nop);
+                    // bool has int32 stack representation; source values that
+                    // are wider (or floating) must be narrowed first.
+                    if (from.MetadataType is MetadataType.Single or MetadataType.Double
+                        or MetadataType.Int64 or MetadataType.UInt64
+                        or MetadataType.IntPtr or MetadataType.UIntPtr)
+                    {
+                        il.Emit(OpCodes.Conv_I4);
+                    }
                     break;
                 default:
                     throw new InvalidOperationException($"Unsupported cast to {to.FullName}");
             }
+        }
+
+        private static bool AreInheritanceRelated( TypeReference a, TypeReference b )
+        {
+            var ad = TryGetDefinition(a);
+            var bd = TryGetDefinition(b);
+            if (ad is null || bd is null)
+            {
+                return false;
+            }
+            return IsSameOrDerived(ad, bd) || IsSameOrDerived(bd, ad);
+        }
+
+        private static TypeDefinition? TryGetDefinition( TypeReference type )
+        {
+            if (type is TypeDefinition definition)
+            {
+                return definition;
+            }
+            try
+            {
+                return type.Resolve();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static bool IsSameOrDerived( TypeDefinition type, TypeDefinition target )
+        {
+            var guard = 0;
+            TypeDefinition? current = type;
+            while (current is not null && guard++ < 64)
+            {
+                if (ReferenceEquals(current, target) ||
+                    current.FullName == target.FullName)
+                {
+                    return true;
+                }
+                foreach (var implementation in current.Interfaces)
+                {
+                    if (implementation.InterfaceType.FullName == target.FullName)
+                    {
+                        return true;
+                    }
+                }
+                var baseType = current.BaseType;
+                if (baseType is null)
+                {
+                    return false;
+                }
+                if (baseType.FullName == target.FullName)
+                {
+                    return true;
+                }
+                current = TryGetDefinition(baseType);
+            }
+            return false;
         }
 
         protected override TypeReference? Emit( EmitContext ctx, IDataContainer container, ILProcessor il )
@@ -76,6 +142,18 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
             {
                 return st;
             }
+
+            // If the two reference types are related (one derives from / is
+            // assignable to the other, regardless of direction), no conversion
+            // is required for either Haxe or CLR.
+            if (!st.IsValueType && !type.IsValueType &&
+                !st.IsByReference && !type.IsByReference &&
+                !st.IsPointer && !type.IsPointer &&
+                AreInheritanceRelated(st, type))
+            {
+                return st;
+            }
+
 
             if (container.TryGetData<ICast>(st, out var icast) && icast.Cast is not null)
             {

@@ -28,6 +28,8 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         protected TypeSystem typeSystem = null!;
         protected IDataContainer container = null!;
         private readonly Dictionary<int, IRBasicBlockData> bbByStart = [];
+        private static readonly bool TraceTypeMismatch =
+            Environment.GetEnvironmentVariable("DCCM_TRACE_TYPE_MISMATCH") == "1";
 
         public override void Execute( IDataContainer container )
         {
@@ -222,9 +224,20 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 else if (c == HlOpcodeKind.Field || c == HlOpcodeKind.GetThis)
                 {
                     var objReg = gdata.Registers[c == HlOpcodeKind.GetThis ? 0 : code.Parameters[1]]!;
+                    var prop = GetFieldById(objReg.RegisterType, code.Parameters[^1]);
+                    var dstRegData = gdata.Registers[code.Parameters[0]];
+                    if (TraceTypeMismatch &&
+                        dstRegData is not null &&
+                        !dstRegData.RegisterType.IsSameType(prop.PropertyType))
+                    {
+                        Console.Error.WriteLine(
+                            $"[mismatch] fn={gdata.Function.FunctionIndex} op={index} kind={c} " +
+                            $"dst={code.Parameters[0]}:{dstRegData.RegisterType.FullName} " +
+                            $"field={prop.Name}:{prop.PropertyType.FullName} " +
+                            $"obj={objReg.RegisterType.FullName}");
+                    }
                     //Get Field
-                    src = new IR_GetField(new IR_LoadLocalReg(objReg),
-                        GetFieldById(objReg.RegisterType, code.Parameters[^1]));
+                    src = new IR_GetField(new IR_LoadLocalReg(objReg), prop);
                 }
                 else if (c == HlOpcodeKind.GetGlobal)
                 {
@@ -494,8 +507,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                         CreateLoadLocalReg(code.Parameters[1]),
                         container.GetData<EnumClassData>(
                             gdata.Registers[code.Parameters[1]]!.RegisterType
-                            ).ItemTypes[code.Parameters[2]]
-                            .Properties[code.Parameters[3]]
+                            ).ItemParamProperties[code.Parameters[2]][code.Parameters[3]]
                             );
                 }
                 else if (c == HlOpcodeKind.GetMem ||
@@ -574,8 +586,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     CreateLoadLocalReg(code.Parameters[0]),
                         container.GetData<EnumClassData>(
                             GetLocalRegType(code.Parameters[0])
-                            ).ItemTypes[0]
-                            .Properties[code.Parameters[1]],
+                            ).ItemParamProperties[0][code.Parameters[1]],
                     CreateLoadLocalReg(code.Parameters[2])
                             )
                     );
