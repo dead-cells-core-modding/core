@@ -152,24 +152,31 @@ namespace HashlinkNET.Compiler
             var module = Output.MainModule;
             var refs = module.AssemblyReferences;
             var seen = new Dictionary<string, AssemblyNameReference>();
+            Dictionary<AssemblyNameReference, AssemblyNameReference>? remap = null;
             for (var i = refs.Count - 1; i >= 0; i--)
             {
                 var reference = refs[i];
                 var key = reference.FullName;
                 if (seen.TryGetValue(key, out var keep))
                 {
-                    foreach (var tr in module.GetTypeReferences())
-                    {
-                        if (ReferenceEquals(tr.Scope, reference))
-                        {
-                            tr.Scope = keep;
-                        }
-                    }
+                    (remap ??= new(ReferenceEqualityComparer.Instance))[reference] = keep;
                     refs.RemoveAt(i);
                 }
                 else
                 {
                     seen[key] = reference;
+                }
+            }
+
+            if (remap != null)
+            {
+                foreach (var tr in module.GetTypeReferences())
+                {
+                    if (tr.Scope is AssemblyNameReference scope &&
+                        remap.TryGetValue(scope, out var keep))
+                    {
+                        tr.Scope = keep;
+                    }
                 }
             }
         }

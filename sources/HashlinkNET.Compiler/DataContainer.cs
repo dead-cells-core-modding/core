@@ -5,12 +5,16 @@ namespace HashlinkNET.Compiler
 {
     internal class DataContainer : IDataContainer
     {
-        private class ObjectData
+        private sealed class ObjectData
         {
             public readonly List<object> dataList = [];
-            public readonly ReaderWriterLockSlim rwLock = new();
-            public readonly Dictionary<Type, object?> dataLookup = [];
+            public readonly ConcurrentDictionary<Type, object> dataLookup = [];
+            public readonly object syncRoot = new();
         }
+
+        // Sentinel stored in dataLookup to cache a "not found" result without
+        // using null (ConcurrentDictionary values are kept non-null).
+        private static readonly object MissingValue = new();
 
         private readonly ConcurrentDictionary<object, ObjectData> table = new(ReferenceEqualityComparer.Instance);
 
@@ -22,7 +26,7 @@ namespace HashlinkNET.Compiler
 
         private ObjectData GetObjectData( object obj )
         {
-            return table.GetOrAdd(obj, _ => new());
+            return table.GetOrAdd(obj, static _ => new ObjectData());
         }
         public bool TryGetData<TData>( object? obj, [NotNullWhen(true)] out TData? data ) where TData : class
         {
@@ -31,58 +35,64 @@ namespace HashlinkNET.Compiler
                 data = default;
                 return false;
             }
-            var od = GetObjectData(obj);
-            od.rwLock.EnterReadLock();
-            if (od.dataLookup.TryGetValue(typeof(TData), out var result)
-                && result is not null)
+
+            var key = typeof(TData);
+
+            // Fast path: exact-type cache hit without touching any lock.
+            ObjectData? od = null;
+            if (table.TryGetValue(obj, out var existing))
             {
-                od.rwLock.ExitReadLock();
-                data = (TData)result;
-                return true;
-            }
-            od.rwLock.ExitReadLock();
-            if (Parent is not null)
-            {
-                if (Parent.TryGetData(obj, out data))
+                od = existing;
+                if (od.dataLookup.TryGetValue(key, out var cached) &&
+                    !ReferenceEquals(cached, MissingValue))
                 {
-                    //TryAddData(obj, data);
+                    data = (TData)cached;
                     return true;
                 }
             }
-            od.rwLock.EnterReadLock();
-            bool inReadLock = true;
-            try
+
+            // Resolve from the parent (outer compiler) before allocating local
+            // storage, so read-only misses do not create empty entries.
+            if (Parent is not null && Parent.TryGetData(obj, out data))
             {
-                result = od.dataList.FirstOrDefault(x => x is TData);
-                if (result == null)
-                {
-                    data = default;
-                }
-                od.rwLock.ExitReadLock();
-                inReadLock = false;
-                od.rwLock.EnterWriteLock();
-                if (result == null &&
-                    TryResolve != null)
-                {
-                    result = (TData?) TryResolve(obj, typeof(TData));
-                }
-                try
-                {
-                    od.dataLookup.TryAdd(typeof(TData), result);
-                    data = (TData?)result;
-                    return data != null;
-                }
-                finally
-                {
-                    od.rwLock.ExitWriteLock();
-                }
+                return true;
             }
-            finally
+
+            od ??= GetObjectData(obj);
+            lock (od.syncRoot)
             {
-                if (inReadLock)
+                if (od.dataLookup.TryGetValue(key, out var cached) &&
+                    !ReferenceEquals(cached, MissingValue))
                 {
-                    od.rwLock.ExitReadLock();
+                    data = (TData)cached;
+                    return true;
                 }
+
+                object? result = null;
+                foreach (var item in od.dataList)
+                {
+                    if (item is TData typed)
+                    {
+                        result = typed;
+                        break;
+                    }
+                }
+
+                if (result is null && TryResolve is not null)
+                {
+                    result = TryResolve(obj, key);
+                }
+
+                if (result is not null)
+                {
+                    od.dataLookup[key] = result;
+                    data = (TData)result;
+                    return true;
+                }
+
+                od.dataLookup.TryAdd(key, MissingValue);
+                data = default;
+                return false;
             }
         }
         public void Clear()
@@ -96,40 +106,29 @@ namespace HashlinkNET.Compiler
         public TData AddData<TData>( object obj, TData data ) where TData : class
         {
             var od = GetObjectData(obj);
-            try
+            lock (od.syncRoot)
             {
-                od.rwLock.EnterWriteLock();
                 if (!od.dataLookup.TryAdd(typeof(TData), data))
                 {
                     //Try to add duplicate data. If this exception is thrown, it means that there is a serious bug in the compiler.
                     throw new InvalidOperationException("Try to add duplicate data. If this exception is thrown, it means that there is a serious bug in the compiler.");
                 }
                 od.dataList.Add(data);
-                return data;
             }
-            finally
-            {
-                od.rwLock.ExitWriteLock();
-            }
+            return data;
         }
 
         public TData TryAddData<TData>( object obj, TData data ) where TData : class
         {
             var od = GetObjectData(obj);
-            try
+            lock (od.syncRoot)
             {
-                od.rwLock.EnterWriteLock();
                 if (od.dataLookup.TryAdd(typeof(TData), data))
                 {
                     od.dataList.Add(data);
                 }
-
-                return data;
             }
-            finally
-            {
-                od.rwLock.ExitWriteLock();
-            }
+            return data;
         }
     }
 }

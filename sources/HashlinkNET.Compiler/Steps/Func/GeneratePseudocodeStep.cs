@@ -1,14 +1,13 @@
-using BytecodeMapping;
 using HashlinkNET.Bytecode;
 using HashlinkNET.Compiler.Data;
 using HashlinkNET.Compiler.Pseudocode;
 using MonoMod.Utils;
-using System.Collections.Concurrent;
 
 namespace HashlinkNET.Compiler.Steps.Func
 {
     internal class GeneratePseudocodeStep : ParallelCompileStep<HlFunction>
     {
+        private const int GcInterval = 7000;
         private int processedCount = 0;
         protected override void Execute( IDataContainer container, HlFunction item, int index )
         {
@@ -19,10 +18,12 @@ namespace HashlinkNET.Compiler.Steps.Func
                     container);
             compiler.Compile();
 
-            if (processedCount++ > 7000)
+            // Trigger a background, non-blocking collection periodically instead
+            // of a stop-the-world GC.Collect from a parallel worker.
+            if (Interlocked.Increment(ref processedCount) % GcInterval == 0)
             {
-                processedCount = 0;
-                GC.Collect();
+                GC.Collect(2, GCCollectionMode.Optimized,
+                    blocking: false, compacting: false);
             }
         }
         protected override IReadOnlyList<HlFunction> GetItems( IDataContainer container )

@@ -27,10 +27,12 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         protected FuncEmitGlobalData gdata = null!;
         protected TypeSystem typeSystem = null!;
         protected IDataContainer container = null!;
+        private readonly Dictionary<int, IRBasicBlockData> bbByStart = [];
 
         public override void Execute( IDataContainer container )
         {
             this.container = container;
+            bbByStart.Clear();
             gdata = container.GetGlobalData<FuncEmitGlobalData>();
             gdata2 = container.GetGlobalData<GlobalData>();
             typeSystem = gdata2.Module.TypeSystem;
@@ -67,6 +69,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 };
                 bb.Add(irbb);
                 mapping.Add(hlbb, irbb);
+                bbByStart[hlbb.opcodeStart] = irbb;
                 foreach (var v in hlbb.transitions)
                 {
                     var bb = ParseBB(v.Target);
@@ -127,7 +130,7 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
         private IRBasicBlockData GetJmpTarget( IRBasicBlockData irbb, int opIndex, int target )
         {
             var t = opIndex + 1 + target;
-            return irbb.transitions.First(x => x.Target.startInHlbc == t).Target;
+            return bbByStart[t];
         }
         private MethodReference GetMethodProto( TypeDefinition type, int pindex )
         {
