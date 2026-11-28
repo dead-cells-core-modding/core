@@ -45,7 +45,6 @@ namespace ModCore.Modules
     /// </summary>
     [CoreModule(CoreModuleAttribute.CoreModuleKind.Normal)]
     public class Game : CoreModule<Game>,
-        IOnBeforeGameInit,
         IOnFrameUpdate,
         IOnAdvancedModuleInitializing
     {
@@ -100,25 +99,6 @@ namespace ModCore.Modules
             get; private set;
         }
 
-
-        void IOnBeforeGameInit.OnBeforeGameInit()
-        {
-            Hook_Hero.init += Hook_Hero_init;
-            Hook_Hero.dispose += Hook_Hero_dispose;
-            Hook__ServerApi.canSaveScore += Hook__ServerApi_canSaveScore;
-
-            if (!Debugger.IsAttached)
-            {
-                Hook__ErrorHandler.init += Hook__ErrorHandler_init;
-            }
-
-            if (Core.Config.Value.SkipLogoSplash)
-            {
-                Hook__LogoSplashscreen.__constructor__ += Hook_LogoSplashscreen_onConstructor;
-                Hook_LogoSplashscreen.onResize += Hook_LogoSplashscreen_onResize;
-                Hook_Main.onSecondFrame += Hook_Main_onSecondFrame;
-            }
-        }
         private void Hook_LogoSplashscreen_onConstructor( Hook__LogoSplashscreen.orig___constructor__ orig,
              LogoSplashscreen arg1, Ref<double> delay )
         {
@@ -133,6 +113,7 @@ namespace ModCore.Modules
             {
                 nint ptr = 0;
                 HashlinkMarshal.WriteData(&ptr, err, HashlinkMarshal.Module.KnownTypes.Dynamic);
+
                 throw new HashlinkError(ptr);
             };
         }
@@ -213,6 +194,19 @@ namespace ModCore.Modules
             Hook__Sys.getPath += Hook__Sys_getPath;
 
             Hook__Sdl.onGlContextError += Hook__Sdl_onGlContextError;
+
+            Hook_Hero.init += Hook_Hero_init;
+            Hook_Hero.dispose += Hook_Hero_dispose;
+            Hook__ServerApi.canSaveScore += Hook__ServerApi_canSaveScore;
+
+            Hook__ErrorHandler.init += Hook__ErrorHandler_init;
+
+            if (Core.Config.Value.SkipLogoSplash)
+            {
+                Hook__LogoSplashscreen.__constructor__ += Hook_LogoSplashscreen_onConstructor;
+                Hook_LogoSplashscreen.onResize += Hook_LogoSplashscreen_onResize;
+                Hook_Main.onSecondFrame += Hook_Main_onSecondFrame;
+            }
 
             try
             {
@@ -345,11 +339,8 @@ namespace ModCore.Modules
 
         private void Hook_Boot_mainLoop( Hook_Boot.orig_mainLoop orig, Boot self )
         {
-            Debug.Assert(self.frameProfiler != null);
-            
             try
             {
-                //
                 SynchronizationContext.SetSynchronizationContext(SynchronizationContext);
                 FlushSyncTasks();
                 orig(self);
