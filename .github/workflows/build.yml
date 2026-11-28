@@ -162,29 +162,28 @@ jobs:
         path: test/Benchmark/bin/Release/net11.0/BenchmarkDotNet.Artifacts
 
 
-# FIXME: linux works on local but fail on ci
   test:
-#    strategy:
-#      matrix:
-#        os: [ubuntu-26.04, windows-latest]
-#        debug: [ true ]
-#        platform: [ steam, gog ]
-#        include:
-#          - os: windows-latest
-#            os_name: win
-#            arch: x64
-#          - os: ubuntu-26.04
-#            os_name: linux
-#            arch: x64
     strategy:
-       matrix:
-         os: [windows-latest]
-         debug: [ true ]
-         platform: [ steam, gog ]
-         include:
-           - os: windows-latest
-             os_name: win
-             arch: x64
+      matrix:
+        os: [ubuntu-26.04, windows-latest]
+        debug: [ true ]
+        platform: [ steam, gog ]
+        include:
+          - os: windows-latest
+            os_name: win
+            arch: x64
+          - os: ubuntu-26.04
+            os_name: linux
+            arch: x64
+#    strategy:
+#       matrix:
+#         os: [windows-latest]
+#         debug: [ true ]
+#         platform: [ steam, gog ]
+#         include:
+#           - os: windows-latest
+#             os_name: win
+#             arch: x64
     runs-on: ${{ matrix.os }}
     needs: build
     steps:
@@ -243,6 +242,7 @@ jobs:
         DOTNET_DbgEnableMiniDump: 1
         COMPlus_DbgEnableMiniDump: 1
         DOTNET_DbgMiniDumpName: "${{ runner.temp }}/dccm_crash_%p.dmp"
+        DOTNET_TEST_RUNNER: Microsoft.Testing.Platform
       run: |
         cd sources
         dotnet test
