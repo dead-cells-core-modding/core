@@ -80,14 +80,9 @@ namespace Hashlink.Marshaling
 
         public static HashlinkType GetHashlinkType( HL_type* type )
         {
-            var tindex = (int)(((nint)type - (nint)Module.NativeCode->types) / sizeof(HL_type));
-
-            if (tindex >= 0 && tindex < Module.PreferTypes.Length)
+            if (Module.TryGetTypeByPointer((nint)type, out var known))
             {
-                Debug.Assert(Module.PreferTypes.Length == Module.NativeCode->ntypes);
-                Debug.Assert(Module.PreferTypes.Length > tindex);
-
-                return Module.PreferTypes[tindex];
+                return known;
             }
             return Module.GetMemberFrom<HashlinkType>(type);
         }

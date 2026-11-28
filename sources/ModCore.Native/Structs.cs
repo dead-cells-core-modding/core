@@ -103,8 +103,17 @@ namespace Hashlink
         }
 
         public TypeData data;
-        public void** vobj_proto;
+        public void** vobj_table;
         public int* mark_bits;
+
+        /// <summary>
+        /// Gets the virtual table for the specified type. The table is stored
+        /// inline immediately after the <c>hl_type</c> allocation.
+        /// </summary>
+        public static void** GetVtable( HL_type* t )
+        {
+            return t->vobj_table != null ? t->vobj_table : (void**)(t + 1);
+        }
     }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_vvirtual
@@ -150,6 +159,7 @@ namespace Hashlink
         public int size;
         public bool hasptr;
         public int* offsets;
+        public char** pnames;
     }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_type_enum
@@ -336,9 +346,15 @@ namespace Hashlink
         public void* jit_code;
         public void* hash;
         public HL_debug_infos* jit_debug;
-
-        public HL_module_context ctx;
+        public void* jit_ctx;
+        public void* hot;
+        public void** functions_extern;
+        public void* hot_uses;
+        public void** hot_code;
+        public int* globals_remap;
+        public int globals_remap_count;
         public byte debug;
+        public HL_module_context ctx;
         public int unwind_table_size;
         public nint* unwind_table;
     }
@@ -397,10 +413,15 @@ namespace Hashlink
     public unsafe struct HL_code
     {
         public int version;
+        public int file_size;
+        public fixed byte build_id[16];
+        public byte* raw_data;
+        public int raw_size;
         public int nints;
         public int nfloats;
         public int nstrings;
         public int nbytes;
+        public int bytes_size;
         public int ntypes;
         public int nglobals;
         public int nnatives;
@@ -418,10 +439,12 @@ namespace Hashlink
         public byte** debugfiles;
         public int* debugfiles_lens;
         public char** ustrings;
-        public HL_type* types;
+        public HL_type** types;
+        public int* types_vslots;
         public HL_type** globals;
         public HL_native* natives;
         public HL_function* functions;
+        public int* lnames;
         public HL_constant* constants;
         public HL_alloc_block* alloc;
         public HL_alloc_block* falloc;
@@ -525,6 +548,10 @@ namespace Hashlink
         public EXC_BREAK_REGS break_regs; //As void* [32]
         public EXC_STACK_EXTRA_ARRAY extra_stack_data; // As void* [64]
         public int extra_stack_size;
+        public void* gc_ctx_pc;
+        public void* gc_ctx_sp;
+        public void* gc_ctx_caller_pc;
+        public void* gc_ctx_caller_sp;
     }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct HL_array
@@ -545,8 +572,10 @@ namespace Hashlink
         //public char* (* resolve_symbol) (void* addr, uchar* out, int* outSize);
         public delegate* unmanaged< void**, int, int > capture_stack;
         //public int (* capture_stack) (void** stack, int size);
-        public delegate* unmanaged< byte*, byte* > alt_file;
-        //public byte (* reload_check) (vbyte* alt_file);
+        public delegate* unmanaged< void**, void**, bool > capture_break_context;
+        //public bool (* capture_break_context) (void **rip, void **regs);
+        public delegate* unmanaged< byte*, byte > reload_check;
+        //public bool (* reload_check) (vbyte* alt_file);
         public delegate* unmanaged< void*, HL_type*, void**, HL_vdynamic*, void* > static_call;
         //public void* (* static_call) (void* fun, hl_type* t, void** args, vdynamic* out);
         public delegate* unmanaged< HL_type*, void* > get_wrapper;
@@ -565,6 +594,8 @@ namespace Hashlink
         public int closure_stack_capture;
         public byte is_debugger_enabled;
         public byte is_debugger_attached;
+        public delegate* unmanaged< HL_type*, int, int > hot_sync_statics;
+        public byte hot_reload;
     }
 
 }

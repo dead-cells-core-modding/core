@@ -15,6 +15,7 @@ file(GLOB hl_srcs
     ${HL_SRC_ROOT}/jit_dump.c
     ${HL_SRC_ROOT}/main.c
     ${HL_SRC_ROOT}/module.c
+    ${HL_SRC_ROOT}/reload.c
     ${HL_SRC_ROOT}/debugger.c
     ${HL_SRC_ROOT}/profile.c)
 add_library(hljit SHARED  ${hl_srcs})

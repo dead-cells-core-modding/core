@@ -266,7 +266,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
             public HashlinkDynObj meta;
             public nint typePtr;
             public Type type;
-            public nint[] vproto;
+            public byte[] typeBlock;
             public nint[] methods;
             public HL_type hlType;
             public HL_type_obj hlObj;
@@ -330,11 +330,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
 
             fakeTypeDataPtr = (nint)Unsafe.AsPointer(ref data);
             data.type = type;
-            data.typePtr = (nint)Unsafe.AsPointer(ref data.hlType);
             data.ctorClosure = noCtorClosure;
-            nativeType = (HL_type*)data.typePtr;
-
-            customTypes.TryAdd(data.typePtr, this);
 
             HashlinkObject classObj;
 
@@ -416,12 +412,24 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
             new ReadOnlySpan<nint>(srcRT->methods, srcRT->nmethods).CopyTo(data.methods);
             data.rtObj.methods = (void**)Unsafe.AsPointer(ref data.methods[0]);
 
-            if (srcRT->nproto > 0)
+            int nproto = srcRT->nproto;
+            int typeBlockSize = sizeof(HL_type) + nproto * sizeof(void*);
+            data.typeBlock = GC.AllocateArray<byte>(typeBlockSize, pinned: true);
+            fixed (byte* typeBlockPtr = data.typeBlock)
             {
-                data.vproto = GC.AllocateArray<nint>(srcRT->nproto, true);
-                new ReadOnlySpan<nint>(src->vobj_proto, srcRT->nproto).CopyTo(data.vproto);
-                data.hlType.vobj_proto = (void**)Unsafe.AsPointer(ref data.vproto[0]);
+                var nativeTypePtr = (HL_type*)typeBlockPtr;
+                *nativeTypePtr = data.hlType;
+                nativeTypePtr->vobj_table = (void**)(nativeTypePtr + 1);
+                if (nproto > 0)
+                {
+                    var srcTable = HL_type.GetVtable(src);
+                    new ReadOnlySpan<nint>((nint*)srcTable, nproto).CopyTo(
+                        new Span<nint>((nint*)(nativeTypePtr + 1), nproto));
+                }
             }
+            data.typePtr = (nint)Unsafe.AsPointer(ref data.typeBlock[0]);
+            nativeType = (HL_type*)data.typePtr;
+            customTypes.TryAdd(data.typePtr, this);
 
             data.meta = new();
             data.meta.SetFieldValue("__DCCM_HaxeProxy_CustomType", (nint)Unsafe.AsPointer(ref data));
