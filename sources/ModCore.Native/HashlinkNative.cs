@@ -179,7 +179,7 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial void hl_jit_init( void* ctx, HL_module* m );
         [LibraryImport(LIBHL)]
-        public static partial int hl_jit_function( void* ctx, HL_module* m, HL_function* f, long* uConstants );
+        public static partial int hl_jit_function( void* ctx, HL_module* m, HL_function* f );
         [LibraryImport(LIBHL)]
         public static partial void hl_jit_free( void* ctx, [MarshalAs(UnmanagedType.I1)] bool can_reset );
         [LibraryImport(LIBHL)]
@@ -197,7 +197,7 @@ namespace Hashlink
         [LibraryImport(LIBHL)]
         public static partial HL_module* hl_module_alloc( HL_code* c );
         [LibraryImport(LIBHL)]
-        public static partial int hl_module_init( HL_module* m, int hot_reload, int vtune_later );
+        public static partial int hl_module_init( HL_module* m, int flags );
         [LibraryImport(LIBHL)]
         public static partial void hl_blocking( int b );
         [LibraryImport(LIBHL)]

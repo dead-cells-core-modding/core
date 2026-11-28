@@ -659,7 +659,7 @@ namespace ModCore.Native
 
             CreateNativeHookForHL("hl_fatal_error", nameof(Hook_hl_fatal_error), out orig_hl_fatal_error);
 
-            CreateNativeHookForHL("module_capture_stack", nameof(Hook_module_capture_stack), out orig_module_capture_stack);
+            CreateNativeHookForHL("hl_module_capture_stack", nameof(Hook_module_capture_stack), out orig_module_capture_stack);
 
             Data->trap_filter = (nint)(delegate* unmanaged< nint, HL_trap_ctx*, nint, nint >)&Hook_trap_filter;
 
@@ -675,6 +675,14 @@ namespace ModCore.Native
 
             InitializeNative();
             InitializeNativeHooks();
+        }
+        private void FailIfHotReload( HL_module* m )
+        {
+            if (hl_setup->hot_reload != 0 || m->hot != null)
+            {
+                Log.Fatal("Hot reload is not supported by DCCM");
+                Environment.FailFast("Hot reload is not supported by DCCM");
+            }
         }
         public virtual void InitializeGame( ReadOnlySpan<byte> hlboot, out VMContext context )
         {
@@ -708,10 +716,12 @@ namespace ModCore.Native
 
             var libmodcorenative = LoadLibrary("modcorenative");
 
-            if (hl_module_init(ctx->m, 0, 0) == 0)
+            FailIfHotReload(ctx->m);
+            if (hl_module_init(ctx->m, 0) == 0)
             {
                 throw new InvalidProgramException("Failed to init module");
             }
+            FailIfHotReload(ctx->m);
             ctx->c.type = ctx->code->functions[ctx->m->functions_indexes[ctx->m->code->entrypoint]].type;
 
             ((delegate* unmanaged< nint, void >)NativeLibrary.GetExport(libmodcorenative, "hl_set_custom_longjmp"))(

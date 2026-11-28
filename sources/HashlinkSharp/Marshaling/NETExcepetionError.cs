@@ -28,9 +28,9 @@ namespace Hashlink.Marshaling
 
         private static HL_type* GenerateErrorType()
         {
-            var type = (HL_type*)NativeMemory.AllocZeroed((nuint)sizeof(HL_type));
+            var type = (HL_type*)NativeMemory.AllocZeroed((nuint)(sizeof(HL_type) + sizeof(void*)));
             type->kind = TypeKind.HOBJ;
-            type->vobj_proto = (void**)NativeMemory.AllocZeroed((nuint)sizeof(void*));
+            type->vobj_table = (void**)(type + 1);
             type->mark_bits = null;
             var tobj = (HL_type_obj*)NativeMemory.AllocZeroed((nuint)sizeof(HL_type_obj));
             type->data.obj = tobj;

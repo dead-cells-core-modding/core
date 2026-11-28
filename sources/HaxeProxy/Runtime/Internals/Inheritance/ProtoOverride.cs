@@ -46,7 +46,7 @@ namespace HaxeProxy.Runtime.Internals.Inheritance
             {
 
                 var nt = type;
-                nt->vobj_proto[proto.ProtoIndex] = (void*)callback.NativePointer;
+                HL_type.GetVtable(nt)[proto.ProtoIndex] = (void*)callback.NativePointer;
                 var o = nt->data.obj;
 
                 var method_index = -HashlinkNative.obj_resolve_field(o,

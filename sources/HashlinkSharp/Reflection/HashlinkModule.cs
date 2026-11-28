@@ -16,6 +16,8 @@ namespace Hashlink.Reflection
 
         private static readonly Dictionary<string, HashlinkType> typeNameMapping = [];
 
+        private readonly Dictionary<nint, HashlinkType> typePointerMapping = [];
+
         public HashlinkType[] Types {
             get;
         }
@@ -111,7 +113,8 @@ namespace Hashlink.Reflection
             Types = new HashlinkType[NativeCode->ntypes];
             for (int i = 0; i < NativeCode->ntypes; i++)
             {
-                var type = GetMemberFrom<HashlinkType>(NativeCode->types + i);
+                var nativeType = NativeCode->types[i];
+                var type = GetMemberFrom<HashlinkType>(nativeType);
 
                 //Debug.Assert(type.TypeKind != TypeKind.HMETHOD);
                 Debug.Assert(type.TypeKind != TypeKind.HPACKED);
@@ -119,6 +122,7 @@ namespace Hashlink.Reflection
 
                 Types[i] = type;
                 type.TypeIndex = i;
+                typePointerMapping[(nint)nativeType] = type;
                 if (type.Name != null)
                 {
                     typeNameMapping[type.Name] = type;
@@ -159,6 +163,14 @@ namespace Hashlink.Reflection
         public bool TryGetTypeByName( string name, [NotNullWhen(true)] out HashlinkType? type )
         {
             return typeNameMapping.TryGetValue( name, out type );
+        }
+        /// <summary>
+        /// Tries to resolve a native <c>hl_type</c> pointer to its generated
+        /// <see cref="HashlinkType"/>.
+        /// </summary>
+        public bool TryGetTypeByPointer( nint ptr, [NotNullWhen(true)] out HashlinkType? type )
+        {
+            return typePointerMapping.TryGetValue( ptr, out type );
         }
         public HashlinkType GetTypeByName( string name )
         {
