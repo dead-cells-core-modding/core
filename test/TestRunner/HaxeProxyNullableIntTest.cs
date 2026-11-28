@@ -11,8 +11,8 @@ namespace TestRunner
 {
     /// <summary>
     /// Tests for <c>int?</c> (nullable int) handling in the HaxeProxy layer —
-    /// read from proxy fields, return via hooked methods, pass as arguments
-    /// through hooked methods, and read/write through HashlinkMarshal.
+    /// read from and write to proxy fields, return via hooked methods, pass as
+    /// arguments through hooked methods, and read/write through HashlinkMarshal.
     ///
     /// All method calls use hooks to intercept execution, since the test
     /// environment runs an incomplete game where direct method execution
@@ -57,6 +57,134 @@ namespace TestRunner
             int? d2 = gm.shopMimicBiomeDepth;
 
             Assert.Equal(d1, d2);
+        }
+
+        // =========================================================================
+        // Write + Read: writing int? to a proxy field
+        //
+        // Generated proxies for nullable value-type fields pass a null reference
+        // as the field-value cache (there is no per-property cache object). The
+        // getter must not write through that null reference when the field holds
+        // a non-null value.
+        // =========================================================================
+
+        [Fact]
+        public void WriteRead_NullableInt_Field_NonNull()
+        {
+            HashlinkMarshal.EnsureThreadRegistered();
+
+            var gm = CreateGame();
+            gm.shopMimicBiomeDepth = 42;
+
+            Assert.Equal(42, gm.shopMimicBiomeDepth);
+        }
+
+        [Fact]
+        public void WriteRead_NullableInt_Field_Null()
+        {
+            HashlinkMarshal.EnsureThreadRegistered();
+
+            var gm = CreateGame();
+            gm.shopMimicBiomeDepth = 42;
+            gm.shopMimicBiomeDepth = null;
+
+            Assert.Null(gm.shopMimicBiomeDepth);
+        }
+
+        [Fact]
+        public void WriteRead_NullableInt_Field_Zero()
+        {
+            HashlinkMarshal.EnsureThreadRegistered();
+
+            var gm = CreateGame();
+            gm.shopMimicBiomeDepth = 0;
+
+            Assert.Equal(0, gm.shopMimicBiomeDepth);
+        }
+
+        [Fact]
+        public void WriteRead_NullableInt_Field_Negative()
+        {
+            HashlinkMarshal.EnsureThreadRegistered();
+
+            var gm = CreateGame();
+            gm.shopMimicBiomeDepth = -7;
+
+            Assert.Equal(-7, gm.shopMimicBiomeDepth);
+        }
+
+        [Fact]
+        public void WriteRead_NullableInt_Field_Overwrite()
+        {
+            HashlinkMarshal.EnsureThreadRegistered();
+
+            var gm = CreateGame();
+
+            gm.shopMimicBiomeDepth = 100;
+            Assert.Equal(100, gm.shopMimicBiomeDepth);
+
+            gm.shopMimicBiomeDepth = 200;
+            Assert.Equal(200, gm.shopMimicBiomeDepth);
+
+            gm.shopMimicBiomeDepth = null;
+            Assert.Null(gm.shopMimicBiomeDepth);
+
+            gm.shopMimicBiomeDepth = 300;
+            Assert.Equal(300, gm.shopMimicBiomeDepth);
+        }
+
+        [Fact]
+        public void WriteRead_NullableInt_Field_RepeatedRead()
+        {
+            HashlinkMarshal.EnsureThreadRegistered();
+
+            var gm = CreateGame();
+            gm.shopMimicBiomeDepth = 123;
+
+            for (var i = 0; i < 32; i++)
+            {
+                Assert.Equal(123, gm.shopMimicBiomeDepth);
+            }
+
+            gm.shopMimicBiomeDepth = null;
+
+            for (var i = 0; i < 32; i++)
+            {
+                Assert.Null(gm.shopMimicBiomeDepth);
+            }
+        }
+
+        [Fact]
+        public void WriteRead_NullableInt_Field_TwoInstances()
+        {
+            HashlinkMarshal.EnsureThreadRegistered();
+
+            var gm1 = CreateGame();
+            var gm2 = CreateGame();
+
+            gm1.shopMimicBiomeDepth = 11;
+            gm2.shopMimicBiomeDepth = 22;
+
+            Assert.Equal(11, gm1.shopMimicBiomeDepth);
+            Assert.Equal(22, gm2.shopMimicBiomeDepth);
+
+            gm1.shopMimicBiomeDepth = null;
+
+            Assert.Null(gm1.shopMimicBiomeDepth);
+            Assert.Equal(22, gm2.shopMimicBiomeDepth);
+        }
+
+        [Fact]
+        public void WriteRead_NullableInt_Field_SameObjectAsHaxe()
+        {
+            HashlinkMarshal.EnsureThreadRegistered();
+
+            var gm = CreateGame();
+            gm.shopMimicBiomeDepth = 77;
+
+            var view = gm.HashlinkObj.AsHaxe<Game>();
+
+            Assert.Equal(77, view.shopMimicBiomeDepth);
         }
 
         // =========================================================================

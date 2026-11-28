@@ -138,15 +138,24 @@ namespace HaxeProxy.Runtime.Internals
 
             var result = HashlinkMarshal.ReadData(fieldValuePtr,
                 cache.field);
+            object? presult;
 
             if (typeof(T) == typeof(object) &&
                 cache.isConstructor &&
                 result is HashlinkClosure ctorClosure)
             {
-                return valueCache = ctorClosure.NoClosure;
+                presult = ctorClosure.NoClosure;
+            }
+            else
+            {
+                presult = (T?)GetProxy<T>(result);
             }
 
-            return valueCache = (T?) GetProxy<T>(result);
+            if (!Unsafe.IsNullRef(ref valueCache))
+            {
+                valueCache = presult;
+            }
+            return presult;
         }
         /// <summary>
         /// Gets the unmanaged value of the specified field of a Haxe object.
