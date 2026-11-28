@@ -12,23 +12,16 @@ namespace NonPublicNativeMembers
         public static NativeMembersManager Create()
         {
             // Cross-compilation override: when scanning native libraries for a
-            // different target platform (e.g., Android .so files from a Windows
+            // different target platform (e.g., Linux .so files from a Windows
             // build host), set DCCM_NATIVE_MEMBERS_PLATFORM to the TARGET
             // platform's name. This bypasses host-platform dispatch and returns
-            // the correct manager for ELF (linux/android) vs PDB (windows).
+            // the correct manager for ELF (linux) vs PDB (windows).
             var overridePlatform = Environment.GetEnvironmentVariable("DCCM_NATIVE_MEMBERS_PLATFORM");
             if (string.Equals(overridePlatform, "linux", StringComparison.OrdinalIgnoreCase))
 #pragma warning disable CA1416 // 验证平台兼容性
                 return new LinuxNativeMembersManager();
 #pragma warning restore CA1416 // 验证平台兼容性
 
-            // Android is checked first because its runtime also reports
-            // IsOSPlatform(OSPlatform.Linux) == true, but we need the
-            // Android-specific activation path.
-            if (OperatingSystem.IsAndroid())
-            {
-                return new AndroidNativeMembersManager();
-            }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return new WindowsNativeMembersManager();

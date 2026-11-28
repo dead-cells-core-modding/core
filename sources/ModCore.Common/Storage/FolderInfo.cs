@@ -16,16 +16,12 @@ namespace ModCore.Storage
         private static readonly Dictionary<string, FolderInfo> folders = [];
         private static readonly string platform_name =
             OperatingSystem.IsWindows() ? "win" :
-            OperatingSystem.IsAndroid() ? "android" :
             OperatingSystem.IsLinux() ? "linux" :
             throw new PlatformNotSupportedException();
 
         private static readonly string cpu_name = RuntimeInformation.ProcessArchitecture switch
         {
             Architecture.X64 => "x64",
-            // arm64 is reserved for future Android arm64 support; keep the name
-            // consistent with the native output directory (e.g. android-arm64).
-            Architecture.Arm64 => "arm64",
             _ => throw new PlatformNotSupportedException()
         };
 

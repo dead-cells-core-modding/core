@@ -44,13 +44,9 @@ namespace ModCore
             var disabledModules = new HashSet<string>(Environment.GetEnvironmentVariable("DCCM_DISABLE_CORE_MODULES")?.Split(';') ?? []);
 
             // Resolve the set of OS flags active on this platform.
-            // Android is also Linux at the IsOSPlatform level, so we OR both
-            // flags — modules tagged with just Linux will still load on Android.
-            var os = OperatingSystem.IsAndroid()
-                ? CoreModuleAttribute.SupportOSKind.Android | CoreModuleAttribute.SupportOSKind.Linux
-                : RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? CoreModuleAttribute.SupportOSKind.Windows
-                    : CoreModuleAttribute.SupportOSKind.Linux;
+            var os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? CoreModuleAttribute.SupportOSKind.Windows
+                : CoreModuleAttribute.SupportOSKind.Linux;
             foreach (var type in asm.SafeGetAllTypes())
             {
                 if (type == null)

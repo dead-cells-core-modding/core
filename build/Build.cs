@@ -45,8 +45,7 @@ class Build : NukeBuild
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     [Parameter("Target OS Platform to build")]
-    readonly string CurrentOSPlatform = OperatingSystem.IsAndroid() ? "android" :
-                                        RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "win" :
+    readonly string CurrentOSPlatform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "win" :
                                         RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "linux" :
                                         throw new NotSupportedException();
 
@@ -54,10 +53,6 @@ class Build : NukeBuild
     readonly string CurrentArchPlatform = RuntimeInformation.ProcessArchitecture switch
     {
         Architecture.X64 => "x64",
-        // arm64 is reserved for future Android arm64 support. The native
-        // CMake presets and platform abstraction expose an "arm64" slot; the
-        // architecture-specific assembly generators are not implemented yet.
-        Architecture.Arm64 => "arm64",
         _ => throw new PlatformNotSupportedException()
     };
 
@@ -195,18 +190,15 @@ class Build : NukeBuild
 
         File.Copy(TinyCCRoot + "/include/tccdefs.h", TinyCCBinRoot + "/tccdefs.h", true);
 
-        if (CurrentOSPlatform != "android")
-        {
-            Log.Information("Copying Goldberg");
+        Log.Information("Copying Goldberg");
 
-            GoldbergRoot.GlobFiles("*").ForEach(
-                x => {
-                    Log.Information("Copying {file}", x);
-                    x.CopyToDirectory(
-                        (NativeBinRoot + "/goldberg").CreateDirectory(), ExistsPolicy.FileOverwrite
-                    );
-                    });
-        }
+        GoldbergRoot.GlobFiles("*").ForEach(
+            x => {
+                Log.Information("Copying {file}", x);
+                x.CopyToDirectory(
+                    (NativeBinRoot + "/goldberg").CreateDirectory(), ExistsPolicy.FileOverwrite
+                );
+                });
 
         if(CurrentOSPlatform == "win")
         {
@@ -236,18 +228,12 @@ class Build : NukeBuild
                 "libhl.so", "hljit.so"
                 ];
         }
-        else if(CurrentOSPlatform == "android")
-        {
-            scanLibraries = [
-                "libhl.so", "hljit.so"
-                ];
-        }
         else
         {
             throw new PlatformNotSupportedException();
         }
 
-        // When cross-compiling Android/Linux .so files from a Windows host,
+        // When cross-compiling Linux .so files from a Windows host,
         // the native member scanner needs an ELF-capable manager (not PDB).
         // The env var instructs NativeMembersManager.Create() to return
         // LinuxNativeMembersManager regardless of host platform.

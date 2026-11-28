@@ -44,7 +44,7 @@ set_target_properties(modcorenative PROPERTIES
 
 # Find nethost
 # nethost is only needed on Windows where the native launcher (DeadCellsModding.exe)
-# hosts the .NET runtime. On Android/Linux, modcorenative is loaded by .NET itself
+# hosts the .NET runtime. On Linux, modcorenative is loaded by .NET itself
 # and does not need nethost. The NETHOST_PACK_NAME variables for non-Windows
 # platforms are reserved for future use.
 if(WIN32)

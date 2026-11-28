@@ -11,7 +11,7 @@
 | **Version** | `35.16.1` (in `Directory.Build.props`) |
 | **License** | MIT |
 | **Target Framework** | .NET 11 (`net11.0`, `runtime-async=on`) |
-| **Platforms** | Windows x64, Linux x64 (arm64 reserved for Android) |
+| **Platforms** | Windows x64, Linux x64 |
 | **Game Stores** | Steam, GOG |
 | **Repo** | `github.com/dead-cells-core-modding/core` |
 | **Docs** | https://dead-cells-core-modding.github.io/docs/docs |
@@ -190,8 +190,8 @@ Build logic is in `build/Build.cs` — a NUKE C# build project. Bootstrapped via
 
 ### Native Build (CMake + Ninja)
 
-- **Presets**: `win-x64-{debug,release}`, `linux-x64-{debug,release}`, `android-x64-{debug,release}`, `android-arm64-{debug,release}` (arm64 reserved)
-- **Compilers**: MSVC (Windows), GCC (Linux), NDK (Android)
+- **Presets**: `win-x64-{debug,release}`, `linux-x64-{debug,release}`
+- **Compilers**: MSVC (Windows), GCC (Linux)
 - **C Standard**: C11, **C++ Standard**: C++17
 - **Output**: `bin/core/native/{platform}-{arch}/`
 

@@ -67,10 +67,11 @@ namespace NonPublicNativeMembers.Platforms
         }
 
         // ── Tool resolution ─────────────────────────────────────────
-        // On Windows, GNU readelf/objdump are not available.  The Android NDK
-        // ships LLVM equivalents (llvm-readelf, llvm-objdump) that produce
-        // compatible output.  We probe them first, falling back to the bare
-        // tool names (which work on Linux / Git Bash / MSYS2).
+        // On Windows, GNU readelf/objdump are not available.  An LLVM
+        // toolchain (for example the Android NDK or a standalone LLVM
+        // install) ships llvm-readelf/llvm-objdump that produce compatible
+        // output.  We probe them first, falling back to the bare tool names
+        // (which work on Linux / Git Bash / MSYS2).
 
         private static readonly string[] s_readelfProbes = ResolveElfToolProbes("readelf");
         private static readonly string[] s_objdumpProbes  = ResolveElfToolProbes("objdump");
@@ -79,7 +80,7 @@ namespace NonPublicNativeMembers.Platforms
         {
             var probes = new List<string>();
 
-            // NDK LLVM toolchain (shipped with Android NDK, works on all hosts)
+            // LLVM toolchain (e.g. Android NDK, works on all hosts)
             var ndkHome = Environment.GetEnvironmentVariable("ANDROID_NDK_HOME");
             if (!string.IsNullOrEmpty(ndkHome))
             {

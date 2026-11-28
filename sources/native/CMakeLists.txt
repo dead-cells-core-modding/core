@@ -11,24 +11,14 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_PLATFORM_NO_VERSIONED_SONAME TRUE)
 
 # ---- Target architecture selection ----
-# TARGET_ARCH is provided by the CMake presets (x64 today; arm64 reserved for
-# future Android arm64 support). Fall back to the host processor when unset.
+# TARGET_ARCH is provided by the CMake presets and is currently x64 only.
 if(NOT DEFINED TARGET_ARCH)
-    string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" _host_arch_lower)
-    if(_host_arch_lower MATCHES "arm64|aarch64")
-        set(TARGET_ARCH "arm64")
-    else()
-        set(TARGET_ARCH "x64")
-    endif()
+    set(TARGET_ARCH "x64")
 endif()
 
 string(TOLOWER "${TARGET_ARCH}" _target_arch_lower)
 
-if(_target_arch_lower MATCHES "arm64|aarch64")
-    set(ARCH_NAME arm64)
-    set(DCCM_ARCH_ARM64 true)
-    add_definitions(-DARM64)
-elseif(_target_arch_lower MATCHES "amd64|x86_64|x64")
+if(_target_arch_lower MATCHES "amd64|x86_64|x64")
     set(ARCH_NAME x64)
     set(DCCM_ARCH_X64 true)
     add_definitions(-DX64)
@@ -39,8 +29,6 @@ endif()
 if(WIN32)
 set(DCCM_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}win-${ARCH_NAME})
 add_definitions(-DJIT_CUSTOM_LONGJUMP)
-elseif(ANDROID)
-set(DCCM_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}android-${ARCH_NAME})
 else()
 set(DCCM_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}linux-${ARCH_NAME})
 endif()

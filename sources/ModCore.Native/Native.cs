@@ -3,7 +3,6 @@ using ModCore.Events;
 using ModCore.Events.Interfaces;
 using ModCore.Events.Interfaces.VM;
 using ModCore.Native.Events.Interfaces;
-using ModCore.Native.Platforms.Android;
 using ModCore.Storage;
 using MonoMod.Core;
 using Serilog;
@@ -26,9 +25,6 @@ namespace ModCore.Native
         public HL_setup_t* hl_setup;
 
         public static Func<string, nint> GetLibhlSymbolFunc = name => NativeLibrary.GetExport(Current?.LoadLibrary("libhl") ?? (
-            OperatingSystem.IsAndroid() ? NativeLibrary.Load(
-                FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so")
-            ) :
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? NativeLibrary.Load(
                 FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so")
             ) : NativeLibrary.Load("libhl")
@@ -56,22 +52,6 @@ namespace ModCore.Native
                 if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
                 {
                     return new LinuxX64Native();
-                }
-            }
-            else if (OperatingSystem.IsAndroid())
-            {
-                if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
-                {
-                    return new AndroidX64Native();
-                }
-                // Reserved dispatch point for future Android arm64 support.
-                // The arm64 platform backend (AArch64 assembly generators in a
-                // dedicated Native subclass) is not implemented yet.
-                if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
-                {
-                    throw new PlatformNotSupportedException(
-                        "Android arm64 is reserved but not yet implemented. " +
-                        "An AArch64 Native backend must be provided.");
                 }
             }
             throw new PlatformNotSupportedException();
@@ -780,8 +760,7 @@ namespace ModCore.Native
         /// On glibc Linux <c>dlopen</c> returns a <c>link_map*</c> whose first
         /// field (<c>l_addr</c>) is the load base.
         /// </para>
-        /// Platform backends (e.g. Android Bionic, where the handle is an opaque
-        /// <c>soinfo*</c>) override this to provide a correct value.
+        /// Platform backends may override this to provide a correct value.
         /// </summary>
         public virtual nint GetModuleBaseAddress( nint libHandle )
         {

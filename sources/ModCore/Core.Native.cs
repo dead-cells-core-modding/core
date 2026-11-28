@@ -22,11 +22,6 @@ namespace ModCore
                 {
                     NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.dll"));
                 }
-                else if (OperatingSystem.IsAndroid())
-                {
-                    // Android Bionic does not use versioned SONAMEs (.so.1).
-                    NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so"));
-                }
                 else
                 {
                     NativeLibrary.Load(FolderInfo.CurrentNativeRoot.GetFilePath("libhl.so"));
@@ -71,7 +66,7 @@ namespace ModCore
                     }
 
                     // Resolve the module load base in a platform-appropriate way
-                    // (glibc link_map, Windows HMODULE, Android soinfo, ...).
+                    // (glibc link_map or Windows HMODULE).
                     nint baseAddr = NN.Current.GetModuleBaseAddress(lib);
 
                     return (nint)member.RVA + baseAddr;
