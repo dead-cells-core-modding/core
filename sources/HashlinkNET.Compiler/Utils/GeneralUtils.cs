@@ -64,29 +64,42 @@ namespace HashlinkNET.Compiler.Utils
 
         }
 
+        private static FieldDefinition GetOrCreateCachedField( TypeDefinition type, string name,
+            RuntimeImports rdata, FieldAttributes attributes, TypeReference fieldType )
+        {
+            var map = rdata.fieldCache.GetOrAdd(type,
+                static _ => new(StringComparer.Ordinal));
+            return map.GetOrAdd(name, static (n, state) =>
+            {
+                var (t, attrs, ft) = state;
+                lock (t)
+                {
+                    var existing = t.FindField(n);
+                    if (existing != null)
+                    {
+                        return existing;
+                    }
+                    var field = new FieldDefinition(n, attrs, ft);
+                    t.Fields.Add(field);
+                    return field;
+                }
+            }, (type, attributes, fieldType));
+        }
+
         private static (FieldReference fieldCache, FieldReference? valueCache) GetHlFieldInfoCache( TypeDefinition type, string name, RuntimeImports rdata )
         {
-            var fieldCache = type.FindField("cachedFieldInfo_" + name);
-            if (fieldCache == null)
-            {
-                fieldCache = new("cachedFieldInfo_" + name, FieldAttributes.Private | FieldAttributes.Static,
-                    rdata.objFieldInfoCache);
-                type.Fields.Add(fieldCache);
-            }
+            var fieldCache = GetOrCreateCachedField(type, "cachedFieldInfo_" + name, rdata,
+                FieldAttributes.Private | FieldAttributes.Static, rdata.objFieldInfoCache);
             if (type.GenericParameters.Count != 0)
             {
                 return (new FieldReference(fieldCache.Name, fieldCache.FieldType,
                     type.MakeGenericInstanceType([.. type.GenericParameters])), null);
             }
-            var valueCache = type.FindField("cachedFieldValue_" + name);
-            if (valueCache == null)
-            {
-                valueCache = new("cachedFieldValue_" + name, FieldAttributes.Private,
-                    rdata.objectType);
-                type.Fields.Add(valueCache);
-            }
+            var valueCache = GetOrCreateCachedField(type, "cachedFieldValue_" + name, rdata,
+                FieldAttributes.Private, rdata.objectType);
             return (fieldCache, valueCache);
         }
+
         public static void EmitFieldGetterSetter( this TypeDefinition type,
             PropertyDefinition property,
             IDataContainer container,
@@ -217,83 +230,74 @@ namespace HashlinkNET.Compiler.Utils
             IDataContainer container,
             HlFunction func, Action<ILProcessor, int> emitArg)
         {
-            lock (type)
+            var rdata = container.GetGlobalData<RuntimeImports>();
+            var ft = ((HlTypeWithFun)func.Type.Value).FunctionDescription;
+            var cache = GetOrCreateCachedField(type, "cachedFuncInfo_" + func.FunctionIndex, rdata,
+                FieldAttributes.Private | FieldAttributes.Static, rdata.functionInfoCache);
+            var di = il.Body.Variables.FirstOrDefault(x => x.VariableType == rdata.delegateInfoType);
+            if (di == null)
             {
-
-                var rdata = container.GetGlobalData<RuntimeImports>();
-                var ft = ((HlTypeWithFun)func.Type.Value).FunctionDescription;
-                var cache = type.FindField("cachedFuncInfo_" + func.FunctionIndex);
-                if (cache == null)
-                {
-                    cache = new("cachedFuncInfo_" + func.FunctionIndex, FieldAttributes.Private | FieldAttributes.Static,
-                        rdata.functionInfoCache);
-                    type.Fields.Add(cache);
-                }
-                var di = il.Body.Variables.FirstOrDefault(x => x.VariableType == rdata.delegateInfoType);
-                if (di == null)
-                {
-                    di = new(rdata.delegateInfoType);
-                    il.Body.Variables.Add(di);
-                }
-
-                var passed = Instruction.Create(OpCodes.Nop);
-
-                il.Emit(OpCodes.Ldc_I4, func.FunctionIndex);
-                il.Emit(OpCodes.Ldsflda, cache);
-                il.Emit(OpCodes.Call, rdata.hGetCallInfoById);
-                il.Emit(OpCodes.Stloc, di);
-
-                il.Emit(OpCodes.Ldloc, di);
-                il.Emit(OpCodes.Brfalse, passed);
-
-                il.Emit(OpCodes.Ldloc, di);
-                il.Emit(OpCodes.Ldfld, rdata.delegateInfoSelfField);
-
-                var cs = new CallSite(container.GetTypeRef(ft.ReturnType.Value))
-                {
-                    HasThis = true
-                };
-
-                for (var i = 0; i < ft.Arguments.Length; i++)
-                {
-                    var at = ft.Arguments[i].Value;
-                    var pt = container.GetTypeRef(at);
-
-                    emitArg(il, i);
-                    var pd = new ParameterDefinition(pt);
-                    if (at.Kind == HlTypeKind.Null)
-                    {
-                        il.Emit(OpCodes.Box, pt);
-                        pd.ParameterType = rdata.objectType;
-                    }
-                    //pd.CheckDynamic(rdata, pd.ParameterType);
-                    cs.Parameters.Add(pd);
-                }
-
-                il.Emit(OpCodes.Ldloc, di);
-                il.Emit(OpCodes.Ldfld, rdata.delegateInfoTargetField);
-                il.Emit(OpCodes.Calli, cs);
-
-                if (ft.ReturnType.Value.Kind != HlTypeKind.Void)
-                {
-                    if (!cs.ReturnType.IsValueType)
-                    {
-                        il.Emit(OpCodes.Call, new GenericInstanceMethod(rdata.hGetProxy)
-                        {
-                            GenericArguments = { cs.ReturnType }
-                        });
-                    }
-                    else if (ft.ReturnType.Value.Kind == HlTypeKind.Null)
-                    {
-                        il.Emit(OpCodes.Unbox_Any, cs.ReturnType);
-                        cs.ReturnType = rdata.objectType;
-                    }
-                }
-
-                il.Emit(OpCodes.Ret);
-
-                il.Append(passed);
+                di = new(rdata.delegateInfoType);
+                il.Body.Variables.Add(di);
             }
+
+            var passed = Instruction.Create(OpCodes.Nop);
+
+            il.Emit(OpCodes.Ldc_I4, func.FunctionIndex);
+            il.Emit(OpCodes.Ldsflda, cache);
+            il.Emit(OpCodes.Call, rdata.hGetCallInfoById);
+            il.Emit(OpCodes.Stloc, di);
+
+            il.Emit(OpCodes.Ldloc, di);
+            il.Emit(OpCodes.Brfalse, passed);
+
+            il.Emit(OpCodes.Ldloc, di);
+            il.Emit(OpCodes.Ldfld, rdata.delegateInfoSelfField);
+
+            var cs = new CallSite(container.GetTypeRef(ft.ReturnType.Value))
+            {
+                HasThis = true
+            };
+
+            for (var i = 0; i < ft.Arguments.Length; i++)
+            {
+                var at = ft.Arguments[i].Value;
+                var pt = container.GetTypeRef(at);
+
+                emitArg(il, i);
+                var pd = new ParameterDefinition(pt);
+                if (at.Kind == HlTypeKind.Null)
+                {
+                    il.Emit(OpCodes.Box, pt);
+                    pd.ParameterType = rdata.objectType;
+                }
+                //pd.CheckDynamic(rdata, pd.ParameterType);
+                cs.Parameters.Add(pd);
+            }
+
+            il.Emit(OpCodes.Ldloc, di);
+            il.Emit(OpCodes.Ldfld, rdata.delegateInfoTargetField);
+            il.Emit(OpCodes.Calli, cs);
+
+            if (ft.ReturnType.Value.Kind != HlTypeKind.Void)
+            {
+                if (!cs.ReturnType.IsValueType)
+                {
+                    il.Emit(OpCodes.Call, new GenericInstanceMethod(rdata.hGetProxy)
+                    {
+                        GenericArguments = { cs.ReturnType }
+                    });
+                }
+                else if (ft.ReturnType.Value.Kind == HlTypeKind.Null)
+                {
+                    il.Emit(OpCodes.Unbox_Any, cs.ReturnType);
+                    cs.ReturnType = rdata.objectType;
+                }
+            }
+
+            il.Emit(OpCodes.Ret);
+
+            il.Append(passed);
         }
 
         public static MethodReference MakeInstance( this MethodReference method,
@@ -350,6 +354,63 @@ namespace HashlinkNET.Compiler.Utils
             underlying = nullable.GenericArguments[0];
             return true;
         }
+
+        /// <summary>
+        /// Determines whether two type references refer to the same type without
+        /// formatting <see cref="TypeReference.FullName"/>. Generic instances,
+        /// arrays and by-ref/pointer types are compared structurally because
+        /// Cecil does not cache <c>FullName</c> for <see cref="GenericInstanceType"/>.
+        /// </summary>
+        public static bool IsSameType( this TypeReference a, TypeReference? b )
+        {
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
+            if (a is null || b is null)
+            {
+                return false;
+            }
+
+            if (a is GenericInstanceType || b is GenericInstanceType)
+            {
+                if (a is not GenericInstanceType ga || b is not GenericInstanceType gb ||
+                    ga.GenericArguments.Count != gb.GenericArguments.Count ||
+                    !ga.ElementType.IsSameType(gb.ElementType))
+                {
+                    return false;
+                }
+                for (var i = 0; i < ga.GenericArguments.Count; i++)
+                {
+                    if (!ga.GenericArguments[i].IsSameType(gb.GenericArguments[i]))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            if (a is ArrayType || b is ArrayType)
+            {
+                return a is ArrayType aa && b is ArrayType ab &&
+                    aa.Rank == ab.Rank && aa.ElementType.IsSameType(ab.ElementType);
+            }
+
+            if (a is ByReferenceType || b is ByReferenceType)
+            {
+                return a is ByReferenceType ra && b is ByReferenceType rb &&
+                    ra.ElementType.IsSameType(rb.ElementType);
+            }
+
+            if (a is PointerType || b is PointerType)
+            {
+                return a is PointerType pa && b is PointerType pb &&
+                    pa.ElementType.IsSameType(pb.ElementType);
+            }
+
+            return a.FullName == b.FullName;
+        }
+
 
         /// <summary>
         /// If the emitted value is a <c>Nullable&lt;T&gt;</c>, replace it on the

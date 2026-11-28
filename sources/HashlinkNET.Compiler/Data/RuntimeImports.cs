@@ -1,4 +1,5 @@
 using Mono.Cecil;
+using System.Collections.Concurrent;
 
 #nullable disable
 
@@ -8,6 +9,11 @@ namespace HashlinkNET.Compiler.Data
     {
         public TypeSystem typeSystem;
         public AssemblyNameReference runtimeName;
+
+        // Per-type cache of compiler-generated fields (field info / func info),
+        // so repeated field emissions do not linearly scan TypeDefinition.Fields.
+        public readonly ConcurrentDictionary<TypeDefinition, ConcurrentDictionary<string, FieldDefinition>> fieldCache
+            = new(ReferenceEqualityComparer.Instance);
 
         public TypeReference objBaseType;
         public TypeReference nativeArray;

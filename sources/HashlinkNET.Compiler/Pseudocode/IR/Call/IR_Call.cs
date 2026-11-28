@@ -41,7 +41,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.Call
 
                 Debug.Assert(expected != null);
 
-                if (actual.FullName != expected.FullName)
+                if (!actual.IsSameType(expected))
                 {
                     new IR_Cast(new IR_LoadFromStack(actual), expected, false).Emit(ctx, true);
                 }

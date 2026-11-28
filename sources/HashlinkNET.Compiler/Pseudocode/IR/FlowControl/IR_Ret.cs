@@ -1,3 +1,4 @@
+using HashlinkNET.Compiler.Utils;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Diagnostics;
@@ -16,7 +17,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR.FlowControl
             if (!retValue.IsNone)
             {
                 Debug.Assert(st != null );
-                if (st.FullName != ctx.Definition.ReturnType.FullName)
+                if (!st.IsSameType(ctx.Definition.ReturnType))
                 {
                     new IR_Cast(new IR_LoadFromStack(st), ctx.Definition.ReturnType, false).Emit(ctx, true);
                 }

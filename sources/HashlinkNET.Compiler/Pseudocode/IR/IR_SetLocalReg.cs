@@ -22,7 +22,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
                 return null;
             }
 
-            if (srcType.FullName != dst.RegisterType.FullName)
+            if (!srcType.IsSameType(dst.RegisterType))
             {
                 new IR_Cast(new IR_LoadFromStack(srcType), dst.RegisterType, false).Emit(ctx, true);
             }

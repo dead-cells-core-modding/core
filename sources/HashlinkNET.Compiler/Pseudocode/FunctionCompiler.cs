@@ -15,7 +15,6 @@ namespace HashlinkNET.Compiler.Pseudocode
     {
         protected override void InstallSteps()
         {
-            var config = parent.GetGlobalData<GlobalData>().Config;
             AddStep<GenerateFuncRegsStep>();
             AddStep<SplitBasicBlocksStep>();
 
@@ -24,14 +23,13 @@ namespace HashlinkNET.Compiler.Pseudocode
 
             //DFA
             AddStep<GenerateFlatIRStep>();
-            AddStep<ScanRegistersAccessStep>();
+            //AddStep<ScanRegistersAccessStep>();
 
             //Backend
             // AddStep<PostprocessBasicBlocksStep>();
             AddStep<LinearizeBasicBlocksStep>();
             AddStep<EmitILStep>();
             AddStep<PinPointerLocalsStep>();
-            AddStep<MergeNewCtorStep>();
             AddStep<SetupExceptionHandlersStep>();
             AddStep<NormalizeExceptionRegionsStep>();
             AddStep<FixHandlerBranchesStep>();

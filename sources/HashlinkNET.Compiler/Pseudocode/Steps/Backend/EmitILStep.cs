@@ -43,24 +43,23 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
             var mdsd = md.DebugInformation.Scope = new(startInst, endInst);
             var vds = new ScopeDebugInformation[gdata.Registers.Count];
 
+            var ctx = new EmitContext(
+                container,
+                md,
+                md.Module,
+                md.Module.TypeSystem,
+                rdata,
+                container.GetGlobalData<CompileConfig>(),
+                mdsd,
+                il,
+                gdata)
+            {
+                VariableDebugs = vds
+            };
+
             foreach (var bb in list)
             {
-                il.Emit(OpCodes.Nop);
-
                 il.Append(bb.startInst);
-                var ctx = new EmitContext(
-                    container,
-                    md,
-                    md.Module,
-                    md.Module.TypeSystem,
-                    rdata,
-                    container.GetGlobalData<CompileConfig>(),
-                    mdsd,
-                    il,
-                    gdata)
-                {
-                    VariableDebugs = vds
-                };
 
                 foreach (var v in bb.ir)
                 {

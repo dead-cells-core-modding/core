@@ -18,9 +18,17 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                 return;
             }
 
-            HashSet<int> bbEdgeUnorder = [];
+            // Mark block boundaries in a bitset: naturally deduplicated and
+            // already in ascending order, avoiding the HashSet + LINQ sort.
+            var isBoundary = new bool[opcodes.Length + 1];
 
-            //Collect edges
+            void Mark( int idx )
+            {
+                if ((uint)idx <= (uint)opcodes.Length)
+                {
+                    isBoundary[idx] = true;
+                }
+            }
 
             for (var i = 0; i < opcodes.Length; i++)
             {
@@ -31,31 +39,30 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     )
                 {
                     //Basic Block Start
-                    bbEdgeUnorder.Add(next_ops + op.Parameters[^1]);
+                    Mark(next_ops + op.Parameters[^1]);
                     //Basic Block End
-                    bbEdgeUnorder.Add(next_ops);
+                    Mark(next_ops);
                 }
                 else if (op.Kind == HlOpcodeKind.Label)
                 {
                     //Basic Block Start
-                    bbEdgeUnorder.Add(next_ops);
+                    Mark(next_ops);
                 }
                 else if (op.Kind == HlOpcodeKind.Ret || op.Kind == HlOpcodeKind.Throw ||
                     op.Kind == HlOpcodeKind.EndTrap)
                 {
                     //Basic Block End
-                    bbEdgeUnorder.Add(next_ops);
+                    Mark(next_ops);
                 }
                 else if (op.Kind == HlOpcodeKind.Switch)
                 {
                     //Basic Block Start
-                    //bbEdgeUnorder.Add(i + 1 + op.Parameters.ArrayLastItem());
                     for (var j = 0; j < op.Parameters[1]; j++)
                     {
-                        bbEdgeUnorder.Add(next_ops + op.Parameters[3 + j]);
+                        Mark(next_ops + op.Parameters[3 + j]);
                     }
                     //Basic Block End
-                    bbEdgeUnorder.Add(next_ops);
+                    Mark(next_ops);
                 }
                 else if (op.Kind == HlOpcodeKind.Trap)
                 {
@@ -63,26 +70,31 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     // the instruction after trap is also a BB start
                     // (try body begins here, must be a clean boundary
                     //  for exception handler TryStart).
-                    bbEdgeUnorder.Add(next_ops + op.Parameters[^1]);
-                    bbEdgeUnorder.Add(next_ops);
+                    Mark(next_ops + op.Parameters[^1]);
+                    Mark(next_ops);
                 }
                 else if (op.Kind == HlOpcodeKind.Catch)
                 {
                     // Catch opcode itself marks a basic block start
-                    bbEdgeUnorder.Add(next_ops);
+                    Mark(next_ops);
                 }
             }
 
-            //Sort
-            var bbEdge = bbEdgeUnorder.Order().ToList();
-
             var start = 0;
             var bbLookup = new Dictionary<int, HlBasicBlockData>();
-            foreach (var v in bbEdge)
+            for (var v = 0; v <= opcodes.Length; v++)
             {
+                if (!isBoundary[v])
+                {
+                    continue;
+                }
                 if (v >= opcodes.Length)
                 {
                     break;
+                }
+                if (v == start)
+                {
+                    continue;
                 }
                 var bbd = new HlBasicBlockData()
                 {
@@ -90,10 +102,6 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps
                     opcodes = new Memory<HlOpcode>(opcodes, start, v - start),
                     function = f
                 };
-                if (bbd.opcodes.IsEmpty)
-                {
-                    continue;
-                }
                 bb.Add(bbd);
                 bbLookup.Add(start, bbd);
                 start = v;

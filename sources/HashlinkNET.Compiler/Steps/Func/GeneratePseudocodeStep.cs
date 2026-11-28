@@ -28,7 +28,12 @@ namespace HashlinkNET.Compiler.Steps.Func
         }
         protected override IReadOnlyList<HlFunction> GetItems( IDataContainer container )
         {
-            return container.GetGlobalData<GlobalData>().Code.Functions;
+            var functions = container.GetGlobalData<GlobalData>().Code.Functions;
+            // Schedule the largest functions first (longest-processing-time
+            // first) so the few huge functions do not form a serial tail.
+            var sorted = functions.ToArray();
+            Array.Sort(sorted, static (a, b) => b.Opcodes.Length.CompareTo(a.Opcodes.Length));
+            return sorted;
         }
     }
 }

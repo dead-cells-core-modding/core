@@ -21,6 +21,40 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                 return;
             }
 
+            // Index instructions once so protected-region tests are O(1)
+            // instead of walking the instruction linked list. Only needed when
+            // the method actually has exception handlers.
+            Dictionary<Instruction, int>? index = null;
+            if (body.ExceptionHandlers.Count > 0)
+            {
+                index = new Dictionary<Instruction, int>(body.Instructions.Count);
+                for (var i = 0; i < body.Instructions.Count; i++)
+                {
+                    index[body.Instructions[i]] = i;
+                }
+            }
+
+            bool Inside( Instruction inst, Instruction? start, Instruction? end )
+            {
+                if (index is null || start is null || end is null)
+                {
+                    return false;
+                }
+                if (inst == start)
+                {
+                    return true;
+                }
+                if (!index.TryGetValue(inst, out var i) ||
+                    !index.TryGetValue(start, out var s))
+                {
+                    return false;
+                }
+                var e = index.TryGetValue(end, out var endIndex)
+                    ? endIndex
+                    : body.Instructions.Count;
+                return i >= s && i < e;
+            }
+
             // Collapse chains of unconditional branches that ultimately land
             // on the instruction immediately following the chain.  Leaving
             // them in place would turn a plain fallthrough into a branch that
@@ -56,9 +90,17 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                     {
                         continue;
                     }
-                    if (body.ExceptionHandlers.Any(eh =>
-                        IsBetween(ins, eh.TryStart, eh.TryEnd) ||
-                        IsBetween(ins, eh.HandlerStart, eh.HandlerEnd)))
+                    var inRegion = false;
+                    foreach (var eh in body.ExceptionHandlers)
+                    {
+                        if (Inside(ins, eh.TryStart, eh.TryEnd) ||
+                            Inside(ins, eh.HandlerStart, eh.HandlerEnd))
+                        {
+                            inRegion = true;
+                            break;
+                        }
+                    }
+                    if (inRegion)
                     {
                         continue;
                     }
@@ -75,9 +117,14 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                 }
             }
 
-            var nops = body.Instructions
-                .Where(i => i.OpCode.Code == Code.Nop)
-                .ToList();
+            var nops = new List<Instruction>();
+            foreach (var ins in body.Instructions)
+            {
+                if (ins.OpCode.Code == Code.Nop)
+                {
+                    nops.Add(ins);
+                }
+            }
             if (nops.Count == 0)
             {
                 return;
@@ -132,9 +179,21 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                 eh.FilterStart = Map(eh.FilterStart);
             }
 
-            foreach (var nop in nops)
+            // Rebuild the instruction list in one pass instead of calling
+            // Remove() per nop (which is O(n) each).
+            var nopSet = new HashSet<Instruction>(nops);
+            var kept = new List<Instruction>(body.Instructions.Count - nops.Count);
+            foreach (var ins in body.Instructions)
             {
-                body.Instructions.Remove(nop);
+                if (!nopSet.Contains(ins))
+                {
+                    kept.Add(ins);
+                }
+            }
+            body.Instructions.Clear();
+            foreach (var ins in kept)
+            {
+                body.Instructions.Add(ins);
             }
 
             if (HasIllegalExceptionEdges(body))
@@ -212,28 +271,6 @@ namespace HashlinkNET.Compiler.Pseudocode.Steps.Backend
                 }
             }
 
-            return false;
-        }
-
-        private static bool IsBetween( Instruction inst, Instruction? start, Instruction? end )
-        {
-            if (start == null || end == null)
-            {
-                return false;
-            }
-            if (inst == start)
-            {
-                return true;
-            }
-            var cur = start.Next;
-            while (cur != null && cur != end)
-            {
-                if (cur == inst)
-                {
-                    return true;
-                }
-                cur = cur.Next;
-            }
             return false;
         }
     }

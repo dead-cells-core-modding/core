@@ -72,7 +72,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
         {
             var st = src.Emit(ctx, true)!;
 
-            if (st.FullName == type.FullName)
+            if (st.IsSameType(type))
             {
                 return st;
             }
@@ -149,7 +149,7 @@ namespace HashlinkNET.Compiler.Pseudocode.IR
 
             if (targetIsNullable != srcIsNullable)
             {
-                if ((typeNullableUnderlying ?? type).FullName == (stNullableUnderlying ?? st).FullName)
+                if ((typeNullableUnderlying ?? type).IsSameType(stNullableUnderlying ?? st))
                 {
                     il.Emit(OpCodes.Box, st);
                     il.Emit(OpCodes.Unbox_Any, type);
